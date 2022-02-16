@@ -14,3 +14,6 @@ spring:
     url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/imagilabs}
     username: ${JDBC_DATABASE_USERNAME:imagilabs}
     password: ${JDBC_DATABASE_PASSWORD:imagilabs}
+
+  flyway:
+    enabled: false
