@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    database: postgresql
+
+    # Suppress Postgres JPA Error:
+    # Method org.postgresql.jdbc.PgConnection.createClob() is not yet implemented.
+    properties.hibernate:
+      temp.use_jdbc_metadata_defaults: false
+      jdbc.time_zone: UTC
+    open-in-view: false
+    show-sql: false
+
+  datasource:
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/imagilabs}
+    username: ${JDBC_DATABASE_USERNAME:imagilabs}
+    password: ${JDBC_DATABASE_PASSWORD:imagilabs}
