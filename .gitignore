@@ -5,6 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 dev/imagilabs-db/pgdata
+.jpb
 
 ### STS ###
 .apt_generated

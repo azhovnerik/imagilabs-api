@@ -1,0 +1,23 @@
+package com.anahoret.imagilabsapi.common.storage
+
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import java.util.*
+import javax.persistence.*
+
+@EntityListeners(AuditingEntityListener::class)
+@MappedSuperclass
+open class BaseEntity(
+    @Column(name = "created_at")
+    @CreatedDate
+    var createdAt: Long? = null,
+
+    @Column(name = "last_modified_at")
+    @LastModifiedDate
+    var lastModifiedAt: Long? = null,
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    var id: UUID? = null
+)

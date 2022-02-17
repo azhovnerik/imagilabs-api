@@ -1,5 +1,9 @@
 package com.anahoret.imagilabsapi.teachers.domain
 
+import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
+import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -11,30 +15,35 @@ interface TeacherService {
 }
 
 @Service
-class TeacherServiceImpl : TeacherService {
-
-    private val id = UUID.fromString("c7d9cd41-2032-42bd-b889-79fea135d128")
-    private val mockTeacherProfile = TeacherProfile(
-        id,
-        "John",
-        "Doe"
-    )
-    private val mockTeacherCredentials = TeacherCredentials(
-        id,
-        "teacher@example.com",
-        "\$2a\$10\$/GVf6zeUfqL515E3cZ34luTuSdPLyUe0bzhSd4p97T.fWEt7LNZiO"
-    )
+class TeacherServiceImpl(
+    private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
+    private val passwordEncoder: PasswordEncoder
+) : TeacherService {
 
     override fun createTeacher(request: TeacherSignupRequest) {
-        TODO("not implemented")
+        with(request) {
+            teacherProfileEntityRepository.save(
+                TeacherProfileEntity(
+                    email,
+                    passwordEncoder.encode(password),
+                    firstName,
+                    lastName,
+                    country,
+                    organization,
+                    howDidYouHearAboutUs
+                )
+            )
+        }
     }
 
     override fun getTeacherById(id: UUID): TeacherProfile? {
-        return mockTeacherProfile
+        return teacherProfileEntityRepository.findByIdOrNull(id)
+            ?.let(TeacherProfile.Companion::fromEntity)
     }
 
     override fun getTeacherCredentialsByEmail(email: String): TeacherCredentials? {
-        return mockTeacherCredentials
+        return teacherProfileEntityRepository.findByEmail(email)
+            ?.let(TeacherCredentials.Companion::fromEntity)
     }
 
 }

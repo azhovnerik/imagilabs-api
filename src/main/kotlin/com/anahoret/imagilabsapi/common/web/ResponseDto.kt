@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.web
+package com.anahoret.imagilabsapi.common.web
 
 open class ResponseDto<T>(
     val success: Boolean,

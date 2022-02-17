@@ -1,13 +1,13 @@
 package com.anahoret.imagilabsapi.auth.web
 
 import com.anahoret.imagilabsapi.auth.domain.ImagiLabsAuthentication
+import com.anahoret.imagilabsapi.common.web.EmptySuccessResponseDto
+import com.anahoret.imagilabsapi.common.web.ErrorResponseDto
+import com.anahoret.imagilabsapi.common.web.ResponseDto
+import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.teachers.domain.TeacherLoginRequest
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.users.UserType
-import com.anahoret.imagilabsapi.web.EmptySuccessResponseDto
-import com.anahoret.imagilabsapi.web.ErrorResponseDto
-import com.anahoret.imagilabsapi.web.ResponseDto
-import com.anahoret.imagilabsapi.web.SuccessResponseDto
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
