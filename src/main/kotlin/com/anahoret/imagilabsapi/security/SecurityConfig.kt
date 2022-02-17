@@ -37,7 +37,7 @@ class SecurityConfig(
             // Auth
             .antMatchers(HttpMethod.POST, "/api/auth/teacher").permitAll()
             .antMatchers(HttpMethod.POST, "/api/auth/student").permitAll()
-            .antMatchers(HttpMethod.POST, "/api/logout").permitAll()
+            .antMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
 
             // Swagger Documentation
             .antMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
