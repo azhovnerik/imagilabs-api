@@ -92,7 +92,7 @@ class JwtAuthorizationTokenFilter(
             }
         }
 
-        val authentication = ImagiLabsAuthentication(userProfile, authorities)
+        val authentication = ImagiLabsAuthentication(userProfile, userType, authorities = authorities)
         authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
         securityContext.authentication = authentication
     }

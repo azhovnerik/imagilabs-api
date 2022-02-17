@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.auth.web
 
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtProperties
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
+import com.anahoret.imagilabsapi.teachers.domain.TeacherService
 import com.anahoret.imagilabsapi.users.UserType
 import com.auth0.jwt.JWT
 import org.apache.tomcat.util.http.SameSiteCookies
@@ -35,7 +36,8 @@ interface RequestAuthenticatorService {
 @Service
 class RequestAuthenticatorServiceImpl(
     private val jwtTokenUtil: JwtTokenUtil,
-    private val jwtProperties: JwtProperties
+    private val jwtProperties: JwtProperties,
+    private val teacherService: TeacherService
 ) : RequestAuthenticatorService {
 
     override fun authenticate(
@@ -45,10 +47,18 @@ class RequestAuthenticatorServiceImpl(
         mobileAppClient: Boolean
     ): AuthenticationResponse {
         val tokenTTL = getTokenTTL(mobileAppClient)
-        val (token, expiresAt) = jwtTokenUtil.createToken(userId, userType, tokenTTL)
-        setAuthCookie(token, response)
-        val userData = UserData(userId, userType.name, expiresAt, profile = null)
-        return AuthenticationSuccess(userData, token)
+        val jwtTokenData = jwtTokenUtil.createToken(userId, userType, tokenTTL)
+        setAuthCookie(jwtTokenData.token, response)
+        val profile = getProfile(userId, userType)
+        val userData = UserData(userId, userType.name, profile)
+        return AuthenticationSuccess(userData, jwtTokenData)
+    }
+
+    private fun getProfile(userId: UUID, userType: UserType): UserProfileData? {
+        return when (userType) {
+            UserType.TEACHER -> teacherService.getTeacherById(userId)?.let(::TeacherUserProfileData)
+            UserType.STUDENT -> TODO()
+        }
     }
 
     override fun updateAuthenticationToken(
