@@ -13,7 +13,8 @@ class UserData(
 )
 
 interface UserProfileData
-class ReaderUserProfileData() : UserProfileData
+class TeacherUserProfileData() : UserProfileData
+class StudentUserProfileData() : UserProfileData
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class AuthenticationSuccess(val currentUser: UserData, val token: String) : AuthenticationResponse()
