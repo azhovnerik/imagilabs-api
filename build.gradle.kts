@@ -27,17 +27,29 @@ repositories {
 extra["testcontainersVersion"] = "1.16.2"
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("com.auth0:java-jwt:$javaJwtVersion")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.flywaydb:flyway-core")
+
+    // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    // Web
+    implementation("org.springframework.boot:spring-boot-starter-web")
+
+    // Security
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("com.auth0:java-jwt:$javaJwtVersion")
+
+    // Database
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("org.postgresql:postgresql")
+    implementation("org.flywaydb:flyway-core")
+
+    // Development
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+    // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.testcontainers:junit-jupiter")
