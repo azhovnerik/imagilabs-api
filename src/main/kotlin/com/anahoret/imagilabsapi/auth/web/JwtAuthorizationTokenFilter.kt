@@ -1,25 +1,29 @@
 package com.anahoret.imagilabsapi.auth.web
 
+import com.anahoret.imagilabsapi.auth.domain.ImagiLabsAuthentication
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtProperties
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
-import com.anahoret.imagilabsapi.auth.web.jwt.JwtUser
 import com.anahoret.imagilabsapi.auth.web.jwt.getToken
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import com.anahoret.imagilabsapi.auth.web.jwt.getUserType
+import com.anahoret.imagilabsapi.security.AuthorityService
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.teachers.domain.TeacherService
+import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
+import java.util.*
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @Component
 class JwtAuthorizationTokenFilter(
-    private val userDetailsService: UserDetailsService,
+    private val teacherService: TeacherService,
+    private val authorityService: AuthorityService,
     private val jwtTokenUtil: JwtTokenUtil
 ) : OncePerRequestFilter() {
 
@@ -47,8 +51,7 @@ class JwtAuthorizationTokenFilter(
             ?.let {
                 val securityContext = SecurityContextHolder.getContext()
                 if (securityContext.authentication == null) {
-                    logger.debug("security context was null, so authenticating user")
-                    authenticateUser(securityContext, it.subject, request)
+                    authenticateUser(securityContext, it.getUserType(), UUID.fromString(it.subject), request)
                 }
             }
 
@@ -59,19 +62,38 @@ class JwtAuthorizationTokenFilter(
         return ignorePaths.any { antMatcher.match(it, request.requestURI) }
     }
 
-    private fun authenticateUser(securityContext: SecurityContext, username: String, request: HttpServletRequest) {
-        val userDetails = try {
-            userDetailsService.loadUserByUsername(username)
-                .takeIf { it.isEnabled && it.isAccountNonLocked && it.isAccountNonExpired && it.isCredentialsNonExpired }
-                ?.let { it as? JwtUser }
+    private fun authenticateUser(
+        securityContext: SecurityContext,
+        userType: UserType?,
+        userId: UUID,
+        request: HttpServletRequest
+    ) {
+        if (userType == null) {
+            logger.error("Cannot authenticate user. User type missing in JWT.")
+            return
+        }
 
-        } catch (e: UsernameNotFoundException) {
-            logger.error("Cannot authenticate user. Username not found.")
-            null
-        } ?: return
-        val authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
+        val userProfile = when (userType) {
+            UserType.TEACHER -> teacherService.getTeacherById(userId)
+            UserType.STUDENT -> TODO()
+        }
+
+        val authorities = when (userProfile) {
+            is TeacherProfile -> authorityService.getAuthorities(userProfile)
+
+            null -> {
+                logger.error("Cannot authenticate user. User not found.")
+                return
+            }
+
+            else -> {
+                logger.error("Cannot authenticate user. User type unknown.")
+                return
+            }
+        }
+
+        val authentication = ImagiLabsAuthentication(userProfile, authorities)
         authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
-        logger.debug("authorized user '$username', setting security context")
         securityContext.authentication = authentication
     }
 

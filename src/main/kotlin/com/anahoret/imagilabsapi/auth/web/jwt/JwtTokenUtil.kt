@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.auth.web.jwt
 
+import com.anahoret.imagilabsapi.users.UserType
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTCreator
 import com.auth0.jwt.algorithms.Algorithm
@@ -23,14 +24,15 @@ class JwtTokenUtil(
     }
 
     fun createToken(
-        jwtUser: JwtUser,
+        userId: UUID,
+        userType: UserType,
         tokenTTL: Duration = jwtProperties.ttlWeb
     ): JwtTokenData {
         val expiresAt = ZonedDateTime.now().plus(tokenTTL)
         val token = JWT.create()
-            .withSubject(jwtUser.username)
+            .withSubject(userId.toString())
             .withExpiresAt(expiresAt)
-            .withClaim(USER_TYPE_CLAIM, jwtUser.userType.name)
+            .withClaim(USER_TYPE_CLAIM, userType.name)
             .sign(algorithm)
         val expiresAtMillis = expiresAt.toInstant().toEpochMilli()
         return JwtTokenData(token, expiresAtMillis)
@@ -49,4 +51,8 @@ class JwtTokenUtil(
         return this
     }
 
+}
+
+fun DecodedJWT.getUserType(): UserType? {
+    return getClaim(JwtTokenUtil.USER_TYPE_CLAIM).asString()?.let { UserType.valueOf(it) }
 }

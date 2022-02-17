@@ -2,23 +2,24 @@ package com.anahoret.imagilabsapi.auth.web
 
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtProperties
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
-import com.anahoret.imagilabsapi.auth.web.jwt.JwtUser
+import com.anahoret.imagilabsapi.users.UserType
 import com.auth0.jwt.JWT
 import org.apache.tomcat.util.http.SameSiteCookies
 import org.springframework.http.HttpCookie
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
 import java.net.URLEncoder
 import java.time.Duration
 import java.time.Instant
+import java.util.*
 import javax.servlet.http.HttpServletResponse
 
 interface RequestAuthenticatorService {
 
     fun authenticate(
-        userName: String,
+        userId: UUID,
+        userType: UserType,
         response: HttpServletResponse,
         mobileAppClient: Boolean
     ): AuthenticationResponse
@@ -33,21 +34,20 @@ interface RequestAuthenticatorService {
 
 @Service
 class RequestAuthenticatorServiceImpl(
-    private val userDetailsService: UserDetailsService,
     private val jwtTokenUtil: JwtTokenUtil,
     private val jwtProperties: JwtProperties
 ) : RequestAuthenticatorService {
 
     override fun authenticate(
-        userName: String,
+        userId: UUID,
+        userType: UserType,
         response: HttpServletResponse,
         mobileAppClient: Boolean
     ): AuthenticationResponse {
-        val userDetails = userDetailsService.loadUserByUsername(userName) as JwtUser
         val tokenTTL = getTokenTTL(mobileAppClient)
-        val (token, expiresAt) = jwtTokenUtil.createToken(userDetails, tokenTTL)
+        val (token, expiresAt) = jwtTokenUtil.createToken(userId, userType, tokenTTL)
         setAuthCookie(token, response)
-        val userData = UserData(userDetails.id, userDetails.userType.name, expiresAt, profile = null)
+        val userData = UserData(userId, userType.name, expiresAt, profile = null)
         return AuthenticationSuccess(userData, token)
     }
 
