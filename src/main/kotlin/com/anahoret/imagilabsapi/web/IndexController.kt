@@ -14,10 +14,7 @@ class IndexController {
         return SuccessResponseDto(IndexResponse(scheme, header))
     }
 
-    class IndexResponse(
-        private val scheme: String,
-        private val host: String
-    ) {
+    class IndexResponse(scheme: String, host: String) {
 
         val message: String = "Welcome to ImagiLabs API"
         val documentation: String = "$scheme://$host/swagger-ui.html"
