@@ -20,8 +20,9 @@ class ImagiLabsAuthenticationManager(
         if (authentication == null) throw BadCredentialsException("Authentication is null")
         if (authentication !is ImagiLabsAuthentication) throw BadCredentialsException("Invalid authentication type")
         val principal = authentication.principal
+        if (principal !is String) return authentication
         val credentials = authentication.credentials ?: throw BadCredentialsException("Password is null")
-        if (principal !is String || credentials !is String) throw BadCredentialsException("Username and password should be strings")
+        if (credentials !is String) throw BadCredentialsException("Password should be string")
 
         return when (authentication.userType) {
             UserType.TEACHER -> authenticateTeacher(principal, credentials)
