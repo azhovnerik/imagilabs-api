@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val javaJwtVersion = "3.18.3"
+val springDocVersion = "1.6.6"
 
 plugins {
     id("org.springframework.boot") version "2.6.3"
@@ -48,6 +49,7 @@ dependencies {
     // Development
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("org.springdoc:springdoc-openapi-ui:$springDocVersion")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")

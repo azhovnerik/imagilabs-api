@@ -31,10 +31,19 @@ class SecurityConfig(
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
+            // Index
             .antMatchers(HttpMethod.GET, "/").permitAll()
+
+            // Auth
             .antMatchers(HttpMethod.POST, "/api/auth/teacher").permitAll()
             .antMatchers(HttpMethod.POST, "/api/auth/student").permitAll()
             .antMatchers(HttpMethod.POST, "/api/logout").permitAll()
+
+            // Swagger Documentation
+            .antMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
+            .antMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+            .antMatchers(HttpMethod.GET, "/v3/api-docs").permitAll()
+            .antMatchers(HttpMethod.GET, "/v3/api-docs/swagger-config").permitAll()
             .anyRequest().authenticated()
 
         http.addFilterBefore(authorizationTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
