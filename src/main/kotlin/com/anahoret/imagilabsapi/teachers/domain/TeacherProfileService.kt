@@ -7,21 +7,22 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
 
-interface TeacherService {
+interface TeacherProfileService {
 
-    fun createTeacher(request: TeacherSignupRequest)
+    fun createTeacher(request: TeacherSignupRequest): TeacherProfile
     fun getTeacherById(id: UUID): TeacherProfile?
     fun getTeacherCredentialsByEmail(email: String): TeacherCredentials?
+    fun exists(email: String): Boolean
 }
 
 @Service
-class TeacherServiceImpl(
+class TeacherProfileServiceImpl(
     private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
     private val passwordEncoder: PasswordEncoder
-) : TeacherService {
+) : TeacherProfileService {
 
-    override fun createTeacher(request: TeacherSignupRequest) {
-        with(request) {
+    override fun createTeacher(request: TeacherSignupRequest): TeacherProfile {
+        return with(request) {
             teacherProfileEntityRepository.save(
                 TeacherProfileEntity(
                     email,
@@ -32,7 +33,7 @@ class TeacherServiceImpl(
                     organization,
                     howDidYouHearAboutUs
                 )
-            )
+            ).let(TeacherProfile.Companion::fromEntity)
         }
     }
 
@@ -44,6 +45,10 @@ class TeacherServiceImpl(
     override fun getTeacherCredentialsByEmail(email: String): TeacherCredentials? {
         return teacherProfileEntityRepository.findByEmail(email)
             ?.let(TeacherCredentials.Companion::fromEntity)
+    }
+
+    override fun exists(email: String): Boolean {
+        return teacherProfileEntityRepository.existsByEmail(email)
     }
 
 }

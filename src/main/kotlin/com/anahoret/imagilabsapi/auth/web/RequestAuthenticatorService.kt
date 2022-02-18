@@ -2,7 +2,7 @@ package com.anahoret.imagilabsapi.auth.web
 
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtProperties
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
-import com.anahoret.imagilabsapi.teachers.domain.TeacherService
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.users.UserType
 import com.auth0.jwt.JWT
 import org.apache.tomcat.util.http.SameSiteCookies
@@ -37,7 +37,7 @@ interface RequestAuthenticatorService {
 class RequestAuthenticatorServiceImpl(
     private val jwtTokenUtil: JwtTokenUtil,
     private val jwtProperties: JwtProperties,
-    private val teacherService: TeacherService
+    private val teacherProfileService: TeacherProfileService
 ) : RequestAuthenticatorService {
 
     override fun authenticate(
@@ -56,7 +56,7 @@ class RequestAuthenticatorServiceImpl(
 
     private fun getProfile(userId: UUID, userType: UserType): UserProfileData? {
         return when (userType) {
-            UserType.TEACHER -> teacherService.getTeacherById(userId)?.let(::TeacherUserProfileData)
+            UserType.TEACHER -> teacherProfileService.getTeacherById(userId)?.let(::TeacherUserProfileData)
             UserType.STUDENT -> TODO()
         }
     }

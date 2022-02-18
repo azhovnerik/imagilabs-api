@@ -7,5 +7,6 @@ class TeacherSignupRequest(
     val lastName: String,
     val country: String,
     val organization: String,
-    val howDidYouHearAboutUs: String
+    val howDidYouHearAboutUs: String,
+    val mobileAppClient: Boolean
 )

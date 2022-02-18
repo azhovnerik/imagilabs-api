@@ -6,4 +6,5 @@ import java.util.*
 interface TeacherProfileEntityRepository : CrudRepository<TeacherProfileEntity, UUID> {
 
     fun findByEmail(email: String): TeacherProfileEntity?
+    fun existsByEmail(email: String): Boolean
 }

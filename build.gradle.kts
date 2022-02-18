@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val arrowKtVersion = "1.0.1"
 val javaJwtVersion = "3.18.3"
 val springDocVersion = "1.6.6"
 
@@ -35,6 +36,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springdoc:springdoc-openapi-kotlin:$springDocVersion")
 
+    // Utils
+    implementation("io.arrow-kt:arrow-core:$arrowKtVersion")
+
     // Web
     implementation("org.springframework.boot:spring-boot-starter-web")
 
@@ -46,6 +50,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("org.postgresql:postgresql")
     implementation("org.flywaydb:flyway-core")
+
+    // Validation
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 
     // Development
     developmentOnly("org.springframework.boot:spring-boot-devtools")

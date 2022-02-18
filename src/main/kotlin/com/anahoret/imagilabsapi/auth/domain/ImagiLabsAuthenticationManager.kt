@@ -1,7 +1,7 @@
 package com.anahoret.imagilabsapi.auth.domain
 
 import com.anahoret.imagilabsapi.security.AuthorityService
-import com.anahoret.imagilabsapi.teachers.domain.TeacherService
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class ImagiLabsAuthenticationManager(
-    private val teacherService: TeacherService,
+    private val teacherService: TeacherProfileService,
     private val passwordEncoder: PasswordEncoder,
     private val authorityService: AuthorityService
 ) : AuthenticationManager {

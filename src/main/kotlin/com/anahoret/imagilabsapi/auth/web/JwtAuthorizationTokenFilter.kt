@@ -7,7 +7,7 @@ import com.anahoret.imagilabsapi.auth.web.jwt.getToken
 import com.anahoret.imagilabsapi.auth.web.jwt.getUserType
 import com.anahoret.imagilabsapi.security.AuthorityService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
-import com.anahoret.imagilabsapi.teachers.domain.TeacherService
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse
 
 @Component
 class JwtAuthorizationTokenFilter(
-    private val teacherService: TeacherService,
+    private val teacherService: TeacherProfileService,
     private val authorityService: AuthorityService,
     private val jwtTokenUtil: JwtTokenUtil
 ) : OncePerRequestFilter() {
