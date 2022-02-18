@@ -39,6 +39,9 @@ class SecurityConfig(
             .antMatchers(HttpMethod.POST, "/api/auth/student").permitAll()
             .antMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
 
+            // Sign up
+            .antMatchers(HttpMethod.POST, "/api/sign-up/teacher").permitAll()
+
             // Swagger Documentation
             .antMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
             .antMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
