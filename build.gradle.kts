@@ -10,6 +10,7 @@ plugins {
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
     kotlin("plugin.jpa") version "1.6.10"
+    kotlin("kapt") version "1.6.10"
 }
 
 group = "com.anahoret"
@@ -59,6 +60,7 @@ dependencies {
 
     // Development
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springdoc:springdoc-openapi-ui:$springDocVersion")
 
