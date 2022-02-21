@@ -27,5 +27,11 @@ class TeacherProfileEntity(
     var organization: String,
 
     @Column(name = "how_did_you_hear_about_us", nullable = false)
-    var howDidYouHearAboutUs: String
+    var howDidYouHearAboutUs: String,
+
+    @Column(name = "email_verification_code")
+    var emailVerificationCode: String? = null,
+
+    @Column(name = "email_verified")
+    var emailVerified: Boolean = false
 ) : BaseEntity()

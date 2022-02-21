@@ -15,13 +15,15 @@ interface TeacherSignUpUseCase {
 @Service
 class TeacherSignUpUseCaseImpl(
     private val teacherProfileService: TeacherProfileService,
-    private val teacherSignupRequestValidator: TeacherSignupRequestValidator
+    private val teacherSignupRequestValidator: TeacherSignupRequestValidator,
+    private val teacherEmailVerificationService: TeacherEmailVerificationService
 ) : TeacherSignUpUseCase {
 
     override fun signUp(request: TeacherSignupRequest): Either<List<ValidationError>, TeacherProfile> {
         val normalizedRequest = normalize(request)
         return teacherSignupRequestValidator.validate(normalizedRequest)
             .map { teacherProfileService.createTeacher(normalizedRequest) }
+            .map { teacherEmailVerificationService.generateNewVerificationCode(it.id); it }
     }
 
     private fun normalize(request: TeacherSignupRequest): TeacherSignupRequest {

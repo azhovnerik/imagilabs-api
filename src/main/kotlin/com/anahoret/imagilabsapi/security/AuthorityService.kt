@@ -14,7 +14,10 @@ interface AuthorityService {
 class AuthorityServiceImpl : AuthorityService {
 
     override fun getAuthorities(teacherProfile: TeacherProfile): Collection<GrantedAuthority> {
-        return listOf(SimpleGrantedAuthority(UserRole.teacher))
+        return when {
+            teacherProfile.emailVerified -> listOf(SimpleGrantedAuthority(UserRole.teacher))
+            else -> listOf(SimpleGrantedAuthority(UserRole.teacherEmailNotVerified))
+        }
     }
 
 }
