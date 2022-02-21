@@ -37,7 +37,8 @@ class JwtAuthorizationTokenFilter(
     private val ignorePaths = setOf(
         "/api/auth/teacher",
         "/api/auth/student",
-        "/api/auth/logout"
+        "/api/auth/logout",
+        "/api/sign-up/teacher"
     )
 
     override fun doFilterInternal(
