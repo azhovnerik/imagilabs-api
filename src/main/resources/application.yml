@@ -21,3 +21,25 @@ cors:
 jwt:
   ttl-web: ${JWT_TTL_WEB:P30D}
   ttl-mobile: ${JWT_TTL_MOBILE:P30D}
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  mail:
+    host: ${MAIL_HOST:}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          port: 587
+          auth: true
+          starttls:
+            enable: true
+            required: true
