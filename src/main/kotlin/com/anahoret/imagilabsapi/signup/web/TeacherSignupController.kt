@@ -4,6 +4,7 @@ import arrow.core.Either
 import com.anahoret.imagilabsapi.auth.web.RequestAuthenticatorService
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.common.web.*
+import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.signup.domain.TeacherEmailVerificationUseCase
 import com.anahoret.imagilabsapi.signup.domain.TeacherSignUpUseCase
 import com.anahoret.imagilabsapi.teachers.domain.TeacherEmailVerificationRequest
@@ -37,7 +38,7 @@ class TeacherSignupController(
         }
     }
 
-    @Secured("ROLE_TEACHER_EMAIL_NOT_VERIFIED")
+    @Secured(UserRole.teacherEmailNotVerified)
     @PostMapping("/api/sign-up/teacher/email-verification")
     fun emailVerification(
         @RequestBody emailVerificationRequest: TeacherEmailVerificationRequest,
