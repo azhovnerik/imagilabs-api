@@ -16,29 +16,19 @@ interface TeacherSignUpUseCase {
 class TeacherSignUpUseCaseImpl(
     private val teacherProfileService: TeacherProfileService,
     private val teacherSignupRequestValidator: TeacherSignupRequestValidator,
-    private val teacherEmailVerificationService: TeacherEmailVerificationService
+    private val teacherEmailVerificationService: TeacherEmailVerificationService,
+    private val teacherEmailVerificationCodeSenderUseCase: TeacherEmailVerificationCodeSenderUseCase
 ) : TeacherSignUpUseCase {
 
     override fun signUp(request: TeacherSignupRequest): Either<List<ValidationError>, TeacherProfile> {
-        val normalizedRequest = normalize(request)
+        val normalizedRequest = request.normalize()
         return teacherSignupRequestValidator.validate(normalizedRequest)
-            .map { teacherProfileService.createTeacher(normalizedRequest) }
-            .map { teacherEmailVerificationService.generateNewVerificationCode(it.id); it }
-    }
-
-    private fun normalize(request: TeacherSignupRequest): TeacherSignupRequest {
-        return with(request) {
-            TeacherSignupRequest(
-                email.trim().lowercase(),
-                password.trim(),
-                firstName.trim(),
-                lastName.trim(),
-                country.trim(),
-                organization.trim(),
-                howDidYouHearAboutUs.trim(),
-                mobileAppClient
-            )
-        }
+            .map {
+                val teacherProfile = teacherProfileService.createTeacher(normalizedRequest)
+                teacherEmailVerificationService.generateNewVerificationCode(teacherProfile.id)
+                    ?.let { code -> teacherEmailVerificationCodeSenderUseCase.send(request.email, code) }
+                teacherProfile
+            }
     }
 
 }

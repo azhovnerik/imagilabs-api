@@ -43,3 +43,6 @@ spring:
           starttls:
             enable: true
             required: true
+
+email:
+  no-reply-address: ${EMAIL_NO_REPLY_ADDRESS:}
