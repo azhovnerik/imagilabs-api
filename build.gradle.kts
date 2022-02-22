@@ -63,6 +63,7 @@ dependencies {
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springdoc:springdoc-openapi-ui:$springDocVersion")
+    implementation("org.springdoc:springdoc-openapi-security:$springDocVersion")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
