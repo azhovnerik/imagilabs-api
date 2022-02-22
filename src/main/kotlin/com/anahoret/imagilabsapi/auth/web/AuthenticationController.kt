@@ -35,7 +35,7 @@ class AuthenticationController(
     fun teacherLogIn(
         @RequestBody teacherLoginRequest: TeacherLoginRequest,
         response: HttpServletResponse
-    ): ResponseEntity<ResponseDto<*>> {
+    ): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
         return tryAuthenticate {
             val usernameLowerCased = teacherLoginRequest.email.lowercase()
             val password = teacherLoginRequest.password
@@ -58,17 +58,17 @@ class AuthenticationController(
         }
     }
 
-    private fun tryAuthenticate(authenticate: () -> ResponseEntity<ResponseDto<*>>): ResponseEntity<ResponseDto<*>> {
+    private fun tryAuthenticate(authenticate: () -> ResponseEntity<ResponseDto<AuthenticationSuccess?>>): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
         return try {
             authenticate()
         } catch (e: DisabledException) {
-            val errorResponse = ErrorResponseDto<Any>(HttpStatus.UNAUTHORIZED.value(), "ACCOUNT_NOT_ACTIVE")
+            val errorResponse = ErrorResponseDto<AuthenticationSuccess?>(HttpStatus.UNAUTHORIZED.value(), "ACCOUNT_NOT_ACTIVE")
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
         } catch (e: BadCredentialsException) {
-            val errorResponse = ErrorResponseDto<Any>(HttpStatus.UNAUTHORIZED.value(), "WRONG_CREDENTIALS")
+            val errorResponse = ErrorResponseDto<AuthenticationSuccess?>(HttpStatus.UNAUTHORIZED.value(), "WRONG_CREDENTIALS")
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
         } catch (e: AuthenticationException) {
-            val errorResponse = ErrorResponseDto<Any>(HttpStatus.UNAUTHORIZED.value(), "AUTHENTICATION_FAILED")
+            val errorResponse = ErrorResponseDto<AuthenticationSuccess?>(HttpStatus.UNAUTHORIZED.value(), "AUTHENTICATION_FAILED")
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
         }
     }

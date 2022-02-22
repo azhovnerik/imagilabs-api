@@ -1,9 +1,13 @@
 package com.anahoret.imagilabsapi.signup.web
 
 import arrow.core.Either
+import com.anahoret.imagilabsapi.auth.web.AuthenticationSuccess
 import com.anahoret.imagilabsapi.auth.web.RequestAuthenticatorService
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
-import com.anahoret.imagilabsapi.common.web.*
+import com.anahoret.imagilabsapi.common.web.ErrorResponseDto
+import com.anahoret.imagilabsapi.common.web.ResponseDto
+import com.anahoret.imagilabsapi.common.web.ResponseErrorMessageDto
+import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.signup.domain.TeacherEmailVerificationUseCase
 import com.anahoret.imagilabsapi.signup.domain.TeacherSignUpUseCase
@@ -31,7 +35,7 @@ class TeacherSignupController(
     fun signUp(
         @RequestBody signUpRequest: TeacherSignupRequest,
         response: HttpServletResponse
-    ): ResponseEntity<ResponseDto<*>> {
+    ): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
         return when (val result = teacherSignUpUseCase.signUp(signUpRequest)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> authenticateTeacher(result.value, response, signUpRequest.mobileAppClient)
@@ -43,31 +47,32 @@ class TeacherSignupController(
     fun emailVerification(
         @RequestBody emailVerificationRequest: TeacherEmailVerificationRequest,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
-    ): ResponseEntity<ResponseDto<*>> {
-        return if (teacherEmailVerificationUseCase.verify(teacherProfile.id, emailVerificationRequest.code)) {
-            ResponseEntity.ok(EmptySuccessResponseDto)
+    ): ResponseEntity<ResponseDto<TeacherProfile?>> {
+        val verifiedTeacher = teacherEmailVerificationUseCase.verify(teacherProfile.id, emailVerificationRequest.code)
+        return if (verifiedTeacher != null) {
+            ResponseEntity.ok(SuccessResponseDto(verifiedTeacher))
         } else {
             createWrongVerificationCodeResponse()
         }
     }
 
-    private fun createWrongVerificationCodeResponse(): ResponseEntity<ResponseDto<*>> {
+    private fun createWrongVerificationCodeResponse(): ResponseEntity<ResponseDto<TeacherProfile?>> {
         return ResponseEntity.badRequest()
-            .body(ErrorResponseDto<Void>(HttpStatus.BAD_REQUEST.value(), "VERIFICATION_CODE_DOES_NOT_MATCH"))
+            .body(ErrorResponseDto(HttpStatus.BAD_REQUEST.value(), "VERIFICATION_CODE_DOES_NOT_MATCH"))
     }
 
-    private fun mapErrors(validationErrors: List<ValidationError>): ResponseEntity<ResponseDto<*>> {
+    private fun mapErrors(validationErrors: List<ValidationError>): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
         val responseErrors = validationErrors.map {
             ResponseErrorMessageDto(HttpStatus.BAD_REQUEST.value(), it.message)
         }
-        return ResponseEntity.badRequest().body(ErrorResponseDto<Void>(responseErrors))
+        return ResponseEntity.badRequest().body(ErrorResponseDto(responseErrors))
     }
 
     private fun authenticateTeacher(
         teacherProfile: TeacherProfile,
         response: HttpServletResponse,
         mobileAppClient: Boolean
-    ): ResponseEntity<ResponseDto<*>> {
+    ): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
         val authenticationResponse = requestAuthenticatorService.authenticate(
             teacherProfile.id,
             UserType.TEACHER,

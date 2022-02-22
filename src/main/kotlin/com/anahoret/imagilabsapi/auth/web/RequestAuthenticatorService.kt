@@ -23,7 +23,7 @@ interface RequestAuthenticatorService {
         userType: UserType,
         response: HttpServletResponse,
         mobileAppClient: Boolean
-    ): AuthenticationResponse
+    ): AuthenticationSuccess
 
     fun updateAuthenticationToken(
         authToken: String,
@@ -45,7 +45,7 @@ class RequestAuthenticatorServiceImpl(
         userType: UserType,
         response: HttpServletResponse,
         mobileAppClient: Boolean
-    ): AuthenticationResponse {
+    ): AuthenticationSuccess {
         val tokenTTL = getTokenTTL(mobileAppClient)
         val jwtTokenData = jwtTokenUtil.createToken(userId, userType, tokenTTL)
         setAuthCookie(jwtTokenData.token, response)
