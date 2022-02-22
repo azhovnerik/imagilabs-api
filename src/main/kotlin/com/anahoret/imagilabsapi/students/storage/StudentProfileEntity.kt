@@ -16,8 +16,5 @@ class StudentProfileEntity(
     var username: String,
 
     @Column(name = "password")
-    var password: String,
-
-    @Column(name = "classroom_id")
-    var classroomId: UUID
+    var password: String
 ) : BaseEntity()
