@@ -10,7 +10,7 @@ fun HttpServletRequest.getToken(): String? {
 
 private fun HttpServletRequest.getTokenFromHeader(): String? {
     return getHeader(JwtAuthorizationTokenFilter.JWT_TOKEN_HEADER_NAME)
-        .let { URLDecoder.decode(it, Charsets.UTF_8) }
+        ?.let { URLDecoder.decode(it, Charsets.UTF_8) }
         ?.takeIf { it.startsWith("${JwtAuthorizationTokenFilter.JWT_TOKEN_HEADER_PREFIX} ") }
         ?.substring(JwtAuthorizationTokenFilter.JWT_TOKEN_HEADER_PREFIX.length + 1)
 }
