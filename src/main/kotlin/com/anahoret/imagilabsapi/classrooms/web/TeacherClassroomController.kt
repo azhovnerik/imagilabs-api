@@ -7,7 +7,7 @@ import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.web.*
 import com.anahoret.imagilabsapi.security.UserRole
-import com.anahoret.imagilabsapi.students.domain.StudentProfile
+import com.anahoret.imagilabsapi.students.domain.StudentCredentialsCard
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
@@ -41,18 +41,18 @@ class TeacherClassroomController(
     }
 
     @Secured(UserRole.teacher)
-    @GetMapping("/api/teacher/classrooms/{classroomId}/students")
-    fun listStudentsInClassroom(
+    @GetMapping("/api/teacher/classrooms/{classroomId}/student-credentials-cards")
+    fun listStudentsCredentialsCardsInClassroom(
         @PathVariable classroomId: UUID,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
-    ): ResponseEntity<ResponseDto<List<StudentProfile>?>> {
+    ): ResponseEntity<ResponseDto<List<StudentCredentialsCard>?>> {
         return when (val result = listStudentsInClassroomUseCase.list(teacherProfile, classroomId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
-    private fun mapErrors(operationError: OperationError): ResponseEntity<ResponseDto<List<StudentProfile>?>> {
+    private fun mapErrors(operationError: OperationError): ResponseEntity<ResponseDto<List<StudentCredentialsCard>?>> {
         return when (operationError) {
             is NotFoundError -> operationError.toNotFoundResponse()
             is AccessDeniedError -> operationError.toForbiddenResponse()

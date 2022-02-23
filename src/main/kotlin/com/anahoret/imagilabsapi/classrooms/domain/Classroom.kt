@@ -6,6 +6,7 @@ import java.util.*
 class Classroom(
     val id: UUID,
     val name: String,
+    val accessCode: String,
     val studentsCount: Long,
     val teacherId: UUID
 ) {
@@ -13,7 +14,7 @@ class Classroom(
 
         fun fromEntity(classroomEntity: ClassroomEntity, studentsCount: Long): Classroom {
             return with(classroomEntity) {
-                Classroom(id!!, name, studentsCount, teacherId)
+                Classroom(id!!, name, accessCode, studentsCount, teacherId)
             }
         }
     }
