@@ -4,8 +4,10 @@ CREATE TABLE classrooms (
     last_modified_at BIGINT,
     name TEXT,
     access_code TEXT,
+    teacher_id UUID,
     CONSTRAINT uc_access_code UNIQUE (access_code),
-    CONSTRAINT pk_classrooms PRIMARY KEY (id)
+    CONSTRAINT pk_classrooms PRIMARY KEY (id),
+    CONSTRAINT fk_classrooms_teachers FOREIGN KEY (teacher_id) REFERENCES teacher_profiles(id)
 );
 
 CREATE TABLE classrooms_students(
