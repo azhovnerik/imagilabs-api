@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.classrooms.domain
 
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
+import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLinkService
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.stereotype.Service
 import java.util.*
@@ -16,7 +17,8 @@ interface ClassroomService {
 
 @Service
 class ClassroomServiceImpl(
-    private val classroomEntityRepository: ClassroomEntityRepository
+    private val classroomEntityRepository: ClassroomEntityRepository,
+    private val studentClassroomLinkService: StudentClassroomLinkService
 ) : ClassroomService {
 
     override fun create(teacherId: UUID, classroomCreateRequest: ClassroomCreateRequest): Classroom {
@@ -27,7 +29,7 @@ class ClassroomServiceImpl(
                 accessCode,
                 teacherId
             )
-        ).let(Classroom.Companion::fromEntity)
+        ).let { Classroom.fromEntity(it, studentsCount = 0) }
     }
 
     override fun countByTeacher(teacherId: UUID): Long {
@@ -35,8 +37,10 @@ class ClassroomServiceImpl(
     }
 
     override fun listByTeacher(teacherId: UUID): List<Classroom> {
-        return classroomEntityRepository.findAllByTeacherId(teacherId)
-            .map(Classroom.Companion::fromEntity)
+        val classroomEntities = classroomEntityRepository.findAllByTeacherId(teacherId)
+        val studentCounts = studentClassroomLinkService.getStudentCounts(classroomEntities.map { it.id!! })
+        return classroomEntities
+            .map { Classroom.fromEntity(it, studentCounts.getOrDefault(it.id!!, 0)) }
     }
 
     private fun generateUniqueAccessCode(): String {

@@ -5,10 +5,12 @@ import com.anahoret.imagilabsapi.studentclassroomlink.storage.StudentClassroomLi
 import com.anahoret.imagilabsapi.studentclassroomlink.storage.StudentClassroomLinkEntityRepository
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import org.springframework.stereotype.Service
+import java.util.*
 
 interface StudentClassroomLinkService {
 
     fun link(classroom: Classroom, students: List<StudentProfile>)
+    fun getStudentCounts(classroomIds: Iterable<UUID>): Map<UUID, Long>
 
 }
 
@@ -21,5 +23,10 @@ class StudentClassroomLinkServiceImpl(
         students.map { student ->
             StudentClassroomLinkEntity(student.id, classroom.id)
         }.let(studentClassroomLinkEntityRepository::saveAll)
+    }
+
+    override fun getStudentCounts(classroomIds: Iterable<UUID>): Map<UUID, Long> {
+        return studentClassroomLinkEntityRepository.getStudentCounts(classroomIds)
+            .associate { it.classroomId to it.studentsCount }
     }
 }

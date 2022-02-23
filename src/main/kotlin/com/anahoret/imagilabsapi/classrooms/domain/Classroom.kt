@@ -5,12 +5,14 @@ import java.util.*
 
 class Classroom(
     val id: UUID,
-    val name: String
+    val name: String,
+    val studentsCount: Long
 ) {
     companion object {
-        fun fromEntity(classroomEntity: ClassroomEntity): Classroom {
+
+        fun fromEntity(classroomEntity: ClassroomEntity, studentsCount: Long): Classroom {
             return with(classroomEntity) {
-                Classroom(id!!, name)
+                Classroom(id!!, name, studentsCount)
             }
         }
     }
