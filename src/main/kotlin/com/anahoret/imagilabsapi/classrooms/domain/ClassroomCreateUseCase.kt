@@ -9,6 +9,7 @@ import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLin
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
+import java.util.*
 
 interface ClassroomCreateUseCase {
 
@@ -32,11 +33,11 @@ class ClassroomCreateUseCaseImpl(
     ): Either<List<ValidationError>, Classroom> {
         return classroomCreateRequestValidator.validate(classroomCreateRequest)
             .flatMap { checkTeacherClassesMaxCount(teacherProfile) }
-            .map { doCreateClassroom(classroomCreateRequest) }
+            .map { doCreateClassroom(teacherProfile.id, classroomCreateRequest) }
     }
 
-    private fun doCreateClassroom(classroomCreateRequest: ClassroomCreateRequest): Classroom {
-        val classroom = classroomService.create(classroomCreateRequest)
+    private fun doCreateClassroom(teacherId: UUID, classroomCreateRequest: ClassroomCreateRequest): Classroom {
+        val classroom = classroomService.create(teacherId, classroomCreateRequest)
         val students = studentProfileService.createStudents(classroomCreateRequest.studentCreateRequests)
         studentClassroomLinkService.link(classroom, students)
         return classroom
