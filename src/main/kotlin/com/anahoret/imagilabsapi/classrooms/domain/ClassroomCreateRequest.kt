@@ -1,6 +1,16 @@
 package com.anahoret.imagilabsapi.classrooms.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+
 class ClassroomCreateRequest(
     val name: String,
-    val studentNames: String
-)
+    studentNames: String
+) {
+
+    @JsonIgnore
+    val studentCreateRequests = studentNames
+        .split(",\n")
+        .map(::StudentCreateRequest)
+
+    class StudentCreateRequest(val name: String)
+}

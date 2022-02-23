@@ -3,11 +3,10 @@ package com.anahoret.imagilabsapi.signup.web
 import arrow.core.Either
 import com.anahoret.imagilabsapi.auth.web.AuthenticationSuccess
 import com.anahoret.imagilabsapi.auth.web.RequestAuthenticatorService
-import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.common.web.ErrorResponseDto
 import com.anahoret.imagilabsapi.common.web.ResponseDto
-import com.anahoret.imagilabsapi.common.web.ResponseErrorMessageDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
+import com.anahoret.imagilabsapi.common.web.toBadRequestResponse
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.signup.domain.TeacherEmailVerificationUseCase
 import com.anahoret.imagilabsapi.signup.domain.TeacherSignUpUseCase
@@ -37,7 +36,7 @@ class TeacherSignupController(
         response: HttpServletResponse
     ): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
         return when (val result = teacherSignUpUseCase.signUp(signUpRequest)) {
-            is Either.Left -> mapErrors(result.value)
+            is Either.Left -> result.value.toBadRequestResponse()
             is Either.Right -> authenticateTeacher(result.value, response, signUpRequest.mobileAppClient)
         }
     }
@@ -59,13 +58,6 @@ class TeacherSignupController(
     private fun createWrongVerificationCodeResponse(): ResponseEntity<ResponseDto<TeacherProfile?>> {
         return ResponseEntity.badRequest()
             .body(ErrorResponseDto(HttpStatus.BAD_REQUEST.value(), "VERIFICATION_CODE_DOES_NOT_MATCH"))
-    }
-
-    private fun mapErrors(validationErrors: List<ValidationError>): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
-        val responseErrors = validationErrors.map {
-            ResponseErrorMessageDto(HttpStatus.BAD_REQUEST.value(), it.message)
-        }
-        return ResponseEntity.badRequest().body(ErrorResponseDto(responseErrors))
     }
 
     private fun authenticateTeacher(
