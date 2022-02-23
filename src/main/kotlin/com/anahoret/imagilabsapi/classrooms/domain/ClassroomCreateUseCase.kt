@@ -38,7 +38,7 @@ class ClassroomCreateUseCaseImpl(
 
     private fun doCreateClassroom(teacherId: UUID, classroomCreateRequest: ClassroomCreateRequest): Classroom {
         val classroom = classroomService.create(teacherId, classroomCreateRequest)
-        val students = studentProfileService.createStudents(classroomCreateRequest.studentCreateRequests)
+        val students = studentProfileService.createStudents(classroom.id, classroomCreateRequest.studentCreateRequests)
         studentClassroomLinkService.link(classroom, students)
         return classroom
     }

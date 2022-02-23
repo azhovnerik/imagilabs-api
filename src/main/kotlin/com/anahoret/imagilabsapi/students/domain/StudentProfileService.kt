@@ -1,18 +1,58 @@
 package com.anahoret.imagilabsapi.students.domain
 
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomCreateRequest
+import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
+import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
+import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.stereotype.Service
+import java.util.*
 
 interface StudentProfileService {
 
-    fun createStudents(studentCreateRequests: List<ClassroomCreateRequest.StudentCreateRequest>): List<StudentProfile>
-
+    fun createStudents(
+        classroomId: UUID,
+        studentCreateRequests: List<ClassroomCreateRequest.StudentCreateRequest>
+    ): List<StudentProfile>
 }
 
 @Service
-class StudentProfileServiceImpl : StudentProfileService {
+class StudentProfileServiceImpl(
+    private val studentProfileEntityRepository: StudentProfileEntityRepository
+) : StudentProfileService {
 
-    override fun createStudents(studentCreateRequests: List<ClassroomCreateRequest.StudentCreateRequest>): List<StudentProfile> {
-        TODO("not implemented")
+    override fun createStudents(
+        classroomId: UUID,
+        studentCreateRequests: List<ClassroomCreateRequest.StudentCreateRequest>
+    ): List<StudentProfile> {
+        val existingUserNames = studentProfileEntityRepository
+            .findAllByClassroom(classroomId)
+            .map(StudentProfileEntity::username)
+            .toMutableSet()
+        return studentCreateRequests.map {
+            val username = createUniqueStudentUsername(it.name, existingUserNames)
+            existingUserNames.add(username)
+            val password = createStudentPassword()
+            StudentProfileEntity(it.name, username, password)
+        }.let(studentProfileEntityRepository::saveAll)
+            .map(StudentProfile.Companion::fromEntity)
+    }
+
+    private fun createStudentPassword(): String {
+        return RandomStringUtils.randomAlphanumeric(8)
+    }
+
+    private fun createUniqueStudentUsername(name: String, existingUserNames: Set<String>): String {
+        val split = name.split(" ")
+        val prefix = when (split.size) {
+            1 -> name
+            else -> split[0].trim() + split[1].trim().first()
+        }
+
+        for (i in 0..199) {
+            val username = prefix + i.takeIf { it > 0 }?.toString().orEmpty()
+            if (username !in existingUserNames) return username
+        }
+
+        throw RuntimeException("Exceeded number of attempts to generate unique username for student")
     }
 }
