@@ -53,6 +53,6 @@ class StudentProfileServiceImpl(
             if (username !in existingUserNames) return username
         }
 
-        throw RuntimeException("Exceeded number of attempts to generate unique username for student")
+        throw RuntimeException("EXCEEDED_NUMBER_OF_ATTEMPTS_TO_GENERATE_UNIQUE_USERNAME_FOR_STUDENT")
     }
 }

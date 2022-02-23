@@ -40,6 +40,6 @@ class ClassroomServiceImpl(
                 return accessCode
             }
         }
-        throw RuntimeException("Exceeded number of attempts to generate unique code for class")
+        throw RuntimeException("EXCEEDED_NUMBER_OF_ATTEMPTS_TO_GENERATE_UNIQUE_CODE_FOR_CLASS")
     }
 }
