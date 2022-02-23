@@ -2,10 +2,10 @@ package com.anahoret.imagilabsapi.classrooms.web
 
 import arrow.core.Either
 import com.anahoret.imagilabsapi.classrooms.domain.*
-import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
-import com.anahoret.imagilabsapi.common.domain.error.OperationError
-import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
-import com.anahoret.imagilabsapi.common.web.*
+import com.anahoret.imagilabsapi.common.web.ResponseDto
+import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
+import com.anahoret.imagilabsapi.common.web.mapErrors
+import com.anahoret.imagilabsapi.common.web.toBadRequestResponse
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.students.domain.StudentCredentialsCard
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
@@ -49,14 +49,6 @@ class TeacherClassroomController(
         return when (val result = listStudentsInClassroomUseCase.list(teacherProfile, classroomId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
-        }
-    }
-
-    private fun mapErrors(operationError: OperationError): ResponseEntity<ResponseDto<List<StudentCredentialsCard>?>> {
-        return when (operationError) {
-            is NotFoundError -> operationError.toNotFoundResponse()
-            is AccessDeniedError -> operationError.toForbiddenResponse()
-            else -> unknownErrorResponse()
         }
     }
 
