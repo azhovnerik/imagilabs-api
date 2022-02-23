@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class ClassroomController(
+class TeacherClassroomController(
     private val classroomCreateUseCase: ClassroomCreateUseCase
 ) {
 
     @Secured(UserRole.teacher)
-    @PostMapping("/api/classrooms")
+    @PostMapping("/api/teacher/classrooms")
     fun createClassroom(
         @RequestBody classroomCreateRequest: ClassroomCreateRequest,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
