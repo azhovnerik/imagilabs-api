@@ -10,6 +10,7 @@ import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
 import java.util.*
+import javax.transaction.Transactional
 
 interface ClassroomCreateUseCase {
 
@@ -27,6 +28,7 @@ class ClassroomCreateUseCaseImpl(
     private val studentClassroomLinkService: StudentClassroomLinkService
 ) : ClassroomCreateUseCase {
 
+    @Transactional(rollbackOn = [Throwable::class])
     override fun create(
         teacherProfile: TeacherProfile,
         classroomCreateRequest: ClassroomCreateRequest
