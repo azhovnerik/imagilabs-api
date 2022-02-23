@@ -9,7 +9,7 @@ interface StudentProfileEntityRepository : CrudRepository<StudentProfileEntity, 
     @Query(
         """
         SELECT sp FROM StudentProfileEntity sp
-        JOIN StudentClassroomLink scl ON scl.studentId = sp.id
+        JOIN StudentClassroomLinkEntity scl ON scl.studentId = sp.id
         JOIN ClassroomEntity cr ON cr.id = scl.classroomId
         WHERE cr.id = :classroomId                     
         """

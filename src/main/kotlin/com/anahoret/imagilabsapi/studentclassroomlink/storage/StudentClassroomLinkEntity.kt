@@ -8,7 +8,7 @@ import javax.persistence.*
 @Entity
 @Table(name = "classrooms_students")
 @IdClass(StudentClassroomLinkId::class)
-class StudentClassroomLink(
+class StudentClassroomLinkEntity(
     @Id
     @Column(name = "student_id", nullable = false)
     var studentId: UUID,
