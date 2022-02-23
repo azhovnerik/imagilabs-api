@@ -18,6 +18,8 @@ interface StudentClassroomLinkEntityRepository : CrudRepository<StudentClassroom
         nativeQuery = true
     )
     fun getStudentCounts(classroomIds: Iterable<UUID>): Iterable<ClassroomStudentCount>
+    fun countByClassroomId(classroomId: UUID): Long
+    fun findAllByClassroomId(classroomId: UUID): Iterable<StudentClassroomLinkEntity>
 }
 
 interface ClassroomStudentCount {

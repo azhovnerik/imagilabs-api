@@ -13,6 +13,8 @@ interface StudentProfileService {
         classroomId: UUID,
         studentCreateRequests: List<ClassroomCreateRequest.StudentCreateRequest>
     ): List<StudentProfile>
+
+    fun listByIds(studentIds: Iterable<UUID>): List<StudentProfile>
 }
 
 @Service
@@ -34,6 +36,11 @@ class StudentProfileServiceImpl(
             val password = createStudentPassword()
             StudentProfileEntity(it.name, username, password)
         }.let(studentProfileEntityRepository::saveAll)
+            .map(StudentProfile.Companion::fromEntity)
+    }
+
+    override fun listByIds(studentIds: Iterable<UUID>): List<StudentProfile> {
+        return studentProfileEntityRepository.findAllById(studentIds)
             .map(StudentProfile.Companion::fromEntity)
     }
 

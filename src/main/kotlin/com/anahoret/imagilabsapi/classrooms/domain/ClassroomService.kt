@@ -4,6 +4,7 @@ import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
 import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLinkService
 import org.apache.commons.lang3.RandomStringUtils
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -12,6 +13,7 @@ interface ClassroomService {
     fun create(teacherId: UUID, classroomCreateRequest: ClassroomCreateRequest): Classroom
     fun countByTeacher(teacherId: UUID): Long
     fun listByTeacher(teacherId: UUID): List<Classroom>
+    fun getById(classroomId: UUID): Classroom?
 
 }
 
@@ -41,6 +43,14 @@ class ClassroomServiceImpl(
         val studentCounts = studentClassroomLinkService.getStudentCounts(classroomEntities.map { it.id!! })
         return classroomEntities
             .map { Classroom.fromEntity(it, studentCounts.getOrDefault(it.id!!, 0)) }
+    }
+
+    override fun getById(classroomId: UUID): Classroom? {
+        return classroomEntityRepository.findByIdOrNull(classroomId)
+            ?.let {
+                val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
+                Classroom.fromEntity(it, studentsCount)
+            }
     }
 
     private fun generateUniqueAccessCode(): String {

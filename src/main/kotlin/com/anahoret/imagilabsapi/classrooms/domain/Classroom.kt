@@ -6,13 +6,14 @@ import java.util.*
 class Classroom(
     val id: UUID,
     val name: String,
-    val studentsCount: Long
+    val studentsCount: Long,
+    val teacherId: UUID
 ) {
     companion object {
 
         fun fromEntity(classroomEntity: ClassroomEntity, studentsCount: Long): Classroom {
             return with(classroomEntity) {
-                Classroom(id!!, name, studentsCount)
+                Classroom(id!!, name, studentsCount, teacherId)
             }
         }
     }
