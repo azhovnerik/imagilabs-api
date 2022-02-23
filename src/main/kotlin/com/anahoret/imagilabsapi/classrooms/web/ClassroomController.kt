@@ -27,7 +27,7 @@ class ClassroomController(
         @RequestBody classroomCreateRequest: ClassroomCreateRequest,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
     ): ResponseEntity<ResponseDto<Classroom?>> {
-        return when (val createResult = classroomCreateUseCase.create(classroomCreateRequest)) {
+        return when (val createResult = classroomCreateUseCase.create(teacherProfile, classroomCreateRequest)) {
             is Either.Left -> createResult.value.toBadRequestResponse()
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(createResult.value))
         }
