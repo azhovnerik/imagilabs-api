@@ -10,6 +10,8 @@ class ClassroomCreateRequest(
     @JsonIgnore
     val studentCreateRequests = studentNames
         .split(",\n")
+        .map(String::trim)
+        .filter(String::isNotBlank)
         .map(::StudentCreateRequest)
 
     class StudentCreateRequest(val name: String)
