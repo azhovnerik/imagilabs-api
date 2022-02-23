@@ -19,8 +19,8 @@ class StudentClassroomLinkEntity(
 )
 
 class StudentClassroomLinkId(
-    var studentId: UUID,
-    var classroomId: UUID
+    var studentId: UUID? = null,
+    var classroomId: UUID? = null
 ) : Serializable {
 
     companion object {
