@@ -4,6 +4,7 @@ import arrow.core.Either
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomCreateRequest
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomCreateUseCase
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.toBadRequestResponse
@@ -12,13 +13,15 @@ import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class TeacherClassroomController(
-    private val classroomCreateUseCase: ClassroomCreateUseCase
+    private val classroomCreateUseCase: ClassroomCreateUseCase,
+    private val classroomService: ClassroomService
 ) {
 
     @Secured(UserRole.teacher)
@@ -31,6 +34,12 @@ class TeacherClassroomController(
             is Either.Left -> createResult.value.toBadRequestResponse()
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(createResult.value))
         }
+    }
+
+    @Secured(UserRole.teacher)
+    @GetMapping("/api/teacher/classrooms")
+    fun listClassrooms(@AuthenticationPrincipal teacherProfile: TeacherProfile): ResponseDto<List<Classroom>> {
+        return SuccessResponseDto(classroomService.listByTeacher(teacherProfile.id))
     }
 
 }

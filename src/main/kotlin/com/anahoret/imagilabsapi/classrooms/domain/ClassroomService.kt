@@ -10,6 +10,7 @@ interface ClassroomService {
 
     fun create(teacherId: UUID, classroomCreateRequest: ClassroomCreateRequest): Classroom
     fun countByTeacher(teacherId: UUID): Long
+    fun listByTeacher(teacherId: UUID): List<Classroom>
 
 }
 
@@ -31,6 +32,11 @@ class ClassroomServiceImpl(
 
     override fun countByTeacher(teacherId: UUID): Long {
         return classroomEntityRepository.countByTeacherId(teacherId)
+    }
+
+    override fun listByTeacher(teacherId: UUID): List<Classroom> {
+        return classroomEntityRepository.findAllByTeacherId(teacherId)
+            .map(Classroom.Companion::fromEntity)
     }
 
     private fun generateUniqueAccessCode(): String {
