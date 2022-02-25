@@ -20,6 +20,7 @@ interface StudentClassroomLinkEntityRepository : CrudRepository<StudentClassroom
     fun getStudentCounts(classroomIds: Iterable<UUID>): Iterable<ClassroomStudentCount>
     fun countByClassroomId(classroomId: UUID): Long
     fun findAllByClassroomId(classroomId: UUID): Iterable<StudentClassroomLinkEntity>
+    fun existsByStudentIdAndClassroomId(studentId: UUID, classroomId: UUID): Boolean
 }
 
 interface ClassroomStudentCount {

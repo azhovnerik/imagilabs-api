@@ -14,7 +14,7 @@ interface ClassroomService {
     fun countByTeacher(teacherId: UUID): Long
     fun listByTeacher(teacherId: UUID): List<Classroom>
     fun getById(classroomId: UUID): Classroom?
-
+    fun isClassroomOwnedByTeacher(classroomId: UUID, teacherId: UUID): Boolean
 }
 
 @Service
@@ -51,6 +51,10 @@ class ClassroomServiceImpl(
                 val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
                 Classroom.fromEntity(it, studentsCount)
             }
+    }
+
+    override fun isClassroomOwnedByTeacher(classroomId: UUID, teacherId: UUID): Boolean {
+        return classroomEntityRepository.existsByIdAndTeacherId(classroomId, teacherId)
     }
 
     private fun generateUniqueAccessCode(): String {

@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.projects.domain
 
+import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.projects.storage.ProjectEntity
 import com.anahoret.imagilabsapi.projects.storage.ProjectEntityRepository
 import com.anahoret.imagilabsapi.users.UserType
@@ -12,6 +13,7 @@ interface ProjectService {
     fun createProject(ownerId: UUID, ownerType: UserType): Project
     fun getProjectById(projectId: UUID): Project?
     fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project?
+    fun isOwner(userProfile: UserProfile, project: Project): Boolean
 }
 
 @Service
@@ -41,6 +43,10 @@ class ProjectServiceImpl(
             it.sourceCode = projectUpdateRequest.sourceCode
             projectEntityRepository.save(it)
         }?.let(Project.Companion::fromEntity)
+    }
+
+    override fun isOwner(userProfile: UserProfile, project: Project): Boolean {
+        return project.ownerId != userProfile.id || project.ownerUserType != userProfile.userType
     }
 
 }

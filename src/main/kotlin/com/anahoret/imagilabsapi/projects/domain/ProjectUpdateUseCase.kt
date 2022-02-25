@@ -30,7 +30,7 @@ class ProjectUpdateUseCaseImpl(
         projectUpdateRequest: ProjectUpdateRequest
     ): Either<OperationError, Project> {
         val project = projectService.getProjectById(projectId) ?: return NotFoundError("PROJECT_NOT_FOUND").left()
-        if (project.ownerId != updateBy.id || project.ownerUserType != updateBy.userType)
+        if (!projectService.isOwner(updateBy, project))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
         return projectService.updateProject(projectId, projectUpdateRequest)?.right()
             ?: NotFoundError("PROJECT_NOT_FOUND").left()

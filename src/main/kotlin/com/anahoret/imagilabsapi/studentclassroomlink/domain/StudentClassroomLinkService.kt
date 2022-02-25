@@ -13,6 +13,7 @@ interface StudentClassroomLinkService {
     fun getStudentCounts(classroomIds: Iterable<UUID>): Map<UUID, Long>
     fun getStudentCount(classroomId: UUID): Long
     fun listByClassroom(classroomId: UUID): List<StudentClassroomLink>
+    fun isStudentLinkedToClassroom(studentId: UUID, classroomId: UUID): Boolean
 
 }
 
@@ -40,4 +41,9 @@ class StudentClassroomLinkServiceImpl(
         return studentClassroomLinkEntityRepository.findAllByClassroomId(classroomId)
             .map(StudentClassroomLink.Companion::fromEntity)
     }
+
+    override fun isStudentLinkedToClassroom(studentId: UUID, classroomId: UUID): Boolean {
+        return studentClassroomLinkEntityRepository.existsByStudentIdAndClassroomId(studentId, classroomId)
+    }
+
 }

@@ -29,7 +29,7 @@ fun <T> unknownErrorResponse(): ResponseEntity<ResponseDto<T>> {
         .body(ErrorResponseDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "UNKNOWN_ERROR"))
 }
 
-fun <T> mapErrors(operationError: OperationError): ResponseEntity<ResponseDto<T?>> {
+fun <T> mapErrors(operationError: OperationError): ResponseEntity<ResponseDto<T>> {
     return when (operationError) {
         is NotFoundError -> operationError.toNotFoundResponse()
         is AccessDeniedError -> operationError.toForbiddenResponse()
