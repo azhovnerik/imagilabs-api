@@ -9,12 +9,12 @@ import javax.persistence.Table
 @Entity
 @Table(name = "classrooms")
 class ClassroomEntity(
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     var name: String,
 
     @Column(name = "access_code", unique = true)
     var accessCode: String,
 
-    @Column(name = "teacher_id")
+    @Column(name = "teacher_id", nullable = false)
     var teacherId: UUID
 ) : BaseEntity()
