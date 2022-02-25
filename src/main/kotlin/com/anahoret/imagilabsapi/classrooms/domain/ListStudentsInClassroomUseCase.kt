@@ -32,7 +32,7 @@ class ListStudentsInClassroomUseCaseImpl(
 
         return studentClassroomLinkService.listByClassroom(classroom.id)
             .map(StudentClassroomLink::studentId)
-            .let(studentProfileService::listStudentCredentialsCardsByIds)
+            .let { studentProfileService.listStudentCredentialsCardsByIds(it, classroom.accessCode) }
             .right()
     }
 }

@@ -15,7 +15,11 @@ interface StudentProfileService {
         studentCreateRequests: List<ClassroomCreateRequest.StudentCreateRequest>
     ): List<StudentProfile>
 
-    fun listStudentCredentialsCardsByIds(studentIds: Iterable<UUID>): List<StudentCredentialsCard>
+    fun listStudentCredentialsCardsByIds(
+        studentIds: Iterable<UUID>,
+        classroomAccessCode: String
+    ): List<StudentCredentialsCard>
+
     fun getStudentById(studentId: UUID): StudentProfile?
     fun getStudentCredentials(studentLoginRequest: StudentLoginRequest): StudentCredentials?
 
@@ -43,9 +47,12 @@ class StudentProfileServiceImpl(
             .map(StudentProfile.Companion::fromEntity)
     }
 
-    override fun listStudentCredentialsCardsByIds(studentIds: Iterable<UUID>): List<StudentCredentialsCard> {
+    override fun listStudentCredentialsCardsByIds(
+        studentIds: Iterable<UUID>,
+        classroomAccessCode: String
+    ): List<StudentCredentialsCard> {
         return studentProfileEntityRepository.findAllById(studentIds)
-            .map(StudentCredentialsCard.Companion::fromEntity)
+            .map { StudentCredentialsCard.fromEntity(it, classroomAccessCode) }
     }
 
     override fun getStudentById(studentId: UUID): StudentProfile? {

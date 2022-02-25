@@ -1,22 +1,23 @@
 package com.anahoret.imagilabsapi.students.domain
 
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
+import java.util.*
 
 class StudentCredentialsCard(
-    val studentProfile: StudentProfile,
+    val id: UUID,
     val username: String,
-    val password: String
+    val password: String,
+    val classroomAccessCode: String
 ) {
 
     companion object {
 
-        fun fromEntity(studentProfileEntity: StudentProfileEntity): StudentCredentialsCard {
+        fun fromEntity(
+            studentProfileEntity: StudentProfileEntity,
+            classroomAccessCode: String
+        ): StudentCredentialsCard {
             return with(studentProfileEntity) {
-                StudentCredentialsCard(
-                    StudentProfile.fromEntity(this),
-                    username,
-                    password
-                )
+                StudentCredentialsCard(id!!, username, password, classroomAccessCode)
             }
         }
     }
