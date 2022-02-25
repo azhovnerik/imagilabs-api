@@ -1,11 +1,13 @@
 package com.anahoret.imagilabsapi.auth.web
 
-import com.anahoret.imagilabsapi.auth.domain.ImagiLabsAuthentication
+import com.anahoret.imagilabsapi.auth.domain.ImagiLabsAuthenticationToken
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtProperties
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
 import com.anahoret.imagilabsapi.auth.web.jwt.getToken
 import com.anahoret.imagilabsapi.auth.web.jwt.getUserType
 import com.anahoret.imagilabsapi.security.AuthorityService
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
+import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.users.UserType
@@ -22,7 +24,8 @@ import javax.servlet.http.HttpServletResponse
 
 @Component
 class JwtAuthorizationTokenFilter(
-    private val teacherService: TeacherProfileService,
+    private val teacherProfileService: TeacherProfileService,
+    private val studentProfileService: StudentProfileService,
     private val authorityService: AuthorityService,
     private val jwtTokenUtil: JwtTokenUtil
 ) : OncePerRequestFilter() {
@@ -74,13 +77,14 @@ class JwtAuthorizationTokenFilter(
             return
         }
 
-        val userProfile = when (userType) {
-            UserType.TEACHER -> teacherService.getTeacherById(userId)
-            UserType.STUDENT -> TODO()
+        val userProfile: Any? = when (userType) {
+            UserType.TEACHER -> teacherProfileService.getTeacherById(userId)
+            UserType.STUDENT -> studentProfileService.getStudentById(userId)
         }
 
         val authorities = when (userProfile) {
             is TeacherProfile -> authorityService.getAuthorities(userProfile)
+            is StudentProfile -> authorityService.getAuthorities(userProfile)
 
             null -> {
                 logger.error("Cannot authenticate user. User not found.")
@@ -93,7 +97,7 @@ class JwtAuthorizationTokenFilter(
             }
         }
 
-        val authentication = ImagiLabsAuthentication(userProfile, userType, authorities = authorities)
+        val authentication = ImagiLabsAuthenticationToken(userProfile, userType, authorities, credentials = null)
         authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
         securityContext.authentication = authentication
     }

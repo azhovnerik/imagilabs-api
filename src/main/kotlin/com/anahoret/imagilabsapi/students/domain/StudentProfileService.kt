@@ -4,6 +4,7 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomCreateRequest
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
 import org.apache.commons.lang3.RandomStringUtils
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -15,6 +16,8 @@ interface StudentProfileService {
     ): List<StudentProfile>
 
     fun listStudentCredentialsCardsByIds(studentIds: Iterable<UUID>): List<StudentCredentialsCard>
+    fun getStudentById(studentId: UUID): StudentProfile?
+    fun getStudentCredentials(studentLoginRequest: StudentLoginRequest): StudentCredentials?
 
 }
 
@@ -43,6 +46,18 @@ class StudentProfileServiceImpl(
     override fun listStudentCredentialsCardsByIds(studentIds: Iterable<UUID>): List<StudentCredentialsCard> {
         return studentProfileEntityRepository.findAllById(studentIds)
             .map(StudentCredentialsCard.Companion::fromEntity)
+    }
+
+    override fun getStudentById(studentId: UUID): StudentProfile? {
+        return studentProfileEntityRepository.findByIdOrNull(studentId)
+            ?.let(StudentProfile.Companion::fromEntity)
+    }
+
+    override fun getStudentCredentials(studentLoginRequest: StudentLoginRequest): StudentCredentials? {
+        return with(studentLoginRequest) {
+            studentProfileEntityRepository.findByCredentials(username, password, classroomAccessCode)
+                ?.let { StudentCredentials.fromEntity(it, classroomAccessCode) }
+        }
     }
 
     private fun createStudentPassword(): String {

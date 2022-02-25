@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.auth.web
 
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenData
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.util.*
@@ -15,9 +16,7 @@ class UserData(
 
 interface UserProfileData
 class TeacherUserProfileData(val teacherProfile: TeacherProfile) : UserProfileData
-class StudentUserProfileData() : UserProfileData
+class StudentUserProfileData(val studentProfile: StudentProfile) : UserProfileData
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class AuthenticationSuccess(val currentUser: UserData, val jwtToken: JwtTokenData) : AuthenticationResponse()
-sealed class AuthenticationError(val error: String) : AuthenticationResponse()
-object AuthenticationFailedError : AuthenticationError("AUTHENTICATION_FAILED")

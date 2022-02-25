@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.students.storage;
+package com.anahoret.imagilabsapi.students.storage
 
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
@@ -15,4 +15,17 @@ interface StudentProfileEntityRepository : CrudRepository<StudentProfileEntity, 
         """
     )
     fun findAllByClassroom(classroomId: UUID): Iterable<StudentProfileEntity>
+
+    @Query(
+        """
+        SELECT sp FROM StudentProfileEntity sp
+        JOIN StudentClassroomLinkEntity scl ON scl.studentId = sp.id
+        JOIN ClassroomEntity cr ON cr.id = scl.classroomId
+        WHERE
+            sp.username = :username AND
+            sp.password = :password AND
+            cr.accessCode = :classroomAccessCode            
+        """
+    )
+    fun findByCredentials(username: String, password: String, classroomAccessCode: String): StudentProfileEntity?
 }

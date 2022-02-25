@@ -1,18 +1,19 @@
 package com.anahoret.imagilabsapi.auth.web
 
-import com.anahoret.imagilabsapi.auth.domain.ImagiLabsAuthentication
+import com.anahoret.imagilabsapi.auth.domain.ImagiLabsAuthenticationToken
 import com.anahoret.imagilabsapi.common.web.EmptySuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.ErrorResponseDto
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
+import com.anahoret.imagilabsapi.students.domain.StudentLoginRequest
 import com.anahoret.imagilabsapi.teachers.domain.TeacherLoginRequest
-import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.DisabledException
+import org.springframework.security.authentication.InternalAuthenticationServiceException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -32,35 +33,48 @@ class AuthenticationController(
     }
 
     @PostMapping("/api/auth/teacher")
-    fun teacherLogIn(
+    fun teacherLogin(
         @RequestBody teacherLoginRequest: TeacherLoginRequest,
         response: HttpServletResponse
     ): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
-        return tryAuthenticate {
-            val usernameLowerCased = teacherLoginRequest.email.lowercase()
-            val password = teacherLoginRequest.password
-            val authentication =
-                authenticationManager.authenticate(
-                    ImagiLabsAuthentication(
-                        usernameLowerCased,
-                        UserType.TEACHER,
-                        password
-                    )
-                )
-            val principal = authentication.principal as TeacherProfile
-            val authenticationResponse = requestAuthenticatorService.authenticate(
-                principal.id,
-                UserType.TEACHER,
-                response,
-                teacherLoginRequest.mobileAppClient
-            )
-            ResponseEntity.ok(SuccessResponseDto(authenticationResponse))
-        }
+        val authToken = ImagiLabsAuthenticationToken(
+            teacherLoginRequest.email.lowercase(),
+            UserType.TEACHER,
+            teacherLoginRequest.password
+        )
+        return tryAuthenticate(authToken, teacherLoginRequest.mobileAppClient, response)
     }
 
-    private fun tryAuthenticate(authenticate: () -> ResponseEntity<ResponseDto<AuthenticationSuccess?>>): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
+    @PostMapping("/api/auth/student")
+    fun studentLogin(
+        @RequestBody studentLoginRequest: StudentLoginRequest,
+        response: HttpServletResponse
+    ): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
+        val authToken = ImagiLabsAuthenticationToken(
+            studentLoginRequest.username,
+            UserType.STUDENT,
+            studentLoginRequest
+        )
+        return tryAuthenticate(authToken, studentLoginRequest.mobileAppClient, response)
+    }
+
+    private fun tryAuthenticate(
+        imagiLabsAuthenticationToken: ImagiLabsAuthenticationToken,
+        mobileAppClient: Boolean,
+        response: HttpServletResponse
+    ): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
         return try {
-            authenticate()
+            val authentication =
+                authenticationManager.authenticate(imagiLabsAuthenticationToken) as ImagiLabsAuthenticationToken
+            val principalId = authentication.getPrincipalId()
+                ?: throw InternalAuthenticationServiceException("PRINCIPAL_ID_IS_NULL")
+            val authenticationResponse = requestAuthenticatorService.authenticate(
+                principalId,
+                imagiLabsAuthenticationToken.userType,
+                response,
+                mobileAppClient
+            )
+            ResponseEntity.ok(SuccessResponseDto(authenticationResponse))
         } catch (e: DisabledException) {
             val errorResponse = ErrorResponseDto<AuthenticationSuccess?>(HttpStatus.UNAUTHORIZED.value(), "ACCOUNT_NOT_ACTIVE")
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
