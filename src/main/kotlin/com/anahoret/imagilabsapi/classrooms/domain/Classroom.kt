@@ -8,13 +8,14 @@ class Classroom(
     val name: String,
     val accessCode: String,
     val studentsCount: Long,
+    val projectsCount: Long,
     val teacherId: UUID
 ) {
     companion object {
 
-        fun fromEntity(classroomEntity: ClassroomEntity, studentsCount: Long): Classroom {
+        fun fromEntity(classroomEntity: ClassroomEntity, studentsCount: Long, projectsCount: Long): Classroom {
             return with(classroomEntity) {
-                Classroom(id!!, name, accessCode, studentsCount, teacherId)
+                Classroom(id!!, name, accessCode, studentsCount, projectsCount, teacherId)
             }
         }
     }

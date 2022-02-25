@@ -9,6 +9,8 @@ import javax.transaction.Transactional
 interface ProjectClassroomShareService {
 
     fun share(projectId: UUID, classroomId: UUID)
+    fun getProjectCounts(classroomIds: Iterable<UUID>): Map<UUID, Long>
+    fun getProjectCount(classroomId: UUID): Long
 }
 
 @Service
@@ -25,6 +27,15 @@ class ProjectClassroomShareServiceImpl(
                 ProjectClassroomShareEntity(projectId, classroomId)
             )
         }
+    }
+
+    override fun getProjectCounts(classroomIds: Iterable<UUID>): Map<UUID, Long> {
+        return projectClassroomShareEntityRepository.getProjectCounts(classroomIds)
+            .associate { it.classroomId to it.projectsCount }
+    }
+
+    override fun getProjectCount(classroomId: UUID): Long {
+        return projectClassroomShareEntityRepository.countByClassroomId(classroomId)
     }
 
 }

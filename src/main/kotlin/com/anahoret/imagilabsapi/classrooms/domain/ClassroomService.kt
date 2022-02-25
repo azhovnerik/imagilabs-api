@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.classrooms.domain
 
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
+import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLinkService
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.data.repository.findByIdOrNull
@@ -20,7 +21,8 @@ interface ClassroomService {
 @Service
 class ClassroomServiceImpl(
     private val classroomEntityRepository: ClassroomEntityRepository,
-    private val studentClassroomLinkService: StudentClassroomLinkService
+    private val studentClassroomLinkService: StudentClassroomLinkService,
+    private val projectClassroomShareService: ProjectClassroomShareService
 ) : ClassroomService {
 
     override fun create(teacherId: UUID, classroomCreateRequest: ClassroomCreateRequest): Classroom {
@@ -31,7 +33,7 @@ class ClassroomServiceImpl(
                 accessCode,
                 teacherId
             )
-        ).let { Classroom.fromEntity(it, studentsCount = 0) }
+        ).let { Classroom.fromEntity(it, studentsCount = 0, projectsCount = 0) }
     }
 
     override fun countByTeacher(teacherId: UUID): Long {
@@ -40,16 +42,25 @@ class ClassroomServiceImpl(
 
     override fun listByTeacher(teacherId: UUID): List<Classroom> {
         val classroomEntities = classroomEntityRepository.findAllByTeacherId(teacherId)
-        val studentCounts = studentClassroomLinkService.getStudentCounts(classroomEntities.map { it.id!! })
+        val classroomIds = classroomEntities.map { it.id!! }
+        val studentCounts = studentClassroomLinkService.getStudentCounts(classroomIds)
+        val projectCounts = projectClassroomShareService.getProjectCounts(classroomIds)
         return classroomEntities
-            .map { Classroom.fromEntity(it, studentCounts.getOrDefault(it.id!!, 0)) }
+            .map {
+                Classroom.fromEntity(
+                    classroomEntity = it,
+                    studentCounts.getOrDefault(it.id!!, 0),
+                    projectCounts.getOrDefault(it.id!!, 0)
+                )
+            }
     }
 
     override fun getById(classroomId: UUID): Classroom? {
         return classroomEntityRepository.findByIdOrNull(classroomId)
             ?.let {
                 val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
-                Classroom.fromEntity(it, studentsCount)
+                val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
+                Classroom.fromEntity(it, studentsCount, projectsCount)
             }
     }
 
