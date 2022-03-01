@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.projects.domain
+package com.anahoret.imagilabsapi.projects.domain.usecases
 
 import arrow.core.Either
 import arrow.core.left
@@ -7,6 +7,10 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.projects.domain.Project
+import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
+import com.anahoret.imagilabsapi.projects.domain.ProjectService
+import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
 import org.springframework.stereotype.Service
 import java.util.*
 

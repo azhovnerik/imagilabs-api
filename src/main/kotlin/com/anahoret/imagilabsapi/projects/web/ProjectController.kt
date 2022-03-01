@@ -5,7 +5,12 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
-import com.anahoret.imagilabsapi.projects.domain.*
+import com.anahoret.imagilabsapi.projects.domain.Project
+import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
+import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectCreateUseCase
+import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectGetUseCase
+import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectRunUseCase
+import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectUpdateUseCase
 import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.security.UserRole
 import org.springframework.http.ResponseEntity

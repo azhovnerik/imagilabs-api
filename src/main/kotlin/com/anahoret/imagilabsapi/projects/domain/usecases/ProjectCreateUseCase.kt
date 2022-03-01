@@ -1,6 +1,8 @@
-package com.anahoret.imagilabsapi.projects.domain
+package com.anahoret.imagilabsapi.projects.domain.usecases
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.projects.domain.Project
+import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import org.springframework.stereotype.Service
 
 interface ProjectCreateUseCase {
