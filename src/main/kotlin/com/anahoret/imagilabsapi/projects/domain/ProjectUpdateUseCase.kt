@@ -21,7 +21,8 @@ interface ProjectUpdateUseCase {
 
 @Service
 class ProjectUpdateUseCaseImpl(
-    private val projectService: ProjectService
+    private val projectService: ProjectService,
+    private val projectAccessService: ProjectAccessService
 ) : ProjectUpdateUseCase {
 
     override fun update(
@@ -30,7 +31,7 @@ class ProjectUpdateUseCaseImpl(
         projectUpdateRequest: ProjectUpdateRequest
     ): Either<OperationError, Project> {
         val project = projectService.getProjectById(projectId) ?: return NotFoundError("PROJECT_NOT_FOUND").left()
-        if (!projectService.isOwner(updateBy, project))
+        if (!projectAccessService.canEdit(updateBy, project))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
         return projectService.updateProject(projectId, projectUpdateRequest)?.right()
             ?: NotFoundError("PROJECT_NOT_FOUND").left()

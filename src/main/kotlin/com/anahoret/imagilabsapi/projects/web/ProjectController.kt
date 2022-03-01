@@ -5,10 +5,8 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
-import com.anahoret.imagilabsapi.projects.domain.Project
-import com.anahoret.imagilabsapi.projects.domain.ProjectCreateUseCase
-import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
-import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateUseCase
+import com.anahoret.imagilabsapi.projects.domain.*
+import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.security.UserRole
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
@@ -19,7 +17,8 @@ import java.util.*
 @RestController
 class ProjectController(
     private val projectCreateUseCase: ProjectCreateUseCase,
-    private val projectUpdateUseCase: ProjectUpdateUseCase
+    private val projectUpdateUseCase: ProjectUpdateUseCase,
+    private val projectRunUseCase: ProjectRunUseCase
 ) {
 
     @Secured(UserRole.teacher, UserRole.student)
@@ -39,6 +38,18 @@ class ProjectController(
         @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<Project?>> {
         return when (val result = projectUpdateUseCase.update(userProfile, projectId, projectUpdateRequest)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
+    }
+
+    @Secured(UserRole.teacher, UserRole.student)
+    @PostMapping("/api/projects/{projectId}/run-result")
+    fun runProject(
+        @PathVariable projectId: UUID,
+        @AuthenticationPrincipal userProfile: UserProfile
+    ): ResponseEntity<ResponseDto<RunCodeResponse>> {
+        return when (val result = projectRunUseCase.run(userProfile, projectId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }

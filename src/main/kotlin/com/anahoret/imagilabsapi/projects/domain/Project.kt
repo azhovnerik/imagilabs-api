@@ -1,7 +1,10 @@
 package com.anahoret.imagilabsapi.projects.domain
 
 import com.anahoret.imagilabsapi.projects.storage.ProjectEntity
+import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.users.UserType
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import java.util.*
 
 class Project(
@@ -10,17 +13,18 @@ class Project(
     val ownerId: UUID,
     val ownerUserType: UserType,
     val sourceCode: String,
-    val runResult: String?,
+    val runCodeResponse: RunCodeResponse?,
     val lastModifiedAt: Long,
     val createdAt: Long
 ) {
 
     companion object {
 
-        fun fromEntity(projectEntity: ProjectEntity): Project {
+        fun fromEntity(projectEntity: ProjectEntity, objectMapper: ObjectMapper): Project {
             return with(projectEntity) {
+                val runCodeResponse = runResult?.let<String, RunCodeResponse>(objectMapper::readValue)
                 Project(
-                    id!!, name, ownerId, ownerUserType, sourceCode, runResult, lastModifiedAt!!, createdAt!!
+                    id!!, name, ownerId, ownerUserType, sourceCode, runCodeResponse, lastModifiedAt!!, createdAt!!
                 )
             }
         }

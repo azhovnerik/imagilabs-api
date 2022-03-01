@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.projectclassroomshare.storage;
+package com.anahoret.imagilabsapi.projectclassroomshare.storage
 
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
@@ -21,6 +21,7 @@ interface ProjectClassroomShareEntityRepository : CrudRepository<ProjectClassroo
     )
     fun getProjectCounts(classroomIds: Iterable<UUID>): Iterable<ClassroomProjectCount>
     fun countByClassroomId(classroomId: UUID): Long
+    fun findAllByProjectId(projectId: UUID): Iterable<ProjectClassroomShareEntity>
 }
 
 interface ClassroomProjectCount {

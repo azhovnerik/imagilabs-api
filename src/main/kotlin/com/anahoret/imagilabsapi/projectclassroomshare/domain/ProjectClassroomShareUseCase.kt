@@ -8,6 +8,7 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLinkService
 import com.anahoret.imagilabsapi.users.UserType
@@ -27,7 +28,8 @@ class ProjectClassroomShareUseCaseImpl(
     private val projectClassroomShareService: ProjectClassroomShareService,
     private val projectService: ProjectService,
     private val classroomService: ClassroomService,
-    private val studentClassroomLinkService: StudentClassroomLinkService
+    private val studentClassroomLinkService: StudentClassroomLinkService,
+    private val projectAccessService: ProjectAccessService
 ) : ProjectClassroomShareUseCase {
 
     override fun share(
@@ -37,7 +39,7 @@ class ProjectClassroomShareUseCaseImpl(
         val project = projectService.getProjectById(projectClassroomShareRequest.projectId)
             ?: return NotFoundError("PROJECT_NOT_FOUND").left()
 
-        if (!projectService.isOwner(sharedBy, project))
+        if (!projectAccessService.canShare(sharedBy, project))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
 
         if (!isLinkedToClassroom(sharedBy, projectClassroomShareRequest.classroomId))

@@ -1,9 +1,10 @@
 package com.anahoret.imagilabsapi.projects.domain
 
-import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.projects.storage.ProjectEntity
 import com.anahoret.imagilabsapi.projects.storage.ProjectEntityRepository
+import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.users.UserType
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
@@ -13,12 +14,13 @@ interface ProjectService {
     fun createProject(ownerId: UUID, ownerType: UserType): Project
     fun getProjectById(projectId: UUID): Project?
     fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project?
-    fun isOwner(userProfile: UserProfile, project: Project): Boolean
+    fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse)
 }
 
 @Service
 class ProjectServiceImpl(
-    private val projectEntityRepository: ProjectEntityRepository
+    private val projectEntityRepository: ProjectEntityRepository,
+    private val objectMapper: ObjectMapper
 ) : ProjectService {
 
     override fun createProject(ownerId: UUID, ownerType: UserType): Project {
@@ -29,12 +31,12 @@ class ProjectServiceImpl(
                 ownerType,
                 sourceCode = ""
             )
-        ).let(Project.Companion::fromEntity)
+        ).let { Project.fromEntity(it, objectMapper) }
     }
 
     override fun getProjectById(projectId: UUID): Project? {
         return projectEntityRepository.findByIdOrNull(projectId)
-            ?.let(Project.Companion::fromEntity)
+            ?.let { Project.fromEntity(it, objectMapper) }
     }
 
     override fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project? {
@@ -42,11 +44,15 @@ class ProjectServiceImpl(
             it.name = projectUpdateRequest.name
             it.sourceCode = projectUpdateRequest.sourceCode
             projectEntityRepository.save(it)
-        }?.let(Project.Companion::fromEntity)
+        }?.let { Project.fromEntity(it, objectMapper) }
     }
 
-    override fun isOwner(userProfile: UserProfile, project: Project): Boolean {
-        return project.ownerId != userProfile.id || project.ownerUserType != userProfile.userType
+    override fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse) {
+        projectEntityRepository.findByIdOrNull(projectId)?.let {
+            val runResult = objectMapper.writeValueAsString(runCodeResponse)
+            it.runResult = runResult
+            projectEntityRepository.save(it)
+        }
     }
 
 }

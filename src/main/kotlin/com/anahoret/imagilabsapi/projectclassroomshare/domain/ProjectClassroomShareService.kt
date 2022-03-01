@@ -11,6 +11,7 @@ interface ProjectClassroomShareService {
     fun share(projectId: UUID, classroomId: UUID)
     fun getProjectCounts(classroomIds: Iterable<UUID>): Map<UUID, Long>
     fun getProjectCount(classroomId: UUID): Long
+    fun getShares(projectId: UUID): List<ProjectClassroomShare>
 }
 
 @Service
@@ -36,6 +37,11 @@ class ProjectClassroomShareServiceImpl(
 
     override fun getProjectCount(classroomId: UUID): Long {
         return projectClassroomShareEntityRepository.countByClassroomId(classroomId)
+    }
+
+    override fun getShares(projectId: UUID): List<ProjectClassroomShare> {
+        return projectClassroomShareEntityRepository.findAllByProjectId(projectId)
+            .map(ProjectClassroomShare.Companion::fromEntity)
     }
 
 }

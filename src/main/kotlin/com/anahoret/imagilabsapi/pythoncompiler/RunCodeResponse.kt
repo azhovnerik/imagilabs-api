@@ -3,7 +3,7 @@ package com.anahoret.imagilabsapi.pythoncompiler
 import com.fasterxml.jackson.annotation.JsonProperty
 
 class RunCodeResponse(
-    var output: CodeResult,
+    var output: CodeResult?,
     var errors: List<List<String>>
 )
 

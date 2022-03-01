@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.studentclassroomlink.storage;
+package com.anahoret.imagilabsapi.studentclassroomlink.storage
 
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
@@ -21,6 +21,7 @@ interface StudentClassroomLinkEntityRepository : CrudRepository<StudentClassroom
     fun countByClassroomId(classroomId: UUID): Long
     fun findAllByClassroomId(classroomId: UUID): Iterable<StudentClassroomLinkEntity>
     fun existsByStudentIdAndClassroomId(studentId: UUID, classroomId: UUID): Boolean
+    fun findAllByStudentId(studentId: UUID): Iterable<StudentClassroomLinkEntity>
 }
 
 interface ClassroomStudentCount {
