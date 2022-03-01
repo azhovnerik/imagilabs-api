@@ -18,7 +18,8 @@ import java.util.*
 class ProjectController(
     private val projectCreateUseCase: ProjectCreateUseCase,
     private val projectUpdateUseCase: ProjectUpdateUseCase,
-    private val projectRunUseCase: ProjectRunUseCase
+    private val projectRunUseCase: ProjectRunUseCase,
+    private val projectGetUseCase: ProjectGetUseCase
 ) {
 
     @Secured(UserRole.teacher, UserRole.student)
@@ -50,6 +51,18 @@ class ProjectController(
         @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<RunCodeResponse>> {
         return when (val result = projectRunUseCase.run(userProfile, projectId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
+    }
+
+    @Secured(UserRole.teacher, UserRole.student)
+    @GetMapping("/api/projects/{projectId}")
+    fun getProject(
+        @PathVariable projectId: UUID,
+        @AuthenticationPrincipal userProfile: UserProfile
+    ): ResponseEntity<ResponseDto<Project>> {
+        return when (val result = projectGetUseCase.get(userProfile, projectId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
