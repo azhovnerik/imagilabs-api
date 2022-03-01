@@ -15,6 +15,7 @@ interface ProjectService {
     fun getProjectById(projectId: UUID): Project?
     fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project?
     fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse)
+    fun listByIds(projectIds: Iterable<UUID>): List<Project>
 }
 
 @Service
@@ -53,6 +54,11 @@ class ProjectServiceImpl(
             it.runResult = runResult
             projectEntityRepository.save(it)
         }
+    }
+
+    override fun listByIds(projectIds: Iterable<UUID>): List<Project> {
+        return projectEntityRepository.findAllById(projectIds)
+            .map { Project.fromEntity(it, objectMapper) }
     }
 
 }

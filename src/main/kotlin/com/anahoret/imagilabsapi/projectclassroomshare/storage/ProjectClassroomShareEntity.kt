@@ -19,8 +19,8 @@ class ProjectClassroomShareEntity(
 )
 
 class ProjectClassroomShareId(
-    var projectId: UUID,
-    var classroomId: UUID
+    var projectId: UUID? = null,
+    var classroomId: UUID? = null
 ) : Serializable {
 
     companion object {

@@ -6,6 +6,7 @@ import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.common.web.toBadRequestResponse
+import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.students.domain.StudentCredentialsCard
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
@@ -19,7 +20,8 @@ import java.util.*
 class TeacherClassroomController(
     private val classroomCreateUseCase: ClassroomCreateUseCase,
     private val classroomService: ClassroomService,
-    private val listStudentsInClassroomUseCase: ListStudentsInClassroomUseCase
+    private val listStudentsInClassroomUseCase: ListStudentsInClassroomUseCase,
+    private val listProjectsInClassroomUseCase: ListProjectsInClassroomUseCase
 ) {
 
     @Secured(UserRole.teacher)
@@ -47,6 +49,18 @@ class TeacherClassroomController(
         @AuthenticationPrincipal teacherProfile: TeacherProfile
     ): ResponseEntity<ResponseDto<List<StudentCredentialsCard>?>> {
         return when (val result = listStudentsInClassroomUseCase.list(teacherProfile, classroomId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
+    }
+
+    @Secured(UserRole.teacher)
+    @GetMapping("/api/teacher/classrooms/{classroomId}/projects")
+    fun listProjectsInClassroom(
+        @PathVariable classroomId: UUID,
+        @AuthenticationPrincipal teacherProfile: TeacherProfile
+    ): ResponseEntity<ResponseDto<List<Project>>> {
+        return when (val result = listProjectsInClassroomUseCase.list(teacherProfile, classroomId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }

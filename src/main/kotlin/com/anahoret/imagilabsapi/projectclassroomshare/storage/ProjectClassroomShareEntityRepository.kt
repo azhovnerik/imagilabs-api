@@ -22,6 +22,7 @@ interface ProjectClassroomShareEntityRepository : CrudRepository<ProjectClassroo
     fun getProjectCounts(classroomIds: Iterable<UUID>): Iterable<ClassroomProjectCount>
     fun countByClassroomId(classroomId: UUID): Long
     fun findAllByProjectId(projectId: UUID): Iterable<ProjectClassroomShareEntity>
+    fun findAllByClassroomId(classroomId: UUID): Iterable<ProjectClassroomShareEntity>
 }
 
 interface ClassroomProjectCount {
