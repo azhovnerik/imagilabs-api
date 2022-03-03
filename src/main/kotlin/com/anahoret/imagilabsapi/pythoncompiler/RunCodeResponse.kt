@@ -2,12 +2,12 @@ package com.anahoret.imagilabsapi.pythoncompiler
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-class RunCodeResponse(
-    var output: CodeResult?,
-    var errors: List<List<String>>
+data class RunCodeResponse(
+    val output: CodeResult?,
+    val errors: List<List<String>>
 )
 
-class CodeResult(
+data class CodeResult(
     @field:JsonProperty("animation") val animation: Animation,
     @field:JsonProperty("scrolling_text") val scrollingText: ScrollingText,
     @field:JsonProperty("outdoor_mode") val outdoorMode: Boolean
