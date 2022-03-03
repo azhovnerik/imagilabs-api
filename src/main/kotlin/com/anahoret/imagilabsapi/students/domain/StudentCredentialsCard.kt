@@ -7,17 +7,28 @@ class StudentCredentialsCard(
     val id: UUID,
     val username: String,
     val password: String,
-    val classroomAccessCode: String
+    val classroomAccessCode: String,
+    val sharedProjectsCount: Long,
+    val draftProjectsCount: Long
 ) {
 
     companion object {
 
         fun fromEntity(
             studentProfileEntity: StudentProfileEntity,
-            classroomAccessCode: String
+            classroomAccessCode: String,
+            sharedProjectsCount: Long,
+            draftProjectsCount: Long
         ): StudentCredentialsCard {
             return with(studentProfileEntity) {
-                StudentCredentialsCard(id!!, username, password, classroomAccessCode)
+                StudentCredentialsCard(
+                    id!!,
+                    username,
+                    password,
+                    classroomAccessCode,
+                    sharedProjectsCount,
+                    draftProjectsCount
+                )
             }
         }
     }

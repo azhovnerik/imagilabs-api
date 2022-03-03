@@ -19,14 +19,33 @@ interface ProjectClassroomShareEntityRepository : CrudRepository<ProjectClassroo
         """,
         nativeQuery = true
     )
-    fun getProjectCounts(classroomIds: Iterable<UUID>): Iterable<ClassroomProjectCount>
+    fun getProjectCountsByClassrooms(classroomIds: Iterable<UUID>): Iterable<ClassroomSharedProjectCount>
     fun countByClassroomId(classroomId: UUID): Long
     fun findAllByProjectId(projectId: UUID): Iterable<ProjectClassroomShareEntity>
     fun findAllByClassroomId(classroomId: UUID): Iterable<ProjectClassroomShareEntity>
+
+    @Query(
+        """
+        SELECT
+            p.ownerId AS ownerId,
+            COUNT(p.id) AS projectsCount
+        FROM ProjectClassroomShareEntity pcs
+        JOIN ProjectEntity p ON pcs.projectId = p.id
+        WHERE p.ownerId IN :ownerIds
+        GROUP BY p.ownerId
+        """
+    )
+    fun getProjectCountsByOwners(ownerIds: Iterable<UUID>): Iterable<OwnerSharedProjectCount>
 }
 
-interface ClassroomProjectCount {
+interface ClassroomSharedProjectCount {
 
     val classroomId: UUID
+    val projectsCount: Long
+}
+
+interface OwnerSharedProjectCount {
+
+    val ownerId: UUID
     val projectsCount: Long
 }

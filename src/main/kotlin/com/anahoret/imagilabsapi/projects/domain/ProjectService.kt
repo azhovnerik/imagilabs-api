@@ -16,6 +16,7 @@ interface ProjectService {
     fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project?
     fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse)
     fun listByIds(projectIds: Iterable<UUID>): List<Project>
+    fun getProjectCounts(ownerIds: Iterable<UUID>): Map<UUID, Long>
 }
 
 @Service
@@ -59,6 +60,11 @@ class ProjectServiceImpl(
     override fun listByIds(projectIds: Iterable<UUID>): List<Project> {
         return projectEntityRepository.findAllById(projectIds)
             .map { Project.fromEntity(it, objectMapper) }
+    }
+
+    override fun getProjectCounts(ownerIds: Iterable<UUID>): Map<UUID, Long> {
+        return projectEntityRepository.countByOwnerIds(ownerIds)
+            .associate { it.ownerId to it.projectsCount }
     }
 
 }

@@ -6,6 +6,8 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
+import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLink
 import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLinkService
 import com.anahoret.imagilabsapi.students.domain.StudentCredentialsCard
@@ -23,16 +25,26 @@ interface ListStudentsInClassroomUseCase {
 class ListStudentsInClassroomUseCaseImpl(
     private val classroomService: ClassroomService,
     private val studentClassroomLinkService: StudentClassroomLinkService,
-    private val studentProfileService: StudentProfileService
+    private val studentProfileService: StudentProfileService,
+    private val projectService: ProjectService,
+    private val projectClassroomShareService: ProjectClassroomShareService
 ) : ListStudentsInClassroomUseCase {
 
     override fun list(listBy: TeacherProfile, classroomId: UUID): Either<OperationError, List<StudentCredentialsCard>> {
         val classroom = classroomService.getById(classroomId) ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
         if (classroom.teacherId != listBy.id) return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-        return studentClassroomLinkService.listByClassroom(classroom.id)
+        val studentIds = studentClassroomLinkService.listByClassroom(classroom.id)
             .map(StudentClassroomLink::studentId)
-            .let { studentProfileService.listStudentCredentialsCardsByIds(it, classroom.accessCode) }
-            .right()
+
+        val projectCounts = projectService.getProjectCounts(studentIds)
+        val sharedProjectCounts = projectClassroomShareService.getProjectCountsByOwners(studentIds)
+
+        return studentProfileService.listStudentCredentialsCardsByIds(
+            studentIds,
+            classroom.accessCode,
+            projectCounts,
+            sharedProjectCounts
+        ).right()
     }
 }

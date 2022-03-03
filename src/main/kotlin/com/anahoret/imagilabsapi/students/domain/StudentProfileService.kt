@@ -17,7 +17,9 @@ interface StudentProfileService {
 
     fun listStudentCredentialsCardsByIds(
         studentIds: Iterable<UUID>,
-        classroomAccessCode: String
+        classroomAccessCode: String,
+        projectCounts: Map<UUID, Long>,
+        sharedProjectCounts: Map<UUID, Long>
     ): List<StudentCredentialsCard>
 
     fun getStudentById(studentId: UUID): StudentProfile?
@@ -49,10 +51,21 @@ class StudentProfileServiceImpl(
 
     override fun listStudentCredentialsCardsByIds(
         studentIds: Iterable<UUID>,
-        classroomAccessCode: String
+        classroomAccessCode: String,
+        projectCounts: Map<UUID, Long>,
+        sharedProjectCounts: Map<UUID, Long>
     ): List<StudentCredentialsCard> {
         return studentProfileEntityRepository.findAllById(studentIds)
-            .map { StudentCredentialsCard.fromEntity(it, classroomAccessCode) }
+            .map {
+                val sharedProjectsCount = sharedProjectCounts.getOrDefault(it.id, 0)
+                val draftProjectsCount = projectCounts.getOrDefault(it.id, 0) - sharedProjectsCount
+                StudentCredentialsCard.fromEntity(
+                    it,
+                    classroomAccessCode,
+                    sharedProjectsCount,
+                    draftProjectsCount
+                )
+            }
     }
 
     override fun getStudentById(studentId: UUID): StudentProfile? {
