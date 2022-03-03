@@ -43,7 +43,7 @@ class TeacherClassroomController(
     }
 
     @Secured(UserRole.teacher)
-    @GetMapping("/api/teacher/classrooms/{classroomId}/student-credentials-cards")
+    @GetMapping("/api/teacher/classrooms/{classroomId}/student-classroom-cards")
     fun listStudentsCredentialsCardsInClassroom(
         @PathVariable classroomId: UUID,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
