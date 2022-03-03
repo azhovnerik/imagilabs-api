@@ -10,7 +10,7 @@ import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomSh
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLink
 import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLinkService
-import com.anahoret.imagilabsapi.students.domain.StudentCredentialsCard
+import com.anahoret.imagilabsapi.students.domain.StudentClassroomCard
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
@@ -18,7 +18,7 @@ import java.util.*
 
 interface ListStudentsInClassroomUseCase {
 
-    fun list(listBy: TeacherProfile, classroomId: UUID): Either<OperationError, List<StudentCredentialsCard>>
+    fun list(listBy: TeacherProfile, classroomId: UUID): Either<OperationError, List<StudentClassroomCard>>
 }
 
 @Service
@@ -30,7 +30,7 @@ class ListStudentsInClassroomUseCaseImpl(
     private val projectClassroomShareService: ProjectClassroomShareService
 ) : ListStudentsInClassroomUseCase {
 
-    override fun list(listBy: TeacherProfile, classroomId: UUID): Either<OperationError, List<StudentCredentialsCard>> {
+    override fun list(listBy: TeacherProfile, classroomId: UUID): Either<OperationError, List<StudentClassroomCard>> {
         val classroom = classroomService.getById(classroomId) ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
         if (classroom.teacherId != listBy.id) return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 

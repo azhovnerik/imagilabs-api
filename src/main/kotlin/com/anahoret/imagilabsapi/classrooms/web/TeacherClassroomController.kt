@@ -8,7 +8,7 @@ import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.common.web.toBadRequestResponse
 import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.security.UserRole
-import com.anahoret.imagilabsapi.students.domain.StudentCredentialsCard
+import com.anahoret.imagilabsapi.students.domain.StudentClassroomCard
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
@@ -47,7 +47,7 @@ class TeacherClassroomController(
     fun listStudentsCredentialsCardsInClassroom(
         @PathVariable classroomId: UUID,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
-    ): ResponseEntity<ResponseDto<List<StudentCredentialsCard>?>> {
+    ): ResponseEntity<ResponseDto<List<StudentClassroomCard>?>> {
         return when (val result = listStudentsInClassroomUseCase.list(teacherProfile, classroomId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))

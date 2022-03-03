@@ -3,7 +3,7 @@ package com.anahoret.imagilabsapi.students.domain
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import java.util.*
 
-class StudentCredentialsCard(
+class StudentClassroomCard(
     val id: UUID,
     val username: String,
     val password: String,
@@ -19,9 +19,9 @@ class StudentCredentialsCard(
             classroomAccessCode: String,
             sharedProjectsCount: Long,
             draftProjectsCount: Long
-        ): StudentCredentialsCard {
+        ): StudentClassroomCard {
             return with(studentProfileEntity) {
-                StudentCredentialsCard(
+                StudentClassroomCard(
                     id!!,
                     username,
                     password,

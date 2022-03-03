@@ -20,7 +20,7 @@ interface StudentProfileService {
         classroomAccessCode: String,
         projectCounts: Map<UUID, Long>,
         sharedProjectCounts: Map<UUID, Long>
-    ): List<StudentCredentialsCard>
+    ): List<StudentClassroomCard>
 
     fun getStudentById(studentId: UUID): StudentProfile?
     fun getStudentCredentials(studentLoginRequest: StudentLoginRequest): StudentCredentials?
@@ -54,12 +54,12 @@ class StudentProfileServiceImpl(
         classroomAccessCode: String,
         projectCounts: Map<UUID, Long>,
         sharedProjectCounts: Map<UUID, Long>
-    ): List<StudentCredentialsCard> {
+    ): List<StudentClassroomCard> {
         return studentProfileEntityRepository.findAllById(studentIds)
             .map {
                 val sharedProjectsCount = sharedProjectCounts.getOrDefault(it.id, 0)
                 val draftProjectsCount = projectCounts.getOrDefault(it.id, 0) - sharedProjectsCount
-                StudentCredentialsCard.fromEntity(
+                StudentClassroomCard.fromEntity(
                     it,
                     classroomAccessCode,
                     sharedProjectsCount,
