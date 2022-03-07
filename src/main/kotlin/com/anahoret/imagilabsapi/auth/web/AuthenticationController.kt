@@ -78,10 +78,15 @@ class AuthenticationController(
         }
     }
 
-    private inline fun <reified T : AuthenticationSuccess> tryAuthenticate(
+    private fun <T> tryAuthenticate(
         authToken: ImagiLabsAuthenticationToken,
         f: (UUID) -> ResponseDto<T?>
     ): ResponseEntity<ResponseDto<T?>> {
+        fun unauthorized(message: String): ResponseEntity<ResponseDto<T?>> {
+            val errorResponse = ErrorResponseDto<T?>(HttpStatus.UNAUTHORIZED.value(), message)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
+        }
+
         return try {
             val authentication =
                 authenticationManager.authenticate(authToken) as ImagiLabsAuthenticationToken
@@ -89,14 +94,11 @@ class AuthenticationController(
                 ?: throw InternalAuthenticationServiceException("PRINCIPAL_ID_IS_NULL")
             ResponseEntity.ok(f(principalId))
         } catch (e: DisabledException) {
-            val errorResponse = ErrorResponseDto<T?>(HttpStatus.UNAUTHORIZED.value(), "ACCOUNT_NOT_ACTIVE")
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
+            unauthorized("ACCOUNT_NOT_ACTIVE")
         } catch (e: BadCredentialsException) {
-            val errorResponse = ErrorResponseDto<T?>(HttpStatus.UNAUTHORIZED.value(), "WRONG_CREDENTIALS")
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
+            unauthorized("WRONG_CREDENTIALS")
         } catch (e: AuthenticationException) {
-            val errorResponse = ErrorResponseDto<T?>(HttpStatus.UNAUTHORIZED.value(), "AUTHENTICATION_FAILED")
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
+            unauthorized("AUTHENTICATION_FAILED")
         }
     }
 
