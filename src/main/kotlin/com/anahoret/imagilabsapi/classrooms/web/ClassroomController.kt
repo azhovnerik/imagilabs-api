@@ -2,7 +2,7 @@ package com.anahoret.imagilabsapi.classrooms.web
 
 import arrow.core.Either
 import com.anahoret.imagilabsapi.classrooms.domain.*
-import com.anahoret.imagilabsapi.classrooms.domain.studentcredentialscards.StudentCredentialsCardsPdfGenerator
+import com.anahoret.imagilabsapi.classrooms.domain.studentcredentialscards.StudentCredentialsCardsGenerator
 import com.anahoret.imagilabsapi.classrooms.domain.studentcredentialscards.StudentsCredentialsCardsFormat
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.*
@@ -24,7 +24,7 @@ class ClassroomController(
     private val classroomService: ClassroomService,
     private val listStudentsInClassroomUseCase: ListStudentsInClassroomUseCase,
     private val listProjectsInClassroomUseCase: ListProjectsInClassroomUseCase,
-    private val studentCredentialsCardsPdfGenerator: StudentCredentialsCardsPdfGenerator
+    private val studentCredentialsCardsGenerator: StudentCredentialsCardsGenerator
 ) {
 
     @Secured(UserRole.teacher)
@@ -76,15 +76,7 @@ class ClassroomController(
         @AuthenticationPrincipal teacherProfile: TeacherProfile,
         @RequestParam("format") format: StudentsCredentialsCardsFormat
     ): ResponseEntity<*> {
-        val result = when (format) {
-            StudentsCredentialsCardsFormat.PDF ->
-                studentCredentialsCardsPdfGenerator.generate(teacherProfile, classroomId)
-
-            StudentsCredentialsCardsFormat.CSV ->
-                return ResponseEntity.notFound().build<Void>()
-        }
-
-        return when (result) {
+        return when (val result = studentCredentialsCardsGenerator.generate(teacherProfile, classroomId, format)) {
             is Either.Left -> mapErrors<Void>(result.value)
             is Either.Right -> result.value.inputStream.toFileResponse(
                 fileName = result.value.fileName,

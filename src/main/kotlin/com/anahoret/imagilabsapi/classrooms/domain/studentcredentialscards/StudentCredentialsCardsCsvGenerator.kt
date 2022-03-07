@@ -4,13 +4,13 @@ import com.anahoret.imagilabsapi.students.domain.StudentClassroomCard
 import org.springframework.stereotype.Service
 import java.io.InputStream
 
-interface StudentCredentialsCardsPdfGenerator {
+interface StudentCredentialsCardsCsvGenerator {
 
     fun generate(studentClassroomCards: List<StudentClassroomCard>): InputStream
 }
 
 @Service
-class StudentCredentialsCardsPdfGeneratorImpl : StudentCredentialsCardsPdfGenerator {
+class StudentCredentialsCardsCsvGeneratorImpl : StudentCredentialsCardsCsvGenerator {
 
     override fun generate(studentClassroomCards: List<StudentClassroomCard>): InputStream {
         TODO("not implemented")
