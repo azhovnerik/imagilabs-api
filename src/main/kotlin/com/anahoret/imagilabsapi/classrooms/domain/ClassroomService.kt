@@ -16,6 +16,7 @@ interface ClassroomService {
     fun listByTeacher(teacherId: UUID): List<Classroom>
     fun getById(classroomId: UUID): Classroom?
     fun isClassroomOwnedByTeacher(classroomId: UUID, teacherId: UUID): Boolean
+    fun getByAccessCode(accessCode: String): Classroom?
 }
 
 @Service
@@ -57,6 +58,15 @@ class ClassroomServiceImpl(
 
     override fun getById(classroomId: UUID): Classroom? {
         return classroomEntityRepository.findByIdOrNull(classroomId)
+            ?.let {
+                val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
+                val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
+                Classroom.fromEntity(it, studentsCount, projectsCount)
+            }
+    }
+
+    override fun getByAccessCode(accessCode: String): Classroom? {
+        return classroomEntityRepository.findByAccessCode(accessCode)
             ?.let {
                 val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
                 val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)

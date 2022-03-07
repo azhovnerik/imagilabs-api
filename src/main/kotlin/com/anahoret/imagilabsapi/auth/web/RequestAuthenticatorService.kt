@@ -19,12 +19,18 @@ import javax.servlet.http.HttpServletResponse
 
 interface RequestAuthenticatorService {
 
-    fun authenticate(
-        userId: UUID,
-        userType: UserType,
+    fun authenticateStudent(
+        studentId: UUID,
+        response: HttpServletResponse,
+        mobileAppClient: Boolean,
+        currentClassroomId: UUID
+    ): StudentAuthenticationSuccess
+
+    fun authenticateTeacher(
+        teacherId: UUID,
         response: HttpServletResponse,
         mobileAppClient: Boolean
-    ): AuthenticationSuccess
+    ): TeacherAuthenticationSuccess
 
     fun updateAuthenticationToken(
         authToken: String,
@@ -42,33 +48,31 @@ class RequestAuthenticatorServiceImpl(
     private val studentProfileService: StudentProfileService
 ) : RequestAuthenticatorService {
 
-    override fun authenticate(
-        userId: UUID,
-        userType: UserType,
+    override fun authenticateStudent(
+        studentId: UUID,
         response: HttpServletResponse,
-        mobileAppClient: Boolean
-    ): AuthenticationSuccess {
+        mobileAppClient: Boolean,
+        currentClassroomId: UUID
+    ): StudentAuthenticationSuccess {
         val tokenTTL = getTokenTTL(mobileAppClient)
-        val jwtTokenData = jwtTokenUtil.createToken(userId, userType, tokenTTL)
+        val jwtTokenData = jwtTokenUtil.createToken(studentId, UserType.STUDENT, tokenTTL, currentClassroomId)
         setAuthCookie(jwtTokenData.token, response)
-        when (val profile = getProfile(userId, userType)) {
-            is StudentUserProfileData -> {
-                val userData = StudentUserData(userId, userType.name, profile)
-                return StudentAuthenticationSuccess(userData, jwtTokenData)
-            }
-            is TeacherUserProfileData -> {
-                val userData = TeacherUserData(userId, userType.name, profile)
-                return TeacherAuthenticationSuccess(userData, jwtTokenData)
-            }
-        }
-
+        val profile = studentProfileService.getStudentById(studentId)?.let(::StudentUserProfileData)
+        val userData = StudentUserData(studentId, UserType.STUDENT.name, profile, currentClassroomId)
+        return StudentAuthenticationSuccess(userData, jwtTokenData)
     }
 
-    private fun getProfile(userId: UUID, userType: UserType): UserProfileData {
-        return when (userType) {
-            UserType.TEACHER -> teacherProfileService.getTeacherById(userId)?.let(::TeacherUserProfileData)
-            UserType.STUDENT -> studentProfileService.getStudentById(userId)?.let(::StudentUserProfileData)
-        } ?: throw java.lang.RuntimeException("USER_PROFILE_NOT_FOUND")
+    override fun authenticateTeacher(
+        teacherId: UUID,
+        response: HttpServletResponse,
+        mobileAppClient: Boolean
+    ): TeacherAuthenticationSuccess {
+        val tokenTTL = getTokenTTL(mobileAppClient)
+        val jwtTokenData = jwtTokenUtil.createToken(teacherId, UserType.TEACHER, tokenTTL, null)
+        setAuthCookie(jwtTokenData.token, response)
+        val profile = teacherProfileService.getTeacherById(teacherId)?.let(::TeacherUserProfileData)
+        val userData = TeacherUserData(teacherId, UserType.TEACHER.name, profile)
+        return TeacherAuthenticationSuccess(userData, jwtTokenData)
     }
 
     override fun updateAuthenticationToken(

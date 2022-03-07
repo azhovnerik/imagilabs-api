@@ -20,7 +20,8 @@ class TeacherUserData(
 class StudentUserData(
     id: UUID,
     userType: String,
-    val profile: StudentUserProfileData?
+    val profile: StudentUserProfileData?,
+    val currentClassroomId: UUID
 ) : UserData(id, userType)
 
 sealed interface UserProfileData

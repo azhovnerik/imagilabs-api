@@ -13,7 +13,6 @@ import com.anahoret.imagilabsapi.signup.domain.TeacherSignUpUseCase
 import com.anahoret.imagilabsapi.teachers.domain.TeacherEmailVerificationRequest
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherSignupRequest
-import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
@@ -65,9 +64,8 @@ class TeacherSignupController(
         response: HttpServletResponse,
         mobileAppClient: Boolean
     ): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
-        val authenticationResponse = requestAuthenticatorService.authenticate(
+        val authenticationResponse = requestAuthenticatorService.authenticateTeacher(
             teacherProfile.id,
-            UserType.TEACHER,
             response,
             mobileAppClient
         )

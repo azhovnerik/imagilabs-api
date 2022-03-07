@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.auth.web
 
 import com.anahoret.imagilabsapi.auth.domain.ImagiLabsAuthenticationToken
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.web.EmptySuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.ErrorResponseDto
 import com.anahoret.imagilabsapi.common.web.ResponseDto
@@ -18,12 +19,14 @@ import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 import javax.servlet.http.HttpServletResponse
 
 @RestController
 class AuthenticationController(
     private val authenticationManager: AuthenticationManager,
     private val requestAuthenticatorService: RequestAuthenticatorService,
+    private val classroomService: ClassroomService
 ) {
 
     @PostMapping("/api/auth/logout")
@@ -42,7 +45,14 @@ class AuthenticationController(
             UserType.TEACHER,
             teacherLoginRequest.password
         )
-        return tryAuthenticate(authToken, teacherLoginRequest.mobileAppClient, response)
+        return tryAuthenticate(authToken) { principalId ->
+            val authenticationResponse = requestAuthenticatorService.authenticateTeacher(
+                principalId,
+                response,
+                teacherLoginRequest.mobileAppClient
+            )
+            SuccessResponseDto(authenticationResponse)
+        }
     }
 
     @PostMapping("/api/auth/student")
@@ -55,26 +65,29 @@ class AuthenticationController(
             UserType.STUDENT,
             studentLoginRequest
         )
-        return tryAuthenticate(authToken, studentLoginRequest.mobileAppClient, response)
+        return tryAuthenticate(authToken) { principalId ->
+            val currentClassroom = classroomService.getByAccessCode(studentLoginRequest.classroomAccessCode)
+                ?: throw InternalAuthenticationServiceException("CLASSROOM_DOES_NOT_EXIST")
+            val authenticationResponse = requestAuthenticatorService.authenticateStudent(
+                principalId,
+                response,
+                studentLoginRequest.mobileAppClient,
+                currentClassroom.id
+            )
+            SuccessResponseDto(authenticationResponse)
+        }
     }
 
     private inline fun <reified T : AuthenticationSuccess> tryAuthenticate(
-        imagiLabsAuthenticationToken: ImagiLabsAuthenticationToken,
-        mobileAppClient: Boolean,
-        response: HttpServletResponse
+        authToken: ImagiLabsAuthenticationToken,
+        f: (UUID) -> ResponseDto<T?>
     ): ResponseEntity<ResponseDto<T?>> {
         return try {
             val authentication =
-                authenticationManager.authenticate(imagiLabsAuthenticationToken) as ImagiLabsAuthenticationToken
+                authenticationManager.authenticate(authToken) as ImagiLabsAuthenticationToken
             val principalId = authentication.getPrincipalId()
                 ?: throw InternalAuthenticationServiceException("PRINCIPAL_ID_IS_NULL")
-            val authenticationResponse = requestAuthenticatorService.authenticate(
-                principalId,
-                imagiLabsAuthenticationToken.userType,
-                response,
-                mobileAppClient
-            ) as T
-            ResponseEntity.ok(SuccessResponseDto(authenticationResponse))
+            ResponseEntity.ok(f(principalId))
         } catch (e: DisabledException) {
             val errorResponse = ErrorResponseDto<T?>(HttpStatus.UNAUTHORIZED.value(), "ACCOUNT_NOT_ACTIVE")
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
