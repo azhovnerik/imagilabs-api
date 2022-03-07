@@ -12,8 +12,23 @@ interface StudentCredentialsCardsCsvGenerator {
 @Service
 class StudentCredentialsCardsCsvGeneratorImpl : StudentCredentialsCardsCsvGenerator {
 
+    companion object {
+
+        val HEADERS = listOf(
+            "Username",
+            "Classroom access code",
+            "Password"
+        )
+    }
+
     override fun generate(studentClassroomCards: List<StudentClassroomCard>): InputStream {
-        TODO("not implemented")
+        return StringBuilder()
+            .appendLine(HEADERS.joinToString(","))
+            .apply {
+                studentClassroomCards.forEach { card ->
+                    appendLine("${card.username},${card.classroomAccessCode},${card.password}")
+                }
+            }.toString().byteInputStream()
     }
 
 }
