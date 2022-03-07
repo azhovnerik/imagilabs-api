@@ -51,16 +51,24 @@ class RequestAuthenticatorServiceImpl(
         val tokenTTL = getTokenTTL(mobileAppClient)
         val jwtTokenData = jwtTokenUtil.createToken(userId, userType, tokenTTL)
         setAuthCookie(jwtTokenData.token, response)
-        val profile = getProfile(userId, userType)
-        val userData = UserData(userId, userType.name, profile)
-        return AuthenticationSuccess(userData, jwtTokenData)
+        when (val profile = getProfile(userId, userType)) {
+            is StudentUserProfileData -> {
+                val userData = StudentUserData(userId, userType.name, profile)
+                return StudentAuthenticationSuccess(userData, jwtTokenData)
+            }
+            is TeacherUserProfileData -> {
+                val userData = TeacherUserData(userId, userType.name, profile)
+                return TeacherAuthenticationSuccess(userData, jwtTokenData)
+            }
+        }
+
     }
 
-    private fun getProfile(userId: UUID, userType: UserType): UserProfileData? {
+    private fun getProfile(userId: UUID, userType: UserType): UserProfileData {
         return when (userType) {
             UserType.TEACHER -> teacherProfileService.getTeacherById(userId)?.let(::TeacherUserProfileData)
             UserType.STUDENT -> studentProfileService.getStudentById(userId)?.let(::StudentUserProfileData)
-        }
+        } ?: throw java.lang.RuntimeException("USER_PROFILE_NOT_FOUND")
     }
 
     override fun updateAuthenticationToken(

@@ -6,17 +6,33 @@ import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.util.*
 
-sealed class AuthenticationResponse
-
-class UserData(
+sealed class UserData(
     val id: UUID,
     val userType: String,
-    val profile: UserProfileData?
 )
 
-interface UserProfileData
+class TeacherUserData(
+    id: UUID,
+    userType: String,
+    val profile: TeacherUserProfileData?
+) : UserData(id, userType)
+
+class StudentUserData(
+    id: UUID,
+    userType: String,
+    val profile: StudentUserProfileData?
+) : UserData(id, userType)
+
+sealed interface UserProfileData
 class TeacherUserProfileData(val teacherProfile: TeacherProfile) : UserProfileData
 class StudentUserProfileData(val studentProfile: StudentProfile) : UserProfileData
 
+sealed class AuthenticationSuccess(val jwtToken: JwtTokenData)
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class AuthenticationSuccess(val currentUser: UserData, val jwtToken: JwtTokenData) : AuthenticationResponse()
+class TeacherAuthenticationSuccess(val currentUser: TeacherUserData, jwtToken: JwtTokenData) :
+    AuthenticationSuccess(jwtToken)
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+class StudentAuthenticationSuccess(val currentUser: StudentUserData, jwtToken: JwtTokenData) :
+    AuthenticationSuccess(jwtToken)

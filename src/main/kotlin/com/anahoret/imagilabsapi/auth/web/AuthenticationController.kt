@@ -36,7 +36,7 @@ class AuthenticationController(
     fun teacherLogin(
         @RequestBody teacherLoginRequest: TeacherLoginRequest,
         response: HttpServletResponse
-    ): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
+    ): ResponseEntity<ResponseDto<TeacherAuthenticationSuccess?>> {
         val authToken = ImagiLabsAuthenticationToken(
             teacherLoginRequest.email.lowercase(),
             UserType.TEACHER,
@@ -49,7 +49,7 @@ class AuthenticationController(
     fun studentLogin(
         @RequestBody studentLoginRequest: StudentLoginRequest,
         response: HttpServletResponse
-    ): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
+    ): ResponseEntity<ResponseDto<StudentAuthenticationSuccess?>> {
         val authToken = ImagiLabsAuthenticationToken(
             studentLoginRequest.username,
             UserType.STUDENT,
@@ -58,11 +58,11 @@ class AuthenticationController(
         return tryAuthenticate(authToken, studentLoginRequest.mobileAppClient, response)
     }
 
-    private fun tryAuthenticate(
+    private inline fun <reified T : AuthenticationSuccess> tryAuthenticate(
         imagiLabsAuthenticationToken: ImagiLabsAuthenticationToken,
         mobileAppClient: Boolean,
         response: HttpServletResponse
-    ): ResponseEntity<ResponseDto<AuthenticationSuccess?>> {
+    ): ResponseEntity<ResponseDto<T?>> {
         return try {
             val authentication =
                 authenticationManager.authenticate(imagiLabsAuthenticationToken) as ImagiLabsAuthenticationToken
@@ -73,16 +73,16 @@ class AuthenticationController(
                 imagiLabsAuthenticationToken.userType,
                 response,
                 mobileAppClient
-            )
+            ) as T
             ResponseEntity.ok(SuccessResponseDto(authenticationResponse))
         } catch (e: DisabledException) {
-            val errorResponse = ErrorResponseDto<AuthenticationSuccess?>(HttpStatus.UNAUTHORIZED.value(), "ACCOUNT_NOT_ACTIVE")
+            val errorResponse = ErrorResponseDto<T?>(HttpStatus.UNAUTHORIZED.value(), "ACCOUNT_NOT_ACTIVE")
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
         } catch (e: BadCredentialsException) {
-            val errorResponse = ErrorResponseDto<AuthenticationSuccess?>(HttpStatus.UNAUTHORIZED.value(), "WRONG_CREDENTIALS")
+            val errorResponse = ErrorResponseDto<T?>(HttpStatus.UNAUTHORIZED.value(), "WRONG_CREDENTIALS")
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
         } catch (e: AuthenticationException) {
-            val errorResponse = ErrorResponseDto<AuthenticationSuccess?>(HttpStatus.UNAUTHORIZED.value(), "AUTHENTICATION_FAILED")
+            val errorResponse = ErrorResponseDto<T?>(HttpStatus.UNAUTHORIZED.value(), "AUTHENTICATION_FAILED")
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
         }
     }
