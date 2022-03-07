@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 interface ClassroomAccessService {
 
     fun canListProjects(userProfile: UserProfile, classroom: Classroom): Boolean
+    fun canGetClassroom(userProfile: UserProfile, classroom: Classroom): Boolean
 }
 
 @Service
@@ -17,9 +18,24 @@ class ClassroomAccessServiceImpl(
 
     override fun canListProjects(userProfile: UserProfile, classroom: Classroom): Boolean {
         return when (userProfile.userType) {
-            UserType.TEACHER -> userProfile.id == classroom.teacherId
-            UserType.STUDENT -> studentClassroomLinkService.isStudentLinkedToClassroom(userProfile.id, classroom.id)
+            UserType.TEACHER -> isClassroomTeacher(userProfile, classroom)
+            UserType.STUDENT -> isClassroomStudent(userProfile, classroom)
         }
+    }
+
+    override fun canGetClassroom(userProfile: UserProfile, classroom: Classroom): Boolean {
+        return when (userProfile.userType) {
+            UserType.TEACHER -> isClassroomTeacher(userProfile, classroom)
+            UserType.STUDENT -> isClassroomStudent(userProfile, classroom)
+        }
+    }
+
+    private fun isClassroomStudent(userProfile: UserProfile, classroom: Classroom): Boolean {
+        return studentClassroomLinkService.isStudentLinkedToClassroom(userProfile.id, classroom.id)
+    }
+
+    private fun isClassroomTeacher(userProfile: UserProfile, classroom: Classroom): Boolean {
+        return userProfile.id == classroom.teacherId
     }
 
 }

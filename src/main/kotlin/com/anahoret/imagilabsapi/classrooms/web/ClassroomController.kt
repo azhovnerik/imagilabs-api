@@ -20,6 +20,7 @@ import java.util.*
 @RestController
 class ClassroomController(
     private val classroomCreateUseCase: ClassroomCreateUseCase,
+    private val classroomGetUseCase: ClassroomGetUseCase,
     private val classroomService: ClassroomService,
     private val listStudentsInClassroomUseCase: ListStudentsInClassroomUseCase,
     private val listProjectsInClassroomUseCase: ListProjectsInClassroomUseCase
@@ -41,6 +42,18 @@ class ClassroomController(
     @GetMapping("/api/classrooms")
     fun listClassrooms(@AuthenticationPrincipal teacherProfile: TeacherProfile): ResponseDto<List<Classroom>> {
         return SuccessResponseDto(classroomService.listByTeacher(teacherProfile.id))
+    }
+
+    @Secured(UserRole.teacher, UserRole.student)
+    @GetMapping("/api/classrooms/{classroomId}")
+    fun getClassroomById(
+        @PathVariable classroomId: UUID,
+        @AuthenticationPrincipal userProfile: UserProfile
+    ): ResponseEntity<ResponseDto<Classroom?>> {
+        return when (val result = classroomGetUseCase.get(userProfile, classroomId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
     }
 
     @Secured(UserRole.teacher)
