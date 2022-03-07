@@ -2,15 +2,15 @@ package com.anahoret.imagilabsapi.classrooms.web
 
 import arrow.core.Either
 import com.anahoret.imagilabsapi.classrooms.domain.*
+import com.anahoret.imagilabsapi.classrooms.domain.studentcredentialscards.StudentCredentialsCardsPdfGenerator
+import com.anahoret.imagilabsapi.classrooms.domain.studentcredentialscards.StudentsCredentialsCardsFormat
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
-import com.anahoret.imagilabsapi.common.web.ResponseDto
-import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
-import com.anahoret.imagilabsapi.common.web.mapErrors
-import com.anahoret.imagilabsapi.common.web.toBadRequestResponse
+import com.anahoret.imagilabsapi.common.web.*
 import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.students.domain.StudentClassroomCard
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -23,7 +23,8 @@ class ClassroomController(
     private val classroomGetUseCase: ClassroomGetUseCase,
     private val classroomService: ClassroomService,
     private val listStudentsInClassroomUseCase: ListStudentsInClassroomUseCase,
-    private val listProjectsInClassroomUseCase: ListProjectsInClassroomUseCase
+    private val listProjectsInClassroomUseCase: ListProjectsInClassroomUseCase,
+    private val studentCredentialsCardsPdfGenerator: StudentCredentialsCardsPdfGenerator
 ) {
 
     @Secured(UserRole.teacher)
@@ -68,6 +69,30 @@ class ClassroomController(
         }
     }
 
+    @Secured(UserRole.teacher)
+    @GetMapping("/api/classrooms/{classroomId}/student-classroom-cards/download")
+    fun downloadStudentsCredentialsCardsInClassroom(
+        @PathVariable classroomId: UUID,
+        @AuthenticationPrincipal teacherProfile: TeacherProfile,
+        @RequestParam("format") format: StudentsCredentialsCardsFormat
+    ): ResponseEntity<*> {
+        val result = when (format) {
+            StudentsCredentialsCardsFormat.PDF ->
+                studentCredentialsCardsPdfGenerator.generate(teacherProfile, classroomId)
+
+            StudentsCredentialsCardsFormat.CSV ->
+                return ResponseEntity.notFound().build<Void>()
+        }
+
+        return when (result) {
+            is Either.Left -> mapErrors<Void>(result.value)
+            is Either.Right -> result.value.inputStream.toFileResponse(
+                fileName = result.value.fileName,
+                mediaType = result.value.format.toMediaType()
+            )
+        }
+    }
+
     @Secured(UserRole.teacher, UserRole.student)
     @GetMapping("/api/classrooms/{classroomId}/projects")
     fun listProjectsInClassroom(
@@ -80,4 +105,11 @@ class ClassroomController(
         }
     }
 
+}
+
+private fun StudentsCredentialsCardsFormat.toMediaType(): MediaType {
+    return when (this) {
+        StudentsCredentialsCardsFormat.PDF -> MediaType.APPLICATION_PDF
+        StudentsCredentialsCardsFormat.CSV -> MediaType.parseMediaType("text/csv")
+    }
 }

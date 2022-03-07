@@ -27,12 +27,14 @@ class ListStudentsInClassroomUseCaseImpl(
     private val studentClassroomLinkService: StudentClassroomLinkService,
     private val studentProfileService: StudentProfileService,
     private val projectService: ProjectService,
-    private val projectClassroomShareService: ProjectClassroomShareService
+    private val projectClassroomShareService: ProjectClassroomShareService,
+    private val classroomAccessService: ClassroomAccessService
 ) : ListStudentsInClassroomUseCase {
 
     override fun list(listBy: TeacherProfile, classroomId: UUID): Either<OperationError, List<StudentClassroomCard>> {
         val classroom = classroomService.getById(classroomId) ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
-        if (classroom.teacherId != listBy.id) return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
+        if (!classroomAccessService.canListStudentCredentials(listBy, classroom))
+            return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
         val studentIds = studentClassroomLinkService.listByClassroom(classroom.id)
             .map(StudentClassroomLink::studentId)

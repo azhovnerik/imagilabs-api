@@ -9,6 +9,7 @@ interface ClassroomAccessService {
 
     fun canListProjects(userProfile: UserProfile, classroom: Classroom): Boolean
     fun canGetClassroom(userProfile: UserProfile, classroom: Classroom): Boolean
+    fun canListStudentCredentials(userProfile: UserProfile, classroom: Classroom): Boolean
 }
 
 @Service
@@ -27,6 +28,13 @@ class ClassroomAccessServiceImpl(
         return when (userProfile.userType) {
             UserType.TEACHER -> isClassroomTeacher(userProfile, classroom)
             UserType.STUDENT -> isClassroomStudent(userProfile, classroom)
+        }
+    }
+
+    override fun canListStudentCredentials(userProfile: UserProfile, classroom: Classroom): Boolean {
+        return when (userProfile.userType) {
+            UserType.TEACHER -> isClassroomTeacher(userProfile, classroom)
+            UserType.STUDENT -> false
         }
     }
 
