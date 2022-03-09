@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val arrowKtVersion = "1.0.1"
 val javaJwtVersion = "3.18.3"
+val pdfBoxVersion = "2.0.24"
 val springDocVersion = "1.6.6"
 
 plugins {
@@ -39,6 +40,7 @@ dependencies {
 
     // Utils
     implementation("io.arrow-kt:arrow-core:$arrowKtVersion")
+    implementation("org.apache.pdfbox:pdfbox:$pdfBoxVersion")
 
     // Web
     implementation("org.springframework.boot:spring-boot-starter-web")
