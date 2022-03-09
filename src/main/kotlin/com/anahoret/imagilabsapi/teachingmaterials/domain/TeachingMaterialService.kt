@@ -1,0 +1,21 @@
+package com.anahoret.imagilabsapi.teachingmaterials.domain
+
+import com.anahoret.imagilabsapi.teachingmaterials.storage.TeachingMaterialEntityRepository
+import org.springframework.stereotype.Service
+
+interface TeachingMaterialService {
+
+    fun listSortedByIndex(): List<TeachingMaterial>
+}
+
+@Service
+class TeachingMaterialServiceImpl(
+    private val teachingMaterialEntityRepository: TeachingMaterialEntityRepository
+) : TeachingMaterialService {
+
+    override fun listSortedByIndex(): List<TeachingMaterial> {
+        return teachingMaterialEntityRepository.findAllByOrderByIndex()
+            .map(TeachingMaterial.Companion::fromEntity)
+    }
+
+}
