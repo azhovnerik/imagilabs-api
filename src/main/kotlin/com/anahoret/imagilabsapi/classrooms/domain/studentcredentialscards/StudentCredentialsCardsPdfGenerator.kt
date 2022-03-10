@@ -39,17 +39,19 @@ class StudentCredentialsCardsPdfGeneratorImpl : StudentCredentialsCardsPdfGenera
 
         val montseratFont = PDType0Font.load(
             document,
-            ClassPathResource("fonts/Montserrat-SemiBold.ttf").file
+            ClassPathResource("fonts/Montserrat-SemiBold.ttf").inputStream
         )
 
-        val imagiLogo = PDImageXObject.createFromFileByExtension(
-            ClassPathResource("images/imagi_logo_black.png").file,
-            document
+        val imagiLogo = PDImageXObject.createFromByteArray(
+            document,
+            ClassPathResource("images/imagi_logo_black.png").inputStream.readAllBytes(),
+            "images/imagi_logo_black.png"
         )
 
-        val sayNoEvilEmoji = PDImageXObject.createFromFileByExtension(
-            ClassPathResource("images/say_no_evil.png").file,
-            document
+        val sayNoEvilEmoji = PDImageXObject.createFromByteArray(
+            document,
+            ClassPathResource("images/say_no_evil.png").inputStream.readAllBytes(),
+            "images/say_no_evil.png"
         )
 
         for (pageIdx in 0 until pageCount) {
