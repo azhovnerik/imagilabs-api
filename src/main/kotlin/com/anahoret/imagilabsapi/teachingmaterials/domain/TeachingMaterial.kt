@@ -8,15 +8,20 @@ class TeachingMaterial(
     val index: Int,
     val name: String,
     val path: String,
-    val isExternalLink: Boolean
+    val isExternalLink: Boolean,
+    val category: TeachingMaterialCategory
 ) {
 
     companion object {
 
         fun fromEntity(teachingMaterialEntity: TeachingMaterialEntity): TeachingMaterial {
             return with(teachingMaterialEntity) {
-                TeachingMaterial(id!!, index, name, path, isExternalLink)
+                TeachingMaterial(id!!, index, name, path, isExternalLink, category)
             }
         }
     }
+}
+
+enum class TeachingMaterialCategory {
+    TEACHING_SLIDES, WORKSHEETS
 }

@@ -1,9 +1,8 @@
 package com.anahoret.imagilabsapi.teachingmaterials.storage
 
 import com.anahoret.imagilabsapi.common.storage.BaseEntity
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Table
+import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterialCategory
+import javax.persistence.*
 
 @Entity
 @Table(name = "teaching_materials")
@@ -18,5 +17,9 @@ open class TeachingMaterialEntity(
     var path: String,
 
     @Column(name = "is_external_link")
-    var isExternalLink: Boolean
+    var isExternalLink: Boolean,
+
+    @Column(name = "category")
+    @Enumerated(EnumType.STRING)
+    var category: TeachingMaterialCategory
 ) : BaseEntity()
