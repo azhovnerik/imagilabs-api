@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 
 interface TeachingMaterialService {
 
-    fun listSortedByIndex(): List<TeachingMaterial>
+    fun listSortedByIndex(): TeachingMaterials
 }
 
 @Service
@@ -13,9 +13,9 @@ class TeachingMaterialServiceImpl(
     private val teachingMaterialEntityRepository: TeachingMaterialEntityRepository
 ) : TeachingMaterialService {
 
-    override fun listSortedByIndex(): List<TeachingMaterial> {
-        return teachingMaterialEntityRepository.findAllByOrderByIndex()
-            .map(TeachingMaterial.Companion::fromEntity)
+    override fun listSortedByIndex(): TeachingMaterials {
+        return teachingMaterialEntityRepository.findAll()
+            .let { TeachingMaterials.groupByCategory(it) }
     }
 
 }

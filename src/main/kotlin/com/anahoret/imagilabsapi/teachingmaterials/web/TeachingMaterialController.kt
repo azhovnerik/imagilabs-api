@@ -2,8 +2,8 @@ package com.anahoret.imagilabsapi.teachingmaterials.web
 
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
-import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterial
 import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterialService
+import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterials
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -13,7 +13,7 @@ class TeachingMaterialController(
 ) {
 
     @GetMapping("/api/teaching-materials")
-    fun list(): ResponseDto<List<TeachingMaterial>> {
+    fun list(): ResponseDto<TeachingMaterials> {
         return SuccessResponseDto(teachingMaterialService.listSortedByIndex())
     }
 
