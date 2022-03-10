@@ -15,5 +15,8 @@ open class TeachingMaterialEntity(
     var index: Int,
 
     @Column(name = "path")
-    var path: String
+    var path: String,
+
+    @Column(name = "is_external_link")
+    var isExternalLink: Boolean
 ) : BaseEntity()
