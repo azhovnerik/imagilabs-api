@@ -36,19 +36,19 @@ class ProjectClassroomShareUseCaseImpl(
         sharedBy: UserProfile,
         projectClassroomShareRequest: ProjectClassroomShareRequest
     ): Either<OperationError, Unit> {
-        val project = projectService.getProjectById(projectClassroomShareRequest.projectId)
+        val projectId = projectClassroomShareRequest.projectId
+        val classroomIds = projectClassroomShareRequest.classroomIds
+
+        val project = projectService.getProjectById(projectId)
             ?: return NotFoundError("PROJECT_NOT_FOUND").left()
 
         if (!projectAccessService.canShare(sharedBy, project))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
 
-        if (!isLinkedToClassroom(sharedBy, projectClassroomShareRequest.classroomId))
+        if (classroomIds.any { !isLinkedToClassroom(sharedBy, it) })
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-        projectClassroomShareService.share(
-            projectClassroomShareRequest.projectId,
-            projectClassroomShareRequest.classroomId
-        )
+        projectClassroomShareService.shareToAll(projectId, classroomIds)
         return Unit.right()
     }
 

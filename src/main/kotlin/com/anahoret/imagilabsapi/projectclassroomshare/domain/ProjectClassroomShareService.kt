@@ -8,7 +8,7 @@ import javax.transaction.Transactional
 
 interface ProjectClassroomShareService {
 
-    fun share(projectId: UUID, classroomId: UUID)
+    fun shareToAll(projectId: UUID, classroomIds: Iterable<UUID>)
     fun getProjectCountsByClassrooms(classroomIds: Iterable<UUID>): Map<UUID, Long>
     fun getProjectCountsByOwners(ownerIds: Iterable<UUID>): Map<UUID, Long>
     fun getProjectCount(classroomId: UUID): Long
@@ -22,14 +22,14 @@ class ProjectClassroomShareServiceImpl(
 ) : ProjectClassroomShareService {
 
     @Transactional
-    override fun share(projectId: UUID, classroomId: UUID) {
-        val projectSharedInClassroom =
-            projectClassroomShareEntityRepository.existsByProjectIdAndClassroomId(projectId, classroomId)
-        if (!projectSharedInClassroom) {
-            projectClassroomShareEntityRepository.save(
-                ProjectClassroomShareEntity(projectId, classroomId)
-            )
-        }
+    override fun shareToAll(projectId: UUID, classroomIds: Iterable<UUID>) {
+        val alreadySharedIn = projectClassroomShareEntityRepository.findAllByProjectId(projectId)
+            .map { it.classroomId }
+            .toSet()
+        classroomIds
+            .filter { it !in alreadySharedIn }
+            .map { classroomId -> ProjectClassroomShareEntity(projectId, classroomId) }
+            .let { projectClassroomShareEntityRepository.saveAll(it) }
     }
 
     override fun getProjectCountsByClassrooms(classroomIds: Iterable<UUID>): Map<UUID, Long> {

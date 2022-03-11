@@ -4,5 +4,5 @@ import java.util.*
 
 class ProjectClassroomShareRequest(
     val projectId: UUID,
-    val classroomId: UUID
+    val classroomIds: List<UUID>
 )
