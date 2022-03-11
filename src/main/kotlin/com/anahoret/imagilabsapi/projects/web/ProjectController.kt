@@ -7,10 +7,7 @@ import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
-import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectCreateUseCase
-import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectGetUseCase
-import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectRunUseCase
-import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectUpdateUseCase
+import com.anahoret.imagilabsapi.projects.domain.usecases.*
 import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.security.UserRole
 import org.springframework.http.ResponseEntity
@@ -24,7 +21,8 @@ class ProjectController(
     private val projectCreateUseCase: ProjectCreateUseCase,
     private val projectUpdateUseCase: ProjectUpdateUseCase,
     private val projectRunUseCase: ProjectRunUseCase,
-    private val projectGetUseCase: ProjectGetUseCase
+    private val projectGetUseCase: ProjectGetUseCase,
+    private val projectListUseCase: ProjectListUseCase
 ) {
 
     @Secured(UserRole.teacher, UserRole.student)
@@ -34,6 +32,15 @@ class ProjectController(
     ): ResponseDto<Project> {
         val project = projectCreateUseCase.create(userProfile)
         return SuccessResponseDto(project)
+    }
+
+    @Secured(UserRole.teacher, UserRole.student)
+    @GetMapping("/api/projects")
+    fun listOwnProjects(
+        @AuthenticationPrincipal userProfile: UserProfile
+    ): ResponseDto<List<Project>> {
+        val projects = projectListUseCase.list(userProfile)
+        return SuccessResponseDto(projects)
     }
 
     @Secured(UserRole.teacher, UserRole.student)

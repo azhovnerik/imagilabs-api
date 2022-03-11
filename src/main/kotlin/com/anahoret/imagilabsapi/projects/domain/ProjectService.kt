@@ -5,6 +5,7 @@ import com.anahoret.imagilabsapi.projects.storage.ProjectEntityRepository
 import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.users.UserType
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
@@ -17,6 +18,7 @@ interface ProjectService {
     fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse)
     fun listByIds(projectIds: Iterable<UUID>): List<Project>
     fun getProjectCounts(ownerIds: Iterable<UUID>): Map<UUID, Long>
+    fun listByOwnerId(ownerId: UUID): List<Project>
 }
 
 @Service
@@ -33,12 +35,12 @@ class ProjectServiceImpl(
                 ownerType,
                 sourceCode = ""
             )
-        ).let { Project.fromEntity(it, objectMapper) }
+        ).let { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
     override fun getProjectById(projectId: UUID): Project? {
         return projectEntityRepository.findByIdOrNull(projectId)
-            ?.let { Project.fromEntity(it, objectMapper) }
+            ?.let { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
     override fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project? {
@@ -46,7 +48,7 @@ class ProjectServiceImpl(
             it.name = projectUpdateRequest.name
             it.sourceCode = projectUpdateRequest.sourceCode
             projectEntityRepository.save(it)
-        }?.let { Project.fromEntity(it, objectMapper) }
+        }?.let { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
     override fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse) {
@@ -59,12 +61,21 @@ class ProjectServiceImpl(
 
     override fun listByIds(projectIds: Iterable<UUID>): List<Project> {
         return projectEntityRepository.findAllById(projectIds)
-            .map { Project.fromEntity(it, objectMapper) }
+            .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
+    }
+
+    override fun listByOwnerId(ownerId: UUID): List<Project> {
+        return projectEntityRepository.findAllByOwnerId(ownerId)
+            .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
     override fun getProjectCounts(ownerIds: Iterable<UUID>): Map<UUID, Long> {
         return projectEntityRepository.countByOwnerIds(ownerIds)
             .associate { it.ownerId to it.projectsCount }
+    }
+
+    private fun parseToRunCodeResponse(json: String): RunCodeResponse {
+        return objectMapper.readValue(json)
     }
 
 }

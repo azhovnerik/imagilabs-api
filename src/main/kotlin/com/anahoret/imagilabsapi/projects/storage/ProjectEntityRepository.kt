@@ -17,6 +17,8 @@ interface ProjectEntityRepository : CrudRepository<ProjectEntity, UUID> {
         """,
     )
     fun countByOwnerIds(ownerIds: Iterable<UUID>): Iterable<OwnerProjectCount>
+
+    fun findAllByOwnerId(ownerId: UUID): Iterable<ProjectEntity>
 }
 
 interface OwnerProjectCount {
