@@ -85,7 +85,7 @@ class StudentProfileServiceImpl(
     }
 
     private fun createUniqueStudentUsername(name: String, existingUserNames: Set<String>): String {
-        val split = name.split(" ")
+        val split = name.split("\\s+".toRegex())
         val prefix = when (split.size) {
             1 -> name
             else -> split[0].trim() + split[1].trim().first()
