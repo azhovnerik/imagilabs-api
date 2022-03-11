@@ -8,7 +8,7 @@ import javax.persistence.*
 
 @EntityListeners(AuditingEntityListener::class)
 @MappedSuperclass
-open class BaseEntity(
+abstract class BaseEntity(
     @Column(name = "created_at")
     @CreatedDate
     var createdAt: Long? = null,
