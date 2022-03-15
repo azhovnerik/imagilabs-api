@@ -13,6 +13,7 @@ class TeacherProfile(
 ) : UserProfile {
 
     override val userType = UserType.TEACHER
+    override val fullName = "$firstName $lastName"
 
     companion object {
 

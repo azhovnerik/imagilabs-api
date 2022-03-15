@@ -23,6 +23,7 @@ interface StudentProfileService {
     ): List<StudentClassroomCard>
 
     fun getStudentById(studentId: UUID): StudentProfile?
+    fun listByIds(ids: List<UUID>): List<StudentProfile>
     fun getStudentCredentials(studentLoginRequest: StudentLoginRequest): StudentCredentials?
 
 }
@@ -71,6 +72,11 @@ class StudentProfileServiceImpl(
     override fun getStudentById(studentId: UUID): StudentProfile? {
         return studentProfileEntityRepository.findByIdOrNull(studentId)
             ?.let(StudentProfile.Companion::fromEntity)
+    }
+
+    override fun listByIds(ids: List<UUID>): List<StudentProfile> {
+        return studentProfileEntityRepository.findAllById(ids)
+            .map(StudentProfile.Companion::fromEntity)
     }
 
     override fun getStudentCredentials(studentLoginRequest: StudentLoginRequest): StudentCredentials? {

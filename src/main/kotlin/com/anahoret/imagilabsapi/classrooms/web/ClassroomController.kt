@@ -6,7 +6,7 @@ import com.anahoret.imagilabsapi.classrooms.domain.studentcredentialscards.Stude
 import com.anahoret.imagilabsapi.classrooms.domain.studentcredentialscards.StudentsCredentialsCardsFormat
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.*
-import com.anahoret.imagilabsapi.projects.domain.Project
+import com.anahoret.imagilabsapi.projects.domain.ProjectCard
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.students.domain.StudentClassroomCard
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
@@ -90,7 +90,7 @@ class ClassroomController(
     fun listProjectsInClassroom(
         @PathVariable classroomId: UUID,
         @AuthenticationPrincipal userProfile: UserProfile
-    ): ResponseEntity<ResponseDto<List<Project>>> {
+    ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
         return when (val result = listProjectsInClassroomUseCase.list(userProfile, classroomId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))

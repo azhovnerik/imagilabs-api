@@ -11,6 +11,7 @@ class StudentProfile(
 ) : UserProfile {
 
     override val userType = UserType.STUDENT
+    override val fullName = name
 
     companion object {
 

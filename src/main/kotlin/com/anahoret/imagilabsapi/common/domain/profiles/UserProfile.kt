@@ -7,4 +7,5 @@ interface UserProfile {
 
     val id: UUID
     val userType: UserType
+    val fullName: String
 }
