@@ -6,6 +6,7 @@ import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.projects.domain.Project
+import com.anahoret.imagilabsapi.projects.domain.ProjectCard
 import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
 import com.anahoret.imagilabsapi.projects.domain.usecases.*
 import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
@@ -38,7 +39,7 @@ class ProjectController(
     @GetMapping("/api/projects")
     fun listOwnProjects(
         @AuthenticationPrincipal userProfile: UserProfile
-    ): ResponseDto<List<Project>> {
+    ): ResponseDto<List<ProjectCard>> {
         val projects = projectListUseCase.list(userProfile)
         return SuccessResponseDto(projects)
     }
