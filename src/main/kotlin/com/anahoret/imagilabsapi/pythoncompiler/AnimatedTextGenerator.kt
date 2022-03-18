@@ -60,9 +60,9 @@ class AnimatedTextGeneratorImpl(
             .readText()
             .let<String, Map<String, String>>(objectMapper::readValue)
 
-        // Initialize the big bitmap to blank strings
+        // Initialize the big bitmap to background color
         val result = Array(8) {
-            Array(size = 8 + 6 * text.length + 7) { "" }
+            Array(size = 8 + 6 * text.length + 7) { bgColor }
         }
         var start = 8
         for (character in text) {
