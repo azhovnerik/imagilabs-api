@@ -1,9 +1,9 @@
-package com.anahoret.imagilabsapi.studentclassroomlink.domain
+package com.anahoret.imagilabsapi.userclassroomlink.domain
 
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
-import com.anahoret.imagilabsapi.studentclassroomlink.storage.StudentClassroomLinkEntity
-import com.anahoret.imagilabsapi.studentclassroomlink.storage.StudentClassroomLinkEntityRepository
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
+import com.anahoret.imagilabsapi.userclassroomlink.storage.StudentClassroomLinkEntity
+import com.anahoret.imagilabsapi.userclassroomlink.storage.StudentClassroomLinkEntityRepository
 import org.springframework.stereotype.Service
 import java.util.*
 

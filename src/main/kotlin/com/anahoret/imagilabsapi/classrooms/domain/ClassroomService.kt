@@ -3,7 +3,7 @@ package com.anahoret.imagilabsapi.classrooms.domain
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
-import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLinkService
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service

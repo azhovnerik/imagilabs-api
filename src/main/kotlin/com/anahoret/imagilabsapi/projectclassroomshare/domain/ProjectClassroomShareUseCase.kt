@@ -10,7 +10,7 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
-import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLinkService
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.stereotype.Service
 import java.util.*

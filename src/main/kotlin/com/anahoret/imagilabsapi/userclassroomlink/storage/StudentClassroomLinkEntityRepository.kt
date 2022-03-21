@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.studentclassroomlink.storage
+package com.anahoret.imagilabsapi.userclassroomlink.storage
 
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository

@@ -5,9 +5,9 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
-import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLinkService
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.springframework.stereotype.Service
 import java.util.*
 import javax.transaction.Transactional

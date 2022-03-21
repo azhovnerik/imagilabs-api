@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.studentclassroomlink.storage
+package com.anahoret.imagilabsapi.userclassroomlink.storage
 
 import org.hibernate.Hibernate
 import java.io.Serializable

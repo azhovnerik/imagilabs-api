@@ -1,6 +1,6 @@
-package com.anahoret.imagilabsapi.studentclassroomlink.domain
+package com.anahoret.imagilabsapi.userclassroomlink.domain
 
-import com.anahoret.imagilabsapi.studentclassroomlink.storage.StudentClassroomLinkEntity
+import com.anahoret.imagilabsapi.userclassroomlink.storage.StudentClassroomLinkEntity
 import java.util.*
 
 class StudentClassroomLink(

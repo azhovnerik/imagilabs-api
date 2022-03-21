@@ -1,7 +1,7 @@
 package com.anahoret.imagilabsapi.classrooms.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
-import com.anahoret.imagilabsapi.studentclassroomlink.domain.StudentClassroomLinkService
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.stereotype.Service
 
