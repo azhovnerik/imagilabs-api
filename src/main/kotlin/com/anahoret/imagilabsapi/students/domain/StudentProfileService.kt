@@ -33,6 +33,11 @@ class StudentProfileServiceImpl(
     private val studentProfileEntityRepository: StudentProfileEntityRepository
 ) : StudentProfileService {
 
+    companion object {
+
+        const val USERNAME_LENGTH_LIMIT = 15
+    }
+
     override fun createStudents(
         classroomId: UUID,
         studentCreateRequests: List<ClassroomCreateRequest.StudentCreateRequest>
@@ -98,7 +103,8 @@ class StudentProfileServiceImpl(
         }
 
         for (i in 0..199) {
-            val username = prefix + i.takeIf { it > 0 }?.toString().orEmpty()
+            val suffix = i.takeIf { it > 0 }?.toString().orEmpty()
+            val username = prefix.take(USERNAME_LENGTH_LIMIT - suffix.length) + suffix
             if (username !in existingUserNames) return username
         }
 
