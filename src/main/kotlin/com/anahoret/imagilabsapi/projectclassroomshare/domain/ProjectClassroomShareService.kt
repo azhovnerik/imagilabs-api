@@ -15,6 +15,7 @@ interface ProjectClassroomShareService {
     fun getShares(projectId: UUID): List<ProjectClassroomShare>
     fun listByClassroom(classroomId: UUID): List<ProjectClassroomShare>
     fun listByOwnerId(ownerId: UUID): List<ProjectClassroomShare>
+    fun unshareFromAll(projectId: UUID, classroomIds: List<UUID>)
 }
 
 @Service
@@ -31,6 +32,12 @@ class ProjectClassroomShareServiceImpl(
             .filter { it !in alreadySharedIn }
             .map { classroomId -> ProjectClassroomShareEntity(projectId, classroomId) }
             .let { projectClassroomShareEntityRepository.saveAll(it) }
+    }
+
+    @Transactional
+    override fun unshareFromAll(projectId: UUID, classroomIds: List<UUID>) {
+        if (classroomIds.isEmpty()) return
+        projectClassroomShareEntityRepository.deleteAllByProjectIdAndClassroomIdIn(projectId, classroomIds)
     }
 
     override fun getProjectCountsByClassrooms(classroomIds: Iterable<UUID>): Map<UUID, Long> {

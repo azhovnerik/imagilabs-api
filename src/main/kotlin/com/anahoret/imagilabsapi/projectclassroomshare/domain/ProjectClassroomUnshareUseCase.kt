@@ -15,24 +15,24 @@ import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.stereotype.Service
 import java.util.*
 
-interface ProjectClassroomShareUseCase {
+interface ProjectClassroomUnshareUseCase {
 
-    fun share(
+    fun unshare(
         sharedBy: UserProfile,
         projectClassroomShareChangeRequest: ProjectClassroomShareChangeRequest
     ): Either<OperationError, Unit>
 }
 
 @Service
-class ProjectClassroomShareUseCaseImpl(
+class ProjectClassroomUnshareUseCaseImpl(
     private val projectClassroomShareService: ProjectClassroomShareService,
     private val projectService: ProjectService,
     private val classroomService: ClassroomService,
     private val studentClassroomLinkService: StudentClassroomLinkService,
     private val projectAccessService: ProjectAccessService
-) : ProjectClassroomShareUseCase {
+) : ProjectClassroomUnshareUseCase {
 
-    override fun share(
+    override fun unshare(
         sharedBy: UserProfile,
         projectClassroomShareChangeRequest: ProjectClassroomShareChangeRequest
     ): Either<OperationError, Unit> {
@@ -42,13 +42,13 @@ class ProjectClassroomShareUseCaseImpl(
         val project = projectService.getProjectById(projectId)
             ?: return NotFoundError("PROJECT_NOT_FOUND").left()
 
-        if (!projectAccessService.canShare(sharedBy, project))
+        if (!projectAccessService.canUnshare(sharedBy, project))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
 
         if (classroomIds.any { !isLinkedToClassroom(sharedBy, it) })
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-        projectClassroomShareService.shareToAll(projectId, classroomIds)
+        projectClassroomShareService.unshareFromAll(projectId, classroomIds)
         return Unit.right()
     }
 
