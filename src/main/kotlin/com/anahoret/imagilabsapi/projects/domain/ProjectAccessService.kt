@@ -24,7 +24,7 @@ class ProjectAccessServiceImpl(
 ) : ProjectAccessService {
 
     override fun canEdit(userProfile: UserProfile, project: Project): Boolean {
-        return isOwner(userProfile, project)
+        return isOwner(userProfile, project) && !isShared(project)
     }
 
     override fun canRun(userProfile: UserProfile, project: Project): Boolean {
@@ -41,6 +41,10 @@ class ProjectAccessServiceImpl(
 
     private fun isOwner(userProfile: UserProfile, project: Project): Boolean {
         return project.ownerId == userProfile.id && project.ownerUserType == userProfile.userType
+    }
+
+    private fun isShared(project: Project): Boolean {
+        return projectClassroomShareService.getShares(project.id).isNotEmpty()
     }
 
     private fun hasSharedAccess(userProfile: UserProfile, project: Project): Boolean {

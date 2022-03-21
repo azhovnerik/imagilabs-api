@@ -6,8 +6,6 @@ import java.util.*
 
 interface ProjectClassroomShareEntityRepository : CrudRepository<ProjectClassroomShareEntity, UUID> {
 
-    fun existsByProjectIdAndClassroomId(projectId: UUID, classroomId: UUID): Boolean
-
     @Query(
         """
         SELECT 
@@ -36,6 +34,16 @@ interface ProjectClassroomShareEntityRepository : CrudRepository<ProjectClassroo
         """
     )
     fun getProjectCountsByOwners(ownerIds: Iterable<UUID>): Iterable<OwnerSharedProjectCount>
+
+    @Query(
+        """
+        SELECT pcs
+        FROM ProjectClassroomShareEntity pcs
+        JOIN ProjectEntity p ON pcs.projectId = p.id
+        WHERE p.ownerId = :ownerId
+    """
+    )
+    fun findAllByOwnerId(ownerId: UUID): Iterable<ProjectClassroomShareEntity>
 }
 
 interface ClassroomSharedProjectCount {

@@ -1,19 +1,18 @@
 package com.anahoret.imagilabsapi.projects.domain
 
-import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.users.UserType
 import java.util.*
 
 @Suppress("unused")
-class ProjectCard(
+class ProjectDetails(
     val id: UUID,
     val name: String,
     val ownerId: UUID,
     val ownerUserType: UserType,
-    val ownerName: String,
+    val sourceCode: String,
     val runCodeResponse: RunCodeResponse?,
-    val shared: Boolean,
+    val canEdit: Boolean,
     val lastModifiedAt: Long,
     val createdAt: Long
 ) {
@@ -22,18 +21,17 @@ class ProjectCard(
 
         fun fromProject(
             project: Project,
-            owner: UserProfile,
-            shared: Boolean
-        ): ProjectCard {
+            canEdit: Boolean
+        ): ProjectDetails {
             return with(project) {
-                ProjectCard(
+                ProjectDetails(
                     id = id,
                     name = name,
                     ownerId = ownerId,
                     ownerUserType = ownerUserType,
-                    ownerName = owner.fullName,
+                    sourceCode = sourceCode,
                     runCodeResponse = runCodeResponse,
-                    shared = shared,
+                    canEdit = canEdit,
                     lastModifiedAt = lastModifiedAt,
                     createdAt = createdAt
                 )

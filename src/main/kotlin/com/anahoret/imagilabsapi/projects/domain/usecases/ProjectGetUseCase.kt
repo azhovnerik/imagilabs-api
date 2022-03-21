@@ -7,15 +7,15 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
-import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
+import com.anahoret.imagilabsapi.projects.domain.ProjectDetails
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import org.springframework.stereotype.Service
 import java.util.*
 
 interface ProjectGetUseCase {
 
-    fun get(userProfile: UserProfile, projectId: UUID): Either<OperationError, Project>
+    fun get(getBy: UserProfile, projectId: UUID): Either<OperationError, ProjectDetails>
 }
 
 @Service
@@ -24,10 +24,11 @@ class ProjectGetUseCaseImpl(
     private val projectAccessService: ProjectAccessService
 ) : ProjectGetUseCase {
 
-    override fun get(userProfile: UserProfile, projectId: UUID): Either<OperationError, Project> {
+    override fun get(getBy: UserProfile, projectId: UUID): Either<OperationError, ProjectDetails> {
         val project = projectService.getProjectById(projectId) ?: return NotFoundError("PROJECT_NOT_FOUND").left()
-        if (!projectAccessService.canGet(userProfile, project))
+        if (!projectAccessService.canGet(getBy, project))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
-        return project.right()
+        val canEdit = projectAccessService.canEdit(getBy, project)
+        return ProjectDetails.fromProject(project, canEdit).right()
     }
 }

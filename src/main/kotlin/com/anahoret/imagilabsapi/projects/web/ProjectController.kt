@@ -5,8 +5,8 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
-import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.projects.domain.ProjectCard
+import com.anahoret.imagilabsapi.projects.domain.ProjectDetails
 import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
 import com.anahoret.imagilabsapi.projects.domain.usecases.*
 import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
@@ -30,7 +30,7 @@ class ProjectController(
     @PostMapping("/api/projects")
     fun createProject(
         @AuthenticationPrincipal userProfile: UserProfile
-    ): ResponseDto<Project> {
+    ): ResponseDto<ProjectDetails> {
         val project = projectCreateUseCase.create(userProfile)
         return SuccessResponseDto(project)
     }
@@ -50,7 +50,7 @@ class ProjectController(
         @PathVariable projectId: UUID,
         @RequestBody projectUpdateRequest: ProjectUpdateRequest,
         @AuthenticationPrincipal userProfile: UserProfile
-    ): ResponseEntity<ResponseDto<Project?>> {
+    ): ResponseEntity<ResponseDto<ProjectDetails?>> {
         return when (val result = projectUpdateUseCase.update(userProfile, projectId, projectUpdateRequest)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
@@ -74,7 +74,7 @@ class ProjectController(
     fun getProject(
         @PathVariable projectId: UUID,
         @AuthenticationPrincipal userProfile: UserProfile
-    ): ResponseEntity<ResponseDto<Project>> {
+    ): ResponseEntity<ResponseDto<ProjectDetails>> {
         return when (val result = projectGetUseCase.get(userProfile, projectId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))

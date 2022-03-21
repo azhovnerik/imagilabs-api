@@ -7,8 +7,8 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
-import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
+import com.anahoret.imagilabsapi.projects.domain.ProjectDetails
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
 import org.springframework.stereotype.Service
@@ -20,7 +20,7 @@ interface ProjectUpdateUseCase {
         updateBy: UserProfile,
         projectId: UUID,
         projectUpdateRequest: ProjectUpdateRequest
-    ): Either<OperationError, Project>
+    ): Either<OperationError, ProjectDetails>
 }
 
 @Service
@@ -33,11 +33,13 @@ class ProjectUpdateUseCaseImpl(
         updateBy: UserProfile,
         projectId: UUID,
         projectUpdateRequest: ProjectUpdateRequest
-    ): Either<OperationError, Project> {
+    ): Either<OperationError, ProjectDetails> {
         val project = projectService.getProjectById(projectId) ?: return NotFoundError("PROJECT_NOT_FOUND").left()
         if (!projectAccessService.canEdit(updateBy, project))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
-        return projectService.updateProject(projectId, projectUpdateRequest)?.right()
+        return projectService.updateProject(projectId, projectUpdateRequest)
+            ?.let { ProjectDetails.fromProject(project, canEdit = true) }
+            ?.right()
             ?: NotFoundError("PROJECT_NOT_FOUND").left()
     }
 }

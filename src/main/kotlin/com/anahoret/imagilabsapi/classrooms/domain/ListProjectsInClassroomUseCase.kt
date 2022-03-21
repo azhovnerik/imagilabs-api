@@ -55,7 +55,7 @@ class ListProjectsInClassroomUseCaseImpl(
         val owners = (students + teachers).associateBy(UserProfile::id)
 
         return projects.map {
-            ProjectCard.fromProject(it, owners.getValue(it.ownerId))
+            ProjectCard.fromProject(it, owners.getValue(it.ownerId), shared = true)
         }.right()
     }
 }
