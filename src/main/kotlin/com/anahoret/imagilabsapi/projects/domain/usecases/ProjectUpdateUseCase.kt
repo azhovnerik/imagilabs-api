@@ -38,7 +38,7 @@ class ProjectUpdateUseCaseImpl(
         if (!projectAccessService.canEdit(updateBy, project))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
         return projectService.updateProject(projectId, projectUpdateRequest)
-            ?.let { ProjectDetails.fromProject(project, canEdit = true) }
+            ?.let { ProjectDetails.fromProject(it, canEdit = true) }
             ?.right()
             ?: NotFoundError("PROJECT_NOT_FOUND").left()
     }
