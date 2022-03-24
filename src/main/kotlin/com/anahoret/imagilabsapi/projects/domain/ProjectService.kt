@@ -6,6 +6,8 @@ import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.users.UserType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
@@ -16,9 +18,9 @@ interface ProjectService {
     fun getProjectById(projectId: UUID): Project?
     fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project?
     fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse)
-    fun listByIds(projectIds: Iterable<UUID>): List<Project>
+    fun listByIds(projectIds: Collection<UUID>, pageable: Pageable): Page<Project>
     fun getProjectCounts(ownerIds: Iterable<UUID>): Map<UUID, Long>
-    fun listByOwnerId(ownerId: UUID): List<Project>
+    fun listByOwnerId(ownerId: UUID, pageable: Pageable): Page<Project>
 }
 
 @Service
@@ -59,13 +61,13 @@ class ProjectServiceImpl(
         }
     }
 
-    override fun listByIds(projectIds: Iterable<UUID>): List<Project> {
-        return projectEntityRepository.findAllById(projectIds)
+    override fun listByIds(projectIds: Collection<UUID>, pageable: Pageable): Page<Project> {
+        return projectEntityRepository.findAllByIdIn(projectIds, pageable)
             .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
-    override fun listByOwnerId(ownerId: UUID): List<Project> {
-        return projectEntityRepository.findAllByOwnerId(ownerId)
+    override fun listByOwnerId(ownerId: UUID, pageable: Pageable): Page<Project> {
+        return projectEntityRepository.findAllByOwnerId(ownerId, pageable)
             .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 

@@ -4,12 +4,14 @@ import arrow.core.Either
 import com.anahoret.imagilabsapi.classrooms.domain.*
 import com.anahoret.imagilabsapi.classrooms.domain.studentcredentialscards.StudentCredentialsCardsGenerator
 import com.anahoret.imagilabsapi.classrooms.domain.studentcredentialscards.StudentsCredentialsCardsFormat
+import com.anahoret.imagilabsapi.common.domain.data.UnpagedSorted
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.*
 import com.anahoret.imagilabsapi.projects.domain.ProjectCard
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.students.domain.StudentClassroomCard
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
@@ -89,11 +91,13 @@ class ClassroomController(
     @GetMapping("/api/classrooms/{classroomId}/projects")
     fun listProjectsInClassroom(
         @PathVariable classroomId: UUID,
-        @AuthenticationPrincipal userProfile: UserProfile
+        @AuthenticationPrincipal userProfile: UserProfile,
+        pageable: Pageable
     ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
-        return when (val result = listProjectsInClassroomUseCase.list(userProfile, classroomId)) {
+        return when (val result =
+            listProjectsInClassroomUseCase.list(userProfile, classroomId, UnpagedSorted(pageable))) {
             is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
         }
     }
 

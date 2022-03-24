@@ -1,5 +1,7 @@
 package com.anahoret.imagilabsapi.projects.storage;
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import java.util.*
@@ -18,7 +20,8 @@ interface ProjectEntityRepository : CrudRepository<ProjectEntity, UUID> {
     )
     fun countByOwnerIds(ownerIds: Iterable<UUID>): Iterable<OwnerProjectCount>
 
-    fun findAllByOwnerId(ownerId: UUID): Iterable<ProjectEntity>
+    fun findAllByOwnerId(ownerId: UUID, pageable: Pageable): Page<ProjectEntity>
+    fun findAllByIdIn(ids: Collection<UUID>, pageable: Pageable): Page<ProjectEntity>
 }
 
 interface OwnerProjectCount {

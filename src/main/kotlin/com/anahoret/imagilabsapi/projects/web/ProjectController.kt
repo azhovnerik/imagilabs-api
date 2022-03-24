@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.projects.web
 
 import arrow.core.Either
+import com.anahoret.imagilabsapi.common.domain.data.UnpagedSorted
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
@@ -11,6 +12,7 @@ import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
 import com.anahoret.imagilabsapi.projects.domain.usecases.*
 import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.security.UserRole
+import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -38,10 +40,11 @@ class ProjectController(
     @Secured(UserRole.teacher, UserRole.student)
     @GetMapping("/api/projects")
     fun listOwnProjects(
-        @AuthenticationPrincipal userProfile: UserProfile
+        @AuthenticationPrincipal userProfile: UserProfile,
+        pageable: Pageable
     ): ResponseDto<List<ProjectCard>> {
-        val projects = projectListUseCase.list(userProfile)
-        return SuccessResponseDto(projects)
+        val projects = projectListUseCase.list(userProfile, UnpagedSorted(pageable))
+        return SuccessResponseDto(projects.content) // TODO: return page
     }
 
     @Secured(UserRole.teacher, UserRole.student)
