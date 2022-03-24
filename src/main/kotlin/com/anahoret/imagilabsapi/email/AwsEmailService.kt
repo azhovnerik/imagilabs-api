@@ -8,7 +8,7 @@ import javax.mail.Message
 import javax.mail.internet.InternetAddress
 
 @Service
-@Profile("prod")
+@Profile("prod", "stage")
 class AwsEmailService(
     private val javaMailSender: JavaMailSender
 ) : EmailService {
