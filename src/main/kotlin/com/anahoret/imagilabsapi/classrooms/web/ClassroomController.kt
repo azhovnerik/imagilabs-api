@@ -73,12 +73,31 @@ class ClassroomController(
 
     @Secured(UserRole.teacher)
     @GetMapping("/api/classrooms/{classroomId}/student-classroom-cards/download")
+    @Deprecated("Use POST request instead")
     fun downloadStudentsCredentialsCardsInClassroom(
         @PathVariable classroomId: UUID,
         @AuthenticationPrincipal teacherProfile: TeacherProfile,
         @RequestParam("format") format: StudentsCredentialsCardsFormat
     ): ResponseEntity<*> {
         return when (val result = studentCredentialsCardsGenerator.generate(teacherProfile, classroomId, format)) {
+            is Either.Left -> mapErrors<Void>(result.value)
+            is Either.Right -> result.value.inputStream.toFileResponse(
+                fileName = result.value.fileName,
+                mediaType = result.value.format.toMediaType()
+            )
+        }
+    }
+
+    @Secured(UserRole.teacher)
+    @PostMapping("/api/classrooms/{classroomId}/student-classroom-cards/download")
+    fun downloadStudentsCredentialsCardsInClassroomByIds(
+        @PathVariable classroomId: UUID,
+        @AuthenticationPrincipal teacherProfile: TeacherProfile,
+        @RequestBody downloadRequest: DownloadStudentsCredentialsRequest
+    ): ResponseEntity<*> {
+        return when (val result = studentCredentialsCardsGenerator.generate(
+            teacherProfile, classroomId, downloadRequest
+        )) {
             is Either.Left -> mapErrors<Void>(result.value)
             is Either.Right -> result.value.inputStream.toFileResponse(
                 fileName = result.value.fileName,
