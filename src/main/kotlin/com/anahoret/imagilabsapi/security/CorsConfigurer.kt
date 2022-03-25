@@ -11,7 +11,7 @@ class CorsConfigurer(private val corsSettings: CorsSettings) : WebMvcConfigurer 
         registry.addMapping("/api/**")
             .allowCredentials(true)
             .allowedOrigins(*corsSettings.allowedOrigins)
-            .allowedHeaders("Content-Type", "Authorization")
+            .allowedHeaders("Content-Type", "Authorization", "Content-Disposition")
             .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
     }
 
