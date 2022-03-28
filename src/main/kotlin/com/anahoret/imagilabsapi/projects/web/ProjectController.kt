@@ -25,7 +25,8 @@ class ProjectController(
     private val projectUpdateUseCase: ProjectUpdateUseCase,
     private val projectRunUseCase: ProjectRunUseCase,
     private val projectGetUseCase: ProjectGetUseCase,
-    private val projectListUseCase: ProjectListUseCase
+    private val projectListUseCase: ProjectListUseCase,
+    private val projectDeleteUseCase: ProjectDeleteUseCase,
 ) {
 
     @Secured(UserRole.teacher, UserRole.student)
@@ -81,6 +82,18 @@ class ProjectController(
         return when (val result = projectGetUseCase.get(userProfile, projectId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
+    }
+
+    @Secured(UserRole.teacher, UserRole.student)
+    @DeleteMapping("/api/projects/{projectId}")
+    fun deleteProject(
+        @PathVariable projectId: UUID,
+        @AuthenticationPrincipal userProfile: UserProfile
+    ): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = projectDeleteUseCase.delete(userProfile, projectId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok().build()
         }
     }
 

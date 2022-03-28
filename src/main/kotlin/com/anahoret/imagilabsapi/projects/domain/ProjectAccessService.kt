@@ -15,6 +15,7 @@ interface ProjectAccessService {
     fun canShare(userProfile: UserProfile, project: Project): Boolean
     fun canUnshare(userProfile: UserProfile, project: Project): Boolean
     fun canGet(userProfile: UserProfile, project: Project): Boolean
+    fun canDelete(userProfile: UserProfile, project: Project): Boolean
 }
 
 @Service
@@ -26,6 +27,10 @@ class ProjectAccessServiceImpl(
 
     override fun canEdit(userProfile: UserProfile, project: Project): Boolean {
         return isOwner(userProfile, project) && !isShared(project)
+    }
+
+    override fun canDelete(userProfile: UserProfile, project: Project): Boolean {
+        return isOwner(userProfile, project)
     }
 
     override fun canRun(userProfile: UserProfile, project: Project): Boolean {

@@ -41,6 +41,11 @@ class ProjectClassroomShareServiceImpl(
         projectClassroomShareEntityRepository.deleteAllByProjectIdAndClassroomIdIn(projectId, classroomIds)
     }
 
+    @Transactional(rollbackOn = [Throwable::class])
+    override fun unshareFromAll(projectId: UUID) {
+        projectClassroomShareEntityRepository.deleteAllByProjectId(projectId)
+    }
+
     override fun getProjectCountsByClassrooms(classroomIds: Iterable<UUID>): Map<UUID, Long> {
         return projectClassroomShareEntityRepository.getProjectCountsByClassrooms(classroomIds)
             .associate { it.classroomId to it.projectsCount }

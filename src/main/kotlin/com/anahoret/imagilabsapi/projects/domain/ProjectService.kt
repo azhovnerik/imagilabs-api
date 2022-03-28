@@ -21,6 +21,7 @@ interface ProjectService {
     fun listByIds(projectIds: Collection<UUID>, pageable: Pageable): Page<Project>
     fun getProjectCounts(ownerIds: Iterable<UUID>): Map<UUID, Long>
     fun listByOwnerId(ownerId: UUID, pageable: Pageable): Page<Project>
+    fun delete(projectId: UUID)
 }
 
 @Service
@@ -74,6 +75,10 @@ class ProjectServiceImpl(
     override fun getProjectCounts(ownerIds: Iterable<UUID>): Map<UUID, Long> {
         return projectEntityRepository.countByOwnerIds(ownerIds)
             .associate { it.ownerId to it.projectsCount }
+    }
+
+    override fun delete(projectId: UUID) {
+        projectEntityRepository.deleteById(projectId)
     }
 
     private fun parseToRunCodeResponse(json: String): RunCodeResponse {

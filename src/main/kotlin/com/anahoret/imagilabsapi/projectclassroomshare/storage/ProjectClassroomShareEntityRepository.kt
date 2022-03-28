@@ -46,6 +46,7 @@ interface ProjectClassroomShareEntityRepository : CrudRepository<ProjectClassroo
     fun findAllByOwnerId(ownerId: UUID): Iterable<ProjectClassroomShareEntity>
 
     fun deleteAllByProjectIdAndClassroomIdIn(projectId: UUID, classroomIds: List<UUID>)
+    fun deleteAllByProjectId(projectId: UUID)
 }
 
 interface ClassroomSharedProjectCount {
