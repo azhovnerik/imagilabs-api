@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.projects.domain.usecases
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
@@ -27,7 +28,8 @@ class ProjectDeleteUseCaseImpl(
 
     @Transactional(rollbackOn = [Throwable::class])
     override fun delete(deleteBy: UserProfile, projectId: UUID): Either<OperationError, Unit> {
-        val project = projectService.getProjectById(projectId) ?: return Unit.right()
+        val project = projectService.getProjectById(projectId)
+            ?: return NotFoundError("PROJECT_NOT_FOUND").left()
         if (!projectAccessService.canDelete(deleteBy, project))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
         projectClassroomShareService.unshareFromAll(project.id)
