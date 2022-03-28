@@ -28,4 +28,5 @@ interface StudentProfileEntityRepository : CrudRepository<StudentProfileEntity, 
         """
     )
     fun findByCredentials(username: String, password: String, classroomAccessCode: String): StudentProfileEntity?
+    fun deleteByIdIn(studentIds: Collection<UUID>)
 }

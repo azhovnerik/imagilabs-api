@@ -23,6 +23,8 @@ interface ProjectService {
     fun listByOwnerId(ownerId: UUID, pageable: Pageable): Page<Project>
     fun delete(projectId: UUID)
     fun deleteAllByOwner(ownerId: UUID)
+    fun deleteByIds(projectIds: Collection<UUID>)
+    fun listIdsByOwnerIds(ownerIds: List<UUID>): List<UUID>
 }
 
 @Service
@@ -64,6 +66,7 @@ class ProjectServiceImpl(
     }
 
     override fun listByIds(projectIds: Collection<UUID>, pageable: Pageable): Page<Project> {
+        if (projectIds.isEmpty()) return Page.empty()
         return projectEntityRepository.findAllByIdIn(projectIds, pageable)
             .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
@@ -71,6 +74,12 @@ class ProjectServiceImpl(
     override fun listByOwnerId(ownerId: UUID, pageable: Pageable): Page<Project> {
         return projectEntityRepository.findAllByOwnerId(ownerId, pageable)
             .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
+    }
+
+    override fun listIdsByOwnerIds(ownerIds: List<UUID>): List<UUID> {
+        if (ownerIds.isEmpty()) return emptyList()
+        return projectEntityRepository.findAllByOwnerIdIn(ownerIds)
+            .map { it.id!! }
     }
 
     override fun getProjectCounts(ownerIds: Iterable<UUID>): Map<UUID, Long> {
@@ -84,6 +93,10 @@ class ProjectServiceImpl(
 
     override fun deleteAllByOwner(ownerId: UUID) {
         projectEntityRepository.deleteAllByOwnerId(ownerId)
+    }
+
+    override fun deleteByIds(projectIds: Collection<UUID>) {
+        projectEntityRepository.deleteAllById(projectIds)
     }
 
     private fun parseToRunCodeResponse(json: String): RunCodeResponse {

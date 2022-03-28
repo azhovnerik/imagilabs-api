@@ -18,6 +18,7 @@ interface ProjectClassroomShareService {
     fun unshareFromAll(projectId: UUID)
     fun unshareFromAll(projectId: UUID, classroomIds: List<UUID>)
     fun unshareFromAll(projectIds: Collection<UUID>)
+    fun unshareAllFrom(classroomId: UUID)
 }
 
 @Service
@@ -50,6 +51,10 @@ class ProjectClassroomShareServiceImpl(
     override fun unshareFromAll(projectIds: Collection<UUID>) {
         if (projectIds.isEmpty()) return
         projectClassroomShareEntityRepository.deleteAllByProjectIdIn(projectIds)
+    }
+
+    override fun unshareAllFrom(classroomId: UUID) {
+        projectClassroomShareEntityRepository.deleteAllByClassroomId(classroomId)
     }
 
     override fun getProjectCountsByClassrooms(classroomIds: Iterable<UUID>): Map<UUID, Long> {

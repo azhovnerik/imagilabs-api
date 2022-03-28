@@ -23,6 +23,7 @@ interface StudentClassroomLinkEntityRepository : CrudRepository<StudentClassroom
     fun existsByStudentIdAndClassroomId(studentId: UUID, classroomId: UUID): Boolean
     fun findAllByStudentId(studentId: UUID): Iterable<StudentClassroomLinkEntity>
     fun deleteAllByStudentId(studentId: UUID)
+    fun deleteAllByStudentIdIn(studentIds: Collection<UUID>)
 }
 
 interface ClassroomStudentCount {

@@ -23,6 +23,7 @@ interface ProjectEntityRepository : CrudRepository<ProjectEntity, UUID> {
     fun findAllByOwnerId(ownerId: UUID, pageable: Pageable): Page<ProjectEntity>
     fun findAllByIdIn(ids: Collection<UUID>, pageable: Pageable): Page<ProjectEntity>
     fun deleteAllByOwnerId(ownerId: UUID)
+    fun findAllByOwnerIdIn(ownerIds: Collection<UUID>): List<ProjectEntity>
 }
 
 interface OwnerProjectCount {

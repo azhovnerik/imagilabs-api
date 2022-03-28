@@ -48,6 +48,7 @@ interface ProjectClassroomShareEntityRepository : CrudRepository<ProjectClassroo
     fun deleteAllByProjectIdAndClassroomIdIn(projectId: UUID, classroomIds: List<UUID>)
     fun deleteAllByProjectId(projectId: UUID)
     fun deleteAllByProjectIdIn(projectIds: Collection<UUID>)
+    fun deleteAllByClassroomId(classroomId: UUID)
 }
 
 interface ClassroomSharedProjectCount {

@@ -17,6 +17,7 @@ interface ClassroomService {
     fun getById(classroomId: UUID): Classroom?
     fun isClassroomOwnedByTeacher(classroomId: UUID, teacherId: UUID): Boolean
     fun getByAccessCode(accessCode: String): Classroom?
+    fun delete(classroomId: UUID)
 }
 
 @Service
@@ -76,6 +77,10 @@ class ClassroomServiceImpl(
 
     override fun isClassroomOwnedByTeacher(classroomId: UUID, teacherId: UUID): Boolean {
         return classroomEntityRepository.existsByIdAndTeacherId(classroomId, teacherId)
+    }
+
+    override fun delete(classroomId: UUID) {
+        classroomEntityRepository.deleteById(classroomId)
     }
 
     private fun generateUniqueAccessCode(): String {

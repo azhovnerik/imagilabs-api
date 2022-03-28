@@ -26,7 +26,8 @@ class ClassroomController(
     private val classroomService: ClassroomService,
     private val listStudentsInClassroomUseCase: ListStudentsInClassroomUseCase,
     private val listProjectsInClassroomUseCase: ListProjectsInClassroomUseCase,
-    private val studentCredentialsCardsGenerator: StudentCredentialsCardsGenerator
+    private val studentCredentialsCardsGenerator: StudentCredentialsCardsGenerator,
+    private val classroomDeleteUseCase: ClassroomDeleteUseCase
 ) {
 
     @Secured(UserRole.teacher)
@@ -56,6 +57,18 @@ class ClassroomController(
         return when (val result = classroomGetUseCase.get(userProfile, classroomId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
+    }
+
+    @Secured(UserRole.teacher)
+    @DeleteMapping("/api/classrooms/{classroomId}")
+    fun deleteClassroom(
+        @PathVariable classroomId: UUID,
+        @AuthenticationPrincipal teacherProfile: TeacherProfile
+    ): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = classroomDeleteUseCase.delete(teacherProfile, classroomId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok().build()
         }
     }
 
