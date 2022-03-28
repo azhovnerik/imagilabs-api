@@ -15,6 +15,7 @@ interface ProjectClassroomShareService {
     fun getShares(projectId: UUID): List<ProjectClassroomShare>
     fun listByClassroom(classroomId: UUID): List<ProjectClassroomShare>
     fun listByOwnerId(ownerId: UUID): List<ProjectClassroomShare>
+    fun unshareFromAll(projectId: UUID)
     fun unshareFromAll(projectId: UUID, classroomIds: List<UUID>)
 }
 
@@ -23,7 +24,7 @@ class ProjectClassroomShareServiceImpl(
     private val projectClassroomShareEntityRepository: ProjectClassroomShareEntityRepository
 ) : ProjectClassroomShareService {
 
-    @Transactional
+    @Transactional(rollbackOn = [Throwable::class])
     override fun shareToAll(projectId: UUID, classroomIds: Iterable<UUID>) {
         val alreadySharedIn = projectClassroomShareEntityRepository.findAllByProjectId(projectId)
             .map { it.classroomId }
@@ -34,7 +35,7 @@ class ProjectClassroomShareServiceImpl(
             .let { projectClassroomShareEntityRepository.saveAll(it) }
     }
 
-    @Transactional
+    @Transactional(rollbackOn = [Throwable::class])
     override fun unshareFromAll(projectId: UUID, classroomIds: List<UUID>) {
         if (classroomIds.isEmpty()) return
         projectClassroomShareEntityRepository.deleteAllByProjectIdAndClassroomIdIn(projectId, classroomIds)
