@@ -22,6 +22,7 @@ interface ProjectService {
     fun getProjectCounts(ownerIds: Iterable<UUID>): Map<UUID, Long>
     fun listByOwnerId(ownerId: UUID, pageable: Pageable): Page<Project>
     fun delete(projectId: UUID)
+    fun deleteAllByOwner(ownerId: UUID)
 }
 
 @Service
@@ -79,6 +80,10 @@ class ProjectServiceImpl(
 
     override fun delete(projectId: UUID) {
         projectEntityRepository.deleteById(projectId)
+    }
+
+    override fun deleteAllByOwner(ownerId: UUID) {
+        projectEntityRepository.deleteAllByOwnerId(ownerId)
     }
 
     private fun parseToRunCodeResponse(json: String): RunCodeResponse {

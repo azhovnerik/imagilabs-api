@@ -10,6 +10,7 @@ import java.util.*
 interface StudentClassroomLinkService {
 
     fun link(classroom: Classroom, students: List<StudentProfile>)
+    fun unlinkFromAll(studentId: UUID)
     fun getStudentCounts(classroomIds: Iterable<UUID>): Map<UUID, Long>
     fun getStudentCount(classroomId: UUID): Long
     fun listByClassroom(classroomId: UUID): List<StudentClassroomLink>
@@ -27,6 +28,10 @@ class StudentClassroomLinkServiceImpl(
         students.map { student ->
             StudentClassroomLinkEntity(student.id, classroom.id)
         }.let(studentClassroomLinkEntityRepository::saveAll)
+    }
+
+    override fun unlinkFromAll(studentId: UUID) {
+        studentClassroomLinkEntityRepository.deleteAllByStudentId(studentId)
     }
 
     override fun getStudentCounts(classroomIds: Iterable<UUID>): Map<UUID, Long> {

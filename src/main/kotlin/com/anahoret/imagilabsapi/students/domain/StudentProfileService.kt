@@ -25,6 +25,7 @@ interface StudentProfileService {
     fun getStudentById(studentId: UUID): StudentProfile?
     fun listByIds(ids: List<UUID>): List<StudentProfile>
     fun getStudentCredentials(studentLoginRequest: StudentLoginRequest): StudentCredentials?
+    fun delete(studentId: UUID)
 
 }
 
@@ -89,6 +90,10 @@ class StudentProfileServiceImpl(
             studentProfileEntityRepository.findByCredentials(username, password, classroomAccessCode)
                 ?.let { StudentCredentials.fromEntity(it, classroomAccessCode) }
         }
+    }
+
+    override fun delete(studentId: UUID) {
+        studentProfileEntityRepository.deleteById(studentId)
     }
 
     private fun createStudentPassword(): String {

@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.projects.storage;
+package com.anahoret.imagilabsapi.projects.storage
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -22,6 +22,7 @@ interface ProjectEntityRepository : CrudRepository<ProjectEntity, UUID> {
 
     fun findAllByOwnerId(ownerId: UUID, pageable: Pageable): Page<ProjectEntity>
     fun findAllByIdIn(ids: Collection<UUID>, pageable: Pageable): Page<ProjectEntity>
+    fun deleteAllByOwnerId(ownerId: UUID)
 }
 
 interface OwnerProjectCount {
