@@ -11,6 +11,7 @@ interface ClassroomAccessService {
     fun canGetClassroom(userProfile: UserProfile, classroom: Classroom): Boolean
     fun canListStudentCredentials(userProfile: UserProfile, classroom: Classroom): Boolean
     fun canDeleteClassroom(userProfile: UserProfile, classroom: Classroom): Boolean
+    fun canUpdateClassroom(userProfile: UserProfile, classroom: Classroom): Boolean
 }
 
 @Service
@@ -34,6 +35,13 @@ class ClassroomAccessServiceImpl(
     }
 
     override fun canDeleteClassroom(userProfile: UserProfile, classroom: Classroom): Boolean {
+        return when (userProfile.userType) {
+            UserType.TEACHER -> classroom.teacherId == userProfile.id
+            UserType.STUDENT -> false
+        }
+    }
+
+    override fun canUpdateClassroom(userProfile: UserProfile, classroom: Classroom): Boolean {
         return when (userProfile.userType) {
             UserType.TEACHER -> classroom.teacherId == userProfile.id
             UserType.STUDENT -> false

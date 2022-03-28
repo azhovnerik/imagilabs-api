@@ -18,6 +18,7 @@ interface ClassroomService {
     fun isClassroomOwnedByTeacher(classroomId: UUID, teacherId: UUID): Boolean
     fun getByAccessCode(accessCode: String): Classroom?
     fun delete(classroomId: UUID)
+    fun update(classroomId: UUID, classroomUpdateRequest: ClassroomUpdateRequest): Classroom?
 }
 
 @Service
@@ -36,6 +37,14 @@ class ClassroomServiceImpl(
                 teacherId
             )
         ).let { Classroom.fromEntity(it, studentsCount = 0, projectsCount = 0) }
+    }
+
+    override fun update(classroomId: UUID, classroomUpdateRequest: ClassroomUpdateRequest): Classroom? {
+        return classroomEntityRepository.findByIdOrNull(classroomId)?.let {
+            it.name = classroomUpdateRequest.name
+            classroomEntityRepository.save(it)
+            classroomId
+        }?.let(::doGetClassroomById)
     }
 
     override fun countByTeacher(teacherId: UUID): Long {
@@ -58,12 +67,7 @@ class ClassroomServiceImpl(
     }
 
     override fun getById(classroomId: UUID): Classroom? {
-        return classroomEntityRepository.findByIdOrNull(classroomId)
-            ?.let {
-                val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
-                val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
-                Classroom.fromEntity(it, studentsCount, projectsCount)
-            }
+        return doGetClassroomById(classroomId)
     }
 
     override fun getByAccessCode(accessCode: String): Classroom? {
@@ -81,6 +85,15 @@ class ClassroomServiceImpl(
 
     override fun delete(classroomId: UUID) {
         classroomEntityRepository.deleteById(classroomId)
+    }
+
+    private fun doGetClassroomById(classroomId: UUID): Classroom? {
+        return classroomEntityRepository.findByIdOrNull(classroomId)
+            ?.let {
+                val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
+                val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
+                Classroom.fromEntity(it, studentsCount, projectsCount)
+            }
     }
 
     private fun generateUniqueAccessCode(): String {
