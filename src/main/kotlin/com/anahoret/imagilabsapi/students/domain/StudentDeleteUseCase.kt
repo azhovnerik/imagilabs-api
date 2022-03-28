@@ -6,6 +6,7 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
@@ -23,7 +24,8 @@ class StudentDeleteUseCaseImpl(
     private val studentClassroomLinkService: StudentClassroomLinkService,
     private val studentAccessService: StudentAccessService,
     private val studentProfileService: StudentProfileService,
-    private val projectService: ProjectService
+    private val projectService: ProjectService,
+    private val projectClassroomShareService: ProjectClassroomShareService
 ) : StudentDeleteUseCase {
 
     @Transactional(rollbackOn = [Throwable::class])
@@ -33,9 +35,16 @@ class StudentDeleteUseCaseImpl(
         if (!studentAccessService.canDelete(deleteBy, studentProfile))
             return AccessDeniedError("ACCESS_TO_STUDENT_DENIED").left()
 
-        projectService.deleteAllByOwner(studentProfile.id)
+        deleteStudentProjects(studentProfile.id)
         studentClassroomLinkService.unlinkFromAll(studentProfile.id)
         studentProfileService.delete(studentProfile.id)
         return Unit.right()
+    }
+
+    private fun deleteStudentProjects(studentId: UUID) {
+        val studentProjectIds = projectClassroomShareService.listByOwnerId(studentId)
+            .map { it.projectId }
+        projectClassroomShareService.unshareFromAll(studentProjectIds)
+        projectService.deleteAllByOwner(studentId)
     }
 }

@@ -17,6 +17,7 @@ interface ProjectClassroomShareService {
     fun listByOwnerId(ownerId: UUID): List<ProjectClassroomShare>
     fun unshareFromAll(projectId: UUID)
     fun unshareFromAll(projectId: UUID, classroomIds: List<UUID>)
+    fun unshareFromAll(projectIds: Collection<UUID>)
 }
 
 @Service
@@ -44,6 +45,11 @@ class ProjectClassroomShareServiceImpl(
     @Transactional(rollbackOn = [Throwable::class])
     override fun unshareFromAll(projectId: UUID) {
         projectClassroomShareEntityRepository.deleteAllByProjectId(projectId)
+    }
+
+    override fun unshareFromAll(projectIds: Collection<UUID>) {
+        if (projectIds.isEmpty()) return
+        projectClassroomShareEntityRepository.deleteAllByProjectIdIn(projectIds)
     }
 
     override fun getProjectCountsByClassrooms(classroomIds: Iterable<UUID>): Map<UUID, Long> {
