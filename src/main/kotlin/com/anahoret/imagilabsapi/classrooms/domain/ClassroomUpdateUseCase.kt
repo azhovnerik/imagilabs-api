@@ -8,9 +8,12 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationErrors
+import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.springframework.stereotype.Service
 import java.util.*
+import javax.transaction.Transactional
 
 interface ClassroomUpdateUseCase {
 
@@ -26,9 +29,12 @@ interface ClassroomUpdateUseCase {
 class ClassroomUpdateUseCaseImpl(
     private val classroomAccessService: ClassroomAccessService,
     private val classroomService: ClassroomService,
-    private val classroomValidator: ClassroomValidator
+    private val classroomValidator: ClassroomValidator,
+    private val studentProfileService: StudentProfileService,
+    private val studentClassroomLinkService: StudentClassroomLinkService
 ) : ClassroomUpdateUseCase {
 
+    @Transactional(rollbackOn = [Throwable::class])
     override fun update(
         updateBy: TeacherProfile,
         classroomId: UUID,
@@ -42,9 +48,18 @@ class ClassroomUpdateUseCaseImpl(
 
         return classroomValidator.validate(classroomId, classroomUpdateRequest)
             .mapLeft(::ValidationErrors)
-            .flatMap {
-                classroomService.update(classroomId, classroomUpdateRequest)?.right()
-                    ?: NotFoundError("CLASSROOM_NOT_FOUND").left()
-            }
+            .flatMap { doUpdateClassroom(updateBy.id, classroomUpdateRequest) }
     }
+
+    private fun doUpdateClassroom(
+        teacherId: UUID,
+        classroomUpdateRequest: ClassroomUpdateRequest
+    ): Either<OperationError, Classroom> {
+        val classroom = classroomService.update(teacherId, classroomUpdateRequest)
+            ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
+        val students = studentProfileService.createStudents(classroom.id, classroomUpdateRequest.studentCreateRequests)
+        studentClassroomLinkService.link(classroom, students)
+        return classroom.right()
+    }
+
 }
