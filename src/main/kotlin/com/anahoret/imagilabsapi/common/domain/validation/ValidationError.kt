@@ -7,3 +7,5 @@ open class ValidationError(val message: String) : OperationError {
     class FieldIsBlank(field: String) : ValidationError("${field.uppercase()}_IS_TOO_LONG")
     class FieldFormatInvalid(field: String) : ValidationError("${field.uppercase()}_FORMAT_IS_INVALID")
 }
+
+class ValidationErrors(val errors: List<ValidationError>) : OperationError

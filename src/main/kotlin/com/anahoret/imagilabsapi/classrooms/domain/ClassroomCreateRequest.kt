@@ -8,11 +8,6 @@ class ClassroomCreateRequest(
 ) {
 
     @JsonIgnore
-    val studentCreateRequests = studentNames
-        .split(",", "\n")
-        .map(String::trim)
-        .filter(String::isNotBlank)
-        .map(::StudentCreateRequest)
+    val studentCreateRequests = StudentListParser.parse(studentNames)
 
-    class StudentCreateRequest(val name: String)
 }

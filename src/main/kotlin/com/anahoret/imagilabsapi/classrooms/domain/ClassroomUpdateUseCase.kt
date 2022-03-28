@@ -1,11 +1,13 @@
 package com.anahoret.imagilabsapi.classrooms.domain
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.common.domain.validation.ValidationErrors
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
 import java.util.*
@@ -23,7 +25,8 @@ interface ClassroomUpdateUseCase {
 @Service
 class ClassroomUpdateUseCaseImpl(
     private val classroomAccessService: ClassroomAccessService,
-    private val classroomService: ClassroomService
+    private val classroomService: ClassroomService,
+    private val classroomValidator: ClassroomValidator
 ) : ClassroomUpdateUseCase {
 
     override fun update(
@@ -37,7 +40,11 @@ class ClassroomUpdateUseCaseImpl(
         if (!classroomAccessService.canUpdateClassroom(updateBy, classroom))
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-        return classroomService.update(classroomId, classroomUpdateRequest)?.right()
-            ?: NotFoundError("CLASSROOM_NOT_FOUND").left()
+        return classroomValidator.validate(classroomId, classroomUpdateRequest)
+            .mapLeft(::ValidationErrors)
+            .flatMap {
+                classroomService.update(classroomId, classroomUpdateRequest)?.right()
+                    ?: NotFoundError("CLASSROOM_NOT_FOUND").left()
+            }
     }
 }

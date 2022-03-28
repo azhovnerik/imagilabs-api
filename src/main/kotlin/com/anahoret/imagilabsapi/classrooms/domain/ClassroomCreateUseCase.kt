@@ -22,7 +22,7 @@ interface ClassroomCreateUseCase {
 
 @Service
 class ClassroomCreateUseCaseImpl(
-    private val classroomCreateRequestValidator: ClassroomCreateRequestValidator,
+    private val classroomValidator: ClassroomValidator,
     private val classroomService: ClassroomService,
     private val studentProfileService: StudentProfileService,
     private val studentClassroomLinkService: StudentClassroomLinkService
@@ -33,7 +33,7 @@ class ClassroomCreateUseCaseImpl(
         teacherProfile: TeacherProfile,
         classroomCreateRequest: ClassroomCreateRequest
     ): Either<List<ValidationError>, Classroom> {
-        return classroomCreateRequestValidator.validate(classroomCreateRequest)
+        return classroomValidator.validate(classroomCreateRequest)
             .flatMap { checkTeacherClassesMaxCount(teacherProfile) }
             .map { doCreateClassroom(teacherProfile.id, classroomCreateRequest) }
     }

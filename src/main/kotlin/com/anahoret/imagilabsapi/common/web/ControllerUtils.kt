@@ -4,6 +4,7 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
+import com.anahoret.imagilabsapi.common.domain.validation.ValidationErrors
 import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -11,7 +12,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import java.io.InputStream
 
-fun <T> List<ValidationError>.toBadRequestResponse(): ResponseEntity<ResponseDto<T?>> {
+fun <T> List<ValidationError>.toBadRequestResponse(): ResponseEntity<ResponseDto<T>> {
     val responseErrors = this.map {
         ResponseErrorMessageDto(HttpStatus.BAD_REQUEST.value(), it.message)
     }
@@ -37,6 +38,7 @@ fun <T> mapErrors(operationError: OperationError): ResponseEntity<ResponseDto<T>
     return when (operationError) {
         is NotFoundError -> operationError.toNotFoundResponse()
         is AccessDeniedError -> operationError.toForbiddenResponse()
+        is ValidationErrors -> operationError.errors.toBadRequestResponse()
         else -> unknownErrorResponse()
     }
 }

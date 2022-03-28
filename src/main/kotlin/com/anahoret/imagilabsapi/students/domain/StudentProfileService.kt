@@ -1,6 +1,5 @@
 package com.anahoret.imagilabsapi.students.domain
 
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomCreateRequest
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
 import org.apache.commons.lang3.RandomStringUtils
@@ -12,7 +11,7 @@ interface StudentProfileService {
 
     fun createStudents(
         classroomId: UUID,
-        studentCreateRequests: List<ClassroomCreateRequest.StudentCreateRequest>
+        studentCreateRequests: List<StudentCreateRequest>
     ): List<StudentProfile>
 
     fun listStudentCredentialsCardsByIds(
@@ -42,7 +41,7 @@ class StudentProfileServiceImpl(
 
     override fun createStudents(
         classroomId: UUID,
-        studentCreateRequests: List<ClassroomCreateRequest.StudentCreateRequest>
+        studentCreateRequests: List<StudentCreateRequest>
     ): List<StudentProfile> {
         val existingUserNames = studentProfileEntityRepository
             .findAllByClassroom(classroomId)
