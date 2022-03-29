@@ -1,6 +1,5 @@
 package com.anahoret.imagilabsapi.teachingmaterials.domain
 
-import com.anahoret.imagilabsapi.teachingmaterials.storage.TeachingMaterialEntity
 import java.util.*
 
 @Suppress("unused")
@@ -14,12 +13,6 @@ class TeachingMaterial(
 ) {
 
     companion object {
-
-        fun fromEntity(teachingMaterialEntity: TeachingMaterialEntity): TeachingMaterial {
-            return with(teachingMaterialEntity) {
-                TeachingMaterial(id!!, index, name, path, isExternalLink, category)
-            }
-        }
 
         fun worksheetFromTeacherLesson(teacherLesson: TeacherLesson): TeachingMaterial {
             return fromTeacherLesson(teacherLesson, TeachingMaterialCategory.WORKSHEETS)
