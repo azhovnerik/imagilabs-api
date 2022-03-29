@@ -23,6 +23,9 @@ class TeacherLessonEntity(
     @Column(name = "lesson_index")
     var index: Int,
 
+    @Column(name = "locked")
+    var locked: Boolean = true,
+
     name: String,
     worksheetUri: String,
     slidesUri: String

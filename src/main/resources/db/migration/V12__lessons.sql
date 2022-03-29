@@ -16,6 +16,7 @@ CREATE TABLE bundle_lessons (
     last_modified_at BIGINT,
     bundle_id        UUID,
     lesson_index     INTEGER,
+    locked           BOOLEAN,
     CONSTRAINT pk_bundle_lessons PRIMARY KEY (id),
     CONSTRAINT uc_bundle_lessons_bundle_id_lesson_index UNIQUE (bundle_id, lesson_index),
     CONSTRAINT fk_bundle_lessons_lesson_bundles FOREIGN KEY (bundle_id) REFERENCES lesson_bundles(id)
@@ -30,6 +31,7 @@ CREATE TABLE teacher_lessons (
     last_modified_at BIGINT,
     teacher_id       UUID,
     lesson_index     INTEGER,
+    locked           BOOLEAN,
     CONSTRAINT pk_teacher_lessons PRIMARY KEY (id),
     CONSTRAINT uc_teacher_lessons_teacher_id_lesson_index UNIQUE (teacher_id, lesson_index),
     CONSTRAINT fk_teacher_lessons_teacher_profiles FOREIGN KEY (teacher_id) REFERENCES teacher_profiles(id)

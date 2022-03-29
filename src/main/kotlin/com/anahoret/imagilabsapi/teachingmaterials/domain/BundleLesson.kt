@@ -7,5 +7,6 @@ class BundleLesson(
     val bundleId: UUID,
     val index: Int,
     val name: String,
-    val worksheetUri: String
+    val worksheetUri: String,
+    val locked: Boolean
 )
