@@ -16,6 +16,7 @@ import java.util.*
 class LessonBundleController(
     private val lessonBundleCreateUseCase: LessonBundleCreateUseCase,
     private val lessonBundleUpdateUseCase: LessonBundleUpdateUseCase,
+    private val lessonBundleGetUseCase: LessonBundleGetUseCase,
     private val lessonBundleService: LessonBundleService
 ) {
 
@@ -25,6 +26,15 @@ class LessonBundleController(
         @RequestBody lessonBundleDataRequest: LessonBundleDataRequest
     ): ResponseEntity<ResponseDto<LessonBundle>> {
         return when (val result = lessonBundleCreateUseCase.create(lessonBundleDataRequest)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
+    }
+
+    @Secured(UserRole.admin)
+    @GetMapping("/api/lessons/bundles/{bundleId}")
+    fun getBundle(@PathVariable bundleId: UUID): ResponseEntity<ResponseDto<LessonBundle?>> {
+        return when (val result = lessonBundleGetUseCase.get(bundleId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }

@@ -6,4 +6,5 @@ import java.util.*
 interface BundleLessonEntityRepository : CrudRepository<BundleLessonEntity, UUID> {
 
     fun deleteAllByBundleId(bundleId: UUID)
+    fun findAllByBundleIdOrderByIndex(bundleId: UUID): List<BundleLessonEntity>
 }

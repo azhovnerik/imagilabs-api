@@ -15,6 +15,7 @@ interface LessonBundleService {
     fun update(bundleId: UUID, lessonBundleDataRequest: LessonBundleDataRequest): LessonBundle?
     fun list(): List<LessonBundleBase>
     fun delete(bundleId: UUID)
+    fun get(bundleId: UUID): LessonBundle?
 }
 
 @Service
@@ -52,6 +53,14 @@ class LessonBundleServiceImpl(
     override fun delete(bundleId: UUID) {
         bundleLessonEntityRepository.deleteAllByBundleId(bundleId)
         lessonBundleEntityRepository.deleteById(bundleId)
+    }
+
+    override fun get(bundleId: UUID): LessonBundle? {
+        return lessonBundleEntityRepository.findByIdOrNull(bundleId)?.let {
+            val lessons = bundleLessonEntityRepository.findAllByBundleIdOrderByIndex(bundleId)
+                .map { BundleLesson.fromEntity(it) }
+            LessonBundle.fromEntity(it, lessons)
+        }
     }
 
     private fun addBundleLessons(
