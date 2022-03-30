@@ -5,10 +5,7 @@ import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.security.UserRole
-import com.anahoret.imagilabsapi.teachingmaterials.domain.LessonBundle
-import com.anahoret.imagilabsapi.teachingmaterials.domain.LessonBundleCreateUseCase
-import com.anahoret.imagilabsapi.teachingmaterials.domain.LessonBundleDataRequest
-import com.anahoret.imagilabsapi.teachingmaterials.domain.LessonBundleUpdateUseCase
+import com.anahoret.imagilabsapi.teachingmaterials.domain.*
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
@@ -17,7 +14,8 @@ import java.util.*
 @RestController
 class LessonBundleController(
     private val lessonBundleCreateUseCase: LessonBundleCreateUseCase,
-    private val lessonBundleUpdateUseCase: LessonBundleUpdateUseCase
+    private val lessonBundleUpdateUseCase: LessonBundleUpdateUseCase,
+    private val lessonBundleService: LessonBundleService
 ) {
 
     @Secured(UserRole.admin)
@@ -33,8 +31,8 @@ class LessonBundleController(
 
     @Secured(UserRole.admin)
     @GetMapping("/api/lessons/bundles")
-    fun getBundles(): ResponseDto<List<LessonBundle>> {
-        TODO()
+    fun getBundles(): ResponseDto<List<LessonBundleBase>> {
+        return SuccessResponseDto(lessonBundleService.list())
     }
 
     @Secured(UserRole.admin)

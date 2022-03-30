@@ -13,6 +13,7 @@ interface LessonBundleService {
 
     fun create(lessonBundleDataRequest: LessonBundleDataRequest): LessonBundle
     fun update(bundleId: UUID, lessonBundleDataRequest: LessonBundleDataRequest): LessonBundle?
+    fun list(): List<LessonBundleBase>
 }
 
 @Service
@@ -39,6 +40,11 @@ class LessonBundleServiceImpl(
 
                 LessonBundle.fromEntity(bundleEntity, lessons.map { BundleLesson.fromEntity(it) })
             }
+    }
+
+    override fun list(): List<LessonBundleBase> {
+        return lessonBundleEntityRepository.findAllByOrderByLastModifiedAt()
+            .map(LessonBundleBase.Companion::fromEntity)
     }
 
     private fun addBundleLessons(
