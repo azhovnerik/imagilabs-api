@@ -48,14 +48,14 @@ class ClassroomUpdateUseCaseImpl(
 
         return classroomValidator.validate(classroomId, classroomUpdateRequest)
             .mapLeft(::ValidationErrors)
-            .flatMap { doUpdateClassroom(updateBy.id, classroomUpdateRequest) }
+            .flatMap { doUpdateClassroom(classroomId, classroomUpdateRequest) }
     }
 
     private fun doUpdateClassroom(
-        teacherId: UUID,
+        classroomId: UUID,
         classroomUpdateRequest: ClassroomUpdateRequest
     ): Either<OperationError, Classroom> {
-        val classroom = classroomService.update(teacherId, classroomUpdateRequest)
+        val classroom = classroomService.update(classroomId, classroomUpdateRequest)
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
         val students = studentProfileService.createStudents(classroom.id, classroomUpdateRequest.studentCreateRequests)
         studentClassroomLinkService.link(classroom, students)
