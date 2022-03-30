@@ -39,6 +39,7 @@ class ImagiLabsAuthenticationManager(
                     ?: throw BadCredentialsException("Student credentials should be StudentLoginRequest")
                 authenticateStudent(studentLoginRequest)
             }
+            UserType.ADMIN -> TODO()
         }
     }
 

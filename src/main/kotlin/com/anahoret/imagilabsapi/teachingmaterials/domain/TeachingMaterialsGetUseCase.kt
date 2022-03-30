@@ -29,6 +29,7 @@ class TeachingMaterialsGetUseCaseImpl(
         return when (getBy.userType) {
             UserType.TEACHER -> getForTeacher(getBy.id)
             UserType.STUDENT -> getForStudent(getBy, classroomId)
+            else -> AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
         }
     }
 

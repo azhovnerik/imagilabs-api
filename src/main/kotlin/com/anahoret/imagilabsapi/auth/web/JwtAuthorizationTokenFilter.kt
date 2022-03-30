@@ -80,6 +80,7 @@ class JwtAuthorizationTokenFilter(
         val userProfile: Any? = when (userType) {
             UserType.TEACHER -> teacherProfileService.getTeacherById(userId)
             UserType.STUDENT -> studentProfileService.getStudentById(userId)
+            UserType.ADMIN -> TODO()
         }
 
         val authorities = when (userProfile) {

@@ -31,21 +31,21 @@ class ClassroomAccessServiceImpl(
     override fun canListStudentCredentials(userProfile: UserProfile, classroom: Classroom): Boolean {
         return when (userProfile.userType) {
             UserType.TEACHER -> userClassroomLinkService.isLinkedToClassroom(userProfile, classroom)
-            UserType.STUDENT -> false
+            else -> false
         }
     }
 
     override fun canDeleteClassroom(userProfile: UserProfile, classroom: Classroom): Boolean {
         return when (userProfile.userType) {
             UserType.TEACHER -> classroom.teacherId == userProfile.id
-            UserType.STUDENT -> false
+            else -> false
         }
     }
 
     override fun canUpdateClassroom(userProfile: UserProfile, classroom: Classroom): Boolean {
         return when (userProfile.userType) {
             UserType.TEACHER -> classroom.teacherId == userProfile.id
-            UserType.STUDENT -> false
+            else -> false
         }
     }
 

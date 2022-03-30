@@ -74,6 +74,8 @@ class ProjectAccessServiceImpl(
                 studentClassroomLinkService.getLinks(userProfile.id)
                     .any { classroomLink -> classroomLink.classroomId in projectSharedInClassroomsIds }
             }
+
+            else -> false
         }
     }
 
