@@ -5,7 +5,7 @@ import javax.persistence.Column
 import javax.persistence.MappedSuperclass
 
 @MappedSuperclass
-class LessonData(
+class LessonBaseEntity(
     @Column(name = "name")
     var name: String,
 

@@ -29,7 +29,7 @@ class BundleLessonEntity(
     name: String,
     worksheetUri: String,
     slidesUri: String
-) : LessonData(
+) : LessonBaseEntity(
     name = name,
     worksheetUri = worksheetUri,
     slidesUri = slidesUri
