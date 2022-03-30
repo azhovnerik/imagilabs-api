@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.teachingmaterials.web
 
 import arrow.core.Either
+import com.anahoret.imagilabsapi.common.web.EmptySuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
@@ -49,8 +50,9 @@ class LessonBundleController(
 
     @Secured(UserRole.admin)
     @DeleteMapping("/api/lessons/bundles/{bundleId}")
-    fun deleteBundle(@PathVariable bundleId: UUID): ResponseEntity<ResponseDto<Void>> {
-        TODO()
+    fun deleteBundle(@PathVariable bundleId: UUID): ResponseDto<Void> {
+        lessonBundleService.delete(bundleId)
+        return EmptySuccessResponseDto
     }
 
 }
