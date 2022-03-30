@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.auth.domain
 
+import com.anahoret.imagilabsapi.admins.domain.AdminProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.users.UserType
@@ -25,6 +26,7 @@ class ImagiLabsAuthenticationToken(
         return when (principal) {
             is TeacherProfile -> principal.id
             is StudentProfile -> principal.id
+            is AdminProfile -> principal.id
             else -> null
         }
     }
@@ -35,5 +37,10 @@ class ImagiLabsAuthenticationToken(
 
     override fun getPrincipal(): Any {
         return principal
+    }
+
+    companion object {
+
+        private const val serialVersionUID: Long = 686465555891653461L
     }
 }

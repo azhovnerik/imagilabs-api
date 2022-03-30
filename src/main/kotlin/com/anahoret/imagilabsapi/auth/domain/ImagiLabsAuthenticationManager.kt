@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.auth.domain
 
+import com.anahoret.imagilabsapi.admins.domain.AdminProfileService
 import com.anahoret.imagilabsapi.security.AuthorityService
 import com.anahoret.imagilabsapi.students.domain.StudentLoginRequest
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
@@ -13,8 +14,9 @@ import org.springframework.stereotype.Component
 
 @Component
 class ImagiLabsAuthenticationManager(
-    private val teacherService: TeacherProfileService,
+    private val teacherProfileService: TeacherProfileService,
     private val studentProfileService: StudentProfileService,
+    private val adminProfileService: AdminProfileService,
     private val passwordEncoder: PasswordEncoder,
     private val authorityService: AuthorityService
 ) : AuthenticationManager {
@@ -39,15 +41,19 @@ class ImagiLabsAuthenticationManager(
                     ?: throw BadCredentialsException("Student credentials should be StudentLoginRequest")
                 authenticateStudent(studentLoginRequest)
             }
-            UserType.ADMIN -> TODO()
+            UserType.ADMIN -> {
+                val password = credentials as? String
+                    ?: throw BadCredentialsException("Admin password should be String")
+                authenticateAdmin(principal, password)
+            }
         }
     }
 
     private fun authenticateTeacher(email: String, password: String): Authentication {
-        val teacherCredentials = teacherService.getTeacherCredentialsByEmail(email)
+        val teacherCredentials = teacherProfileService.getTeacherCredentialsByEmail(email)
             ?: throw BadCredentialsException("Username or password is incorrect")
         if (passwordEncoder.matches(password, teacherCredentials.passwordHash)) {
-            val teacherProfile = teacherService.getTeacherById(teacherCredentials.id)
+            val teacherProfile = teacherProfileService.getTeacherById(teacherCredentials.id)
                 ?: throw BadCredentialsException("Account does not exist")
             val authorities = authorityService.getAuthorities(teacherProfile)
             return ImagiLabsAuthenticationToken(teacherProfile, UserType.TEACHER, authorities)
@@ -63,4 +69,18 @@ class ImagiLabsAuthenticationManager(
         val authorities = authorityService.getAuthorities(studentProfile)
         return ImagiLabsAuthenticationToken(studentProfile, UserType.STUDENT, authorities)
     }
+
+    private fun authenticateAdmin(email: String, password: String): Authentication {
+        val adminCredentials = adminProfileService.getAdminCredentialsByEmail(email)
+            ?: throw BadCredentialsException("Username or password is incorrect")
+        if (passwordEncoder.matches(password, adminCredentials.passwordHash)) {
+            val adminProfile = adminProfileService.getAdminById(adminCredentials.id)
+                ?: throw BadCredentialsException("Account does not exist")
+            val authorities = authorityService.getAuthorities(adminProfile)
+            return ImagiLabsAuthenticationToken(adminProfile, UserType.ADMIN, authorities)
+        } else {
+            throw BadCredentialsException("Username or password is incorrect")
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.auth.web
 
+import com.anahoret.imagilabsapi.admins.domain.AdminProfileService
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtProperties
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
@@ -32,6 +33,12 @@ interface RequestAuthenticatorService {
         mobileAppClient: Boolean
     ): TeacherAuthenticationSuccess
 
+    fun authenticateAdmin(
+        adminId: UUID,
+        response: HttpServletResponse,
+        mobileAppClient: Boolean
+    ): AdminAuthenticationSuccess
+
     fun updateAuthenticationToken(
         authToken: String,
         response: HttpServletResponse
@@ -45,7 +52,8 @@ class RequestAuthenticatorServiceImpl(
     private val jwtTokenUtil: JwtTokenUtil,
     private val jwtProperties: JwtProperties,
     private val teacherProfileService: TeacherProfileService,
-    private val studentProfileService: StudentProfileService
+    private val studentProfileService: StudentProfileService,
+    private val adminProfileService: AdminProfileService,
 ) : RequestAuthenticatorService {
 
     override fun authenticateStudent(
@@ -73,6 +81,19 @@ class RequestAuthenticatorServiceImpl(
         val profile = teacherProfileService.getTeacherById(teacherId)?.let(::TeacherUserProfileData)
         val userData = TeacherUserData(teacherId, UserType.TEACHER.name, profile)
         return TeacherAuthenticationSuccess(userData, jwtTokenData)
+    }
+
+    override fun authenticateAdmin(
+        adminId: UUID,
+        response: HttpServletResponse,
+        mobileAppClient: Boolean
+    ): AdminAuthenticationSuccess {
+        val tokenTTL = getTokenTTL(mobileAppClient)
+        val jwtTokenData = jwtTokenUtil.createToken(adminId, UserType.ADMIN, tokenTTL, null)
+        setAuthCookie(jwtTokenData.token, response)
+        val profile = adminProfileService.getAdminById(adminId)?.let(::AdminUserProfileData)
+        val userData = AdminUserData(adminId, UserType.ADMIN.name, profile)
+        return AdminAuthenticationSuccess(userData, jwtTokenData)
     }
 
     override fun updateAuthenticationToken(

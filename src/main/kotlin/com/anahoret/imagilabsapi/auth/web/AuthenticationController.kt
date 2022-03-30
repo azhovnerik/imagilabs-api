@@ -9,6 +9,11 @@ import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.students.domain.StudentLoginRequest
 import com.anahoret.imagilabsapi.teachers.domain.TeacherLoginRequest
 import com.anahoret.imagilabsapi.users.UserType
+import io.swagger.v3.oas.annotations.media.ArraySchema
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
@@ -35,24 +40,33 @@ class AuthenticationController(
         return EmptySuccessResponseDto
     }
 
+    // Workaround for Swagger documentation. Needed for generic endpoint response docs.
+    class AdminAuthSuccessResponseDto() : SuccessResponseDto<AdminAuthenticationSuccess>(null, emptyList())
+    class TeacherAuthSuccessResponseDto() : SuccessResponseDto<TeacherAuthenticationSuccess>(null, emptyList())
+
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = [Content(
+                array = ArraySchema(
+                    schema = Schema(
+                        type = "object",
+                        oneOf = [AdminAuthSuccessResponseDto::class, TeacherAuthSuccessResponseDto::class]
+                    )
+                )
+            )]
+        )
+    )
+
     @PostMapping("/api/auth/teacher")
     fun teacherLogin(
         @RequestBody teacherLoginRequest: TeacherLoginRequest,
         response: HttpServletResponse
-    ): ResponseEntity<ResponseDto<TeacherAuthenticationSuccess?>> {
-        val authToken = ImagiLabsAuthenticationToken(
-            teacherLoginRequest.email.lowercase(),
-            UserType.TEACHER,
-            teacherLoginRequest.password
-        )
-        return tryAuthenticate(authToken) { principalId ->
-            val authenticationResponse = requestAuthenticatorService.authenticateTeacher(
-                principalId,
-                response,
-                teacherLoginRequest.mobileAppClient
-            )
-            SuccessResponseDto(authenticationResponse)
-        }
+    ): ResponseEntity<*> {
+        return tryAuthenticateAdmin(teacherLoginRequest, response)
+            .takeIf { it.statusCode.is2xxSuccessful }
+            ?: tryAuthenticateTeacher(teacherLoginRequest, response)
     }
 
     @PostMapping("/api/auth/student")
@@ -73,6 +87,44 @@ class AuthenticationController(
                 response,
                 studentLoginRequest.mobileAppClient,
                 currentClassroom.id
+            )
+            SuccessResponseDto(authenticationResponse)
+        }
+    }
+
+    private fun tryAuthenticateTeacher(
+        teacherLoginRequest: TeacherLoginRequest,
+        response: HttpServletResponse
+    ): ResponseEntity<ResponseDto<TeacherAuthenticationSuccess?>> {
+        val authToken = ImagiLabsAuthenticationToken(
+            teacherLoginRequest.email.lowercase(),
+            UserType.TEACHER,
+            teacherLoginRequest.password
+        )
+        return tryAuthenticate(authToken) { principalId ->
+            val authenticationResponse = requestAuthenticatorService.authenticateTeacher(
+                principalId,
+                response,
+                teacherLoginRequest.mobileAppClient
+            )
+            SuccessResponseDto(authenticationResponse)
+        }
+    }
+
+    private fun tryAuthenticateAdmin(
+        teacherLoginRequest: TeacherLoginRequest,
+        response: HttpServletResponse
+    ): ResponseEntity<ResponseDto<AdminAuthenticationSuccess?>> {
+        val authToken = ImagiLabsAuthenticationToken(
+            teacherLoginRequest.email.lowercase(),
+            UserType.ADMIN,
+            teacherLoginRequest.password
+        )
+        return tryAuthenticate(authToken) { principalId ->
+            val authenticationResponse = requestAuthenticatorService.authenticateAdmin(
+                principalId,
+                response,
+                teacherLoginRequest.mobileAppClient
             )
             SuccessResponseDto(authenticationResponse)
         }
