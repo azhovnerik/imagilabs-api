@@ -13,7 +13,9 @@ interface TeacherProfileService {
     fun getTeacherById(id: UUID): TeacherProfile?
     fun getTeacherCredentialsByEmail(email: String): TeacherCredentials?
     fun exists(email: String): Boolean
+    fun exists(teacherId: UUID): Boolean
     fun listByIds(ids: Iterable<UUID>): List<TeacherProfile>
+    fun listAll(): List<TeacherProfile>
 }
 
 @Service
@@ -48,6 +50,11 @@ class TeacherProfileServiceImpl(
             .map(TeacherProfile.Companion::fromEntity)
     }
 
+    override fun listAll(): List<TeacherProfile> {
+        return teacherProfileEntityRepository.findAll()
+            .map(TeacherProfile.Companion::fromEntity)
+    }
+
     override fun getTeacherCredentialsByEmail(email: String): TeacherCredentials? {
         return teacherProfileEntityRepository.findByEmail(email)
             ?.let(TeacherCredentials.Companion::fromEntity)
@@ -55,6 +62,10 @@ class TeacherProfileServiceImpl(
 
     override fun exists(email: String): Boolean {
         return teacherProfileEntityRepository.existsByEmail(email)
+    }
+
+    override fun exists(teacherId: UUID): Boolean {
+        return teacherProfileEntityRepository.existsById(teacherId)
     }
 
 }

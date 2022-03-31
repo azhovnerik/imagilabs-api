@@ -23,6 +23,7 @@ class UserClassroomLinkServiceImpl(
         return when (userProfile.userType) {
             UserType.TEACHER -> classroomService.isClassroomOwnedByTeacher(classroomId, userProfile.id)
             UserType.STUDENT -> studentClassroomLinkService.isStudentLinkedToClassroom(userProfile.id, classroomId)
+            else -> false
         }
     }
 
@@ -30,6 +31,7 @@ class UserClassroomLinkServiceImpl(
         return when (userProfile.userType) {
             UserType.TEACHER -> classroom.teacherId == userProfile.id
             UserType.STUDENT -> studentClassroomLinkService.isStudentLinkedToClassroom(userProfile.id, classroom.id)
+            else -> false
         }
     }
 

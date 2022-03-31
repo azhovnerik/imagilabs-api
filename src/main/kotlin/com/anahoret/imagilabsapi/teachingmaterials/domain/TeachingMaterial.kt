@@ -1,24 +1,43 @@
 package com.anahoret.imagilabsapi.teachingmaterials.domain
 
-import com.anahoret.imagilabsapi.teachingmaterials.storage.TeachingMaterialEntity
 import java.util.*
 
+@Suppress("unused", "MemberVisibilityCanBePrivate", "CanBeParameter")
 class TeachingMaterial(
     val id: UUID,
     val index: Int,
     val name: String,
-    val path: String,
+    path: String,
     val isExternalLink: Boolean,
-    val category: TeachingMaterialCategory
+    val category: TeachingMaterialCategory,
+    val locked: Boolean
 ) {
+
+    val path = if (locked) null else path
 
     companion object {
 
-        fun fromEntity(teachingMaterialEntity: TeachingMaterialEntity): TeachingMaterial {
-            return with(teachingMaterialEntity) {
-                TeachingMaterial(id!!, index, name, path, isExternalLink, category)
+        fun worksheetFromTeacherLesson(teacherLesson: TeacherLesson): TeachingMaterial {
+            return fromTeacherLesson(teacherLesson, TeachingMaterialCategory.WORKSHEETS)
+        }
+
+        fun teachingSlidesFromTeacherLesson(teacherLesson: TeacherLesson): TeachingMaterial {
+            return fromTeacherLesson(teacherLesson, TeachingMaterialCategory.TEACHING_SLIDES)
+        }
+
+        private fun fromTeacherLesson(
+            teacherLesson: TeacherLesson,
+            category: TeachingMaterialCategory
+        ): TeachingMaterial {
+            val uri = when (category) {
+                TeachingMaterialCategory.TEACHING_SLIDES -> teacherLesson.slidesUri
+                TeachingMaterialCategory.WORKSHEETS -> teacherLesson.worksheetUri
+            }
+            return with(teacherLesson) {
+                TeachingMaterial(id, index, name, uri, isExternalLink = true, category, locked)
             }
         }
+
     }
 }
 

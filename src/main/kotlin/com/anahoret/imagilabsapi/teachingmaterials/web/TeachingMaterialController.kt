@@ -1,20 +1,36 @@
 package com.anahoret.imagilabsapi.teachingmaterials.web
 
+import arrow.core.Either
+import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
-import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterialService
+import com.anahoret.imagilabsapi.common.web.mapErrors
+import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterials
+import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterialsGetUseCase
+import org.springframework.http.ResponseEntity
+import org.springframework.security.access.annotation.Secured
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 
 @RestController
 class TeachingMaterialController(
-    private val teachingMaterialService: TeachingMaterialService
+    private val teachingMaterialsGetUseCase: TeachingMaterialsGetUseCase
 ) {
 
+    @Secured(UserRole.teacher, UserRole.student)
     @GetMapping("/api/teaching-materials")
-    fun list(): ResponseDto<TeachingMaterials> {
-        return SuccessResponseDto(teachingMaterialService.listSortedByIndex())
+    fun listNew(
+        @RequestParam(required = false) classroomId: UUID?,
+        @AuthenticationPrincipal userProfile: UserProfile
+    ): ResponseEntity<ResponseDto<TeachingMaterials?>> {
+        return when (val result = teachingMaterialsGetUseCase.get(userProfile, classroomId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
     }
 
 }

@@ -24,6 +24,15 @@ interface StudentClassroomLinkEntityRepository : CrudRepository<StudentClassroom
     fun findAllByStudentId(studentId: UUID): Iterable<StudentClassroomLinkEntity>
     fun deleteAllByStudentId(studentId: UUID)
     fun deleteAllByStudentIdIn(studentIds: Collection<UUID>)
+
+    @Query(
+        """
+        SELECT c.teacherId FROM StudentClassroomLinkEntity scl
+        JOIN ClassroomEntity c ON c.id = scl.classroomId
+        WHERE scl.studentId = :studentId
+    """
+    )
+    fun findAllStudentClassroomsTeacherIds(studentId: UUID): Set<UUID>
 }
 
 interface ClassroomStudentCount {

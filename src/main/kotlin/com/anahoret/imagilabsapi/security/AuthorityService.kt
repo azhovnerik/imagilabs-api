@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.security
 
+import com.anahoret.imagilabsapi.admins.domain.AdminProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.security.core.GrantedAuthority
@@ -10,6 +11,7 @@ interface AuthorityService {
 
     fun getAuthorities(teacherProfile: TeacherProfile): Collection<GrantedAuthority>
     fun getAuthorities(studentProfile: StudentProfile): Collection<GrantedAuthority>
+    fun getAuthorities(adminProfile: AdminProfile): Collection<GrantedAuthority>
 }
 
 @Service
@@ -24,6 +26,10 @@ class AuthorityServiceImpl : AuthorityService {
 
     override fun getAuthorities(studentProfile: StudentProfile): Collection<GrantedAuthority> {
         return listOf(SimpleGrantedAuthority(UserRole.student))
+    }
+
+    override fun getAuthorities(adminProfile: AdminProfile): Collection<GrantedAuthority> {
+        return listOf(SimpleGrantedAuthority(UserRole.admin))
     }
 
 }

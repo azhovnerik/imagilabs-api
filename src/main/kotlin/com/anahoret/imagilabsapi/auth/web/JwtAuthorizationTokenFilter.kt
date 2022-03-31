@@ -1,5 +1,7 @@
 package com.anahoret.imagilabsapi.auth.web
 
+import com.anahoret.imagilabsapi.admins.domain.AdminProfile
+import com.anahoret.imagilabsapi.admins.domain.AdminProfileService
 import com.anahoret.imagilabsapi.auth.domain.ImagiLabsAuthenticationToken
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtProperties
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
@@ -26,6 +28,7 @@ import javax.servlet.http.HttpServletResponse
 class JwtAuthorizationTokenFilter(
     private val teacherProfileService: TeacherProfileService,
     private val studentProfileService: StudentProfileService,
+    private val adminProfileService: AdminProfileService,
     private val authorityService: AuthorityService,
     private val jwtTokenUtil: JwtTokenUtil
 ) : OncePerRequestFilter() {
@@ -80,11 +83,13 @@ class JwtAuthorizationTokenFilter(
         val userProfile: Any? = when (userType) {
             UserType.TEACHER -> teacherProfileService.getTeacherById(userId)
             UserType.STUDENT -> studentProfileService.getStudentById(userId)
+            UserType.ADMIN -> adminProfileService.getAdminById(userId)
         }
 
         val authorities = when (userProfile) {
             is TeacherProfile -> authorityService.getAuthorities(userProfile)
             is StudentProfile -> authorityService.getAuthorities(userProfile)
+            is AdminProfile -> authorityService.getAuthorities(userProfile)
 
             null -> {
                 logger.error("Cannot authenticate user. User not found.")
