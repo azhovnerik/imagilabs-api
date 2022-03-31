@@ -31,8 +31,7 @@ class TeacherLessonsUpdateUseCaseImpl(
         return teacherLessonsUpdateRequestValidator.validate(teacherLessonsUpdateRequest)
             .mapLeft(::ValidationErrors)
             .map {
-                teacherLessonService.deleteAllByTeacherId(teacherId)
-                teacherLessonService.addAllToTeacher(teacherId, teacherLessonsUpdateRequest.lessons)
+                teacherLessonService.update(teacherId, teacherLessonsUpdateRequest.lessons)
             }
     }
 }
