@@ -16,6 +16,7 @@ interface LessonBundleService {
     fun list(): List<LessonBundleBase>
     fun delete(bundleId: UUID)
     fun get(bundleId: UUID): LessonBundle?
+    fun getDefaultBundle(): LessonBundle?
 }
 
 @Service
@@ -34,7 +35,10 @@ class LessonBundleServiceImpl(
     override fun update(bundleId: UUID, lessonBundleDataRequest: LessonBundleDataRequest): LessonBundle? {
         return lessonBundleEntityRepository.findByIdOrNull(bundleId)
             ?.let { bundleEntity ->
+                if (lessonBundleDataRequest.defaultBundle) unsetDefaultBundle()
+
                 bundleEntity.name = lessonBundleDataRequest.name
+                bundleEntity.defaultBundle = lessonBundleDataRequest.defaultBundle
                 lessonBundleEntityRepository.save(bundleEntity)
 
                 bundleLessonEntityRepository.deleteAllByBundleId(bundleId)
@@ -63,6 +67,14 @@ class LessonBundleServiceImpl(
         }
     }
 
+    override fun getDefaultBundle(): LessonBundle? {
+        return lessonBundleEntityRepository.findByDefaultBundleTrue()?.let { bundleEntity ->
+            val lessons = bundleLessonEntityRepository.findAllByBundleIdOrderByIndex(bundleEntity.id!!)
+                .map { BundleLesson.fromEntity(it) }
+            LessonBundle.fromEntity(bundleEntity, lessons)
+        }
+    }
+
     private fun addBundleLessons(
         bundleId: UUID,
         lessons: List<LessonData>
@@ -70,6 +82,13 @@ class LessonBundleServiceImpl(
         return lessons.mapIndexed { index, lesson ->
             BundleLessonEntity(bundleId, index, lesson.locked, lesson.name, lesson.worksheetUri, lesson.slidesUri)
         }.let(bundleLessonEntityRepository::saveAll)
+    }
+
+    private fun unsetDefaultBundle() {
+        lessonBundleEntityRepository.findByDefaultBundleTrue()?.let { defaultBundleEntity ->
+            defaultBundleEntity.defaultBundle = false
+            lessonBundleEntityRepository.save(defaultBundleEntity)
+        }
     }
 
 }

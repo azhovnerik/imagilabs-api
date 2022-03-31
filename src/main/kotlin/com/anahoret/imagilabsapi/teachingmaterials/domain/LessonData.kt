@@ -12,7 +12,7 @@ data class LessonData(
 
         fun fromBundleLesson(bundleLesson: BundleLesson): LessonData {
             return with(bundleLesson) {
-                LessonData(index, name, worksheetUri, slidesUri = "", locked)
+                LessonData(index, name, worksheetUri, slidesUri, locked)
             }
         }
     }

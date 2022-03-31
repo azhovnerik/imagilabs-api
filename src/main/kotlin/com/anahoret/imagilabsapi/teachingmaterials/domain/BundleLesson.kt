@@ -10,6 +10,7 @@ class BundleLesson(
     val index: Int,
     val name: String,
     val worksheetUri: String,
+    val slidesUri: String,
     val locked: Boolean
 ) {
 
@@ -17,7 +18,7 @@ class BundleLesson(
 
         fun fromEntity(bundleLessonEntity: BundleLessonEntity): BundleLesson {
             return with(bundleLessonEntity) {
-                BundleLesson(id!!, bundleId, index, name, worksheetUri, locked)
+                BundleLesson(id!!, bundleId, index, name, worksheetUri, slidesUri, locked)
             }
         }
     }

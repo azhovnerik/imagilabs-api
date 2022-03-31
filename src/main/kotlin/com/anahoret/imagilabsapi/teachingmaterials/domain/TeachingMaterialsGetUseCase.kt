@@ -22,7 +22,8 @@ interface TeachingMaterialsGetUseCase {
 class TeachingMaterialsGetUseCaseImpl(
     private val teacherLessonService: TeacherLessonService,
     private val classroomService: ClassroomService,
-    private val classroomAccessService: ClassroomAccessService
+    private val classroomAccessService: ClassroomAccessService,
+    private val lessonBundleService: LessonBundleService
 ) : TeachingMaterialsGetUseCase {
 
     override fun get(getBy: UserProfile, classroomId: UUID?): Either<OperationError, TeachingMaterials> {
@@ -42,10 +43,16 @@ class TeachingMaterialsGetUseCaseImpl(
     }
 
     private fun getForTeacher(teacherId: UUID): Either<OperationError, TeachingMaterials> {
-        val teacherLessons = teacherLessonService.listByTeacherId(teacherId)
+        val teacherLessons = getTeacherLessons(teacherId)
         val worksheets = teacherLessons.map(TeachingMaterial.Companion::worksheetFromTeacherLesson)
         val teachingSlides = teacherLessons.map(TeachingMaterial.Companion::teachingSlidesFromTeacherLesson)
         return TeachingMaterials(teachingSlides, worksheets).right()
+    }
+
+    private fun getTeacherLessons(teacherId: UUID): List<TeacherLesson> {
+        return teacherLessonService.listByTeacherId(teacherId).takeIf { it.isNotEmpty() }
+            ?: lessonBundleService.getDefaultBundle()?.lessons?.map { TeacherLesson.fromBundleLesson(it, teacherId) }
+            ?: emptyList()
     }
 
 }

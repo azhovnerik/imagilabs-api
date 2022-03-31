@@ -20,6 +20,12 @@ class TeacherLesson(
                 TeacherLesson(id!!, teacherId, index, name, worksheetUri, slidesUri, locked)
             }
         }
+
+        fun fromBundleLesson(bundleLesson: BundleLesson, teacherId: UUID): TeacherLesson {
+            return with(bundleLesson) {
+                TeacherLesson(id, teacherId, index, name, worksheetUri, slidesUri, locked)
+            }
+        }
     }
 
 }
