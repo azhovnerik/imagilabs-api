@@ -6,8 +6,9 @@ import com.anahoret.imagilabsapi.teachingmaterials.storage.LessonBundleEntity
 import com.anahoret.imagilabsapi.teachingmaterials.storage.LessonBundleEntityRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import javax.transaction.Transactional
+import javax.persistence.EntityManager
 
 interface LessonBundleService {
 
@@ -22,7 +23,8 @@ interface LessonBundleService {
 @Service
 class LessonBundleServiceImpl(
     private val lessonBundleEntityRepository: LessonBundleEntityRepository,
-    private val bundleLessonEntityRepository: BundleLessonEntityRepository
+    private val bundleLessonEntityRepository: BundleLessonEntityRepository,
+    private val entityManager: EntityManager
 ) : LessonBundleService {
 
     override fun create(lessonBundleDataRequest: LessonBundleDataRequest): LessonBundle {
@@ -42,6 +44,11 @@ class LessonBundleServiceImpl(
                 lessonBundleEntityRepository.save(bundleEntity)
 
                 bundleLessonEntityRepository.deleteAllByBundleId(bundleId)
+                /* Flush is needed because by default Hibernate runs inserts before deletes.
+                    This causes unique constraint exception on (bundleId, lessonIndex) unique key.
+                    So we delete old lessons, then flush and then insert new lessons.
+                 */
+                entityManager.flush()
                 val lessons = addBundleLessons(bundleEntity.id!!, lessonBundleDataRequest.lessons)
 
                 LessonBundle.fromEntity(bundleEntity, lessons.map { BundleLesson.fromEntity(it) })
@@ -60,10 +67,10 @@ class LessonBundleServiceImpl(
     }
 
     override fun get(bundleId: UUID): LessonBundle? {
-        return lessonBundleEntityRepository.findByIdOrNull(bundleId)?.let {
+        return lessonBundleEntityRepository.findByIdOrNull(bundleId)?.let { bundleEntity ->
             val lessons = bundleLessonEntityRepository.findAllByBundleIdOrderByIndex(bundleId)
                 .map { BundleLesson.fromEntity(it) }
-            LessonBundle.fromEntity(it, lessons)
+            LessonBundle.fromEntity(bundleEntity, lessons)
         }
     }
 
