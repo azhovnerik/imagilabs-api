@@ -6,10 +6,7 @@ import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.security.UserRole
-import com.anahoret.imagilabsapi.teachingmaterials.domain.TeacherLesson
-import com.anahoret.imagilabsapi.teachingmaterials.domain.TeacherLessonService
-import com.anahoret.imagilabsapi.teachingmaterials.domain.TeacherLessonsUpdateRequest
-import com.anahoret.imagilabsapi.teachingmaterials.domain.TeacherLessonsUpdateUseCase
+import com.anahoret.imagilabsapi.teachingmaterials.domain.*
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
@@ -18,7 +15,8 @@ import java.util.*
 @RestController
 class LessonsController(
     private val teacherLessonsUpdateUseCase: TeacherLessonsUpdateUseCase,
-    private val teacherLessonService: TeacherLessonService
+    private val teacherLessonService: TeacherLessonService,
+    private val lessonBundleAddToTeacherUseCase: LessonBundleAddToTeacherUseCase,
 ) {
 
     @Secured(UserRole.admin)
@@ -39,6 +37,18 @@ class LessonsController(
         @PathVariable teacherId: UUID
     ): ResponseDto<List<TeacherLesson>> {
         return SuccessResponseDto(teacherLessonService.listByTeacherId(teacherId))
+    }
+
+    @Secured(UserRole.admin)
+    @PostMapping("/api/teachers/{teacherId}/lessons")
+    fun addBundleToTeacher(
+        @RequestParam bundleId: UUID,
+        @PathVariable teacherId: UUID
+    ): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = lessonBundleAddToTeacherUseCase.add(bundleId, teacherId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
+        }
     }
 
 }

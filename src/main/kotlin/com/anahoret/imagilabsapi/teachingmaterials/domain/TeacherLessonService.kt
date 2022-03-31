@@ -27,7 +27,11 @@ class TeacherLessonServiceImpl(
     }
 
     override fun addAllToTeacher(teacherId: UUID, lessons: List<LessonData>) {
-        lessons.map {
+        val lastExistingIndex = teacherLessonEntityRepository.findAllByTeacherIdOrderByIndex(teacherId)
+            .lastOrNull()?.index
+        val remapFromIndex = if (lastExistingIndex == null) 0 else lastExistingIndex + 1
+        val newLessonsWithRemappedIndices = lessons.map { it.copy(index = remapFromIndex + it.index) }
+        newLessonsWithRemappedIndices.map {
             TeacherLessonEntity(teacherId, it.index, it.locked, it.name, it.worksheetUri, it.slidesUri)
         }.let(teacherLessonEntityRepository::saveAll)
     }
