@@ -28,7 +28,13 @@ class LessonBundleServiceImpl(
 ) : LessonBundleService {
 
     override fun create(lessonBundleDataRequest: LessonBundleDataRequest): LessonBundle {
-        val bundleEntity = lessonBundleEntityRepository.save(LessonBundleEntity(lessonBundleDataRequest.name))
+        if (lessonBundleDataRequest.defaultBundle) unsetDefaultBundle()
+        val bundleEntity = lessonBundleEntityRepository.save(
+            LessonBundleEntity(
+                lessonBundleDataRequest.name,
+                lessonBundleDataRequest.defaultBundle
+            )
+        )
         val lessons = addBundleLessons(bundleEntity.id!!, lessonBundleDataRequest.lessons)
         return LessonBundle.fromEntity(bundleEntity, lessons.map { BundleLesson.fromEntity(it) })
     }
