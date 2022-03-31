@@ -34,7 +34,7 @@ class TeachingMaterial(
                 TeachingMaterialCategory.WORKSHEETS -> teacherLesson.worksheetUri
             }
             return with(teacherLesson) {
-                TeachingMaterial(id, index, name, uri, isExternalLink = false, category, locked)
+                TeachingMaterial(id, index, name, uri, isExternalLink = true, category, locked)
             }
         }
 
