@@ -60,10 +60,10 @@ class StudentController(
 
     @Secured(UserRole.teacher)
     @GetMapping("/api/students/{studentId}")
-    fun updateStudent(
+    fun getStudent(
         @PathVariable studentId: UUID,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
-    ): ResponseEntity<ResponseDto<StudentProfile?>> {
+    ): ResponseEntity<ResponseDto<StudentDetails?>> {
         return when (val result = studentGetUseCase.get(teacherProfile, studentId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))

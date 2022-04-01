@@ -12,7 +12,7 @@ import java.util.*
 
 interface StudentGetUseCase {
 
-    fun get(getBy: UserProfile, studentId: UUID): Either<OperationError, StudentProfile>
+    fun get(getBy: UserProfile, studentId: UUID): Either<OperationError, StudentDetails>
 }
 
 @Service
@@ -21,13 +21,13 @@ class StudentGetUseCaseImpl(
     private val studentAccessService: StudentAccessService
 ) : StudentGetUseCase {
 
-    override fun get(getBy: UserProfile, studentId: UUID): Either<OperationError, StudentProfile> {
-        val studentProfile = studentProfileService.getStudentById(studentId)
+    override fun get(getBy: UserProfile, studentId: UUID): Either<OperationError, StudentDetails> {
+        val studentDetails = studentProfileService.getStudentDetailsById(studentId)
             ?: return NotFoundError("STUDENT_NOT_FOUND").left()
 
-        if (!studentAccessService.canGet(getBy, studentProfile))
+        if (!studentAccessService.canGet(getBy, studentDetails))
             return AccessDeniedError("ACCESS_TO_STUDENT_DENIED").left()
 
-        return studentProfile.right()
+        return studentDetails.right()
     }
 }
