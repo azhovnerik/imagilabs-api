@@ -30,6 +30,7 @@ interface StudentProfileService {
     fun update(studentId: UUID, studentUpdateRequest: StudentUpdateRequest): StudentProfile?
     fun studentCredentialsExists(studentClassroomCredentials: StudentClassroomCredentials): Boolean
     fun listByClassroom(classroomId: UUID): List<StudentProfile>
+    fun resetPassword(studentId: UUID): StudentCredentials?
 }
 
 @Service
@@ -126,6 +127,13 @@ class StudentProfileServiceImpl(
     override fun listByClassroom(classroomId: UUID): List<StudentProfile> {
         return studentProfileEntityRepository.findAllByClassroomId(classroomId)
             .map(StudentProfile.Companion::fromEntity)
+    }
+
+    override fun resetPassword(studentId: UUID): StudentCredentials? {
+        return studentProfileEntityRepository.findByIdOrNull(studentId)?.let {
+            it.password = createStudentPassword()
+            studentProfileEntityRepository.save(it)
+        }?.let(StudentCredentials.Companion::fromEntity)
     }
 
     private fun createStudentPassword(): String {

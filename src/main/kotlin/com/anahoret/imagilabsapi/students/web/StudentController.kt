@@ -17,7 +17,8 @@ import java.util.*
 class StudentController(
     private val studentDeleteUseCase: StudentDeleteUseCase,
     private val studentUpdateUseCase: StudentUpdateUseCase,
-    private val studentGetUseCase: StudentGetUseCase
+    private val studentGetUseCase: StudentGetUseCase,
+    private val studentResetPasswordUseCase: StudentResetPasswordUseCase
 ) {
 
     @Secured(UserRole.teacher)
@@ -46,6 +47,18 @@ class StudentController(
     }
 
     @Secured(UserRole.teacher)
+    @PatchMapping("/api/students/{studentId}/password")
+    fun resetPassword(
+        @PathVariable studentId: UUID,
+        @AuthenticationPrincipal teacherProfile: TeacherProfile
+    ): ResponseEntity<ResponseDto<StudentCredentials?>> {
+        return when (val result = studentResetPasswordUseCase.reset(teacherProfile, studentId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
+    }
+
+    @Secured(UserRole.teacher)
     @GetMapping("/api/students/{studentId}")
     fun updateStudent(
         @PathVariable studentId: UUID,
@@ -56,6 +69,5 @@ class StudentController(
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
-
 
 }
