@@ -6,8 +6,10 @@ import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomSh
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.stereotype.Service
+import java.util.*
 
 interface ProjectAccessService {
 
@@ -17,6 +19,7 @@ interface ProjectAccessService {
     fun canUnshare(userProfile: UserProfile, project: Project): Boolean
     fun canGet(userProfile: UserProfile, project: Project): Boolean
     fun canDelete(userProfile: UserProfile, project: Project): Boolean
+    fun canListForOwner(userProfile: UserProfile, ownerId: UUID): Boolean
 }
 
 @Service
@@ -48,6 +51,18 @@ class ProjectAccessServiceImpl(
 
     override fun canGet(userProfile: UserProfile, project: Project): Boolean {
         return isOwner(userProfile, project) || hasSharedAccess(userProfile, project)
+    }
+
+    override fun canListForOwner(userProfile: UserProfile, ownerId: UUID): Boolean {
+        return userProfile.id == ownerId || userIsTeacherOfOwnerStudent(userProfile, ownerId)
+    }
+
+    private fun userIsTeacherOfOwnerStudent(userProfile: UserProfile, ownerId: UUID): Boolean {
+        return userProfile is TeacherProfile && studentProfileService.getStudentById(ownerId)
+            ?.let { studentProfile ->
+                val teacherClassroomIds = classroomService.listIdsByTeacher(userProfile.id)
+                studentProfile.classroomId in teacherClassroomIds
+            } ?: false
     }
 
     private fun isOwner(userProfile: UserProfile, project: Project): Boolean {

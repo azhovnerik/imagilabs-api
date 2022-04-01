@@ -20,6 +20,7 @@ interface ClassroomService {
     fun getByAccessCode(accessCode: String): Classroom?
     fun delete(classroomId: UUID)
     fun update(classroomId: UUID, classroomUpdateRequest: ClassroomUpdateRequest): Classroom?
+    fun listIdsByTeacher(teacherId: UUID): Set<UUID>
 }
 
 @Service
@@ -79,6 +80,12 @@ class ClassroomServiceImpl(
 
     override fun delete(classroomId: UUID) {
         classroomEntityRepository.deleteById(classroomId)
+    }
+
+    override fun listIdsByTeacher(teacherId: UUID): Set<UUID> {
+        return classroomEntityRepository.findAllByTeacherId(teacherId)
+            .map { it.id!! }
+            .toSet()
     }
 
     private fun doGetClassroomById(classroomId: UUID): Classroom? {

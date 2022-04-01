@@ -40,12 +40,16 @@ class ProjectController(
 
     @Secured(UserRole.teacher, UserRole.student)
     @GetMapping("/api/projects")
-    fun listOwnProjects(
+    fun listProjectsByOwner(
+        @RequestParam(required = false) ownerId: UUID?,
         @AuthenticationPrincipal userProfile: UserProfile,
         pageable: Pageable
-    ): ResponseDto<List<ProjectCard>> {
-        val projects = projectListUseCase.list(userProfile, UnpagedSorted(pageable))
-        return SuccessResponseDto(projects.content) // TODO: return page
+    ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
+        val pageRequest = UnpagedSorted(pageable)
+        return when (val result = projectListUseCase.list(userProfile, ownerId, pageRequest)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
+        }
     }
 
     @Secured(UserRole.teacher, UserRole.student)
