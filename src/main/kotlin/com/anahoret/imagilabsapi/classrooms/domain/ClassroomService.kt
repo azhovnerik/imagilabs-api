@@ -14,6 +14,7 @@ interface ClassroomService {
     fun create(teacherId: UUID, classroomCreateRequest: ClassroomCreateRequest): Classroom
     fun countByTeacher(teacherId: UUID): Long
     fun listByTeacher(teacherId: UUID): List<Classroom>
+    fun listByIds(classroomIds: Collection<UUID>): List<Classroom>
     fun getById(classroomId: UUID): Classroom?
     fun isClassroomOwnedByTeacher(classroomId: UUID, teacherId: UUID): Boolean
     fun getByAccessCode(accessCode: String): Classroom?
@@ -52,18 +53,11 @@ class ClassroomServiceImpl(
     }
 
     override fun listByTeacher(teacherId: UUID): List<Classroom> {
-        val classroomEntities = classroomEntityRepository.findAllByTeacherId(teacherId)
-        val classroomIds = classroomEntities.map { it.id!! }
-        val studentCounts = studentClassroomLinkService.getStudentCounts(classroomIds)
-        val projectCounts = projectClassroomShareService.getProjectCountsByClassrooms(classroomIds)
-        return classroomEntities
-            .map {
-                Classroom.fromEntity(
-                    classroomEntity = it,
-                    studentCounts.getOrDefault(it.id!!, 0),
-                    projectCounts.getOrDefault(it.id!!, 0)
-                )
-            }
+        return mapToClassrooms(classroomEntityRepository.findAllByTeacherId(teacherId))
+    }
+
+    override fun listByIds(classroomIds: Collection<UUID>): List<Classroom> {
+        return mapToClassrooms(classroomEntityRepository.findAllById(classroomIds))
     }
 
     override fun getById(classroomId: UUID): Classroom? {
@@ -93,6 +87,20 @@ class ClassroomServiceImpl(
                 val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
                 val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
                 Classroom.fromEntity(it, studentsCount, projectsCount)
+            }
+    }
+
+    private fun mapToClassrooms(classroomEntities: Iterable<ClassroomEntity>): List<Classroom> {
+        val classroomIds = classroomEntities.map { it.id!! }
+        val studentCounts = studentClassroomLinkService.getStudentCounts(classroomIds)
+        val projectCounts = projectClassroomShareService.getProjectCountsByClassrooms(classroomIds)
+        return classroomEntities
+            .map {
+                Classroom.fromEntity(
+                    classroomEntity = it,
+                    studentCounts.getOrDefault(it.id!!, 0),
+                    projectCounts.getOrDefault(it.id!!, 0)
+                )
             }
     }
 

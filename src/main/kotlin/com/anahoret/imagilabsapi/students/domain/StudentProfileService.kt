@@ -24,8 +24,11 @@ interface StudentProfileService {
     fun getStudentById(studentId: UUID): StudentProfile?
     fun listByIds(ids: List<UUID>): List<StudentProfile>
     fun getStudentCredentials(studentLoginRequest: StudentLoginRequest): StudentCredentials?
+    fun getStudentCredentials(studentId: UUID): StudentCredentials?
     fun delete(studentId: UUID)
     fun delete(studentIds: Collection<UUID>)
+    fun update(studentId: UUID, studentUpdateRequest: StudentUpdateRequest): StudentProfile?
+    fun studentCredentialsExists(studentClassroomCredentials: StudentClassroomCredentials): Boolean
 
 }
 
@@ -88,8 +91,19 @@ class StudentProfileServiceImpl(
     override fun getStudentCredentials(studentLoginRequest: StudentLoginRequest): StudentCredentials? {
         return with(studentLoginRequest) {
             studentProfileEntityRepository.findByCredentials(username, password, classroomAccessCode)
-                ?.let { StudentCredentials.fromEntity(it, classroomAccessCode) }
+                ?.let(StudentCredentials.Companion::fromEntity)
         }
+    }
+
+    override fun getStudentCredentials(studentId: UUID): StudentCredentials? {
+        return studentProfileEntityRepository.findByIdOrNull(studentId)
+            ?.let(StudentCredentials.Companion::fromEntity)
+    }
+
+    override fun studentCredentialsExists(studentClassroomCredentials: StudentClassroomCredentials): Boolean {
+        return with(studentClassroomCredentials) {
+            studentProfileEntityRepository.findByCredentials(username, password, classroomAccessCode)
+        } != null
     }
 
     override fun delete(studentId: UUID) {
@@ -99,6 +113,14 @@ class StudentProfileServiceImpl(
     override fun delete(studentIds: Collection<UUID>) {
         if (studentIds.isEmpty()) return
         studentProfileEntityRepository.deleteByIdIn(studentIds)
+    }
+
+    override fun update(studentId: UUID, studentUpdateRequest: StudentUpdateRequest): StudentProfile? {
+        return studentProfileEntityRepository.findByIdOrNull(studentId)?.let {
+            it.name = studentUpdateRequest.name
+            it.username = studentUpdateRequest.username
+            studentProfileEntityRepository.save(it)
+        }?.let(StudentProfile.Companion::fromEntity)
     }
 
     private fun createStudentPassword(): String {
