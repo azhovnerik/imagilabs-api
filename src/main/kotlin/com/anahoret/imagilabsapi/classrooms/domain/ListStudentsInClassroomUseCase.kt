@@ -9,10 +9,9 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.students.domain.StudentClassroomCard
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
-import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLink
-import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -24,7 +23,6 @@ interface ListStudentsInClassroomUseCase {
 @Service
 class ListStudentsInClassroomUseCaseImpl(
     private val classroomService: ClassroomService,
-    private val studentClassroomLinkService: StudentClassroomLinkService,
     private val studentProfileService: StudentProfileService,
     private val projectService: ProjectService,
     private val projectClassroomShareService: ProjectClassroomShareService,
@@ -36,8 +34,8 @@ class ListStudentsInClassroomUseCaseImpl(
         if (!classroomAccessService.canListStudentCredentials(listBy, classroom))
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-        val studentIds = studentClassroomLinkService.listByClassroom(classroom.id)
-            .map(StudentClassroomLink::studentId)
+        val studentIds = studentProfileService.listByClassroom(classroom.id)
+            .map(StudentProfile::id)
 
         val projectCounts = projectService.getProjectCounts(studentIds)
         val sharedProjectCounts = projectClassroomShareService.getProjectCountsByOwners(studentIds)

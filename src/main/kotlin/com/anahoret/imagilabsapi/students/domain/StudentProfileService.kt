@@ -29,7 +29,7 @@ interface StudentProfileService {
     fun delete(studentIds: Collection<UUID>)
     fun update(studentId: UUID, studentUpdateRequest: StudentUpdateRequest): StudentProfile?
     fun studentCredentialsExists(studentClassroomCredentials: StudentClassroomCredentials): Boolean
-
+    fun listByClassroom(classroomId: UUID): List<StudentProfile>
 }
 
 @Service
@@ -47,14 +47,14 @@ class StudentProfileServiceImpl(
         studentCreateRequests: List<StudentCreateRequest>
     ): List<StudentProfile> {
         val existingUserNames = studentProfileEntityRepository
-            .findAllByClassroom(classroomId)
+            .findAllByClassroomId(classroomId)
             .map(StudentProfileEntity::username)
             .toMutableSet()
         return studentCreateRequests.map {
             val username = createUniqueStudentUsername(it.name, existingUserNames)
             existingUserNames.add(username)
             val password = createStudentPassword()
-            StudentProfileEntity(it.name, username, password)
+            StudentProfileEntity(it.name, username, password, classroomId)
         }.let(studentProfileEntityRepository::saveAll)
             .map(StudentProfile.Companion::fromEntity)
     }
@@ -121,6 +121,11 @@ class StudentProfileServiceImpl(
             it.username = studentUpdateRequest.username
             studentProfileEntityRepository.save(it)
         }?.let(StudentProfile.Companion::fromEntity)
+    }
+
+    override fun listByClassroom(classroomId: UUID): List<StudentProfile> {
+        return studentProfileEntityRepository.findAllByClassroomId(classroomId)
+            .map(StudentProfile.Companion::fromEntity)
     }
 
     private fun createStudentPassword(): String {

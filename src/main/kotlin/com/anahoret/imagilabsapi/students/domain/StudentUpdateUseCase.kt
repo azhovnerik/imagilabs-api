@@ -39,7 +39,7 @@ class StudentUpdateUseCaseImpl(
             ?: return NotFoundError("STUDENT_NOT_FOUND").left()
         if (!studentAccessService.canUpdate(updateBy, studentProfile))
             return AccessDeniedError("ACCESS_TO_STUDENT_DENIED").left()
-        return studentUpdateRequestValidator.validate(studentProfile.id, currentCredentials, studentUpdateRequest)
+        return studentUpdateRequestValidator.validate(studentProfile, currentCredentials, studentUpdateRequest)
             .mapLeft(::ValidationErrors)
             .flatMap {
                 studentProfileService.update(studentId, studentUpdateRequest)?.right()

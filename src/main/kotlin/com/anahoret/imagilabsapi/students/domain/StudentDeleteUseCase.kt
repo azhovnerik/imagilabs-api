@@ -9,7 +9,6 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
-import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.springframework.stereotype.Service
 import java.util.*
 import javax.transaction.Transactional
@@ -21,7 +20,6 @@ interface StudentDeleteUseCase {
 
 @Service
 class StudentDeleteUseCaseImpl(
-    private val studentClassroomLinkService: StudentClassroomLinkService,
     private val studentAccessService: StudentAccessService,
     private val studentProfileService: StudentProfileService,
     private val projectService: ProjectService,
@@ -36,7 +34,6 @@ class StudentDeleteUseCaseImpl(
             return AccessDeniedError("ACCESS_TO_STUDENT_DENIED").left()
 
         deleteStudentProjects(studentProfile.id)
-        studentClassroomLinkService.unlinkFromAll(studentProfile.id)
         studentProfileService.delete(studentProfile.id)
         return Unit.right()
     }

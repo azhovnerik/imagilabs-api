@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.userclassroomlink.domain
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.stereotype.Service
 import java.util.*
@@ -15,14 +16,13 @@ interface UserClassroomLinkService {
 
 @Service
 class UserClassroomLinkServiceImpl(
-    private val classroomService: ClassroomService,
-    private val studentClassroomLinkService: StudentClassroomLinkService
+    private val classroomService: ClassroomService
 ) : UserClassroomLinkService {
 
     override fun isLinkedToClassroom(userProfile: UserProfile, classroomId: UUID): Boolean {
         return when (userProfile.userType) {
             UserType.TEACHER -> classroomService.isClassroomOwnedByTeacher(classroomId, userProfile.id)
-            UserType.STUDENT -> studentClassroomLinkService.isStudentLinkedToClassroom(userProfile.id, classroomId)
+            UserType.STUDENT -> isStudentLinkedToClassroom(userProfile, classroomId)
             else -> false
         }
     }
@@ -30,9 +30,13 @@ class UserClassroomLinkServiceImpl(
     override fun isLinkedToClassroom(userProfile: UserProfile, classroom: Classroom): Boolean {
         return when (userProfile.userType) {
             UserType.TEACHER -> classroom.teacherId == userProfile.id
-            UserType.STUDENT -> studentClassroomLinkService.isStudentLinkedToClassroom(userProfile.id, classroom.id)
+            UserType.STUDENT -> isStudentLinkedToClassroom(userProfile, classroom.id)
             else -> false
         }
+    }
+
+    private fun isStudentLinkedToClassroom(userProfile: UserProfile, classroomId: UUID): Boolean {
+        return userProfile is StudentProfile && userProfile.classroomId == classroomId
     }
 
 }

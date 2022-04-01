@@ -9,8 +9,9 @@ import com.anahoret.imagilabsapi.classrooms.domain.ListStudentsInClassroomUseCas
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
+import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
-import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -37,7 +38,7 @@ class StudentCredentialsCardsGeneratorImpl(
     private val studentCredentialsCardsPdfGenerator: StudentCredentialsCardsPdfGenerator,
     private val studentCredentialsCardsCsvGenerator: StudentCredentialsCardsCsvGenerator,
     private val listStudentsInClassroomUseCase: ListStudentsInClassroomUseCase,
-    private val studentClassroomLinkService: StudentClassroomLinkService
+    private val studentProfileService: StudentProfileService
 ) : StudentCredentialsCardsGenerator {
 
     override fun generate(
@@ -45,8 +46,8 @@ class StudentCredentialsCardsGeneratorImpl(
         classroomId: UUID,
         format: StudentsCredentialsCardsFormat
     ): Either<OperationError, StudentCredentialsCardsFile> {
-        val selectedStudents = studentClassroomLinkService.listByClassroom(classroomId)
-            .map { it.studentId }
+        val selectedStudents = studentProfileService.listByClassroom(classroomId)
+            .map(StudentProfile::id)
             .toSet()
         val downloadRequest = DownloadStudentsCredentialsRequest(
             format = format,

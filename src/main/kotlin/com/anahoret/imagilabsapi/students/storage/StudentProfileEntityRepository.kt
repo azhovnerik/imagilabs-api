@@ -6,21 +6,12 @@ import java.util.*
 
 interface StudentProfileEntityRepository : CrudRepository<StudentProfileEntity, UUID> {
 
-    @Query(
-        """
-        SELECT sp FROM StudentProfileEntity sp
-        JOIN StudentClassroomLinkEntity scl ON scl.studentId = sp.id
-        JOIN ClassroomEntity cr ON cr.id = scl.classroomId
-        WHERE cr.id = :classroomId                     
-        """
-    )
-    fun findAllByClassroom(classroomId: UUID): Iterable<StudentProfileEntity>
+    fun findAllByClassroomId(classroomId: UUID): Iterable<StudentProfileEntity>
 
     @Query(
         """
         SELECT sp FROM StudentProfileEntity sp
-        JOIN StudentClassroomLinkEntity scl ON scl.studentId = sp.id
-        JOIN ClassroomEntity cr ON cr.id = scl.classroomId
+        JOIN ClassroomEntity cr ON cr.id = sp.classroomId
         WHERE
             sp.username = :username AND
             sp.password = :password AND
@@ -29,4 +20,6 @@ interface StudentProfileEntityRepository : CrudRepository<StudentProfileEntity, 
     )
     fun findByCredentials(username: String, password: String, classroomAccessCode: String): StudentProfileEntity?
     fun deleteByIdIn(studentIds: Collection<UUID>)
+    fun countByClassroomId(classroomId: UUID): Long
+    fun existsByIdAndClassroomId(studentId: UUID, classroomId: UUID): Boolean
 }

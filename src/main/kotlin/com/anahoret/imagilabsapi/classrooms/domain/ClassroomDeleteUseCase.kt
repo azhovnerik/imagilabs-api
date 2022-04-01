@@ -8,10 +8,9 @@ import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
-import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLink
-import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.springframework.stereotype.Service
 import java.util.*
 import javax.transaction.Transactional
@@ -25,7 +24,6 @@ interface ClassroomDeleteUseCase {
 class ClassroomDeleteUseCaseImpl(
     private val classroomService: ClassroomService,
     private val classroomAccessService: ClassroomAccessService,
-    private val studentClassroomLinkService: StudentClassroomLinkService,
     private val projectService: ProjectService,
     private val projectClassroomShareService: ProjectClassroomShareService,
     private val studentProfileService: StudentProfileService
@@ -39,10 +37,10 @@ class ClassroomDeleteUseCaseImpl(
         if (!classroomAccessService.canDeleteClassroom(deleteBy, classroom))
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-        val studentIds = studentClassroomLinkService.listByClassroom(classroom.id)
-            .map(StudentClassroomLink::studentId)
+        val studentIds = studentProfileService.listByClassroom(classroom.id)
+            .map(StudentProfile::id)
         deleteProjects(classroomId, studentIds)
-        deleteStudents(studentIds)
+        studentProfileService.delete(studentIds)
         classroomService.delete(classroom.id)
 
         return Unit.right()
@@ -52,11 +50,6 @@ class ClassroomDeleteUseCaseImpl(
         projectClassroomShareService.unshareAllFrom(classroomId)
         val projectIds = projectService.listIdsByOwnerIds(studentIds)
         projectService.deleteByIds(projectIds)
-    }
-
-    private fun deleteStudents(studentIds: List<UUID>) {
-        studentClassroomLinkService.unlinkFromAll(studentIds)
-        studentProfileService.delete(studentIds)
     }
 
 }

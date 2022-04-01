@@ -7,7 +7,6 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
-import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.springframework.stereotype.Service
 import java.util.*
 import javax.transaction.Transactional
@@ -24,8 +23,7 @@ interface ClassroomCreateUseCase {
 class ClassroomCreateUseCaseImpl(
     private val classroomValidator: ClassroomValidator,
     private val classroomService: ClassroomService,
-    private val studentProfileService: StudentProfileService,
-    private val studentClassroomLinkService: StudentClassroomLinkService
+    private val studentProfileService: StudentProfileService
 ) : ClassroomCreateUseCase {
 
     @Transactional(rollbackOn = [Throwable::class])
@@ -40,8 +38,7 @@ class ClassroomCreateUseCaseImpl(
 
     private fun doCreateClassroom(teacherId: UUID, classroomCreateRequest: ClassroomCreateRequest): Classroom {
         val classroom = classroomService.create(teacherId, classroomCreateRequest)
-        val students = studentProfileService.createStudents(classroom.id, classroomCreateRequest.studentCreateRequests)
-        studentClassroomLinkService.link(classroom, students)
+        studentProfileService.createStudents(classroom.id, classroomCreateRequest.studentCreateRequests)
         return classroom
     }
 

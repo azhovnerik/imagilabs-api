@@ -7,7 +7,8 @@ import java.util.*
 
 class StudentProfile(
     override val id: UUID,
-    val name: String
+    val name: String,
+    val classroomId: UUID
 ) : UserProfile {
 
     override val userType = UserType.STUDENT
@@ -17,7 +18,7 @@ class StudentProfile(
 
         fun fromEntity(studentProfileEntity: StudentProfileEntity): StudentProfile {
             return with(studentProfileEntity) {
-                StudentProfile(id!!, name)
+                StudentProfile(id!!, name, classroomId)
             }
         }
     }

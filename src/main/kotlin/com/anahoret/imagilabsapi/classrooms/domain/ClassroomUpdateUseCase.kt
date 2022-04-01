@@ -10,7 +10,6 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationErrors
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
-import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.springframework.stereotype.Service
 import java.util.*
 import javax.transaction.Transactional
@@ -30,8 +29,7 @@ class ClassroomUpdateUseCaseImpl(
     private val classroomAccessService: ClassroomAccessService,
     private val classroomService: ClassroomService,
     private val classroomValidator: ClassroomValidator,
-    private val studentProfileService: StudentProfileService,
-    private val studentClassroomLinkService: StudentClassroomLinkService
+    private val studentProfileService: StudentProfileService
 ) : ClassroomUpdateUseCase {
 
     @Transactional(rollbackOn = [Throwable::class])
@@ -57,8 +55,7 @@ class ClassroomUpdateUseCaseImpl(
     ): Either<OperationError, Classroom> {
         val classroom = classroomService.update(classroomId, classroomUpdateRequest)
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
-        val students = studentProfileService.createStudents(classroom.id, classroomUpdateRequest.studentCreateRequests)
-        studentClassroomLinkService.link(classroom, students)
+        studentProfileService.createStudents(classroom.id, classroomUpdateRequest.studentCreateRequests)
         return classroom.right()
     }
 

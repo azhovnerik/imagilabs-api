@@ -4,7 +4,8 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShare
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
-import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
+import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.stereotype.Service
 
@@ -20,9 +21,9 @@ interface ProjectAccessService {
 
 @Service
 class ProjectAccessServiceImpl(
-    private val studentClassroomLinkService: StudentClassroomLinkService,
     private val projectClassroomShareService: ProjectClassroomShareService,
-    private val classroomService: ClassroomService
+    private val classroomService: ClassroomService,
+    private val studentProfileService: StudentProfileService
 ) : ProjectAccessService {
 
     override fun canEdit(userProfile: UserProfile, project: Project): Boolean {
@@ -63,16 +64,16 @@ class ProjectAccessServiceImpl(
                 val teacherClassroomsIds = classroomService.listByTeacher(userProfile.id)
                     .map { it.id }
                     .toSet()
-                return studentClassroomLinkService.getLinks(project.ownerId)
-                    .any { it.classroomId in teacherClassroomsIds }
+                val studentOwnerClassroomId = studentProfileService.getStudentById(project.ownerId)?.classroomId
+                return studentOwnerClassroomId in teacherClassroomsIds
             }
 
             UserType.STUDENT -> {
                 val projectSharedInClassroomsIds = projectClassroomShareService.getShares(project.id)
                     .map(ProjectClassroomShare::classroomId)
                     .toSet()
-                studentClassroomLinkService.getLinks(userProfile.id)
-                    .any { classroomLink -> classroomLink.classroomId in projectSharedInClassroomsIds }
+                val studentClassroomId = (userProfile as StudentProfile).classroomId
+                return studentClassroomId in projectSharedInClassroomsIds
             }
 
             else -> false
