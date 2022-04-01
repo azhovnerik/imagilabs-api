@@ -1,5 +1,7 @@
 package com.anahoret.imagilabsapi.students.domain
 
+import com.anahoret.imagilabsapi.classrooms.domain.Classroom
+import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
 import org.apache.commons.lang3.RandomStringUtils
@@ -16,7 +18,7 @@ interface StudentProfileService {
 
     fun listStudentCredentialsCardsByIds(
         studentIds: Iterable<UUID>,
-        classroomAccessCode: String,
+        classroom: Classroom,
         projectCounts: Map<UUID, Long>,
         sharedProjectCounts: Map<UUID, Long>
     ): List<StudentClassroomCard>
@@ -36,7 +38,8 @@ interface StudentProfileService {
 
 @Service
 class StudentProfileServiceImpl(
-    private val studentProfileEntityRepository: StudentProfileEntityRepository
+    private val studentProfileEntityRepository: StudentProfileEntityRepository,
+    private val classroomEntityRepository: ClassroomEntityRepository
 ) : StudentProfileService {
 
     companion object {
@@ -63,7 +66,7 @@ class StudentProfileServiceImpl(
 
     override fun listStudentCredentialsCardsByIds(
         studentIds: Iterable<UUID>,
-        classroomAccessCode: String,
+        classroom: Classroom,
         projectCounts: Map<UUID, Long>,
         sharedProjectCounts: Map<UUID, Long>
     ): List<StudentClassroomCard> {
@@ -72,10 +75,10 @@ class StudentProfileServiceImpl(
                 val sharedProjectsCount = sharedProjectCounts.getOrDefault(it.id, 0)
                 val draftProjectsCount = projectCounts.getOrDefault(it.id, 0) - sharedProjectsCount
                 StudentClassroomCard.fromEntity(
-                    it,
-                    classroomAccessCode,
-                    sharedProjectsCount,
-                    draftProjectsCount
+                    studentProfileEntity = it,
+                    classroom = classroom,
+                    sharedProjectsCount = sharedProjectsCount,
+                    draftProjectsCount = draftProjectsCount
                 )
             }
     }
@@ -86,8 +89,9 @@ class StudentProfileServiceImpl(
     }
 
     override fun getStudentDetailsById(studentId: UUID): StudentDetails? {
-        return studentProfileEntityRepository.findByIdOrNull(studentId)
-            ?.let(StudentDetails.Companion::fromEntity)
+        val studentProfileEntity = studentProfileEntityRepository.findByIdOrNull(studentId) ?: return null
+        val classroomEntity = classroomEntityRepository.findByIdOrNull(studentProfileEntity.classroomId) ?: return null
+        return StudentDetails.fromEntity(studentProfileEntity, classroomEntity)
     }
 
     override fun listByIds(ids: List<UUID>): List<StudentProfile> {

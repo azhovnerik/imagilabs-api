@@ -42,7 +42,7 @@ class ListStudentsInClassroomUseCaseImpl(
 
         return studentProfileService.listStudentCredentialsCardsByIds(
             studentIds,
-            classroom.accessCode,
+            classroom,
             projectCounts,
             sharedProjectCounts
         ).right()
