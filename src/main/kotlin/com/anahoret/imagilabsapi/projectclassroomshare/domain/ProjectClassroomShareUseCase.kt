@@ -7,6 +7,7 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.userclassroomlink.domain.UserClassroomLinkService
@@ -43,6 +44,9 @@ class ProjectClassroomShareUseCaseImpl(
 
         if (classroomIds.any { !userClassroomLinkService.isLinkedToClassroom(sharedBy, it) })
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
+
+        if (project.runCodeResponse?.output == null)
+            return ValidationError("PROJECT_COMPILATION_FAILED").left()
 
         projectClassroomShareService.shareToAll(projectId, classroomIds)
         return Unit.right()
