@@ -50,7 +50,7 @@ class ProjectClassroomShareUseCaseImpl(
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
         val result = projectRunUseCase.run(sharedBy, projectId)
-            .filterOrElse({ it.errors.isEmpty() }) { ValidationError("PROJECT_COMPILATION_FAILED") }
+            .filterOrElse({ it.output != null }) { ValidationError("PROJECT_COMPILATION_FAILED") }
         return when (result) {
             is Either.Left -> result
             is Either.Right -> {
