@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.projectclassroomshare.domain
 
 import arrow.core.Either
+import arrow.core.filterOrElse
 import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
@@ -48,8 +49,10 @@ class ProjectClassroomShareUseCaseImpl(
         if (classroomIds.any { !userClassroomLinkService.isLinkedToClassroom(sharedBy, it) })
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-        return when (val result = projectRunUseCase.run(sharedBy, projectId)) {
-            is Either.Left -> ValidationError("PROJECT_COMPILATION_FAILED").left()
+        val result = projectRunUseCase.run(sharedBy, projectId)
+            .filterOrElse({ it.errors.isEmpty() }) { ValidationError("PROJECT_COMPILATION_FAILED") }
+        return when (result) {
+            is Either.Left -> result
             is Either.Right -> {
                 projectClassroomShareService.shareToAll(projectId, classroomIds)
                 result.value.right()
