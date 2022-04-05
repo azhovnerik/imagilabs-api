@@ -22,7 +22,14 @@ import java.util.*
 
 interface ListProjectsInClassroomUseCase {
 
+    @Deprecated("Use version with ClassroomSearchProjectsRequest parameter")
     fun list(listBy: UserProfile, classroomId: UUID, pageable: Pageable): Either<OperationError, Page<ProjectCard>>
+    fun list(
+        listBy: UserProfile,
+        classroomId: UUID,
+        searchRequest: ClassroomSearchProjectsRequest,
+        pageable: Pageable
+    ): Either<OperationError, Page<ProjectCard>>
 }
 
 @Service
@@ -35,16 +42,35 @@ class ListProjectsInClassroomUseCaseImpl(
     private val studentProfileService: StudentProfileService
 ) : ListProjectsInClassroomUseCase {
 
+    @Deprecated("Use version with ClassroomSearchProjectsRequest parameter")
     override fun list(
         listBy: UserProfile,
         classroomId: UUID,
+        pageable: Pageable
+    ): Either<OperationError, Page<ProjectCard>> {
+        return doList(listBy, classroomId, ClassroomSearchProjectsRequest(null, null), pageable)
+    }
+
+    override fun list(
+        listBy: UserProfile,
+        classroomId: UUID,
+        searchRequest: ClassroomSearchProjectsRequest,
+        pageable: Pageable
+    ): Either<OperationError, Page<ProjectCard>> {
+        return doList(listBy, classroomId, searchRequest, pageable)
+    }
+
+    private fun doList(
+        listBy: UserProfile,
+        classroomId: UUID,
+        searchRequest: ClassroomSearchProjectsRequest,
         pageable: Pageable
     ): Either<OperationError, Page<ProjectCard>> {
         val classroom = classroomService.getById(classroomId) ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
         if (!classroomAccessService.canListProjects(listBy, classroom))
             return AccessDeniedError("ACCESS_TO_CLASSROOM_PROJECTS_LIST_DENIED").left()
 
-        val projects = projectClassroomShareService.listByClassroom(classroom.id)
+        val projects = projectClassroomShareService.listByClassroom(classroom.id, searchRequest)
             .map(ProjectClassroomShare::projectId)
             .let { projectService.listByIds(it, pageable) }
 
@@ -65,4 +91,6 @@ class ListProjectsInClassroomUseCaseImpl(
             ProjectCard.fromProject(it, owners.getValue(it.ownerId), shared = true)
         }.right()
     }
+
+
 }

@@ -135,6 +135,7 @@ class ClassroomController(
 
     @Secured(UserRole.teacher, UserRole.student)
     @GetMapping("/api/classrooms/{classroomId}/projects")
+    @Deprecated("Use POST /api/classrooms/{classroomId}/projects/search request instead")
     fun listProjectsInClassroom(
         @PathVariable classroomId: UUID,
         @AuthenticationPrincipal userProfile: UserProfile,
@@ -142,6 +143,21 @@ class ClassroomController(
     ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
         return when (val result =
             listProjectsInClassroomUseCase.list(userProfile, classroomId, UnpagedSorted(pageable))) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
+        }
+    }
+
+    @Secured(UserRole.teacher, UserRole.student)
+    @PostMapping("/api/classrooms/{classroomId}/projects/search")
+    fun listProjectsInClassroom(
+        @PathVariable classroomId: UUID,
+        @RequestBody searchRequest: ClassroomSearchProjectsRequest,
+        @AuthenticationPrincipal userProfile: UserProfile,
+        pageable: Pageable
+    ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
+        return when (val result =
+            listProjectsInClassroomUseCase.list(userProfile, classroomId, searchRequest, UnpagedSorted(pageable))) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
         }

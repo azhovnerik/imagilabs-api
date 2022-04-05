@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.projectclassroomshare.domain
 
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomSearchProjectsRequest
 import com.anahoret.imagilabsapi.projectclassroomshare.storage.ProjectClassroomShareEntity
 import com.anahoret.imagilabsapi.projectclassroomshare.storage.ProjectClassroomShareEntityRepository
 import org.springframework.stereotype.Service
@@ -13,7 +14,7 @@ interface ProjectClassroomShareService {
     fun getProjectCountsByOwners(ownerIds: Iterable<UUID>): Map<UUID, Long>
     fun getProjectCount(classroomId: UUID): Long
     fun getShares(projectId: UUID): List<ProjectClassroomShare>
-    fun listByClassroom(classroomId: UUID): List<ProjectClassroomShare>
+    fun listByClassroom(classroomId: UUID, searchRequest: ClassroomSearchProjectsRequest): List<ProjectClassroomShare>
     fun listByOwnerId(ownerId: UUID): List<ProjectClassroomShare>
     fun unshareFromAll(projectId: UUID)
     fun unshareFromAll(projectId: UUID, classroomIds: List<UUID>)
@@ -76,8 +77,11 @@ class ProjectClassroomShareServiceImpl(
             .map(ProjectClassroomShare.Companion::fromEntity)
     }
 
-    override fun listByClassroom(classroomId: UUID): List<ProjectClassroomShare> {
-        return projectClassroomShareEntityRepository.findAllByClassroomId(classroomId)
+    override fun listByClassroom(
+        classroomId: UUID,
+        searchRequest: ClassroomSearchProjectsRequest
+    ): List<ProjectClassroomShare> {
+        return with(searchRequest) { projectClassroomShareEntityRepository.search(classroomId, ownerId, searchQuery) }
             .map(ProjectClassroomShare.Companion::fromEntity)
     }
 
