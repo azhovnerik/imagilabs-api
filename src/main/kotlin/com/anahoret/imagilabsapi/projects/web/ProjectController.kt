@@ -57,7 +57,7 @@ class ProjectController(
     @Secured(UserRole.teacher, UserRole.student)
     @PostMapping("/api/projects/search")
     fun listProjects(
-        @RequestBody(required = false) searchRequest: SearchProjectsRequest,
+        @RequestBody searchRequest: SearchProjectsRequest,
         @AuthenticationPrincipal userProfile: UserProfile,
         pageable: Pageable
     ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
