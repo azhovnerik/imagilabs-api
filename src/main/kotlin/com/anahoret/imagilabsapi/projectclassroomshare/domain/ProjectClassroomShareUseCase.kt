@@ -10,6 +10,8 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
+import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectRunUseCase
+import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.userclassroomlink.domain.UserClassroomLinkService
 import org.springframework.stereotype.Service
 
@@ -18,7 +20,7 @@ interface ProjectClassroomShareUseCase {
     fun share(
         sharedBy: UserProfile,
         projectClassroomShareChangeRequest: ProjectClassroomShareChangeRequest
-    ): Either<OperationError, Unit>
+    ): Either<OperationError, RunCodeResponse>
 }
 
 @Service
@@ -26,13 +28,14 @@ class ProjectClassroomShareUseCaseImpl(
     private val projectClassroomShareService: ProjectClassroomShareService,
     private val projectService: ProjectService,
     private val userClassroomLinkService: UserClassroomLinkService,
-    private val projectAccessService: ProjectAccessService
+    private val projectAccessService: ProjectAccessService,
+    private val projectRunUseCase: ProjectRunUseCase
 ) : ProjectClassroomShareUseCase {
 
     override fun share(
         sharedBy: UserProfile,
         projectClassroomShareChangeRequest: ProjectClassroomShareChangeRequest
-    ): Either<OperationError, Unit> {
+    ): Either<OperationError, RunCodeResponse> {
         val projectId = projectClassroomShareChangeRequest.projectId
         val classroomIds = projectClassroomShareChangeRequest.classroomIds
 
@@ -45,11 +48,13 @@ class ProjectClassroomShareUseCaseImpl(
         if (classroomIds.any { !userClassroomLinkService.isLinkedToClassroom(sharedBy, it) })
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-        if (project.runCodeResponse?.output == null)
-            return ValidationError("PROJECT_COMPILATION_FAILED").left()
-
-        projectClassroomShareService.shareToAll(projectId, classroomIds)
-        return Unit.right()
+        return when (val result = projectRunUseCase.run(sharedBy, projectId)) {
+            is Either.Left -> ValidationError("PROJECT_COMPILATION_FAILED").left()
+            is Either.Right -> {
+                projectClassroomShareService.shareToAll(projectId, classroomIds)
+                result.value.right()
+            }
+        }
     }
 
 }
