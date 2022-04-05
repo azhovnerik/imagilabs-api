@@ -18,6 +18,7 @@ import java.util.*
 
 interface ProjectListUseCase {
 
+    @Deprecated("Use version with SearchProjectsRequest parameter")
     fun list(listBy: UserProfile, ownerId: UUID?, pageable: Pageable): Either<OperationError, Page<ProjectCard>>
     fun list(
         listBy: UserProfile,
@@ -33,6 +34,7 @@ class ProjectListUseCaseImpl(
     private val projectAccessService: ProjectAccessService
 ) : ProjectListUseCase {
 
+    @Deprecated("Use version with SearchProjectsRequest parameter")
     override fun list(
         listBy: UserProfile,
         ownerId: UUID?,
@@ -58,7 +60,7 @@ class ProjectListUseCaseImpl(
         if (!projectAccessService.canListForOwner(listBy, ownerId)) {
             return AccessDeniedError("ACCESS_TO_OWNER_PROJECTS_DENIED").left()
         }
-        val projects = projectService.listByOwnerId(listBy.id, pageable)
+        val projects = projectService.search(searchRequest, pageable)
             .takeUnless { it.isEmpty }
             ?: return Page.empty<ProjectCard>().right()
         val sharedProjectIds = projectClassroomShareService.listByOwnerId(listBy.id)

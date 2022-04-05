@@ -20,7 +20,10 @@ interface ProjectService {
     fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse)
     fun listByIds(projectIds: Collection<UUID>, pageable: Pageable): Page<Project>
     fun getProjectCounts(ownerIds: Iterable<UUID>): Map<UUID, Long>
+
+    @Deprecated("Use search method")
     fun listByOwnerId(ownerId: UUID, pageable: Pageable): Page<Project>
+    fun search(searchRequest: SearchProjectsRequest, pageable: Pageable): Page<Project>
     fun delete(projectId: UUID)
     fun deleteAllByOwner(ownerId: UUID)
     fun deleteByIds(projectIds: Collection<UUID>)
@@ -71,8 +74,14 @@ class ProjectServiceImpl(
             .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
+    @Deprecated("Use search method")
     override fun listByOwnerId(ownerId: UUID, pageable: Pageable): Page<Project> {
         return projectEntityRepository.findAllByOwnerId(ownerId, pageable)
+            .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
+    }
+
+    override fun search(searchRequest: SearchProjectsRequest, pageable: Pageable): Page<Project> {
+        return with(searchRequest) { projectEntityRepository.search(ownerId, state, sharedInClassesIds, pageable) }
             .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
