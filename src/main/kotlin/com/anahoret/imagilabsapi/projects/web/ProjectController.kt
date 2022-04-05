@@ -6,6 +6,7 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
+import com.anahoret.imagilabsapi.projects.domain.ListProjectsRequest
 import com.anahoret.imagilabsapi.projects.domain.ProjectCard
 import com.anahoret.imagilabsapi.projects.domain.ProjectDetails
 import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
@@ -40,6 +41,7 @@ class ProjectController(
 
     @Secured(UserRole.teacher, UserRole.student)
     @GetMapping("/api/projects")
+    @Deprecated("Use POST request instead")
     fun listProjectsByOwner(
         @RequestParam(required = false) ownerId: UUID?,
         @AuthenticationPrincipal userProfile: UserProfile,
@@ -47,6 +49,20 @@ class ProjectController(
     ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
         val pageRequest = UnpagedSorted(pageable)
         return when (val result = projectListUseCase.list(userProfile, ownerId, pageRequest)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
+        }
+    }
+
+    @Secured(UserRole.teacher, UserRole.student)
+    @PostMapping("/api/projects")
+    fun listProjects(
+        @RequestBody(required = false) listRequest: ListProjectsRequest,
+        @AuthenticationPrincipal userProfile: UserProfile,
+        pageable: Pageable
+    ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
+        val pageRequest = UnpagedSorted(pageable)
+        return when (val result = projectListUseCase.list(userProfile, listRequest, pageRequest)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
         }
