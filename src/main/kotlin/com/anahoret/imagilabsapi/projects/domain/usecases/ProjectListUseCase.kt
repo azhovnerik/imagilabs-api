@@ -38,7 +38,7 @@ class ProjectListUseCaseImpl(
         ownerId: UUID?,
         pageable: Pageable,
     ): Either<OperationError, Page<ProjectCard>> {
-        return doList(listBy, ListProjectsRequest(ownerId, null, null), pageable)
+        return doList(listBy, ListProjectsRequest(ownerId ?: listBy.id, null, null), pageable)
     }
 
     override fun list(
@@ -54,7 +54,7 @@ class ProjectListUseCaseImpl(
         listRequest: ListProjectsRequest,
         pageable: Pageable
     ): Either<OperationError, Page<ProjectCard>> {
-        val ownerId = listRequest.ownerId ?: listBy.id
+        val ownerId = listRequest.ownerId
         if (!projectAccessService.canListForOwner(listBy, ownerId)) {
             return AccessDeniedError("ACCESS_TO_OWNER_PROJECTS_DENIED").left()
         }
