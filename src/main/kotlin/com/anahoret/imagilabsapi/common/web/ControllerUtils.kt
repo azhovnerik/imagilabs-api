@@ -39,6 +39,7 @@ fun <T> mapErrors(operationError: OperationError): ResponseEntity<ResponseDto<T>
         is NotFoundError -> operationError.toNotFoundResponse()
         is AccessDeniedError -> operationError.toForbiddenResponse()
         is ValidationErrors -> operationError.errors.toBadRequestResponse()
+        is ValidationError -> listOf(operationError).toBadRequestResponse()
         else -> unknownErrorResponse()
     }
 }
