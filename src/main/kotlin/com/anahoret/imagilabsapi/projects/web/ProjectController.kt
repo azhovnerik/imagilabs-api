@@ -6,10 +6,10 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
-import com.anahoret.imagilabsapi.projects.domain.ListProjectsRequest
 import com.anahoret.imagilabsapi.projects.domain.ProjectCard
 import com.anahoret.imagilabsapi.projects.domain.ProjectDetails
 import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
+import com.anahoret.imagilabsapi.projects.domain.SearchProjectsRequest
 import com.anahoret.imagilabsapi.projects.domain.usecases.*
 import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.security.UserRole
@@ -41,7 +41,7 @@ class ProjectController(
 
     @Secured(UserRole.teacher, UserRole.student)
     @GetMapping("/api/projects")
-    @Deprecated("Use POST request instead")
+    @Deprecated("Use POST /api/projects/search request instead")
     fun listProjectsByOwner(
         @RequestParam(required = false) ownerId: UUID?,
         @AuthenticationPrincipal userProfile: UserProfile,
@@ -55,14 +55,14 @@ class ProjectController(
     }
 
     @Secured(UserRole.teacher, UserRole.student)
-    @PostMapping("/api/projects")
+    @PostMapping("/api/projects/search")
     fun listProjects(
-        @RequestBody(required = false) listRequest: ListProjectsRequest,
+        @RequestBody(required = false) searchRequest: SearchProjectsRequest,
         @AuthenticationPrincipal userProfile: UserProfile,
         pageable: Pageable
     ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
         val pageRequest = UnpagedSorted(pageable)
-        return when (val result = projectListUseCase.list(userProfile, listRequest, pageRequest)) {
+        return when (val result = projectListUseCase.list(userProfile, searchRequest, pageRequest)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
         }
