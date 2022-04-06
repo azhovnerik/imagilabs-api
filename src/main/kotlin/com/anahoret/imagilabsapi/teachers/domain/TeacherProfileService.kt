@@ -17,6 +17,7 @@ interface TeacherProfileService {
     fun exists(teacherId: UUID): Boolean
     fun listByIds(ids: Iterable<UUID>): List<TeacherProfile>
     fun listAll(): List<TeacherProfile>
+    fun setPassword(email: String, newPassword: String)
 }
 
 @Service
@@ -72,6 +73,14 @@ class TeacherProfileServiceImpl(
 
     override fun exists(teacherId: UUID): Boolean {
         return teacherProfileEntityRepository.existsById(teacherId)
+    }
+
+    override fun setPassword(email: String, newPassword: String) {
+        teacherProfileEntityRepository.findByEmail(email)
+            ?.let {
+                it.passwordHash = passwordEncoder.encode(newPassword)
+                teacherProfileEntityRepository.save(it)
+            }
     }
 
 }

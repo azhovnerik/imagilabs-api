@@ -5,6 +5,7 @@ import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Table
 
+@Suppress("unused")
 @Entity
 @Table(name = "teacher_profiles")
 class TeacherProfileEntity(
@@ -33,5 +34,8 @@ class TeacherProfileEntity(
     var emailVerificationCode: String? = null,
 
     @Column(name = "email_verified")
-    var emailVerified: Boolean = false
+    var emailVerified: Boolean = false,
+
+    @Column(name = "password_reset_code")
+    var passwordResetCode: String? = null
 ) : BaseEntity()

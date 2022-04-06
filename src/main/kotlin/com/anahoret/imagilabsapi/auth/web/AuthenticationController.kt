@@ -1,13 +1,14 @@
 package com.anahoret.imagilabsapi.auth.web
 
+import arrow.core.Either
 import com.anahoret.imagilabsapi.auth.domain.ImagiLabsAuthenticationToken
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
-import com.anahoret.imagilabsapi.common.web.EmptySuccessResponseDto
-import com.anahoret.imagilabsapi.common.web.ErrorResponseDto
-import com.anahoret.imagilabsapi.common.web.ResponseDto
-import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
+import com.anahoret.imagilabsapi.common.web.*
 import com.anahoret.imagilabsapi.students.domain.StudentLoginRequest
+import com.anahoret.imagilabsapi.teachers.domain.TeacherForgotPasswordRequest
 import com.anahoret.imagilabsapi.teachers.domain.TeacherLoginRequest
+import com.anahoret.imagilabsapi.teachers.domain.TeacherResetPasswordRequest
+import com.anahoret.imagilabsapi.teachers.domain.TeacherResetPasswordUseCase
 import com.anahoret.imagilabsapi.users.UserType
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
@@ -31,7 +32,8 @@ import javax.servlet.http.HttpServletResponse
 class AuthenticationController(
     private val authenticationManager: AuthenticationManager,
     private val requestAuthenticatorService: RequestAuthenticatorService,
-    private val classroomService: ClassroomService
+    private val classroomService: ClassroomService,
+    private val teacherResetPasswordUseCase: TeacherResetPasswordUseCase
 ) {
 
     @PostMapping("/api/auth/logout")
@@ -67,6 +69,24 @@ class AuthenticationController(
         return tryAuthenticateAdmin(teacherLoginRequest, response)
             .takeIf { it.statusCode.is2xxSuccessful }
             ?: tryAuthenticateTeacher(teacherLoginRequest, response)
+    }
+
+    @PostMapping("/api/auth/teacher/forgot-password")
+    fun teacherForgotPassword(
+        @RequestBody teacherForgotPasswordRequest: TeacherForgotPasswordRequest,
+    ): ResponseEntity<ResponseDto<Void>> {
+        teacherResetPasswordUseCase.sendVerificationCode(teacherForgotPasswordRequest.email)
+        return ResponseEntity.ok(EmptySuccessResponseDto)
+    }
+
+    @PostMapping("/api/auth/teacher/reset-password")
+    fun teacherResetPassword(
+        @RequestBody teacherResetPasswordRequest: TeacherResetPasswordRequest,
+    ): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = teacherResetPasswordUseCase.resetPassword(teacherResetPasswordRequest)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
+        }
     }
 
     @PostMapping("/api/auth/student")
