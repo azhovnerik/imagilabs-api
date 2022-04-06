@@ -3,12 +3,10 @@ package com.anahoret.imagilabsapi.signup.web
 import arrow.core.Either
 import com.anahoret.imagilabsapi.auth.web.AuthenticationSuccess
 import com.anahoret.imagilabsapi.auth.web.RequestAuthenticatorService
-import com.anahoret.imagilabsapi.common.web.ErrorResponseDto
-import com.anahoret.imagilabsapi.common.web.ResponseDto
-import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
-import com.anahoret.imagilabsapi.common.web.toBadRequestResponse
+import com.anahoret.imagilabsapi.common.web.*
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.signup.domain.TeacherEmailVerificationUseCase
+import com.anahoret.imagilabsapi.signup.domain.TeacherResendEmailVerificationCodeUseCase
 import com.anahoret.imagilabsapi.signup.domain.TeacherSignUpUseCase
 import com.anahoret.imagilabsapi.teachers.domain.TeacherEmailVerificationRequest
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
@@ -26,7 +24,8 @@ import javax.servlet.http.HttpServletResponse
 class TeacherSignupController(
     private val requestAuthenticatorService: RequestAuthenticatorService,
     private val teacherSignUpUseCase: TeacherSignUpUseCase,
-    private val teacherEmailVerificationUseCase: TeacherEmailVerificationUseCase
+    private val teacherEmailVerificationUseCase: TeacherEmailVerificationUseCase,
+    private val teacherResendEmailVerificationCodeUseCase: TeacherResendEmailVerificationCodeUseCase
 ) {
 
     @PostMapping("/api/sign-up/teacher")
@@ -51,6 +50,17 @@ class TeacherSignupController(
             ResponseEntity.ok(SuccessResponseDto(verifiedTeacher))
         } else {
             createWrongVerificationCodeResponse()
+        }
+    }
+
+    @Secured(UserRole.teacherEmailNotVerified)
+    @PostMapping("/api/sign-up/teacher/email-verification/resend-code")
+    fun resendEmailVerification(
+        @AuthenticationPrincipal teacherProfile: TeacherProfile
+    ): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = teacherResendEmailVerificationCodeUseCase.resend(teacherProfile)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
         }
     }
 

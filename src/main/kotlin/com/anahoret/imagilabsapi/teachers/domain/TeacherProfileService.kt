@@ -12,6 +12,7 @@ interface TeacherProfileService {
     fun createTeacher(request: TeacherSignupRequest): TeacherProfile
     fun getTeacherById(id: UUID): TeacherProfile?
     fun getTeacherCredentialsByEmail(email: String): TeacherCredentials?
+    fun getTeacherCredentialsById(teacherId: UUID): TeacherCredentials?
     fun exists(email: String): Boolean
     fun exists(teacherId: UUID): Boolean
     fun listByIds(ids: Iterable<UUID>): List<TeacherProfile>
@@ -57,6 +58,11 @@ class TeacherProfileServiceImpl(
 
     override fun getTeacherCredentialsByEmail(email: String): TeacherCredentials? {
         return teacherProfileEntityRepository.findByEmail(email)
+            ?.let(TeacherCredentials.Companion::fromEntity)
+    }
+
+    override fun getTeacherCredentialsById(teacherId: UUID): TeacherCredentials? {
+        return teacherProfileEntityRepository.findByIdOrNull(teacherId)
             ?.let(TeacherCredentials.Companion::fromEntity)
     }
 
