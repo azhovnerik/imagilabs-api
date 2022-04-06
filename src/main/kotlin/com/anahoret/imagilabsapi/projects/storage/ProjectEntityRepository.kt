@@ -21,7 +21,7 @@ interface ProjectEntityRepository : CrudRepository<ProjectEntity, UUID>, Project
         GROUP BY p.ownerId
         """,
     )
-    fun countByOwnerIds(ownerIds: Iterable<UUID>): Iterable<OwnerProjectCount>
+    fun countByOwnerIds(ownerIds: Collection<UUID>): Iterable<OwnerProjectCount>
 
     fun findAllByOwnerId(ownerId: UUID, pageable: Pageable): Page<ProjectEntity>
     fun findAllByIdIn(ids: Collection<UUID>, pageable: Pageable): Page<ProjectEntity>

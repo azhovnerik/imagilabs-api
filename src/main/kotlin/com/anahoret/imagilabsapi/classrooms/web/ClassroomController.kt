@@ -90,11 +90,15 @@ class ClassroomController(
     @GetMapping("/api/classrooms/{classroomId}/student-classroom-cards")
     fun listStudentsCredentialsCardsInClassroom(
         @PathVariable classroomId: UUID,
-        @AuthenticationPrincipal teacherProfile: TeacherProfile
+        @RequestParam(required = false) searchQuery: String?,
+        @AuthenticationPrincipal teacherProfile: TeacherProfile,
+        pageable: Pageable
     ): ResponseEntity<ResponseDto<List<StudentClassroomCard>?>> {
-        return when (val result = listStudentsInClassroomUseCase.list(teacherProfile, classroomId)) {
+        return when (val result = listStudentsInClassroomUseCase.list(
+            teacherProfile, classroomId, searchQuery, UnpagedSorted(pageable)
+        )) {
             is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
         }
     }
 

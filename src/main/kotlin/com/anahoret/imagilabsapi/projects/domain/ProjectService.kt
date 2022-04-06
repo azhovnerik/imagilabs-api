@@ -19,7 +19,7 @@ interface ProjectService {
     fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project?
     fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse)
     fun listByIds(projectIds: Collection<UUID>, pageable: Pageable): Page<Project>
-    fun getProjectCounts(ownerIds: Iterable<UUID>): Map<UUID, Long>
+    fun getProjectCounts(ownerIds: Collection<UUID>): Map<UUID, Long>
 
     @Deprecated("Use search method")
     fun listByOwnerId(ownerId: UUID, pageable: Pageable): Page<Project>
@@ -91,7 +91,7 @@ class ProjectServiceImpl(
             .map { it.id!! }
     }
 
-    override fun getProjectCounts(ownerIds: Iterable<UUID>): Map<UUID, Long> {
+    override fun getProjectCounts(ownerIds: Collection<UUID>): Map<UUID, Long> {
         return projectEntityRepository.countByOwnerIds(ownerIds)
             .associate { it.ownerId to it.projectsCount }
     }
