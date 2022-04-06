@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.projects.domain.usecases
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
@@ -11,6 +12,9 @@ import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.projects.domain.ProjectCard
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.projects.domain.SearchProjectsRequest
+import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
+import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -31,7 +35,9 @@ interface ProjectListUseCase {
 class ProjectListUseCaseImpl(
     private val projectService: ProjectService,
     private val projectClassroomShareService: ProjectClassroomShareService,
-    private val projectAccessService: ProjectAccessService
+    private val projectAccessService: ProjectAccessService,
+    private val teacherProfileService: TeacherProfileService,
+    private val studentProfileService: StudentProfileService
 ) : ProjectListUseCase {
 
     @Deprecated("Use version with SearchProjectsRequest parameter")
@@ -63,10 +69,17 @@ class ProjectListUseCaseImpl(
         val projects = projectService.search(searchRequest, pageable)
             .takeUnless { it.isEmpty }
             ?: return Page.empty<ProjectCard>().right()
-        val sharedProjectIds = projectClassroomShareService.listByOwnerId(listBy.id)
+
+        val owner = when (projects.first().ownerUserType) {
+            UserType.TEACHER -> teacherProfileService.getTeacherById(ownerId)
+            UserType.STUDENT -> studentProfileService.getStudentById(ownerId)
+            UserType.ADMIN -> null
+        } ?: return NotFoundError("OWNER_NOT_FOUND").left()
+
+        val sharedProjectIds = projectClassroomShareService.listByOwnerId(ownerId)
             .map { it.projectId }
             .toSet()
-        return projects.map { ProjectCard.fromProject(it, listBy, sharedProjectIds.contains(it.id)) }.right()
+        return projects.map { ProjectCard.fromProject(it, owner, sharedProjectIds.contains(it.id)) }.right()
     }
 
 }
