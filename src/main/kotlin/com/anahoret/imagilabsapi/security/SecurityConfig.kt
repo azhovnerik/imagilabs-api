@@ -38,6 +38,8 @@ class SecurityConfig(
             .antMatchers(HttpMethod.POST, "/api/auth/teacher").permitAll()
             .antMatchers(HttpMethod.POST, "/api/auth/student").permitAll()
             .antMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+            .antMatchers(HttpMethod.POST, "/api/auth/teacher/forgot-password").permitAll()
+            .antMatchers(HttpMethod.POST, "/api/auth/teacher/reset-password").permitAll()
 
             // Sign up
             .antMatchers(HttpMethod.POST, "/api/sign-up/teacher").permitAll()
