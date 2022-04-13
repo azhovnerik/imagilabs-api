@@ -1,7 +1,6 @@
 package com.anahoret.imagilabsapi.projects.web
 
 import arrow.core.Either
-import com.anahoret.imagilabsapi.common.domain.data.UnpagedSorted
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
@@ -13,7 +12,7 @@ import com.anahoret.imagilabsapi.projects.domain.SearchProjectsRequest
 import com.anahoret.imagilabsapi.projects.domain.usecases.*
 import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.security.UserRole
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -45,12 +44,11 @@ class ProjectController(
     fun listProjectsByOwner(
         @RequestParam(required = false) ownerId: UUID?,
         @AuthenticationPrincipal userProfile: UserProfile,
-        pageable: Pageable
+        sort: Sort
     ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
-        val pageRequest = UnpagedSorted(pageable)
-        return when (val result = projectListUseCase.list(userProfile, ownerId, pageRequest)) {
+        return when (val result = projectListUseCase.list(userProfile, ownerId, sort)) {
             is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
@@ -59,12 +57,11 @@ class ProjectController(
     fun listProjects(
         @RequestBody searchRequest: SearchProjectsRequest,
         @AuthenticationPrincipal userProfile: UserProfile,
-        pageable: Pageable
+        sort: Sort
     ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
-        val pageRequest = UnpagedSorted(pageable)
-        return when (val result = projectListUseCase.list(userProfile, searchRequest, pageRequest)) {
+        return when (val result = projectListUseCase.list(userProfile, searchRequest, sort)) {
             is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 

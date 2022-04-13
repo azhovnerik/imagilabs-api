@@ -81,7 +81,6 @@ class StudentCredentialsCardsGeneratorImpl(
         }
 
         return listStudentsInClassroomUseCase.list(generateBy, classroomId)
-            .map { it.content }
             .map { allStudentCards ->
                 val selectedCards = downloadRequest.studentIds?.let {
                     allStudentCards.filter { it.id in downloadRequest.studentIds }

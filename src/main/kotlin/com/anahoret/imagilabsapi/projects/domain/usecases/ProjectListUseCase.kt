@@ -15,20 +15,19 @@ import com.anahoret.imagilabsapi.projects.domain.SearchProjectsRequest
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.users.UserType
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.util.*
 
 interface ProjectListUseCase {
 
     @Deprecated("Use version with SearchProjectsRequest parameter")
-    fun list(listBy: UserProfile, ownerId: UUID?, pageable: Pageable): Either<OperationError, Page<ProjectCard>>
+    fun list(listBy: UserProfile, ownerId: UUID?, sort: Sort): Either<OperationError, List<ProjectCard>>
     fun list(
         listBy: UserProfile,
         searchRequest: SearchProjectsRequest,
-        pageable: Pageable
-    ): Either<OperationError, Page<ProjectCard>>
+        sort: Sort
+    ): Either<OperationError, List<ProjectCard>>
 }
 
 @Service
@@ -44,31 +43,31 @@ class ProjectListUseCaseImpl(
     override fun list(
         listBy: UserProfile,
         ownerId: UUID?,
-        pageable: Pageable,
-    ): Either<OperationError, Page<ProjectCard>> {
-        return doList(listBy, SearchProjectsRequest(ownerId ?: listBy.id, null, null), pageable)
+        sort: Sort
+    ): Either<OperationError, List<ProjectCard>> {
+        return doList(listBy, SearchProjectsRequest(ownerId ?: listBy.id, null, null), sort)
     }
 
     override fun list(
         listBy: UserProfile,
         searchRequest: SearchProjectsRequest,
-        pageable: Pageable
-    ): Either<OperationError, Page<ProjectCard>> {
-        return doList(listBy, searchRequest, pageable)
+        sort: Sort
+    ): Either<OperationError, List<ProjectCard>> {
+        return doList(listBy, searchRequest, sort)
     }
 
     private fun doList(
         listBy: UserProfile,
         searchRequest: SearchProjectsRequest,
-        pageable: Pageable
-    ): Either<OperationError, Page<ProjectCard>> {
+        sort: Sort
+    ): Either<OperationError, List<ProjectCard>> {
         val ownerId = searchRequest.ownerId
         if (!projectAccessService.canListForOwner(listBy, ownerId)) {
             return AccessDeniedError("ACCESS_TO_OWNER_PROJECTS_DENIED").left()
         }
-        val projects = projectService.search(searchRequest, pageable)
-            .takeUnless { it.isEmpty }
-            ?: return Page.empty<ProjectCard>().right()
+        val projects = projectService.search(searchRequest, sort)
+            .takeUnless { it.isEmpty() }
+            ?: return emptyList<ProjectCard>().right()
 
         val owner = when (projects.first().ownerUserType) {
             UserType.TEACHER -> teacherProfileService.getTeacherById(ownerId)

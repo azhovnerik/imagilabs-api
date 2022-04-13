@@ -15,7 +15,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import java.util.*
 
 @ImagiLabsDatabaseTest
@@ -126,30 +126,30 @@ class ProjectEntityRepositoryTest {
 
         @Test
         fun `should return projects by owner ID if filters are not set`() {
-            val searchResult = projectEntityRepository.search(ownerId, null, null, PageRequest.of(0, 10))
-            assertEquals(ownerProjectIds.toSet(), searchResult.content.map { it.id }.toSet())
+            val searchResult = projectEntityRepository.search(ownerId, null, null, Sort.unsorted())
+            assertEquals(ownerProjectIds.toSet(), searchResult.map { it.id }.toSet())
         }
 
         @Test
         fun `should return shared projects`() {
-            val searchResult = projectEntityRepository.search(ownerId, ProjectState.SHARED, null, PageRequest.of(0, 10))
+            val searchResult = projectEntityRepository.search(ownerId, ProjectState.SHARED, null, Sort.unsorted())
             assertEquals(
                 (ownerSharedProjectIds + ownerSharedProjectIds2).toSet(),
-                searchResult.content.map { it.id }.toSet()
+                searchResult.map { it.id }.toSet()
             )
         }
 
         @Test
         fun `should return draft projects`() {
-            val searchResult = projectEntityRepository.search(ownerId, ProjectState.DRAFT, null, PageRequest.of(0, 10))
-            assertEquals(ownerDraftProjects.toSet(), searchResult.content.map { it.id }.toSet())
+            val searchResult = projectEntityRepository.search(ownerId, ProjectState.DRAFT, null, Sort.unsorted())
+            assertEquals(ownerDraftProjects.toSet(), searchResult.map { it.id }.toSet())
         }
 
         @Test
         fun `should return projects shared in single classroom`() {
             val searchResult =
-                projectEntityRepository.search(ownerId, null, setOf(ownerClassroomId), PageRequest.of(0, 10))
-            assertEquals(ownerSharedProjectIds.toSet(), searchResult.content.map { it.id }.toSet())
+                projectEntityRepository.search(ownerId, null, setOf(ownerClassroomId), Sort.unsorted())
+            assertEquals(ownerSharedProjectIds.toSet(), searchResult.map { it.id }.toSet())
         }
 
         @Test
@@ -158,11 +158,11 @@ class ProjectEntityRepositoryTest {
                 ownerId,
                 null,
                 setOf(ownerClassroomId, ownerClassroomId2),
-                PageRequest.of(0, 10)
+                Sort.unsorted()
             )
             assertEquals(
                 (ownerSharedProjectIds + ownerSharedProjectIds2).toSet(),
-                searchResult.content.map { it.id }.toSet()
+                searchResult.map { it.id }.toSet()
             )
         }
 

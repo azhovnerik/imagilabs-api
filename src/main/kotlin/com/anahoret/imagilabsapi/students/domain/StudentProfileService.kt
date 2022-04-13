@@ -5,8 +5,7 @@ import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
 import org.apache.commons.lang3.RandomStringUtils
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
@@ -35,7 +34,7 @@ interface StudentProfileService {
     fun update(studentId: UUID, studentUpdateRequest: StudentUpdateRequest): StudentProfile?
     fun studentCredentialsExists(studentClassroomCredentials: StudentClassroomCredentials): Boolean
     fun listByClassroom(classroomId: UUID): List<StudentProfile>
-    fun listByClassroom(classroomId: UUID, searchQuery: String?, pageable: Pageable): Page<StudentProfile>
+    fun listByClassroom(classroomId: UUID, searchQuery: String?, sort: Sort): List<StudentProfile>
     fun resetPassword(studentId: UUID): StudentCredentials?
 }
 
@@ -138,12 +137,12 @@ class StudentProfileServiceImpl(
     }
 
     override fun listByClassroom(classroomId: UUID): List<StudentProfile> {
-        return doListByClassroom(classroomId, Pageable.unpaged()).content
+        return doListByClassroom(classroomId, Sort.unsorted())
     }
 
-    override fun listByClassroom(classroomId: UUID, searchQuery: String?, pageable: Pageable): Page<StudentProfile> {
-        return if (searchQuery == null) doListByClassroom(classroomId, pageable)
-        else studentProfileEntityRepository.findAllByClassroomId(classroomId, searchQuery, pageable)
+    override fun listByClassroom(classroomId: UUID, searchQuery: String?, sort: Sort): List<StudentProfile> {
+        return if (searchQuery == null) doListByClassroom(classroomId, sort)
+        else studentProfileEntityRepository.findAllByClassroomId(classroomId, searchQuery, sort)
             .map(StudentProfile.Companion::fromEntity)
     }
 
@@ -154,8 +153,8 @@ class StudentProfileServiceImpl(
         }?.let(StudentCredentials.Companion::fromEntity)
     }
 
-    private fun doListByClassroom(classroomId: UUID, pageable: Pageable): Page<StudentProfile> {
-        return studentProfileEntityRepository.findAllByClassroomId(classroomId, pageable)
+    private fun doListByClassroom(classroomId: UUID, sort: Sort): List<StudentProfile> {
+        return studentProfileEntityRepository.findAllByClassroomId(classroomId, sort)
             .map(StudentProfile.Companion::fromEntity)
     }
 

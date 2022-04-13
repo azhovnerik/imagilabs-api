@@ -6,8 +6,7 @@ import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
 import com.anahoret.imagilabsapi.users.UserType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
@@ -18,12 +17,12 @@ interface ProjectService {
     fun getProjectById(projectId: UUID): Project?
     fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project?
     fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse)
-    fun listByIds(projectIds: Collection<UUID>, pageable: Pageable): Page<Project>
+    fun listByIds(projectIds: Collection<UUID>, sort: Sort): List<Project>
     fun getProjectCounts(ownerIds: Collection<UUID>): Map<UUID, Long>
 
     @Deprecated("Use search method")
-    fun listByOwnerId(ownerId: UUID, pageable: Pageable): Page<Project>
-    fun search(searchRequest: SearchProjectsRequest, pageable: Pageable): Page<Project>
+    fun listByOwnerId(ownerId: UUID, sort: Sort): List<Project>
+    fun search(searchRequest: SearchProjectsRequest, sort: Sort): List<Project>
     fun delete(projectId: UUID)
     fun deleteAllByOwner(ownerId: UUID)
     fun deleteByIds(projectIds: Collection<UUID>)
@@ -68,20 +67,20 @@ class ProjectServiceImpl(
         }
     }
 
-    override fun listByIds(projectIds: Collection<UUID>, pageable: Pageable): Page<Project> {
-        if (projectIds.isEmpty()) return Page.empty()
-        return projectEntityRepository.findAllByIdIn(projectIds, pageable)
+    override fun listByIds(projectIds: Collection<UUID>, sort: Sort): List<Project> {
+        if (projectIds.isEmpty()) return emptyList()
+        return projectEntityRepository.findAllByIdIn(projectIds, sort)
             .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
     @Deprecated("Use search method")
-    override fun listByOwnerId(ownerId: UUID, pageable: Pageable): Page<Project> {
-        return projectEntityRepository.findAllByOwnerId(ownerId, pageable)
+    override fun listByOwnerId(ownerId: UUID, sort: Sort): List<Project> {
+        return projectEntityRepository.findAllByOwnerId(ownerId, sort)
             .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
-    override fun search(searchRequest: SearchProjectsRequest, pageable: Pageable): Page<Project> {
-        return with(searchRequest) { projectEntityRepository.search(ownerId, state, sharedInClassesIds, pageable) }
+    override fun search(searchRequest: SearchProjectsRequest, sort: Sort): List<Project> {
+        return with(searchRequest) { projectEntityRepository.search(ownerId, state, sharedInClassesIds, sort) }
             .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 

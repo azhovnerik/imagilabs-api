@@ -15,21 +15,20 @@ import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.users.UserType
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.util.*
 
 interface ListProjectsInClassroomUseCase {
 
     @Deprecated("Use version with ClassroomSearchProjectsRequest parameter")
-    fun list(listBy: UserProfile, classroomId: UUID, pageable: Pageable): Either<OperationError, Page<ProjectCard>>
+    fun list(listBy: UserProfile, classroomId: UUID, sort: Sort): Either<OperationError, List<ProjectCard>>
     fun list(
         listBy: UserProfile,
         classroomId: UUID,
         searchRequest: ClassroomSearchProjectsRequest,
-        pageable: Pageable
-    ): Either<OperationError, Page<ProjectCard>>
+        sort: Sort
+    ): Either<OperationError, List<ProjectCard>>
 }
 
 @Service
@@ -46,33 +45,33 @@ class ListProjectsInClassroomUseCaseImpl(
     override fun list(
         listBy: UserProfile,
         classroomId: UUID,
-        pageable: Pageable
-    ): Either<OperationError, Page<ProjectCard>> {
-        return doList(listBy, classroomId, ClassroomSearchProjectsRequest(null, null), pageable)
+        sort: Sort
+    ): Either<OperationError, List<ProjectCard>> {
+        return doList(listBy, classroomId, ClassroomSearchProjectsRequest(null, null), sort)
     }
 
     override fun list(
         listBy: UserProfile,
         classroomId: UUID,
         searchRequest: ClassroomSearchProjectsRequest,
-        pageable: Pageable
-    ): Either<OperationError, Page<ProjectCard>> {
-        return doList(listBy, classroomId, searchRequest, pageable)
+        sort: Sort
+    ): Either<OperationError, List<ProjectCard>> {
+        return doList(listBy, classroomId, searchRequest, sort)
     }
 
     private fun doList(
         listBy: UserProfile,
         classroomId: UUID,
         searchRequest: ClassroomSearchProjectsRequest,
-        pageable: Pageable
-    ): Either<OperationError, Page<ProjectCard>> {
+        sort: Sort
+    ): Either<OperationError, List<ProjectCard>> {
         val classroom = classroomService.getById(classroomId) ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
         if (!classroomAccessService.canListProjects(listBy, classroom))
             return AccessDeniedError("ACCESS_TO_CLASSROOM_PROJECTS_LIST_DENIED").left()
 
         val projects = projectClassroomShareService.listByClassroom(classroom.id, searchRequest)
             .map(ProjectClassroomShare::projectId)
-            .let { projectService.listByIds(it, pageable) }
+            .let { projectService.listByIds(it, sort) }
 
         val teachers = projects
             .filter { it.ownerUserType == UserType.TEACHER }
@@ -80,7 +79,6 @@ class ListProjectsInClassroomUseCaseImpl(
             .let(teacherProfileService::listByIds)
 
         val students = projects
-            .content
             .filter { it.ownerUserType == UserType.STUDENT }
             .map(Project::ownerId)
             .let(studentProfileService::listByIds)

@@ -4,14 +4,13 @@ import arrow.core.Either
 import com.anahoret.imagilabsapi.classrooms.domain.*
 import com.anahoret.imagilabsapi.classrooms.domain.studentcredentialscards.StudentCredentialsCardsGenerator
 import com.anahoret.imagilabsapi.classrooms.domain.studentcredentialscards.StudentsCredentialsCardsFormat
-import com.anahoret.imagilabsapi.common.domain.data.UnpagedSorted
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.*
 import com.anahoret.imagilabsapi.projects.domain.ProjectCard
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.students.domain.StudentClassroomCard
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
@@ -92,13 +91,13 @@ class ClassroomController(
         @PathVariable classroomId: UUID,
         @RequestParam(required = false) searchQuery: String?,
         @AuthenticationPrincipal teacherProfile: TeacherProfile,
-        pageable: Pageable
+        sort: Sort
     ): ResponseEntity<ResponseDto<List<StudentClassroomCard>?>> {
         return when (val result = listStudentsInClassroomUseCase.list(
-            teacherProfile, classroomId, searchQuery, UnpagedSorted(pageable)
+            teacherProfile, classroomId, searchQuery, sort
         )) {
             is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
@@ -143,12 +142,12 @@ class ClassroomController(
     fun listProjectsInClassroom(
         @PathVariable classroomId: UUID,
         @AuthenticationPrincipal userProfile: UserProfile,
-        pageable: Pageable
+        sort: Sort
     ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
         return when (val result =
-            listProjectsInClassroomUseCase.list(userProfile, classroomId, UnpagedSorted(pageable))) {
+            listProjectsInClassroomUseCase.list(userProfile, classroomId, sort)) {
             is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
@@ -158,12 +157,12 @@ class ClassroomController(
         @PathVariable classroomId: UUID,
         @RequestBody searchRequest: ClassroomSearchProjectsRequest,
         @AuthenticationPrincipal userProfile: UserProfile,
-        pageable: Pageable
+        sort: Sort
     ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
         return when (val result =
-            listProjectsInClassroomUseCase.list(userProfile, classroomId, searchRequest, UnpagedSorted(pageable))) {
+            listProjectsInClassroomUseCase.list(userProfile, classroomId, searchRequest, sort)) {
             is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value.content)) // TODO: return page
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
