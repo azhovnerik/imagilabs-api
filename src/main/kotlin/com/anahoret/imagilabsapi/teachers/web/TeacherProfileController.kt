@@ -5,9 +5,11 @@ import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
+import org.springframework.data.domain.Sort
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -23,8 +25,11 @@ class TeacherProfileController(
 
     @Secured(UserRole.admin)
     @GetMapping("/api/teachers")
-    fun getTeachers(): ResponseDto<List<TeacherProfile>> {
-        return SuccessResponseDto(teacherProfileService.listAll())
+    fun getTeachers(
+        @RequestParam(required = false) searchQuery: String?,
+        sort: Sort
+    ): ResponseDto<List<TeacherProfile>> {
+        return SuccessResponseDto(teacherProfileService.listAll(searchQuery, sort))
     }
 
 }

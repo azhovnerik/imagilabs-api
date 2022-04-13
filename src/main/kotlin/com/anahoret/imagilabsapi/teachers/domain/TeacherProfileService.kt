@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.teachers.domain
 
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -16,7 +17,7 @@ interface TeacherProfileService {
     fun exists(email: String): Boolean
     fun exists(teacherId: UUID): Boolean
     fun listByIds(ids: Iterable<UUID>): List<TeacherProfile>
-    fun listAll(): List<TeacherProfile>
+    fun listAll(searchQuery: String?, sort: Sort): List<TeacherProfile>
     fun setPassword(email: String, newPassword: String)
 }
 
@@ -52,9 +53,11 @@ class TeacherProfileServiceImpl(
             .map(TeacherProfile.Companion::fromEntity)
     }
 
-    override fun listAll(): List<TeacherProfile> {
-        return teacherProfileEntityRepository.findAll()
-            .map(TeacherProfile.Companion::fromEntity)
+    override fun listAll(searchQuery: String?, sort: Sort): List<TeacherProfile> {
+        return (
+            searchQuery?.let { teacherProfileEntityRepository.findAll(searchQuery, sort) }
+                ?: teacherProfileEntityRepository.findAll(sort)
+            ).map(TeacherProfile.Companion::fromEntity)
     }
 
     override fun getTeacherCredentialsByEmail(email: String): TeacherCredentials? {
