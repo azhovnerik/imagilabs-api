@@ -13,7 +13,9 @@ interface TeacherProfileEntityRepository : PagingAndSortingRepository<TeacherPro
     @Query(
         """
         SELECT t FROM TeacherProfileEntity t
-        WHERE LOWER(CONCAT(t.firstName, ' ', t.lastName)) LIKE CONCAT('%', LOWER(:searchQuery), '%')
+        WHERE
+            LOWER(CONCAT(t.firstName, ' ', t.lastName)) LIKE CONCAT('%', LOWER(:searchQuery), '%') OR
+            t.email LIKE CONCAT('%', LOWER(:searchQuery), '%')
     """
     )
     fun findAll(searchQuery: String, sort: Sort): Iterable<TeacherProfileEntity>
