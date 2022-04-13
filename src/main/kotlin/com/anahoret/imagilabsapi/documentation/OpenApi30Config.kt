@@ -5,12 +5,15 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.security.SecurityScheme
 import org.springdoc.core.PropertyResolverUtils
 import org.springdoc.core.SecurityService
+import org.springdoc.core.SpringDocUtils
 import org.springdoc.core.customizers.OperationCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.AnnotationUtils
+import org.springframework.data.domain.Sort
 import org.springframework.security.access.annotation.Secured
 import java.lang.reflect.Method
+
 
 @Configuration
 @SecurityScheme(
@@ -20,6 +23,10 @@ import java.lang.reflect.Method
     bearerFormat = "JWT"
 )
 class OpenApi30Config {
+
+    init {
+        SpringDocUtils.getConfig().replaceWithClass(Sort::class.java, String::class.java)
+    }
 
     @Bean
     fun securityParser(propertyResolverUtils: PropertyResolverUtils): SecurityService {
