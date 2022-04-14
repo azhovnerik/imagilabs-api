@@ -4,6 +4,7 @@ import com.anahoret.imagilabsapi.teachingmaterials.storage.BundleLessonEntity
 import com.anahoret.imagilabsapi.teachingmaterials.storage.BundleLessonEntityRepository
 import com.anahoret.imagilabsapi.teachingmaterials.storage.LessonBundleEntity
 import com.anahoret.imagilabsapi.teachingmaterials.storage.LessonBundleEntityRepository
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -14,7 +15,7 @@ interface LessonBundleService {
 
     fun create(lessonBundleDataRequest: LessonBundleDataRequest): LessonBundle
     fun update(bundleId: UUID, lessonBundleDataRequest: LessonBundleDataRequest): LessonBundle?
-    fun list(): List<LessonBundleBase>
+    fun list(searchQuery: String?, sort: Sort): List<LessonBundleBase>
     fun delete(bundleId: UUID)
     fun get(bundleId: UUID): LessonBundle?
     fun getDefaultBundle(): LessonBundle?
@@ -61,9 +62,11 @@ class LessonBundleServiceImpl(
             }
     }
 
-    override fun list(): List<LessonBundleBase> {
-        return lessonBundleEntityRepository.findAllByOrderByLastModifiedAt()
-            .map(LessonBundleBase.Companion::fromEntity)
+    override fun list(searchQuery: String?, sort: Sort): List<LessonBundleBase> {
+        return (
+            searchQuery?.let { lessonBundleEntityRepository.findAllByNameContainingIgnoreCase(searchQuery, sort) }
+                ?: lessonBundleEntityRepository.findAll(sort)
+            ).map(LessonBundleBase.Companion::fromEntity)
     }
 
     @Transactional

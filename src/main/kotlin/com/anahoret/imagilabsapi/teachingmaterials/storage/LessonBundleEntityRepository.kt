@@ -1,10 +1,11 @@
 package com.anahoret.imagilabsapi.teachingmaterials.storage
 
-import org.springframework.data.repository.CrudRepository
+import org.springframework.data.domain.Sort
+import org.springframework.data.repository.PagingAndSortingRepository
 import java.util.*
 
-interface LessonBundleEntityRepository : CrudRepository<LessonBundleEntity, UUID> {
+interface LessonBundleEntityRepository : PagingAndSortingRepository<LessonBundleEntity, UUID> {
 
-    fun findAllByOrderByLastModifiedAt(): List<LessonBundleEntity>
+    fun findAllByNameContainingIgnoreCase(searchQuery: String, sort: Sort): List<LessonBundleEntity>
     fun findByDefaultBundleTrue(): LessonBundleEntity?
 }

@@ -7,6 +7,7 @@ import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.teachingmaterials.domain.*
+import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
@@ -42,8 +43,11 @@ class LessonBundleController(
 
     @Secured(UserRole.admin)
     @GetMapping("/api/lessons/bundles")
-    fun getBundles(): ResponseDto<List<LessonBundleBase>> {
-        return SuccessResponseDto(lessonBundleService.list())
+    fun getBundles(
+        @RequestParam(required = false) searchQuery: String?,
+        sort: Sort
+    ): ResponseDto<List<LessonBundleBase>> {
+        return SuccessResponseDto(lessonBundleService.list(searchQuery, sort))
     }
 
     @Secured(UserRole.admin)
