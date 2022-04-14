@@ -22,6 +22,7 @@ interface ProjectClassroomShareEntityRepository : CrudRepository<ProjectClassroo
     fun getProjectCountsByClassrooms(classroomIds: Iterable<UUID>): Iterable<ClassroomSharedProjectCount>
     fun countByClassroomId(classroomId: UUID): Long
     fun findAllByProjectId(projectId: UUID): Iterable<ProjectClassroomShareEntity>
+    fun existsByProjectId(projectId: UUID): Boolean
     fun findAllByClassroomId(classroomId: UUID): Iterable<ProjectClassroomShareEntity>
 
     @Query(
@@ -85,6 +86,7 @@ interface ProjectClassroomShareEntityRepositoryCustom {
     fun search(classroomId: UUID, ownerId: UUID?, searchQuery: String?): Iterable<ProjectClassroomShareEntity>
 }
 
+@Suppress("unused")
 class ProjectClassroomShareEntityRepositoryCustomImpl(
     @Lazy private val projectClassroomShareEntityRepository: ProjectClassroomShareEntityRepository
 ) : ProjectClassroomShareEntityRepositoryCustom {
