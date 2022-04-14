@@ -12,12 +12,13 @@ interface TeacherProfileService {
 
     fun createTeacher(request: TeacherSignupRequest): TeacherProfile
     fun getTeacherById(id: UUID): TeacherProfile?
+    fun getTeacherByIdForAdmin(id: UUID): TeacherProfileAdminView?
     fun getTeacherCredentialsByEmail(email: String): TeacherCredentials?
     fun getTeacherCredentialsById(teacherId: UUID): TeacherCredentials?
     fun exists(email: String): Boolean
     fun exists(teacherId: UUID): Boolean
     fun listByIds(ids: Iterable<UUID>): List<TeacherProfile>
-    fun listAll(searchQuery: String?, sort: Sort): List<TeacherProfile>
+    fun listAllForAdmin(searchQuery: String?, sort: Sort): List<TeacherProfileAdminView>
     fun setPassword(email: String, newPassword: String)
 }
 
@@ -48,16 +49,21 @@ class TeacherProfileServiceImpl(
             ?.let(TeacherProfile.Companion::fromEntity)
     }
 
+    override fun getTeacherByIdForAdmin(id: UUID): TeacherProfileAdminView? {
+        return teacherProfileEntityRepository.findByIdOrNull(id)
+            ?.let(TeacherProfileAdminView.Companion::fromEntity)
+    }
+
     override fun listByIds(ids: Iterable<UUID>): List<TeacherProfile> {
         return teacherProfileEntityRepository.findAllById(ids)
             .map(TeacherProfile.Companion::fromEntity)
     }
 
-    override fun listAll(searchQuery: String?, sort: Sort): List<TeacherProfile> {
+    override fun listAllForAdmin(searchQuery: String?, sort: Sort): List<TeacherProfileAdminView> {
         return (
             searchQuery?.let { teacherProfileEntityRepository.findAll(searchQuery, sort) }
                 ?: teacherProfileEntityRepository.findAll(sort)
-            ).map(TeacherProfile.Companion::fromEntity)
+            ).map(TeacherProfileAdminView.Companion::fromEntity)
     }
 
     override fun getTeacherCredentialsByEmail(email: String): TeacherCredentials? {

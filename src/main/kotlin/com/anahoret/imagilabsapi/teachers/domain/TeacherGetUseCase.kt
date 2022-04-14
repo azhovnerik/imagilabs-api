@@ -10,7 +10,7 @@ import java.util.*
 
 interface TeacherGetUseCase {
 
-    fun get(teacherId: UUID): Either<OperationError, TeacherProfile>
+    fun get(teacherId: UUID): Either<OperationError, TeacherProfileAdminView>
 }
 
 @Service
@@ -18,8 +18,8 @@ class TeacherGetUseCaseImpl(
     private val teacherProfileService: TeacherProfileService
 ) : TeacherGetUseCase {
 
-    override fun get(teacherId: UUID): Either<OperationError, TeacherProfile> {
-        return teacherProfileService.getTeacherById(teacherId)?.right()
+    override fun get(teacherId: UUID): Either<OperationError, TeacherProfileAdminView> {
+        return teacherProfileService.getTeacherByIdForAdmin(teacherId)?.right()
             ?: NotFoundError("TEACHER_NOT_FOUND").left()
     }
 }

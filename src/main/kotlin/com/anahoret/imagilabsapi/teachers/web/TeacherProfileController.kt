@@ -7,6 +7,7 @@ import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.teachers.domain.TeacherGetUseCase
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileAdminView
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
@@ -35,15 +36,15 @@ class TeacherProfileController(
     fun getTeachers(
         @RequestParam(required = false) searchQuery: String?,
         sort: Sort
-    ): ResponseDto<List<TeacherProfile>> {
-        return SuccessResponseDto(teacherProfileService.listAll(searchQuery, sort))
+    ): ResponseDto<List<TeacherProfileAdminView>> {
+        return SuccessResponseDto(teacherProfileService.listAllForAdmin(searchQuery, sort))
     }
 
     @Secured(UserRole.admin)
     @GetMapping("/api/teachers/{teacherId}")
     fun getTeacherById(
         @PathVariable teacherId: UUID
-    ): ResponseEntity<ResponseDto<TeacherProfile>> {
+    ): ResponseEntity<ResponseDto<TeacherProfileAdminView>> {
         return when (val result = teacherGetUseCase.get(teacherId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
