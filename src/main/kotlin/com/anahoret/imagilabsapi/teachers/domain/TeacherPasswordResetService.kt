@@ -37,7 +37,7 @@ class TeacherPasswordResetServiceImpl(
     }
 
     private fun createVerificationCode(): String {
-        return RandomStringUtils.randomAlphanumeric(4)
+        return RandomStringUtils.randomAlphanumeric(4).lowercase()
     }
 
 }

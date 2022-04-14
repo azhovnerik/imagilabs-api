@@ -30,7 +30,7 @@ class TeacherResetPasswordUseCaseImpl(
     override fun resetPassword(teacherResetPasswordRequest: TeacherResetPasswordRequest): Either<OperationError, Unit> {
         with(teacherResetPasswordRequest) {
             teacherPasswordResetService.getCode(email)
-                .takeIf { it == code }
+                .takeIf { it == code.lowercase() }
                 ?: return ValidationError("WRONG_VERIFICATION_CODE").left()
             teacherProfileService.setPassword(email, newPassword)
             teacherPasswordResetService.resetCode(email)
