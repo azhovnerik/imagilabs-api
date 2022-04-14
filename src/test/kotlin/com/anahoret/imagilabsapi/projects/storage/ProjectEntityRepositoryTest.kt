@@ -10,6 +10,7 @@ import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 import com.anahoret.imagilabsapi.users.UserType
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -164,6 +165,17 @@ class ProjectEntityRepositoryTest {
                 (ownerSharedProjectIds + ownerSharedProjectIds2).toSet(),
                 searchResult.map { it.id }.toSet()
             )
+        }
+
+        @Test
+        fun `should return empty list if shared in classroom is not empty and status is draft`() {
+            val searchResult = projectEntityRepository.search(
+                ownerId,
+                ProjectState.DRAFT,
+                setOf(ownerClassroomId, ownerClassroomId2),
+                Sort.unsorted()
+            )
+            assertTrue(searchResult.isEmpty())
         }
 
     }

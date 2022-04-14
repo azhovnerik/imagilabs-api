@@ -87,11 +87,9 @@ class ProjectEntityRepositoryCustomImpl(
         sort: Sort
     ): List<ProjectEntity> {
         return when {
-            sharedInClassesIds != null && sharedInClassesIds.isNotEmpty() -> projectEntityRepository.findSharedInClasses(
-                ownerId,
-                sharedInClassesIds,
-                sort
-            )
+            sharedInClassesIds != null && sharedInClassesIds.isNotEmpty() && state == ProjectState.DRAFT -> emptyList()
+            sharedInClassesIds != null && sharedInClassesIds.isNotEmpty() ->
+                projectEntityRepository.findSharedInClasses(ownerId, sharedInClassesIds, sort)
             state == ProjectState.SHARED -> projectEntityRepository.findShared(ownerId, sort)
             state == ProjectState.DRAFT -> projectEntityRepository.findDraft(ownerId, sort)
             else -> projectEntityRepository.findAllByOwnerId(ownerId, sort)
