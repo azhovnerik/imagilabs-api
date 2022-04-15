@@ -9,6 +9,6 @@ class CellRange(
 ) {
 
     fun toR1C1Notation(): String {
-        return "$sheetName:R${startRow}C${startCol}:R${endRow}C${endCol}"
+        return "$sheetName!R${startRow}C${startCol}:R${endRow}C${endCol}"
     }
 }
