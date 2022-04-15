@@ -13,6 +13,8 @@ class TeacherProfileAdminView(
     val organization: String,
     val howDidYouHearAboutUs: String,
     val emailVerified: Boolean,
+    val createdAt: Long,
+    val lastModifiedAt: Long
 ) {
 
     companion object {
@@ -20,7 +22,16 @@ class TeacherProfileAdminView(
         fun fromEntity(entity: TeacherProfileEntity): TeacherProfileAdminView {
             return with(entity) {
                 TeacherProfileAdminView(
-                    id!!, email, firstName, lastName, country, organization, howDidYouHearAboutUs, emailVerified
+                    id!!,
+                    email,
+                    firstName,
+                    lastName,
+                    country,
+                    organization,
+                    howDidYouHearAboutUs,
+                    emailVerified,
+                    createdAt ?: 0,
+                    lastModifiedAt?: 0
                 )
             }
         }
