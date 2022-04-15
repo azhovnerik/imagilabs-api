@@ -1,9 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val arrowKtVersion = "1.0.1"
-val javaJwtVersion = "3.18.3"
-val pdfBoxVersion = "2.0.24"
-val springDocVersion = "1.6.6"
+val googleAuthVersion = "1.6.0"
+val googleSheetsApiVersion = "v4-rev20220322-1.32.1"
+val javaJwtVersion = "3.19.1"
+val pdfBoxVersion = "2.0.25"
+val springDocVersion = "1.6.7"
 
 plugins {
     id("org.springframework.boot") version "2.6.3"
@@ -66,6 +68,10 @@ dependencies {
 
     // Email
     implementation("org.springframework.boot:spring-boot-starter-mail")
+
+    // Google
+    implementation("com.google.apis:google-api-services-sheets:$googleSheetsApiVersion")
+    implementation("com.google.auth:google-auth-library-oauth2-http:$googleAuthVersion")
 
     // Development
     developmentOnly("org.springframework.boot:spring-boot-devtools")
