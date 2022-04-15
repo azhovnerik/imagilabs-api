@@ -22,12 +22,18 @@ class GoogleSheetsTeachersExportUseCaseImpl(
     private val teacherProfileService: TeacherProfileService
 ) : GoogleSheetsTeachersExportUseCase {
 
+    companion object {
+
+        val DATE_TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+    }
+
     override fun export() {
         val teachers = teacherProfileService.listAllForAdmin(searchQuery = null, Sort.by("id"))
         if (teachers.isEmpty()) return
         val cells = toCells(teachers)
         val sheetId = applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_ID)
-        val sheetName = applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_NAME)
+        val sheetName =
+            applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_NAME)
         val cellRange = CellRange(sheetName, 1, 1, cells.size, cells.first().size)
         googleSheetApi.updateSheet(sheetId, cellRange, cells)
     }
@@ -36,7 +42,7 @@ class GoogleSheetsTeachersExportUseCaseImpl(
         return teachers.map {
             with(it) {
                 val registrationDateTime = DateUtils.toStockholmDateTime(createdAt)
-                    .format(DateTimeFormatter.ISO_DATE_TIME)
+                    .format(DATE_TIME_FORMAT)
                 listOf(
                     id.toString(),
                     email,
