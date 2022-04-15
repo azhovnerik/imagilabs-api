@@ -50,3 +50,8 @@ spring:
 
 email:
   no-reply-address: ${EMAIL_NO_REPLY_ADDRESS:}
+
+integrations:
+  google:
+    sheets:
+      enabled: false
