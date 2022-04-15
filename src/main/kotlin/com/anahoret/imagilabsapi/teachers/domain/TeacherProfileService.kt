@@ -19,6 +19,7 @@ interface TeacherProfileService {
     fun exists(teacherId: UUID): Boolean
     fun listByIds(ids: Iterable<UUID>): List<TeacherProfile>
     fun listAllForAdmin(searchQuery: String?, sort: Sort): List<TeacherProfileAdminView>
+    fun listForAdmin(excludeIds: List<UUID>, sort: Sort): List<TeacherProfileAdminView>
     fun setPassword(email: String, newPassword: String)
 }
 
@@ -64,6 +65,15 @@ class TeacherProfileServiceImpl(
             searchQuery?.let { teacherProfileEntityRepository.findAll(searchQuery, sort) }
                 ?: teacherProfileEntityRepository.findAll(sort)
             ).map(TeacherProfileAdminView.Companion::fromEntity)
+    }
+
+    override fun listForAdmin(excludeIds: List<UUID>, sort: Sort): List<TeacherProfileAdminView> {
+        val teacherEntities = if (excludeIds.isEmpty()) {
+            teacherProfileEntityRepository.findAll(sort)
+        } else {
+            teacherProfileEntityRepository.findAllByIdNotIn(excludeIds, sort)
+        }
+        return teacherEntities.map(TeacherProfileAdminView.Companion::fromEntity)
     }
 
     override fun getTeacherCredentialsByEmail(email: String): TeacherCredentials? {

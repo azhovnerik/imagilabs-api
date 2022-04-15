@@ -8,6 +8,7 @@ import com.anahoret.imagilabsapi.utils.DateUtils
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 interface GoogleSheetsTeachersExportUseCase {
 
@@ -28,13 +29,24 @@ class GoogleSheetsTeachersExportUseCaseImpl(
     }
 
     override fun export() {
-        val teachers = teacherProfileService.listAllForAdmin(searchQuery = null, Sort.by("id"))
-        if (teachers.isEmpty()) return
-        val cells = toCells(teachers)
         val sheetId = applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_ID)
         val sheetName =
             applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_NAME)
-        val cellRange = CellRange(sheetName, 1, 1, cells.size, cells.first().size)
+        val existingTeacherIds = googleSheetApi.getSheet(sheetId, EntireSheetRange(sheetName))
+            .map { it.first() }
+            .map(UUID::fromString)
+
+        val teachers = teacherProfileService.listForAdmin(existingTeacherIds, Sort.by("id"))
+        if (teachers.isEmpty()) return
+        val cells = toCells(teachers)
+
+        val cellRange = CellRange(
+            sheetName = sheetName,
+            startRow = existingTeacherIds.size + 1,
+            startCol = 1,
+            endRow = existingTeacherIds.size + cells.size,
+            endCol = cells.first().size
+        )
         googleSheetApi.updateSheet(sheetId, cellRange, cells)
     }
 

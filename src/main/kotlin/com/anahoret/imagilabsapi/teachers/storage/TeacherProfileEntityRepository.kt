@@ -19,4 +19,6 @@ interface TeacherProfileEntityRepository : PagingAndSortingRepository<TeacherPro
     """
     )
     fun findAll(searchQuery: String, sort: Sort): Iterable<TeacherProfileEntity>
+    fun findAllByIdNotIn(exclude: List<UUID>, sort: Sort): List<TeacherProfileEntity>
+
 }
