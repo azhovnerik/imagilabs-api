@@ -10,7 +10,7 @@ class DevEmailService(
     private val logger: Logger
 ) : EmailService {
 
-    override fun send(from: String, to: List<String>, subject: String, text: String, replyTo: List<String>) {
+    override fun sendAsync(from: String, to: String, subject: String, text: String, replyTo: List<String>) {
         logger.info(
             """Message sent
             |FROM: $from
@@ -20,14 +20,6 @@ class DevEmailService(
             |REPLY TO: $replyTo
         """.trimMargin()
         )
-    }
-
-    override fun send(from: String, to: String, subject: String, text: String, replyTo: List<String>) {
-        send(from, listOf(to), subject, text, replyTo)
-    }
-
-    override fun sendAsync(from: String, to: String, subject: String, text: String, replyTo: List<String>) {
-        send(from, to, subject, text, replyTo)
     }
 
 }
