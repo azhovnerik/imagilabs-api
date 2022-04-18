@@ -31,6 +31,30 @@ python-compiler:
 spring:
   config:
     activate:
+      on-profile: stage
+
+integrations:
+  google:
+    sheets:
+      enabled: false
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+integrations:
+  google:
+    sheets:
+      enabled: false
+
+---
+
+spring:
+  config:
+    activate:
       on-profile: prod,stage
 
   mail:
@@ -50,8 +74,3 @@ spring:
 
 email:
   no-reply-address: ${EMAIL_NO_REPLY_ADDRESS:}
-
-integrations:
-  google:
-    sheets:
-      enabled: false
