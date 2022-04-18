@@ -5,6 +5,7 @@ import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherSignupRequest
+import com.anahoret.imagilabsapi.teachers.export.googlesheets.GoogleSheetsTeachersExportUseCase
 import org.springframework.stereotype.Service
 
 interface TeacherSignUpUseCase {
@@ -17,7 +18,8 @@ class TeacherSignUpUseCaseImpl(
     private val teacherProfileService: TeacherProfileService,
     private val teacherSignupRequestValidator: TeacherSignupRequestValidator,
     private val teacherEmailVerificationService: TeacherEmailVerificationService,
-    private val teacherEmailVerificationCodeSenderUseCase: TeacherEmailVerificationCodeSenderUseCase
+    private val teacherEmailVerificationCodeSenderUseCase: TeacherEmailVerificationCodeSenderUseCase,
+    private val googleSheetsTeachersExportUseCase: GoogleSheetsTeachersExportUseCase?
 ) : TeacherSignUpUseCase {
 
     override fun signUp(request: TeacherSignupRequest): Either<List<ValidationError>, TeacherProfile> {
@@ -27,6 +29,7 @@ class TeacherSignUpUseCaseImpl(
                 val teacherProfile = teacherProfileService.createTeacher(normalizedRequest)
                 teacherEmailVerificationService.generateNewVerificationCode(teacherProfile.id)
                     ?.let { code -> teacherEmailVerificationCodeSenderUseCase.send(request.email, code) }
+                googleSheetsTeachersExportUseCase?.export(teacherProfile.id)
                 teacherProfile
             }
     }

@@ -13,6 +13,7 @@ import java.util.*
 interface GoogleSheetsTeachersExportUseCase {
 
     fun export()
+    fun export(teacherId: UUID)
 }
 
 @Service
@@ -29,20 +30,31 @@ class GoogleSheetsTeachersExportUseCaseImpl(
     }
 
     override fun export() {
+        doExport { rows ->
+            val existingTeacherIds = rows
+                .drop(1) // Skip header
+                .filter(List<String>::isNotEmpty)
+                .map(List<String>::first)
+                .map(UUID::fromString)
+            teacherProfileService.listForAdmin(existingTeacherIds, Sort.by("id"))
+        }
+    }
+
+    override fun export(teacherId: UUID) {
+        teacherProfileService.getTeacherByIdForAdmin(teacherId)
+            ?.let { teacherProfile -> doExport { listOf(teacherProfile) } }
+    }
+
+    private fun doExport(getTeachers: (List<List<String>>) -> List<TeacherProfileAdminView>) {
         val sheetId = applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_ID)
         val sheetName =
             applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_NAME)
         val rows = googleSheetApi.getSheet(sheetId, EntireSheetRange(sheetName))
-        val existingTeacherIds = rows
-            .drop(1) // Skip header
-            .filter(List<String>::isNotEmpty)
-            .map(List<String>::first)
-            .map(UUID::fromString)
 
-        val teachers = teacherProfileService.listForAdmin(existingTeacherIds, Sort.by("id"))
+        val teachers = getTeachers(rows)
         if (teachers.isEmpty()) return
-        val cells = toCells(teachers)
 
+        val cells = toCells(teachers)
         val cellRange = CellRange(
             sheetName = sheetName,
             startRow = rows.size + 1,
