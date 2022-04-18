@@ -23,8 +23,8 @@ jwt:
   ttl-mobile: ${JWT_TTL_MOBILE:P30D}
 
 python-compiler:
-  api-url: { PYTHON_COMPILER_API_URL: }
-  api-token: { PYTHON_COMPILER_API_TOKEN: }
+  api-url: ${PYTHON_COMPILER_API_URL:}
+  api-token: ${PYTHON_COMPILER_API_TOKEN:}
 
 ---
 
