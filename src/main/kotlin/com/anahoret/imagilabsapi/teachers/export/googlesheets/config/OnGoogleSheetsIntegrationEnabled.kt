@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.teachers.export.googlesheets
+package com.anahoret.imagilabsapi.teachers.export.googlesheets.config
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 

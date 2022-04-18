@@ -5,7 +5,7 @@ import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherSignupRequest
-import com.anahoret.imagilabsapi.teachers.export.googlesheets.GoogleSheetsTeachersExportUseCase
+import com.anahoret.imagilabsapi.teachers.export.googlesheets.domain.GoogleSheetsTeachersExportUseCase
 import org.springframework.stereotype.Service
 
 interface TeacherSignUpUseCase {

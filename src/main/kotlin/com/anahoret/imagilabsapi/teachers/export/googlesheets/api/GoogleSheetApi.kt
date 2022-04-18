@@ -1,5 +1,6 @@
-package com.anahoret.imagilabsapi.teachers.export.googlesheets
+package com.anahoret.imagilabsapi.teachers.export.googlesheets.api
 
+import com.anahoret.imagilabsapi.teachers.export.googlesheets.config.OnGoogleSheetsIntegrationEnabled
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.ValueRange
 import org.springframework.stereotype.Service

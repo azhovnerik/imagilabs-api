@@ -1,9 +1,13 @@
-package com.anahoret.imagilabsapi.teachers.export.googlesheets
+package com.anahoret.imagilabsapi.teachers.export.googlesheets.domain
 
 import com.anahoret.imagilabsapi.applicationproperties.domain.ApplicationPropertiesKey
 import com.anahoret.imagilabsapi.applicationproperties.domain.ApplicationPropertiesService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileAdminView
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
+import com.anahoret.imagilabsapi.teachers.export.googlesheets.api.CellRange
+import com.anahoret.imagilabsapi.teachers.export.googlesheets.api.EntireSheetRange
+import com.anahoret.imagilabsapi.teachers.export.googlesheets.api.GoogleSheetApi
+import com.anahoret.imagilabsapi.teachers.export.googlesheets.config.OnGoogleSheetsIntegrationEnabled
 import com.anahoret.imagilabsapi.utils.DateUtils
 import org.springframework.data.domain.Sort
 import org.springframework.scheduling.annotation.Async

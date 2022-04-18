@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.teachers.export.googlesheets
+package com.anahoret.imagilabsapi.teachers.export.googlesheets.api
 
 object ValueInputOption {
     const val RAW = "RAW"
