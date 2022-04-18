@@ -29,7 +29,7 @@ class TeacherSignUpUseCaseImpl(
                 val teacherProfile = teacherProfileService.createTeacher(normalizedRequest)
                 teacherEmailVerificationService.generateNewVerificationCode(teacherProfile.id)
                     ?.let { code -> teacherEmailVerificationCodeSenderUseCase.send(request.email, code) }
-                googleSheetsTeachersExportUseCase?.export(teacherProfile.id)
+                googleSheetsTeachersExportUseCase?.exportAsync(teacherProfile.id)
                 teacherProfile
             }
     }

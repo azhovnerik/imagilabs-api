@@ -6,6 +6,7 @@ import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileAdminView
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.utils.DateUtils
 import org.springframework.data.domain.Sort
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -13,7 +14,7 @@ import java.util.*
 interface GoogleSheetsTeachersExportUseCase {
 
     fun export()
-    fun export(teacherId: UUID)
+    fun exportAsync(teacherId: UUID)
 }
 
 @Service
@@ -40,7 +41,8 @@ class GoogleSheetsTeachersExportUseCaseImpl(
         }
     }
 
-    override fun export(teacherId: UUID) {
+    @Async
+    override fun exportAsync(teacherId: UUID) {
         teacherProfileService.getTeacherByIdForAdmin(teacherId)
             ?.let { teacherProfile -> doExport { listOf(teacherProfile) } }
     }
