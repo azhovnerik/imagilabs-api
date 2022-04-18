@@ -32,8 +32,11 @@ class GoogleSheetsTeachersExportUseCaseImpl(
         val sheetId = applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_ID)
         val sheetName =
             applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_NAME)
-        val existingTeacherIds = googleSheetApi.getSheet(sheetId, EntireSheetRange(sheetName))
-            .map { it.first() }
+        val rows = googleSheetApi.getSheet(sheetId, EntireSheetRange(sheetName))
+        val existingTeacherIds = rows
+            .drop(1) // Skip header
+            .filter(List<String>::isNotEmpty)
+            .map(List<String>::first)
             .map(UUID::fromString)
 
         val teachers = teacherProfileService.listForAdmin(existingTeacherIds, Sort.by("id"))
@@ -42,9 +45,9 @@ class GoogleSheetsTeachersExportUseCaseImpl(
 
         val cellRange = CellRange(
             sheetName = sheetName,
-            startRow = existingTeacherIds.size + 1,
+            startRow = rows.size + 1,
             startCol = 1,
-            endRow = existingTeacherIds.size + cells.size,
+            endRow = rows.size + cells.size,
             endCol = cells.first().size
         )
         googleSheetApi.updateSheet(sheetId, cellRange, cells)
