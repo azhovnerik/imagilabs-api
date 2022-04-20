@@ -16,6 +16,8 @@ interface ProjectService {
     fun createProject(ownerId: UUID, ownerType: UserType): Project
     fun getProjectById(projectId: UUID): Project?
     fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project?
+
+    @Deprecated("Project run result is updated via updateProject")
     fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse)
     fun listByIds(projectIds: Collection<UUID>, sort: Sort): List<Project>
     fun getProjectCounts(ownerIds: Collection<UUID>): Map<UUID, Long>
@@ -53,12 +55,15 @@ class ProjectServiceImpl(
 
     override fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project? {
         return projectEntityRepository.findByIdOrNull(projectId)?.let {
+            val runResult = objectMapper.writeValueAsString(projectUpdateRequest.runCodeResponse)
             it.name = projectUpdateRequest.name
             it.sourceCode = projectUpdateRequest.sourceCode
+            it.runResult = runResult
             projectEntityRepository.save(it)
         }?.let { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
+    @Deprecated("Project run result is updated via updateProject")
     override fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse) {
         projectEntityRepository.findByIdOrNull(projectId)?.let {
             val runResult = objectMapper.writeValueAsString(runCodeResponse)
