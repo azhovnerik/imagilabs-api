@@ -14,12 +14,14 @@ import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
 import org.springframework.stereotype.Service
 import java.util.*
 
+@Deprecated("Use CodeRunUseCase")
 interface ProjectRunUseCase {
 
     fun run(runBy: UserProfile, projectId: UUID): Either<OperationError, RunCodeResponse>
 }
 
 @Service
+@Deprecated("Use CodeRunUseCase")
 class ProjectRunUseCaseImpl(
     private val projectService: ProjectService,
     private val projectAccessService: ProjectAccessService,

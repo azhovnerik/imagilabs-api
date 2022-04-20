@@ -80,6 +80,7 @@ class ProjectController(
 
     @Secured(UserRole.teacher, UserRole.student)
     @PostMapping("/api/projects/{projectId}/run-result")
+    @Deprecated("Use /api/code-compiler/run-result")
     fun runProject(
         @PathVariable projectId: UUID,
         @AuthenticationPrincipal userProfile: UserProfile
