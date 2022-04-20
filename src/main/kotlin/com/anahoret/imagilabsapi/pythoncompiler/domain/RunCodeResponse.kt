@@ -1,4 +1,6 @@
-package com.anahoret.imagilabsapi.pythoncompiler
+@file:Suppress("unused")
+
+package com.anahoret.imagilabsapi.pythoncompiler.domain
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

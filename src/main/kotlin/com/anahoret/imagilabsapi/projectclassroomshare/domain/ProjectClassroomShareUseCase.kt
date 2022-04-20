@@ -12,7 +12,7 @@ import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectRunUseCase
-import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
+import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
 import com.anahoret.imagilabsapi.userclassroomlink.domain.UserClassroomLinkService
 import org.springframework.stereotype.Service
 

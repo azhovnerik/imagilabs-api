@@ -9,7 +9,7 @@ import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareChangeRequest
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareUseCase
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomUnshareUseCase
-import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
+import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
 import com.anahoret.imagilabsapi.security.UserRole
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured

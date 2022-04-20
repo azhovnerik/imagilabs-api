@@ -10,7 +10,7 @@ import com.anahoret.imagilabsapi.projects.domain.ProjectDetails
 import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
 import com.anahoret.imagilabsapi.projects.domain.SearchProjectsRequest
 import com.anahoret.imagilabsapi.projects.domain.usecases.*
-import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
+import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
 import com.anahoret.imagilabsapi.security.UserRole
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity

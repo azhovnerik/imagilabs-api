@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.pythoncompiler
+package com.anahoret.imagilabsapi.pythoncompiler.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding

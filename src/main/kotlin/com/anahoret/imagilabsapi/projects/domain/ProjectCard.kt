@@ -1,7 +1,7 @@
 package com.anahoret.imagilabsapi.projects.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
-import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
+import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
 import com.anahoret.imagilabsapi.users.UserType
 import java.util.*
 

@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.pythoncompiler
+package com.anahoret.imagilabsapi.pythoncompiler.domain
 
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate

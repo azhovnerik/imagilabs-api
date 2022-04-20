@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.pythoncompiler
+package com.anahoret.imagilabsapi.pythoncompiler.config
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.client.RestTemplateBuilder

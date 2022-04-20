@@ -2,7 +2,7 @@ package com.anahoret.imagilabsapi.projects.domain
 
 import com.anahoret.imagilabsapi.projects.storage.ProjectEntity
 import com.anahoret.imagilabsapi.projects.storage.ProjectEntityRepository
-import com.anahoret.imagilabsapi.pythoncompiler.RunCodeResponse
+import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
 import com.anahoret.imagilabsapi.users.UserType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
