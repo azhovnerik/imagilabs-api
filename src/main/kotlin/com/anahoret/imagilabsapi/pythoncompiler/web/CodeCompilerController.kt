@@ -22,7 +22,7 @@ class CodeCompilerController(
 ) {
 
     @Secured(UserRole.teacher, UserRole.student)
-    @PutMapping("/api/code-compiler/run")
+    @PutMapping("/api/code-compiler/run-result")
     fun runCode(
         @RequestBody runCodeRequest: RunCodeRequest,
         @AuthenticationPrincipal userProfile: UserProfile
