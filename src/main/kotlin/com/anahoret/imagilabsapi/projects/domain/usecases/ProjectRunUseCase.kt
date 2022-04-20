@@ -9,6 +9,7 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.pythoncompiler.domain.CodeRunUseCase
+import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeRequest
 import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
 import org.springframework.stereotype.Service
 import java.util.*
@@ -30,7 +31,7 @@ class ProjectRunUseCaseImpl(
         if (!projectAccessService.canRun(runBy, project))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
 
-        return codeRunUseCase.run(runBy, project.sourceCode)
+        return codeRunUseCase.run(runBy, RunCodeRequest(project.sourceCode))
             .tap { projectService.updateProjectRunResult(project.id, it) }
     }
 

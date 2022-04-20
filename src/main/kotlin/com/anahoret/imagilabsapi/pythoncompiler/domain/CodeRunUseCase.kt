@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 
 interface CodeRunUseCase {
 
-    fun run(runBy: UserProfile, code: String): Either<OperationError, RunCodeResponse>
+    fun run(runBy: UserProfile, runCodeRequest: RunCodeRequest): Either<OperationError, RunCodeResponse>
 }
 
 @Service
@@ -20,10 +20,10 @@ class CodeRunUseCaseImpl(
     private val animatedTextGenerator: AnimatedTextGenerator
 ) : CodeRunUseCase {
 
-    override fun run(runBy: UserProfile, code: String): Either<OperationError, RunCodeResponse> {
+    override fun run(runBy: UserProfile, runCodeRequest: RunCodeRequest): Either<OperationError, RunCodeResponse> {
         if (!pythonCompilerAccessService.canRunCode(runBy))
             return AccessDeniedError("ACCESS_TO_COMPILER_DENIED").left()
-        return pythonCompilerService.runCode(code)
+        return pythonCompilerService.runCode(runCodeRequest)
             .let(::generateAnimatedTextIfNeeded)
             .right()
     }
