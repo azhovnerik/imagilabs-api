@@ -42,7 +42,7 @@ class ProjectUpdateUseCaseImpl(
         return projectService.updateProject(projectId, projectUpdateRequest)
             ?.let {
                 val shared = projectClassroomShareService.isShared(it.id)
-                ProjectDetails.fromProject(it, canEdit = true, shared = shared)
+                ProjectDetails.fromProject(it, canEdit = true, canUnshare = true, shared = shared)
             }
             ?.right()
             ?: NotFoundError("PROJECT_NOT_FOUND").left()

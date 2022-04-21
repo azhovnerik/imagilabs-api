@@ -31,7 +31,8 @@ class ProjectGetUseCaseImpl(
         if (!projectAccessService.canGet(getBy, project))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
         val canEdit = projectAccessService.canEdit(getBy, project)
+        val canUnshare = projectAccessService.canUnshare(getBy, project)
         val shared = projectClassroomShareService.isShared(project.id)
-        return ProjectDetails.fromProject(project, canEdit, shared).right()
+        return ProjectDetails.fromProject(project, canEdit, canUnshare, shared).right()
     }
 }

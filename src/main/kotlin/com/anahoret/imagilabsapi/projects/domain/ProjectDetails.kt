@@ -13,6 +13,7 @@ class ProjectDetails(
     val sourceCode: String,
     val runCodeResponse: RunCodeResponse?,
     val canEdit: Boolean,
+    val canUnshare: Boolean,
     val shared: Boolean,
     val lastModifiedAt: Long,
     val createdAt: Long
@@ -23,6 +24,7 @@ class ProjectDetails(
         fun fromProject(
             project: Project,
             canEdit: Boolean,
+            canUnshare: Boolean,
             shared: Boolean
         ): ProjectDetails {
             return with(project) {
@@ -34,6 +36,7 @@ class ProjectDetails(
                     sourceCode = sourceCode,
                     runCodeResponse = runCodeResponse,
                     canEdit = canEdit,
+                    canUnshare = canUnshare,
                     shared = shared,
                     lastModifiedAt = lastModifiedAt,
                     createdAt = createdAt
