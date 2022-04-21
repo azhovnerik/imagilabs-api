@@ -24,10 +24,10 @@ class LessonsController(
     fun updateLessonsForTeacher(
         @PathVariable teacherId: UUID,
         @RequestBody teacherLessonsUpdateRequest: TeacherLessonsUpdateRequest
-    ): ResponseEntity<ResponseDto<Void>> {
+    ): ResponseEntity<ResponseDto<List<TeacherLesson>>> {
         return when (val result = teacherLessonsUpdateUseCase.update(teacherId, teacherLessonsUpdateRequest)) {
             is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 

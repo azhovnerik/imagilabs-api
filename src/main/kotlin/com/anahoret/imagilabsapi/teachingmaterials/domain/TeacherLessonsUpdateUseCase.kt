@@ -12,7 +12,10 @@ import javax.transaction.Transactional
 
 interface TeacherLessonsUpdateUseCase {
 
-    fun update(teacherId: UUID, teacherLessonsUpdateRequest: TeacherLessonsUpdateRequest): Either<OperationError, Unit>
+    fun update(
+        teacherId: UUID,
+        teacherLessonsUpdateRequest: TeacherLessonsUpdateRequest
+    ): Either<OperationError, List<TeacherLesson>>
 }
 
 @Service
@@ -26,12 +29,13 @@ class TeacherLessonsUpdateUseCaseImpl(
     override fun update(
         teacherId: UUID,
         teacherLessonsUpdateRequest: TeacherLessonsUpdateRequest
-    ): Either<OperationError, Unit> {
+    ): Either<OperationError, List<TeacherLesson>> {
         teacherProfileService.getTeacherById(teacherId) ?: return NotFoundError("TEACHER_NOT_FOUND").left()
         return teacherLessonsUpdateRequestValidator.validate(teacherLessonsUpdateRequest)
             .mapLeft(::ValidationErrors)
             .map {
                 teacherLessonService.update(teacherId, teacherLessonsUpdateRequest.lessons)
+                teacherLessonService.listByTeacherId(teacherId)
             }
     }
 }
