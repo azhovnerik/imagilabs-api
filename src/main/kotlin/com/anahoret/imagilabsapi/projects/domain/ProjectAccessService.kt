@@ -46,7 +46,7 @@ class ProjectAccessServiceImpl(
     }
 
     override fun canUnshare(userProfile: UserProfile, project: Project): Boolean {
-        return isOwner(userProfile, project)
+        return isOwner(userProfile, project) || userIsTeacherOfOwnerStudent(userProfile, project.ownerId)
     }
 
     override fun canGet(userProfile: UserProfile, project: Project): Boolean {
