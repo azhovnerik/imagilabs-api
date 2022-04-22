@@ -1,11 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val arrowKtVersion = "1.0.1"
+val cucumberVersion = "7.2.3"
 val googleAuthVersion = "1.6.0"
 val googleSheetsApiVersion = "v4-rev20220322-1.32.1"
 val javaJwtVersion = "3.19.1"
 val pdfBoxVersion = "2.0.25"
 val springDocVersion = "1.6.7"
+val testcontainersVersion = "1.16.2"
 
 plugins {
     id("org.springframework.boot") version "2.6.3"
@@ -37,15 +39,13 @@ repositories {
     mavenCentral()
 }
 
-extra["testcontainersVersion"] = "1.16.2"
-
 dependencies {
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.springdoc:springdoc-openapi-kotlin:$springDocVersion")
+    implementation("org.springdoc:springdoc-openapi-kotlin")
 
     // Utils
     implementation("io.arrow-kt:arrow-core:$arrowKtVersion")
@@ -77,19 +77,25 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    implementation("org.springdoc:springdoc-openapi-ui:$springDocVersion")
-    implementation("org.springdoc:springdoc-openapi-security:$springDocVersion")
+    implementation("org.springdoc:springdoc-openapi-ui")
+    implementation("org.springdoc:springdoc-openapi-security")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+    testImplementation("io.cucumber:cucumber-java")
+    testImplementation("io.cucumber:cucumber-junit")
+    testImplementation("io.cucumber:cucumber-spring")
+
 }
 
 dependencyManagement {
     imports {
-        mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
+        mavenBom("org.testcontainers:testcontainers-bom:$testcontainersVersion")
+        mavenBom("io.cucumber:cucumber-bom:$cucumberVersion")
+        mavenBom("org.springdoc:springdoc-openapi:$springDocVersion")
     }
 }
 
