@@ -21,23 +21,18 @@ class JwtTokenUtil(
     companion object {
 
         const val USER_TYPE_CLAIM = "userType"
-        const val CURRENT_CLASSROOM_CLAIM = "currentClassroom"
     }
 
     fun createToken(
         userId: UUID,
         userType: UserType,
-        tokenTTL: Duration = jwtProperties.ttlWeb,
-        currentClassroom: UUID?
+        tokenTTL: Duration = jwtProperties.ttlWeb
     ): JwtTokenData {
         val expiresAt = ZonedDateTime.now().plus(tokenTTL)
         val token = JWT.create()
             .withSubject(userId.toString())
             .withExpiresAt(expiresAt)
             .withClaim(USER_TYPE_CLAIM, userType.name)
-            .apply {
-                if (currentClassroom != null) withClaim(CURRENT_CLASSROOM_CLAIM, currentClassroom.toString())
-            }
             .sign(algorithm)
         val expiresAtMillis = expiresAt.toInstant().toEpochMilli()
         return JwtTokenData(token, expiresAtMillis)
@@ -60,8 +55,4 @@ class JwtTokenUtil(
 
 fun DecodedJWT.getUserType(): UserType? {
     return getClaim(JwtTokenUtil.USER_TYPE_CLAIM).asString()?.let { UserType.valueOf(it) }
-}
-
-fun DecodedJWT.getCurrentClassroomId(): UUID? {
-    return getClaim(JwtTokenUtil.CURRENT_CLASSROOM_CLAIM).asString()?.let { UUID.fromString(it) }
 }

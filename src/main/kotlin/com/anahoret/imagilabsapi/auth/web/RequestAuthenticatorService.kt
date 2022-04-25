@@ -63,7 +63,7 @@ class RequestAuthenticatorServiceImpl(
         currentClassroomId: UUID
     ): StudentAuthenticationSuccess {
         val tokenTTL = getTokenTTL(mobileAppClient)
-        val jwtTokenData = jwtTokenUtil.createToken(studentId, UserType.STUDENT, tokenTTL, currentClassroomId)
+        val jwtTokenData = jwtTokenUtil.createToken(studentId, UserType.STUDENT, tokenTTL)
         setAuthCookie(jwtTokenData.token, response)
         val profile = studentProfileService.getStudentById(studentId)?.let(::StudentUserProfileData)
         val userData = StudentUserData(studentId, UserType.STUDENT.name, profile, currentClassroomId)
@@ -76,7 +76,7 @@ class RequestAuthenticatorServiceImpl(
         mobileAppClient: Boolean
     ): TeacherAuthenticationSuccess {
         val tokenTTL = getTokenTTL(mobileAppClient)
-        val jwtTokenData = jwtTokenUtil.createToken(teacherId, UserType.TEACHER, tokenTTL, null)
+        val jwtTokenData = jwtTokenUtil.createToken(teacherId, UserType.TEACHER, tokenTTL)
         setAuthCookie(jwtTokenData.token, response)
         val profile = teacherProfileService.getTeacherById(teacherId)?.let(::TeacherUserProfileData)
         val userData = TeacherUserData(teacherId, UserType.TEACHER.name, profile)
@@ -89,7 +89,7 @@ class RequestAuthenticatorServiceImpl(
         mobileAppClient: Boolean
     ): AdminAuthenticationSuccess {
         val tokenTTL = getTokenTTL(mobileAppClient)
-        val jwtTokenData = jwtTokenUtil.createToken(adminId, UserType.ADMIN, tokenTTL, null)
+        val jwtTokenData = jwtTokenUtil.createToken(adminId, UserType.ADMIN, tokenTTL)
         setAuthCookie(jwtTokenData.token, response)
         val profile = adminProfileService.getAdminById(adminId)?.let(::AdminUserProfileData)
         val userData = AdminUserData(adminId, UserType.ADMIN.name, profile)
