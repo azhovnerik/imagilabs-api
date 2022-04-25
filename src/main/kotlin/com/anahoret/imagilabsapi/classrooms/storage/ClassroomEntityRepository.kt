@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.classrooms.storage;
+package com.anahoret.imagilabsapi.classrooms.storage
 
 import org.springframework.data.repository.CrudRepository
 import java.util.*

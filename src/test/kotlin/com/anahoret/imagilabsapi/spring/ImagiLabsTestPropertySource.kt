@@ -12,4 +12,4 @@ import org.springframework.test.context.TestPropertySource
         "python-compiler.api-token = "
     ]
 )
-annotation class ImagiLabsTestPropertySource()
+annotation class ImagiLabsTestPropertySource

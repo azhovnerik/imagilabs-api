@@ -43,8 +43,8 @@ class AuthenticationController(
     }
 
     // Workaround for Swagger documentation. Needed for generic endpoint response docs.
-    class AdminAuthSuccessResponseDto() : SuccessResponseDto<AdminAuthenticationSuccess>(null, emptyList())
-    class TeacherAuthSuccessResponseDto() : SuccessResponseDto<TeacherAuthenticationSuccess>(null, emptyList())
+    class AdminAuthSuccessResponseDto : SuccessResponseDto<AdminAuthenticationSuccess>(null, emptyList())
+    class TeacherAuthSuccessResponseDto : SuccessResponseDto<TeacherAuthenticationSuccess>(null, emptyList())
 
     @ApiResponses(
         ApiResponse(

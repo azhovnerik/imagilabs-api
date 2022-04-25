@@ -7,7 +7,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.get
 
-class APIRootSteps(val mvc: MockMvc) {
+class APIRootSteps(private val mvc: MockMvc) {
 
     lateinit var get: ResultActionsDsl
 

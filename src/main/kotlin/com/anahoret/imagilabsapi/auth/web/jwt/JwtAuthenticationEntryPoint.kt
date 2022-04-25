@@ -3,12 +3,11 @@ package com.anahoret.imagilabsapi.auth.web.jwt
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.stereotype.Component
-import java.io.Serializable
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @Component
-class JwtAuthenticationEntryPoint : AuthenticationEntryPoint, Serializable {
+class JwtAuthenticationEntryPoint : AuthenticationEntryPoint {
 
     override fun commence(
         request: HttpServletRequest?,

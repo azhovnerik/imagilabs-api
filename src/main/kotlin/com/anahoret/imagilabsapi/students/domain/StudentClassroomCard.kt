@@ -5,6 +5,7 @@ import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import java.util.*
 
+@Suppress("unused")
 open class StudentDetails(
     val id: UUID,
     val name: String,

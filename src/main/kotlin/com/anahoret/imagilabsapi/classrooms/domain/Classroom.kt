@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.classrooms.domain
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
 import java.util.*
 
+@Suppress("unused")
 class Classroom(
     val id: UUID,
     val name: String,
@@ -11,6 +12,7 @@ class Classroom(
     val projectsCount: Long,
     val teacherId: UUID
 ) {
+
     companion object {
 
         fun fromEntity(classroomEntity: ClassroomEntity, studentsCount: Long, projectsCount: Long): Classroom {

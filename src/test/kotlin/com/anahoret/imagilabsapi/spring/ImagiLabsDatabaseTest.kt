@@ -13,4 +13,4 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestDataSourceConfig::class)
-annotation class ImagiLabsDatabaseTest()
+annotation class ImagiLabsDatabaseTest

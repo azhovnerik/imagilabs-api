@@ -27,7 +27,7 @@ class ClassroomValidatorImpl(
         return validate { errors ->
             with(request) {
                 validateName(name, errors)
-                validateStudentsCount(request.studentCreateRequests.size.toLong(), errors)
+                validateStudentsCount(studentCreateRequests.size.toLong(), errors)
             }
         }
     }
@@ -37,7 +37,7 @@ class ClassroomValidatorImpl(
             with(request) {
                 validateName(name, errors)
                 val existingStudentCount = studentClassroomLinkService.getStudentCount(classroomId)
-                val newStudentCount = request.studentCreateRequests.size
+                val newStudentCount = studentCreateRequests.size
                 validateStudentsCount(existingStudentCount + newStudentCount, errors)
             }
         }

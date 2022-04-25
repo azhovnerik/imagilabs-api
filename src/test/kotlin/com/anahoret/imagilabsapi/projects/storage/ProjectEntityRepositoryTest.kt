@@ -78,7 +78,7 @@ class ProjectEntityRepositoryTest {
                 )
             }
 
-            ownerDraftProjects = ownerProjectIds - ownerSharedProjectIds - ownerSharedProjectIds2
+            ownerDraftProjects = ownerProjectIds - ownerSharedProjectIds.toSet() - ownerSharedProjectIds2.toSet()
         }
 
         private fun setupOwnerClassroom() {
