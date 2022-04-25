@@ -17,12 +17,8 @@ import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
-import java.util.*
 
 interface ProjectListUseCase {
-
-    @Deprecated("Use version with SearchProjectsRequest parameter")
-    fun list(listBy: UserProfile, ownerId: UUID?, sort: Sort): Either<OperationError, List<ProjectCard>>
     fun list(
         listBy: UserProfile,
         searchRequest: SearchProjectsRequest,
@@ -38,15 +34,6 @@ class ProjectListUseCaseImpl(
     private val teacherProfileService: TeacherProfileService,
     private val studentProfileService: StudentProfileService
 ) : ProjectListUseCase {
-
-    @Deprecated("Use version with SearchProjectsRequest parameter")
-    override fun list(
-        listBy: UserProfile,
-        ownerId: UUID?,
-        sort: Sort
-    ): Either<OperationError, List<ProjectCard>> {
-        return doList(listBy, SearchProjectsRequest(ownerId ?: listBy.id, null, null), sort)
-    }
 
     override fun list(
         listBy: UserProfile,

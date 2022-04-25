@@ -10,7 +10,6 @@ import com.anahoret.imagilabsapi.projects.domain.ProjectDetails
 import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
 import com.anahoret.imagilabsapi.projects.domain.SearchProjectsRequest
 import com.anahoret.imagilabsapi.projects.domain.usecases.*
-import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
 import com.anahoret.imagilabsapi.security.UserRole
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
@@ -23,7 +22,6 @@ import java.util.*
 class ProjectController(
     private val projectCreateUseCase: ProjectCreateUseCase,
     private val projectUpdateUseCase: ProjectUpdateUseCase,
-    private val projectRunUseCase: ProjectRunUseCase,
     private val projectGetUseCase: ProjectGetUseCase,
     private val projectListUseCase: ProjectListUseCase,
     private val projectDeleteUseCase: ProjectDeleteUseCase,
@@ -36,20 +34,6 @@ class ProjectController(
     ): ResponseDto<ProjectDetails> {
         val project = projectCreateUseCase.create(userProfile)
         return SuccessResponseDto(project)
-    }
-
-    @Secured(UserRole.teacher, UserRole.student)
-    @GetMapping("/api/projects")
-    @Deprecated("Use POST /api/projects/search request instead")
-    fun listProjectsByOwner(
-        @RequestParam(required = false) ownerId: UUID?,
-        @AuthenticationPrincipal userProfile: UserProfile,
-        sort: Sort
-    ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
-        return when (val result = projectListUseCase.list(userProfile, ownerId, sort)) {
-            is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
-        }
     }
 
     @Secured(UserRole.teacher, UserRole.student)
@@ -73,19 +57,6 @@ class ProjectController(
         @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<ProjectDetails?>> {
         return when (val result = projectUpdateUseCase.update(userProfile, projectId, projectUpdateRequest)) {
-            is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
-        }
-    }
-
-    @Secured(UserRole.teacher, UserRole.student)
-    @PostMapping("/api/projects/{projectId}/run-result")
-    @Deprecated("Use /api/code-compiler/run-result")
-    fun runProject(
-        @PathVariable projectId: UUID,
-        @AuthenticationPrincipal userProfile: UserProfile
-    ): ResponseEntity<ResponseDto<RunCodeResponse>> {
-        return when (val result = projectRunUseCase.run(userProfile, projectId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }

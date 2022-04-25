@@ -102,23 +102,6 @@ class ClassroomController(
     }
 
     @Secured(UserRole.teacher)
-    @GetMapping("/api/classrooms/{classroomId}/student-classroom-cards/download")
-    @Deprecated("Use POST request instead")
-    fun downloadStudentsCredentialsCardsInClassroom(
-        @PathVariable classroomId: UUID,
-        @AuthenticationPrincipal teacherProfile: TeacherProfile,
-        @RequestParam("format") format: StudentsCredentialsCardsFormat
-    ): ResponseEntity<*> {
-        return when (val result = studentCredentialsCardsGenerator.generate(teacherProfile, classroomId, format)) {
-            is Either.Left -> mapErrors<Void>(result.value)
-            is Either.Right -> result.value.inputStream.toFileResponse(
-                fileName = result.value.fileName,
-                mediaType = result.value.format.toMediaType()
-            )
-        }
-    }
-
-    @Secured(UserRole.teacher)
     @PostMapping("/api/classrooms/{classroomId}/student-classroom-cards/download")
     fun downloadStudentsCredentialsCardsInClassroomByIds(
         @PathVariable classroomId: UUID,
@@ -133,21 +116,6 @@ class ClassroomController(
                 fileName = result.value.fileName,
                 mediaType = result.value.format.toMediaType()
             )
-        }
-    }
-
-    @Secured(UserRole.teacher, UserRole.student)
-    @GetMapping("/api/classrooms/{classroomId}/projects")
-    @Deprecated("Use POST /api/classrooms/{classroomId}/projects/search request instead")
-    fun listProjectsInClassroom(
-        @PathVariable classroomId: UUID,
-        @AuthenticationPrincipal userProfile: UserProfile,
-        sort: Sort
-    ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
-        return when (val result =
-            listProjectsInClassroomUseCase.list(userProfile, classroomId, sort)) {
-            is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 

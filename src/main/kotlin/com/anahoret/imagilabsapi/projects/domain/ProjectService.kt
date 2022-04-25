@@ -16,14 +16,8 @@ interface ProjectService {
     fun createProject(ownerId: UUID, ownerType: UserType): Project
     fun getProjectById(projectId: UUID): Project?
     fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project?
-
-    @Deprecated("Project run result is updated via updateProject")
-    fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse)
     fun listByIds(projectIds: Collection<UUID>, sort: Sort): List<Project>
     fun getProjectCounts(ownerIds: Collection<UUID>): Map<UUID, Long>
-
-    @Deprecated("Use search method")
-    fun listByOwnerId(ownerId: UUID, sort: Sort): List<Project>
     fun search(searchRequest: SearchProjectsRequest, sort: Sort): List<Project>
     fun delete(projectId: UUID)
     fun deleteAllByOwner(ownerId: UUID)
@@ -63,24 +57,9 @@ class ProjectServiceImpl(
         }?.let { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
-    @Deprecated("Project run result is updated via updateProject")
-    override fun updateProjectRunResult(projectId: UUID, runCodeResponse: RunCodeResponse) {
-        projectEntityRepository.findByIdOrNull(projectId)?.let {
-            val runResult = objectMapper.writeValueAsString(runCodeResponse)
-            it.runResult = runResult
-            projectEntityRepository.save(it)
-        }
-    }
-
     override fun listByIds(projectIds: Collection<UUID>, sort: Sort): List<Project> {
         if (projectIds.isEmpty()) return emptyList()
         return projectEntityRepository.findAllByIdIn(projectIds, sort)
-            .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
-    }
-
-    @Deprecated("Use search method")
-    override fun listByOwnerId(ownerId: UUID, sort: Sort): List<Project> {
-        return projectEntityRepository.findAllByOwnerId(ownerId, sort)
             .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 

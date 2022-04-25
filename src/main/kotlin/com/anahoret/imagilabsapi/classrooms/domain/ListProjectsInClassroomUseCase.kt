@@ -20,9 +20,6 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 interface ListProjectsInClassroomUseCase {
-
-    @Deprecated("Use version with ClassroomSearchProjectsRequest parameter")
-    fun list(listBy: UserProfile, classroomId: UUID, sort: Sort): Either<OperationError, List<ProjectCard>>
     fun list(
         listBy: UserProfile,
         classroomId: UUID,
@@ -40,15 +37,6 @@ class ListProjectsInClassroomUseCaseImpl(
     private val teacherProfileService: TeacherProfileService,
     private val studentProfileService: StudentProfileService
 ) : ListProjectsInClassroomUseCase {
-
-    @Deprecated("Use version with ClassroomSearchProjectsRequest parameter")
-    override fun list(
-        listBy: UserProfile,
-        classroomId: UUID,
-        sort: Sort
-    ): Either<OperationError, List<ProjectCard>> {
-        return doList(listBy, classroomId, ClassroomSearchProjectsRequest(null, null), sort)
-    }
 
     override fun list(
         listBy: UserProfile,

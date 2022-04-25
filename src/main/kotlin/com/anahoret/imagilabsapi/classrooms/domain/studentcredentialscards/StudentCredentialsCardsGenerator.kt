@@ -9,21 +9,11 @@ import com.anahoret.imagilabsapi.classrooms.domain.ListStudentsInClassroomUseCas
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
-import com.anahoret.imagilabsapi.students.domain.StudentProfile
-import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
 import java.util.*
 
 interface StudentCredentialsCardsGenerator {
-
-    @Deprecated("Use download request version")
-    fun generate(
-        generateBy: TeacherProfile,
-        classroomId: UUID,
-        format: StudentsCredentialsCardsFormat
-    ): Either<OperationError, StudentCredentialsCardsFile>
-
     fun generate(
         generateBy: TeacherProfile,
         classroomId: UUID,
@@ -37,24 +27,8 @@ class StudentCredentialsCardsGeneratorImpl(
     private val classroomAccessService: ClassroomAccessService,
     private val studentCredentialsCardsPdfGenerator: StudentCredentialsCardsPdfGenerator,
     private val studentCredentialsCardsCsvGenerator: StudentCredentialsCardsCsvGenerator,
-    private val listStudentsInClassroomUseCase: ListStudentsInClassroomUseCase,
-    private val studentProfileService: StudentProfileService
+    private val listStudentsInClassroomUseCase: ListStudentsInClassroomUseCase
 ) : StudentCredentialsCardsGenerator {
-
-    override fun generate(
-        generateBy: TeacherProfile,
-        classroomId: UUID,
-        format: StudentsCredentialsCardsFormat
-    ): Either<OperationError, StudentCredentialsCardsFile> {
-        val selectedStudents = studentProfileService.listByClassroom(classroomId)
-            .map(StudentProfile::id)
-            .toSet()
-        val downloadRequest = DownloadStudentsCredentialsRequest(
-            format = format,
-            studentIds = selectedStudents
-        )
-        return doGenerate(generateBy, classroomId, downloadRequest)
-    }
 
     override fun generate(
         generateBy: TeacherProfile,

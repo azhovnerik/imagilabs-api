@@ -11,7 +11,8 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
-import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectRunUseCase
+import com.anahoret.imagilabsapi.pythoncompiler.domain.CodeRunUseCase
+import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeRequest
 import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
 import com.anahoret.imagilabsapi.userclassroomlink.domain.UserClassroomLinkService
 import org.springframework.stereotype.Service
@@ -30,7 +31,7 @@ class ProjectClassroomShareUseCaseImpl(
     private val projectService: ProjectService,
     private val userClassroomLinkService: UserClassroomLinkService,
     private val projectAccessService: ProjectAccessService,
-    private val projectRunUseCase: ProjectRunUseCase
+    private val codeRunUseCase: CodeRunUseCase
 ) : ProjectClassroomShareUseCase {
 
     override fun share(
@@ -49,7 +50,7 @@ class ProjectClassroomShareUseCaseImpl(
         if (classroomIds.any { !userClassroomLinkService.isLinkedToClassroom(sharedBy, it) })
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-        val result = projectRunUseCase.run(sharedBy, projectId)
+        val result = codeRunUseCase.run(sharedBy, RunCodeRequest(project.sourceCode))
             .filterOrElse({ it.output != null }) { ValidationError("PROJECT_COMPILATION_FAILED") }
         return when (result) {
             is Either.Left -> result
