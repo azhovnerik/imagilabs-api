@@ -109,6 +109,9 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging {
+        events("standardOut", "passed", "skipped", "failed")
+    }
 }
 
 tasks.getByName<Jar>("jar") {
