@@ -1,6 +1,0 @@
-package com.anahoret.imagilabsapi.acceptance.features
-
-import io.cucumber.spring.CucumberContextConfiguration
-
-@CucumberContextConfiguration
-class CucumberConfiguration

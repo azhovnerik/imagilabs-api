@@ -1,24 +1,28 @@
 package com.anahoret.imagilabsapi.acceptance.features
 
-import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
+import org.hamcrest.Matchers.`is`
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultActionsDsl
+import org.springframework.test.web.servlet.get
 
-class APIRootSteps {
+class APIRootSteps(val mvc: MockMvc) {
 
-    @Given("I'm an anonymous user")
-    fun `I'm an anonymous user`() {
+    lateinit var get: ResultActionsDsl
 
+    @When("^I navigate to API root with host header (.*)$")
+    fun `I navigate to API root with host header`(hostHeader: String) {
+        get = mvc.get("/") {
+            header("Host", hostHeader)
+        }
     }
 
-    @When("I navigate to API root")
-    fun `I navigate to API root`() {
-
-    }
-
-    @Then("I see welcome message")
-    fun `I see welcome message`() {
-
+    @Then("^Swagger docs URI in response equals to (.*)$")
+    fun `I see welcome message`(swaggerDocsUri: String) {
+        get.andExpect {
+            jsonPath("\$.payload.documentation", `is`(swaggerDocsUri))
+        }
     }
 
 }
