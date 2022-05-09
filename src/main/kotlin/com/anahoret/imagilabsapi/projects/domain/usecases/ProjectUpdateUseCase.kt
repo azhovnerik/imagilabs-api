@@ -28,7 +28,8 @@ interface ProjectUpdateUseCase {
 class ProjectUpdateUseCaseImpl(
     private val projectService: ProjectService,
     private val projectAccessService: ProjectAccessService,
-    private val projectClassroomShareService: ProjectClassroomShareService
+    private val projectClassroomShareService: ProjectClassroomShareService,
+    private val projectOwnerGetUseCase: ProjectOwnerGetUseCase
 ) : ProjectUpdateUseCase {
 
     override fun update(
@@ -39,10 +40,14 @@ class ProjectUpdateUseCaseImpl(
         val project = projectService.getProjectById(projectId) ?: return NotFoundError("PROJECT_NOT_FOUND").left()
         if (!projectAccessService.canEdit(updateBy, project))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
+
+        val owner = projectOwnerGetUseCase.get(project)
+            ?: return NotFoundError("OWNER_NOT_FOUND").left()
+
         return projectService.updateProject(projectId, projectUpdateRequest)
             ?.let {
                 val shared = projectClassroomShareService.isShared(it.id)
-                ProjectDetails.fromProject(it, canEdit = true, canUnshare = true, shared = shared)
+                ProjectDetails.fromProject(it, owner, canEdit = true, canUnshare = true, shared = shared)
             }
             ?.right()
             ?: NotFoundError("PROJECT_NOT_FOUND").left()

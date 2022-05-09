@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.projects.domain
 
+import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
 import com.anahoret.imagilabsapi.users.UserType
 import java.util.*
@@ -10,6 +11,7 @@ class ProjectDetails(
     val name: String,
     val ownerId: UUID,
     val ownerUserType: UserType,
+    val ownerName: String,
     val sourceCode: String,
     val runCodeResponse: RunCodeResponse?,
     val canEdit: Boolean,
@@ -23,6 +25,7 @@ class ProjectDetails(
 
         fun fromProject(
             project: Project,
+            owner: UserProfile,
             canEdit: Boolean,
             canUnshare: Boolean,
             shared: Boolean
@@ -33,6 +36,7 @@ class ProjectDetails(
                     name = name,
                     ownerId = ownerId,
                     ownerUserType = ownerUserType,
+                    ownerName = owner.fullName,
                     sourceCode = sourceCode,
                     runCodeResponse = runCodeResponse,
                     canEdit = canEdit,

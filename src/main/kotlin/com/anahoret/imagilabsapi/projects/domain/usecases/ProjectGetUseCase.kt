@@ -23,7 +23,8 @@ interface ProjectGetUseCase {
 class ProjectGetUseCaseImpl(
     private val projectService: ProjectService,
     private val projectAccessService: ProjectAccessService,
-    private val projectClassroomShareService: ProjectClassroomShareService
+    private val projectClassroomShareService: ProjectClassroomShareService,
+    private val projectOwnerGetUseCase: ProjectOwnerGetUseCase
 ) : ProjectGetUseCase {
 
     override fun get(getBy: UserProfile, projectId: UUID): Either<OperationError, ProjectDetails> {
@@ -33,6 +34,8 @@ class ProjectGetUseCaseImpl(
         val canEdit = projectAccessService.canEdit(getBy, project)
         val canUnshare = projectAccessService.canUnshare(getBy, project)
         val shared = projectClassroomShareService.isShared(project.id)
-        return ProjectDetails.fromProject(project, canEdit, canUnshare, shared).right()
+        val owner = projectOwnerGetUseCase.get(project)
+            ?: return NotFoundError("OWNER_NOT_FOUND").left()
+        return ProjectDetails.fromProject(project, owner, canEdit, canUnshare, shared).right()
     }
 }

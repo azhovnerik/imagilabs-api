@@ -12,9 +12,6 @@ import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.projects.domain.ProjectCard
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.projects.domain.SearchProjectsRequest
-import com.anahoret.imagilabsapi.students.domain.StudentProfileService
-import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
-import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 
@@ -31,8 +28,7 @@ class ProjectListUseCaseImpl(
     private val projectService: ProjectService,
     private val projectClassroomShareService: ProjectClassroomShareService,
     private val projectAccessService: ProjectAccessService,
-    private val teacherProfileService: TeacherProfileService,
-    private val studentProfileService: StudentProfileService
+    private val projectOwnerGetUseCase: ProjectOwnerGetUseCase
 ) : ProjectListUseCase {
 
     override fun list(
@@ -56,11 +52,8 @@ class ProjectListUseCaseImpl(
             .takeUnless { it.isEmpty() }
             ?: return emptyList<ProjectCard>().right()
 
-        val owner = when (projects.first().ownerUserType) {
-            UserType.TEACHER -> teacherProfileService.getTeacherById(ownerId)
-            UserType.STUDENT -> studentProfileService.getStudentById(ownerId)
-            UserType.ADMIN -> null
-        } ?: return NotFoundError("OWNER_NOT_FOUND").left()
+        val owner = projectOwnerGetUseCase.get(projects.first())
+            ?: return NotFoundError("OWNER_NOT_FOUND").left()
 
         val sharedProjectIds = projectClassroomShareService.listByOwnerId(ownerId)
             .map { it.projectId }

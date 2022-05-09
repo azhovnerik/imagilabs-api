@@ -17,7 +17,13 @@ class ProjectCreateUseCaseImpl(
 
     override fun create(userProfile: UserProfile): ProjectDetails {
         val project = projectService.createProject(userProfile.id, userProfile.userType)
-        return ProjectDetails.fromProject(project, canEdit = true, canUnshare = true, shared = false)
+        return ProjectDetails.fromProject(
+            project,
+            owner = userProfile,
+            canEdit = true,
+            canUnshare = true,
+            shared = false
+        )
     }
 
 }
