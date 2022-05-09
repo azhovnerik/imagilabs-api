@@ -6,7 +6,8 @@ import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
 import com.anahoret.imagilabsapi.users.UserType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import org.springframework.data.domain.Sort
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
@@ -16,9 +17,9 @@ interface ProjectService {
     fun createProject(ownerId: UUID, ownerType: UserType): Project
     fun getProjectById(projectId: UUID): Project?
     fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project?
-    fun listByIds(projectIds: Collection<UUID>, sort: Sort): List<Project>
+    fun listByIds(projectIds: Collection<UUID>, pageable: Pageable): Page<Project>
     fun getProjectCounts(ownerIds: Collection<UUID>): Map<UUID, Long>
-    fun search(searchRequest: SearchProjectsRequest, sort: Sort): List<Project>
+    fun search(searchRequest: SearchProjectsRequest, pageable: Pageable): Page<Project>
     fun delete(projectId: UUID)
     fun deleteAllByOwner(ownerId: UUID)
     fun deleteByIds(projectIds: Collection<UUID>)
@@ -57,14 +58,14 @@ class ProjectServiceImpl(
         }?.let { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
-    override fun listByIds(projectIds: Collection<UUID>, sort: Sort): List<Project> {
-        if (projectIds.isEmpty()) return emptyList()
-        return projectEntityRepository.findAllByIdIn(projectIds, sort)
+    override fun listByIds(projectIds: Collection<UUID>, pageable: Pageable): Page<Project> {
+        if (projectIds.isEmpty()) return Page.empty()
+        return projectEntityRepository.findAllByIdIn(projectIds, pageable)
             .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
-    override fun search(searchRequest: SearchProjectsRequest, sort: Sort): List<Project> {
-        return with(searchRequest) { projectEntityRepository.search(ownerId, state, sharedInClassesIds, sort) }
+    override fun search(searchRequest: SearchProjectsRequest, pageable: Pageable): Page<Project> {
+        return with(searchRequest) { projectEntityRepository.search(ownerId, state, sharedInClassesIds, pageable) }
             .map { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 

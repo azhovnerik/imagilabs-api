@@ -10,6 +10,8 @@ import com.anahoret.imagilabsapi.projects.domain.ProjectCard
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.students.domain.StudentClassroomCard
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -125,10 +127,10 @@ class ClassroomController(
         @PathVariable classroomId: UUID,
         @RequestBody searchRequest: ClassroomSearchProjectsRequest,
         @AuthenticationPrincipal userProfile: UserProfile,
-        sort: Sort
-    ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
+        pageable: Pageable
+    ): ResponseEntity<ResponseDto<Page<ProjectCard>>> {
         return when (val result =
-            listProjectsInClassroomUseCase.list(userProfile, classroomId, searchRequest, sort)) {
+            listProjectsInClassroomUseCase.list(userProfile, classroomId, searchRequest, pageable)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }

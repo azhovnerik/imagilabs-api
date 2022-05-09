@@ -2,7 +2,8 @@ package com.anahoret.imagilabsapi.projects.storage
 
 import com.anahoret.imagilabsapi.projects.domain.ProjectState
 import org.springframework.context.annotation.Lazy
-import org.springframework.data.domain.Sort
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
@@ -22,8 +23,8 @@ interface ProjectEntityRepository : CrudRepository<ProjectEntity, UUID>, Project
     )
     fun countByOwnerIds(ownerIds: Collection<UUID>): Iterable<OwnerProjectCount>
 
-    fun findAllByOwnerId(ownerId: UUID, sort: Sort): List<ProjectEntity>
-    fun findAllByIdIn(ids: Collection<UUID>, sort: Sort): List<ProjectEntity>
+    fun findAllByOwnerId(ownerId: UUID, pageable: Pageable): Page<ProjectEntity>
+    fun findAllByIdIn(ids: Collection<UUID>, pageable: Pageable): Page<ProjectEntity>
     fun deleteAllByOwnerId(ownerId: UUID)
     fun findAllByOwnerIdIn(ownerIds: Collection<UUID>): List<ProjectEntity>
 
@@ -37,8 +38,8 @@ interface ProjectEntityRepository : CrudRepository<ProjectEntity, UUID>, Project
     fun findSharedInClasses(
         ownerId: UUID,
         sharedInClassesIds: Collection<UUID>,
-        sort: Sort
-    ): List<ProjectEntity>
+        pageable: Pageable
+    ): Page<ProjectEntity>
 
     @Query(
         """
@@ -49,8 +50,8 @@ interface ProjectEntityRepository : CrudRepository<ProjectEntity, UUID>, Project
     )
     fun findShared(
         ownerId: UUID,
-        sort: Sort
-    ): List<ProjectEntity>
+        pageable: Pageable
+    ): Page<ProjectEntity>
 
     @Query(
         """
@@ -61,8 +62,8 @@ interface ProjectEntityRepository : CrudRepository<ProjectEntity, UUID>, Project
     )
     fun findDraft(
         ownerId: UUID,
-        sort: Sort
-    ): List<ProjectEntity>
+        pageable: Pageable
+    ): Page<ProjectEntity>
 }
 
 interface ProjectEntityRepositoryCustom {
@@ -71,8 +72,8 @@ interface ProjectEntityRepositoryCustom {
         ownerId: UUID,
         state: ProjectState?,
         sharedInClassesIds: Set<UUID>?,
-        sort: Sort
-    ): List<ProjectEntity>
+        pageable: Pageable
+    ): Page<ProjectEntity>
 }
 
 @Repository
@@ -84,15 +85,15 @@ class ProjectEntityRepositoryCustomImpl(
         ownerId: UUID,
         state: ProjectState?,
         sharedInClassesIds: Set<UUID>?,
-        sort: Sort
-    ): List<ProjectEntity> {
+        pageable: Pageable
+    ): Page<ProjectEntity> {
         return when {
-            sharedInClassesIds != null && sharedInClassesIds.isNotEmpty() && state == ProjectState.DRAFT -> emptyList()
+            sharedInClassesIds != null && sharedInClassesIds.isNotEmpty() && state == ProjectState.DRAFT -> Page.empty()
             sharedInClassesIds != null && sharedInClassesIds.isNotEmpty() ->
-                projectEntityRepository.findSharedInClasses(ownerId, sharedInClassesIds, sort)
-            state == ProjectState.SHARED -> projectEntityRepository.findShared(ownerId, sort)
-            state == ProjectState.DRAFT -> projectEntityRepository.findDraft(ownerId, sort)
-            else -> projectEntityRepository.findAllByOwnerId(ownerId, sort)
+                projectEntityRepository.findSharedInClasses(ownerId, sharedInClassesIds, pageable)
+            state == ProjectState.SHARED -> projectEntityRepository.findShared(ownerId, pageable)
+            state == ProjectState.DRAFT -> projectEntityRepository.findDraft(ownerId, pageable)
+            else -> projectEntityRepository.findAllByOwnerId(ownerId, pageable)
         }
     }
 

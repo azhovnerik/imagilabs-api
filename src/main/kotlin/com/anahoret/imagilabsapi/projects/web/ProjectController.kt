@@ -11,7 +11,8 @@ import com.anahoret.imagilabsapi.projects.domain.ProjectUpdateRequest
 import com.anahoret.imagilabsapi.projects.domain.SearchProjectsRequest
 import com.anahoret.imagilabsapi.projects.domain.usecases.*
 import com.anahoret.imagilabsapi.security.UserRole
-import org.springframework.data.domain.Sort
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -41,9 +42,9 @@ class ProjectController(
     fun listProjects(
         @RequestBody searchRequest: SearchProjectsRequest,
         @AuthenticationPrincipal userProfile: UserProfile,
-        sort: Sort
-    ): ResponseEntity<ResponseDto<List<ProjectCard>>> {
-        return when (val result = projectListUseCase.list(userProfile, searchRequest, sort)) {
+        pageable: Pageable
+    ): ResponseEntity<ResponseDto<Page<ProjectCard>>> {
+        return when (val result = projectListUseCase.list(userProfile, searchRequest, pageable)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
