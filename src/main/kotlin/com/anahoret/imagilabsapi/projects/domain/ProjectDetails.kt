@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.projects.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareDetails
 import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
 import com.anahoret.imagilabsapi.users.UserType
 import java.util.*
@@ -16,10 +17,12 @@ class ProjectDetails(
     val runCodeResponse: RunCodeResponse?,
     val canEdit: Boolean,
     val canUnshare: Boolean,
-    val shared: Boolean,
+    val classroomShares: List<ProjectClassroomShareDetails>,
     val lastModifiedAt: Long,
     val createdAt: Long
 ) {
+
+    val shared: Boolean = classroomShares.isNotEmpty()
 
     companion object {
 
@@ -28,7 +31,7 @@ class ProjectDetails(
             owner: UserProfile,
             canEdit: Boolean,
             canUnshare: Boolean,
-            shared: Boolean
+            classroomShares: List<ProjectClassroomShareDetails>
         ): ProjectDetails {
             return with(project) {
                 ProjectDetails(
@@ -41,7 +44,7 @@ class ProjectDetails(
                     runCodeResponse = runCodeResponse,
                     canEdit = canEdit,
                     canUnshare = canUnshare,
-                    shared = shared,
+                    classroomShares = classroomShares,
                     lastModifiedAt = lastModifiedAt,
                     createdAt = createdAt
                 )

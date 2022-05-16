@@ -22,7 +22,7 @@ class ProjectCreateUseCaseImpl(
             owner = userProfile,
             canEdit = true,
             canUnshare = true,
-            shared = false
+            classroomShares = emptyList()
         )
     }
 
