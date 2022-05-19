@@ -56,6 +56,7 @@ class ProjectClassroomShareUseCaseImpl(
             is Either.Left -> result
             is Either.Right -> {
                 projectClassroomShareService.shareToAll(projectId, classroomIds)
+                projectService.updateLastModifiedDate(projectId)
                 result.value.right()
             }
         }

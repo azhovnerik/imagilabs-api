@@ -24,6 +24,7 @@ interface ProjectService {
     fun deleteAllByOwner(ownerId: UUID)
     fun deleteByIds(projectIds: Collection<UUID>)
     fun listIdsByOwnerIds(ownerIds: List<UUID>): List<UUID>
+    fun updateLastModifiedDate(projectId: UUID)
 }
 
 @Service
@@ -90,6 +91,13 @@ class ProjectServiceImpl(
 
     override fun deleteByIds(projectIds: Collection<UUID>) {
         projectEntityRepository.deleteAllById(projectIds)
+    }
+
+    override fun updateLastModifiedDate(projectId: UUID) {
+        projectEntityRepository.findByIdOrNull(projectId)?.let {
+            it.lastModifiedAt = null
+            projectEntityRepository.save(it)
+        }
     }
 
     private fun parseToRunCodeResponse(json: String): RunCodeResponse {

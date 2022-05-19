@@ -45,6 +45,7 @@ class ProjectClassroomUnshareUseCaseImpl(
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
         projectClassroomShareService.unshareFromAll(projectId, classroomIds)
+        projectService.updateLastModifiedDate(projectId)
         return Unit.right()
     }
 
