@@ -1,6 +1,6 @@
 SELECT 
     cr.id as class_id,
-    TO_CHAR(TO_TIMESTAMP(cr.created_at/1000), 'yyyy/mm/dd') as creation_date,
+    cr.created_at as creation_date,
     cr.name as class_name, 
     cr.teacher_id as teacher_id,
     COUNT(DISTINCT sp.id) as number_of_students,

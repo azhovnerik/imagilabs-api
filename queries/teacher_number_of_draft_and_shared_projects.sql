@@ -37,7 +37,7 @@ from draft_projects FULL OUTER JOIN shared_projects ON draft_projects.owner_id =
 SELECT 
 teacher_profiles.id as teacher_id,
 teacher_profiles.email as email,
-TO_CHAR(TO_TIMESTAMP(teacher_profiles.created_at/1000), 'yyyy/mm/dd') as creation_date,
+teacher_profiles.created_at as creation_date,
 COALESCE(Final_output.number_of_draft_projects, 0) as number_of_draft_projects,
 COALESCE(Final_output.number_of_shared_projects, 0) as number_of_shared_projects
 from teacher_profiles

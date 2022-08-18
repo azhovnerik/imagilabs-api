@@ -12,7 +12,7 @@ tps.email)
 SELECT 
 tp.teacher_id,
 tp.email,
-TO_CHAR(TO_TIMESTAMP(tp.creation_date/1000), 'yyyy/mm/dd') as creation_date,
+tp.creation_date as creation_date,
 number_of_classes
 from teacher_profile as tp
 ORDER BY tp.creation_date asc;

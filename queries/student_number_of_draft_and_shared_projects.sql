@@ -40,7 +40,7 @@ SELECT
 student_profiles.id as student_id,
 student_profiles.name as name,
 student_profiles.username as username,
-TO_CHAR(TO_TIMESTAMP(student_profiles.created_at/1000), 'yyyy/mm/dd') as creation_date,
+student_profiles.created_at as creation_date,
 cl.teacher_id as teacher_id,
 COALESCE(Final_output.number_of_draft_projects, 0) as number_of_draft_projects,
 COALESCE(Final_output.number_of_shared_projects, 0) as number_of_shared_projects
