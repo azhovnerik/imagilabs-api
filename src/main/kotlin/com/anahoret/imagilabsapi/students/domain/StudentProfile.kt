@@ -8,6 +8,8 @@ import java.util.*
 class StudentProfile(
     override val id: UUID,
     val name: String,
+    val username: String,
+    val createdAt: Long,
     val classroomId: UUID
 ) : UserProfile {
 
@@ -18,7 +20,7 @@ class StudentProfile(
 
         fun fromEntity(studentProfileEntity: StudentProfileEntity): StudentProfile {
             return with(studentProfileEntity) {
-                StudentProfile(id!!, name, classroomId)
+                StudentProfile(id!!, name, username, createdAt ?: 0, classroomId)
             }
         }
     }
