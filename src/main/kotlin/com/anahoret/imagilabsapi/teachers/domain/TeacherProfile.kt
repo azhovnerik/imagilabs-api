@@ -14,7 +14,8 @@ class TeacherProfile(
     val country: String,
     val organization: String,
     val createdAt: Long,
-    val emailVerified: Boolean
+    val emailVerified: Boolean,
+    val marketingEmailSubscribed: Boolean
 ) : UserProfile {
 
     override val userType = UserType.TEACHER
@@ -24,7 +25,7 @@ class TeacherProfile(
 
         fun fromEntity(entity: TeacherProfileEntity): TeacherProfile {
             return with(entity) {
-                TeacherProfile(id!!, firstName, lastName, email, country, organization, createdAt ?: 0, emailVerified)
+                TeacherProfile(id!!, firstName, lastName, email, country, organization, createdAt ?: 0, emailVerified, marketingEmailSubscribed)
             }
         }
     }
