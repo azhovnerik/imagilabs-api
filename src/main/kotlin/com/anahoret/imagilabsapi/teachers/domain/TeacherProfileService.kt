@@ -39,7 +39,8 @@ class TeacherProfileServiceImpl(
                     lastName,
                     country,
                     organization,
-                    howDidYouHearAboutUs
+                    howDidYouHearAboutUs,
+                    marketingEmailSubscribed,
                 )
             ).let(TeacherProfile.Companion::fromEntity)
         }
