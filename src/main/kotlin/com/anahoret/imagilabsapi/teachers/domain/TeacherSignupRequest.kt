@@ -8,6 +8,7 @@ class TeacherSignupRequest(
     val country: String,
     val organization: String,
     val howDidYouHearAboutUs: String,
+    val marketingEmailSubscribed: Boolean,
     val mobileAppClient: Boolean
 ) {
 
@@ -20,6 +21,7 @@ class TeacherSignupRequest(
             country.trim(),
             organization.trim(),
             howDidYouHearAboutUs.trim(),
+            marketingEmailSubscribed,
             mobileAppClient
         )
     }

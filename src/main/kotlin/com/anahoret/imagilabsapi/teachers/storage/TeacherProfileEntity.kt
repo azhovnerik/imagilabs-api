@@ -30,6 +30,9 @@ class TeacherProfileEntity(
     @Column(name = "how_did_you_hear_about_us", nullable = false)
     var howDidYouHearAboutUs: String,
 
+    @Column(name = "marketing_email_subscribed", nullable = false)
+    var marketingEmailSubscribed: Boolean,
+
     @Column(name = "email_verification_code")
     var emailVerificationCode: String? = null,
 
