@@ -23,12 +23,6 @@ class AdminGetTeacherByIdAPITest (
 ) {
 
     @MockBean
-    lateinit var requestAuthenticatorService: RequestAuthenticatorService
-
-    @MockBean
-    lateinit var teacherProfileService: TeacherProfileService
-
-    @MockBean
     lateinit var teacherProfileController: TeacherProfileController
 
     @Test

@@ -21,15 +21,6 @@ class AdminGetTeachersAPITest (
     @Autowired private val mockMvc: MockMvc
 ) {
 
-    @MockBean
-    lateinit var requestAuthenticatorService: RequestAuthenticatorService
-
-    @MockBean
-    lateinit var teacherProfileService: TeacherProfileService
-
-    @MockBean
-    lateinit var teacherProfileController: TeacherProfileController
-
     @Test
     fun `should return success`() {
         mockMvc.perform(get("/api/teachers")
