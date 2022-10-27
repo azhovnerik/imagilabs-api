@@ -112,8 +112,8 @@ class ClassroomServiceImpl(
     }
 
     private fun generateUniqueAccessCode(): String {
-        val accessCode = RandomStringUtils.randomAlphanumeric(6)
         for (i in 1..100) {
+            val accessCode = RandomStringUtils.randomAlphabetic(6).uppercase()
             if (classroomEntityRepository.findByAccessCode(accessCode) == null) {
                 return accessCode
             }
