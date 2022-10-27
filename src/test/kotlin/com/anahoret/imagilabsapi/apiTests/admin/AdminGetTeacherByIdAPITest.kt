@@ -13,6 +13,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.util.UUID
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -32,7 +33,8 @@ class AdminGetTeacherByIdAPITest (
 
     @Test
     fun `should return success`() {
-        mockMvc.perform(get("/api/teachers")
+        val teacherId = UUID.randomUUID()
+        mockMvc.perform(get("/api/teachers/$teacherId")
             .with(user("admin@gmail.com").password("password1").roles("ADMIN"))
         ).andExpect(MockMvcResultMatchers.status().isOk)
     }
