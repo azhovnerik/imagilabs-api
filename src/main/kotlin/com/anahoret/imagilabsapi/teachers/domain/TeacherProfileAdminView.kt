@@ -13,6 +13,7 @@ class TeacherProfileAdminView(
     val organization: String,
     val howDidYouHearAboutUs: String,
     val emailVerified: Boolean,
+    val marketingEmailSubscribed: Boolean,
     val createdAt: Long,
     val lastModifiedAt: Long
 ) {
@@ -30,6 +31,7 @@ class TeacherProfileAdminView(
                     organization,
                     howDidYouHearAboutUs,
                     emailVerified,
+                    marketingEmailSubscribed,
                     createdAt ?: 0,
                     lastModifiedAt?: 0
                 )

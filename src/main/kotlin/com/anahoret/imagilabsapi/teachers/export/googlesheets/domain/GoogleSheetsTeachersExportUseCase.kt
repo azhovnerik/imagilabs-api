@@ -83,6 +83,7 @@ class GoogleSheetsTeachersExportUseCaseImpl(
                     country,
                     organization,
                     howDidYouHearAboutUs,
+                    marketingEmailSubscribed.toString(),
                     registrationDateTime
                 )
             }
