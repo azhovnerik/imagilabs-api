@@ -1,7 +1,5 @@
 package com.anahoret.imagilabsapi.apiTests.admin
 
-import com.anahoret.imagilabsapi.auth.web.RequestAuthenticatorService
-import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.teachers.web.TeacherProfileController
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
