@@ -16,7 +16,7 @@ class StudentProfileServiceImplTest {
     lateinit var testStudentProfileServiceImpl: StudentProfileServiceImpl
 
     @Test
-    fun testCreateStudentPassword() {
+    fun `should create student password successfully`() {
         val method = testStudentProfileServiceImpl.javaClass.getDeclaredMethod("createStudentPassword")
         method.isAccessible = true
         val returnValue = method.invoke(testStudentProfileServiceImpl)
