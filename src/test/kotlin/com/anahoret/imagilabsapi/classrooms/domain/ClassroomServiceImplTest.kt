@@ -16,7 +16,7 @@ class ClassroomServiceImplTest {
     lateinit var testClassroomServiceImpl: ClassroomServiceImpl
 
     @Test
-    fun testGenerateUniqueAccessCode() {
+    fun `should generate unique access code successfully`() {
         val method = testClassroomServiceImpl.javaClass.getDeclaredMethod("generateUniqueAccessCode")
         method.isAccessible = true
         val returnValue = method.invoke(testClassroomServiceImpl)
