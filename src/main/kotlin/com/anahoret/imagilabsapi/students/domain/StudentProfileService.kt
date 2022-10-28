@@ -159,7 +159,7 @@ class StudentProfileServiceImpl(
     }
 
     private fun createStudentPassword(): String {
-        return RandomStringUtils.randomAlphanumeric(8)
+        return RandomStringUtils.randomAlphabetic(8).uppercase()
     }
 
     private fun createUniqueStudentUsername(name: String, existingUserNames: Set<String>): String {
