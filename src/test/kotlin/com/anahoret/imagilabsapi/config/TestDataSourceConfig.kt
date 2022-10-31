@@ -37,6 +37,7 @@ class TestDataSourceConfig {
             jdbcUrl = postgreSQLContainer.jdbcUrl
             username = postgreSQLContainer.username
             password = postgreSQLContainer.password
+            maximumPoolSize = 2
         }
         return HikariDataSource(config)
     }
