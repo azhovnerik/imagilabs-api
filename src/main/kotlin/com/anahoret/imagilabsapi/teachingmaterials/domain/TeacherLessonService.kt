@@ -11,6 +11,7 @@ interface TeacherLessonService {
     fun listByTeacherId(teacherId: UUID): List<TeacherLesson>
     fun addAllToTeacher(teacherId: UUID, lessons: List<LessonData>)
     fun update(teacherId: UUID, lessons: List<LessonData>)
+    fun delete(teacherId: UUID)
 }
 
 @Service
@@ -36,6 +37,10 @@ class TeacherLessonServiceImpl(
          */
         entityManager.flush()
         addLessonsToTeacher(teacherId, lessons)
+    }
+
+    override fun delete(teacherId: UUID) {
+        teacherLessonEntityRepository.deleteAllByTeacherId(teacherId)
     }
 
     private fun addLessonsToTeacher(teacherId: UUID, lessons: List<LessonData>) {
