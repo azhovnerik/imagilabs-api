@@ -157,6 +157,13 @@ class ProjectClassroomShareEntityRepositoryTest {
             val searchResult = projectClassroomShareEntityRepository.search(classroom1Id, sansaId, null)
             assertNotEquals(sansaProjectIds.toSet(), searchResult.map { it.projectId }.toSet())
         }
+
+        @Test
+        fun `should delete projects by classroomId`() {
+            projectClassroomShareEntityRepository.deleteAllByClassroomId(classroom2Id)
+            val searchResult = projectClassroomShareEntityRepository.search(classroom2Id, null, null).map { it.projectId }.toSet()
+            assertNotEquals(classroom2ProjectIds.toSet(), searchResult)
+        }
     }
 
 }
