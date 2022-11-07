@@ -184,6 +184,13 @@ class ProjectEntityRepositoryTest {
             val searchResult = projectEntityRepository.search(ownerId, null, null, Pageable.unpaged())
             assertNotEquals(ownerProjectIds.toSet(), searchResult.map { it.id }.toSet())
         }
-    }
 
+        @Test
+        fun `should delete projects by projectIds`() {
+            projectClassroomShareEntityRepository.deleteAllByProjectIdIn(nonOwnerProjectIds)
+            projectEntityRepository.deleteAllById(nonOwnerProjectIds)
+            val searchResult = projectEntityRepository.search(nonOwnerId, null, null, Pageable.unpaged())
+            assertNotEquals(nonOwnerProjectIds.toSet(), searchResult.map { it.id }.toSet())
+        }
+    }
 }
