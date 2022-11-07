@@ -8,10 +8,7 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
-import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
-import com.anahoret.imagilabsapi.students.domain.StudentAccessService
-import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachingmaterials.domain.TeacherLessonService
 import org.springframework.stereotype.Service
 import java.util.*
@@ -31,7 +28,6 @@ class TeacherDeleteUseCaseImpl(
     private val projectService: ProjectService,
     private val classroomService: ClassroomService,
     private val teacherLessonService: TeacherLessonService,
-    private val projectClassroomShareService: ProjectClassroomShareService
 ) : TeacherDeleteUseCase {
 
     @Transactional(rollbackOn = [Throwable::class])
