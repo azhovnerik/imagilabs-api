@@ -182,7 +182,7 @@ class ProjectEntityRepositoryTest {
             projectClassroomShareEntityRepository.deleteAllByProjectIdIn(ownerProjectIds)
             projectEntityRepository.deleteAllByOwnerId(ownerId)
             val searchResult = projectEntityRepository.search(ownerId, null, null, Pageable.unpaged())
-            assertNotEquals(ownerProjectIds.toSet(), searchResult.map { it.id }.toSet())
+            assertTrue(searchResult.isEmpty())
         }
 
         @Test
@@ -190,7 +190,7 @@ class ProjectEntityRepositoryTest {
             projectClassroomShareEntityRepository.deleteAllByProjectIdIn(nonOwnerProjectIds)
             projectEntityRepository.deleteAllById(nonOwnerProjectIds)
             val searchResult = projectEntityRepository.search(nonOwnerId, null, null, Pageable.unpaged())
-            assertNotEquals(nonOwnerProjectIds.toSet(), searchResult.map { it.id }.toSet())
+            assertTrue(searchResult.isEmpty())
         }
     }
 }

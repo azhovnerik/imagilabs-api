@@ -11,8 +11,7 @@ import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 import com.anahoret.imagilabsapi.users.UserType
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.*
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.*
 
@@ -154,15 +153,15 @@ class ProjectClassroomShareEntityRepositoryTest {
         @Test
         fun `should delete projects by ownerId`() {
             projectClassroomShareEntityRepository.deleteAllByProjectIdIn(sansaProjectIds)
-            val searchResult = projectClassroomShareEntityRepository.search(classroom1Id, sansaId, null)
-            assertNotEquals(sansaProjectIds.toSet(), searchResult.map { it.projectId }.toSet())
+            val searchResult = projectClassroomShareEntityRepository.search(classroom1Id, sansaId, null).map { it.projectId }.toSet()
+            assertTrue(searchResult.isEmpty())
         }
 
         @Test
         fun `should delete projects by classroomId`() {
             projectClassroomShareEntityRepository.deleteAllByClassroomId(classroom2Id)
             val searchResult = projectClassroomShareEntityRepository.search(classroom2Id, null, null).map { it.projectId }.toSet()
-            assertNotEquals(classroom2ProjectIds.toSet(), searchResult)
+            assertTrue(searchResult.isEmpty())
         }
     }
 

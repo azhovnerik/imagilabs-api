@@ -7,6 +7,7 @@ import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 
 import com.anahoret.imagilabsapi.spring.ImagiLabsDatabaseTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -69,7 +70,8 @@ class StudentProfileEntityRepositoryTest {
         fun `should delete students by ids`() {
             assertEquals(classroomStudentIds, studentProfileEntityRepository.findAllByClassroomId(classroomId).map { it.id })
             studentProfileEntityRepository.deleteByIdIn(classroomStudentIds)
-            assertEquals(listOf<UUID>(), studentProfileEntityRepository.findAllByClassroomId(classroomId).map { it.id })
+            val result = studentProfileEntityRepository.findAllByClassroomId(classroomId).map { it.id }
+            assertTrue(result.isEmpty())
         }
     }
 }
