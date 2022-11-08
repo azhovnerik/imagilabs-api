@@ -5,24 +5,20 @@ import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.security.UserRole
-import com.anahoret.imagilabsapi.teachers.domain.TeacherGetUseCase
-import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
-import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileAdminView
-import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
+import com.anahoret.imagilabsapi.students.domain.StudentDeleteUseCase
+import com.anahoret.imagilabsapi.teachers.domain.*
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
 class TeacherProfileController(
     private val teacherProfileService: TeacherProfileService,
-    private val teacherGetUseCase: TeacherGetUseCase
+    private val teacherGetUseCase: TeacherGetUseCase,
+    private val teacherDeleteUseCase: TeacherDeleteUseCase
 ) {
 
     @Secured(UserRole.teacher, UserRole.teacherEmailNotVerified)
@@ -51,4 +47,15 @@ class TeacherProfileController(
         }
     }
 
+    @Secured(UserRole.teacher)
+    @DeleteMapping("/api/teachers/{teacherId}")
+    fun deleteTeacher(
+        @PathVariable teacherId: UUID,
+        @AuthenticationPrincipal teacherProfile: TeacherProfile
+    ): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = teacherDeleteUseCase.delete(teacherProfile, teacherId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok().build()
+        }
+    }
 }

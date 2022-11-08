@@ -9,8 +9,7 @@ import com.anahoret.imagilabsapi.spring.ImagiLabsDatabaseTest
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 import com.anahoret.imagilabsapi.users.UserType
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -178,6 +177,20 @@ class ProjectEntityRepositoryTest {
             assertTrue(searchResult.isEmpty())
         }
 
-    }
+        @Test
+        fun `should delete projects by ownerId`() {
+            projectClassroomShareEntityRepository.deleteAllByProjectIdIn(ownerProjectIds)
+            projectEntityRepository.deleteAllByOwnerId(ownerId)
+            val searchResult = projectEntityRepository.search(ownerId, null, null, Pageable.unpaged())
+            assertTrue(searchResult.isEmpty())
+        }
 
+        @Test
+        fun `should delete projects by projectIds`() {
+            projectClassroomShareEntityRepository.deleteAllByProjectIdIn(nonOwnerProjectIds)
+            projectEntityRepository.deleteAllById(nonOwnerProjectIds)
+            val searchResult = projectEntityRepository.search(nonOwnerId, null, null, Pageable.unpaged())
+            assertTrue(searchResult.isEmpty())
+        }
+    }
 }

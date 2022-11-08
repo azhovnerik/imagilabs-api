@@ -21,6 +21,7 @@ interface TeacherProfileService {
     fun listAllForAdmin(searchQuery: String?, sort: Sort): List<TeacherProfileAdminView>
     fun listForAdmin(excludeIds: List<UUID>, sort: Sort): List<TeacherProfileAdminView>
     fun setPassword(email: String, newPassword: String)
+    fun delete(teacherId: UUID)
 }
 
 @Service
@@ -103,4 +104,7 @@ class TeacherProfileServiceImpl(
             }
     }
 
+    override fun delete(teacherId: UUID) {
+        teacherProfileEntityRepository.deleteById(teacherId)
+    }
 }
