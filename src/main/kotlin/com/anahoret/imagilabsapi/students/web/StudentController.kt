@@ -70,4 +70,9 @@ class StudentController(
         }
     }
 
+    @Secured(UserRole.student)
+    @GetMapping("/api/student/profile/me")
+    fun getProfile(@AuthenticationPrincipal studentProfile: StudentProfile): SuccessResponseDto<StudentProfile> {
+        return SuccessResponseDto(studentProfile)
+    }
 }
