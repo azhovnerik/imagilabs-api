@@ -44,8 +44,8 @@ class StudentCredentialsCardsPdfGeneratorImpl : StudentCredentialsCardsPdfGenera
 
         val imagiLogo = PDImageXObject.createFromByteArray(
             document,
-            ClassPathResource("images/imagi_logo_black.png").inputStream.readAllBytes(),
-            "images/imagi_logo_black.png"
+            ClassPathResource("images/imagi_edu_logo.png").inputStream.readAllBytes(),
+            "images/imagi_edu_logo.png"
         )
 
         val sayNoEvilEmoji = PDImageXObject.createFromByteArray(
@@ -120,12 +120,12 @@ class StudentCredentialsCardsPdfGeneratorImpl : StudentCredentialsCardsPdfGenera
         imagiLogo: PDImageXObject,
         rectangle: PDRectangle
     ) {
-        val imageSize = 65f
+        val imageSize = 45f
         stream.drawImage(
             imagiLogo,
-            rectangle.lowerLeftX + 15f,
-            rectangle.lowerLeftY + 40f,
-            imageSize * 1.5f,
+            rectangle.lowerLeftX + 40f,
+            rectangle.lowerLeftY + 50f,
+            imageSize,
             imageSize
         )
     }
@@ -180,7 +180,7 @@ class StudentCredentialsCardsPdfGeneratorImpl : StudentCredentialsCardsPdfGenera
         stream.setFont(textFont, credentialsFontSize)
         stream.setLeading(14.5f)
 
-        val credentialsX = cardCenterX - 20
+        val credentialsX = cardCenterX - 30
         val credentialsY = rectangle.upperRightY - 50
 
         stream.newLineAtOffset(credentialsX, credentialsY)
