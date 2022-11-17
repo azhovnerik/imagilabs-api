@@ -19,7 +19,7 @@ class TeacherEmailVerificationCodeSenderUseCaseImpl(
         emailService.sendAsync(
             emailProperties.noReplyAddress,
             email,
-            "Edu Imagilabs email verification",
+            "imagi Edu email verification",
             "Verification code: ${code.uppercase()}"
         )
     }
