@@ -19,7 +19,7 @@ class TeacherPasswordResetCodeSenderUseCaseImpl(
         emailService.sendAsync(
             emailProperties.noReplyAddress,
             email,
-            "Edu Imagilabs password reset",
+            "imagi Edu password reset",
             "Verification code: ${code.uppercase()}"
         )
     }
