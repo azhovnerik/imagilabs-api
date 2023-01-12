@@ -128,6 +128,7 @@ teacher_projects AS (
 SELECT teacher_profiles.id AS teacher_id,
     teacher_profiles.email AS email,
     teacher_profiles.created_at AS creation_date,
+    teacher_profiles.email_verified AS email_verified,
     teacher_profile.number_of_classes AS number_of_classes,
     COALESCE(teacher_projects.number_of_draft_projects, 0) AS number_of_draft_projects,
     COALESCE(teacher_projects.number_of_shared_projects, 0) AS number_of_shared_projects,
