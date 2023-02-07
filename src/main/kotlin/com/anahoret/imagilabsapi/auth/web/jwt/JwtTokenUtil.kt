@@ -28,7 +28,7 @@ class JwtTokenUtil(
         userType: UserType,
         tokenTTL: Duration = jwtProperties.ttlWeb
     ): JwtTokenData {
-        val expiresAt = ZonedDateTime.now().plus(tokenTTL)
+        val expiresAt = (ZonedDateTime.now().plusSeconds(20)) //ZonedDateTime.now().plus(tokenTTL) //changing this to test unauthorized state on the app side
         val token = JWT.create()
             .withSubject(userId.toString())
             .withExpiresAt(expiresAt)
