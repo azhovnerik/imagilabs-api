@@ -10,6 +10,7 @@ import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
 import java.util.*
 import javax.transaction.Transactional
+import com.anahoret.imagilabsapi.utils.Constants.CLASSROOM_LIMIT
 
 interface ClassroomCreateUseCase {
 
@@ -43,7 +44,7 @@ class ClassroomCreateUseCaseImpl(
     }
 
     private fun checkTeacherClassesMaxCount(teacherProfile: TeacherProfile): Either<List<ValidationError>, Unit> {
-        return if (classroomService.countByTeacher(teacherProfile.id) >= 10) {
+        return if (classroomService.countByTeacher(teacherProfile.id) >= CLASSROOM_LIMIT) {
             listOf(ValidationError("TEACHER_CLASSES_COUNT_LIMIT_EXCEEDED")).left()
         } else {
             Unit.right()
