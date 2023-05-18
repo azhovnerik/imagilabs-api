@@ -1,22 +1,26 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val arrowKtVersion = "1.0.1"
-val cucumberVersion = "7.2.3"
-val googleAuthVersion = "1.6.0"
-val googleSheetsApiVersion = "v4-rev20220322-1.32.1"
-val javaJwtVersion = "3.19.1"
-val pdfBoxVersion = "2.0.25"
-val springDocVersion = "1.6.7"
-val testcontainersVersion = "1.16.2"
+val arrowKtVersion = "1.1.5"
+val cucumberVersion = "7.12.0"
+val googleAuthVersion = "1.16.0"
+val googleSheetsApiVersion = "v4-rev612-1.25.0"
+val javaJwtVersion = "4.4.0"
+val mockitoVersion = "5.2.0"
+val mockkVersion = "1.13.4"
+val pdfBoxVersion = "2.0.28"
+val springDocVersion = "1.7.0"
+val springmockkVersion = "4.0.2"
+val testcontainersVersion = "1.18.1"
+
 
 plugins {
-    id("org.springframework.boot") version "2.6.3"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.6.10"
-    kotlin("plugin.allopen") version "1.6.10"
-    kotlin("plugin.spring") version "1.6.10"
-    kotlin("plugin.jpa") version "1.6.10"
-    kotlin("kapt") version "1.6.10"
+    id("org.springframework.boot") version "3.0.6"
+    id("io.spring.dependency-management") version "1.1.0"
+    kotlin("jvm") version "1.8.21"
+    kotlin("plugin.allopen") version "1.8.21"
+    kotlin("plugin.spring") version "1.8.21"
+    kotlin("plugin.jpa") version "1.8.21"
+    kotlin("kapt") version "1.8.21"
 }
 
 allOpen {
@@ -27,7 +31,7 @@ allOpen {
 
 group = "com.anahoret"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_11
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 configurations {
     compileOnly {
@@ -85,10 +89,13 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
-    testImplementation("org.junit.vintage:junit-vintage-engine")
+//    testImplementation("org.junit.vintage:junit-vintage-engine")
     testImplementation("io.cucumber:cucumber-java")
     testImplementation("io.cucumber:cucumber-junit")
     testImplementation("io.cucumber:cucumber-spring")
+    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("org.mockito:mockito-core:$mockitoVersion")
+    implementation("com.ninja-squad:springmockk:$springmockkVersion")
 
 }
 
@@ -103,7 +110,7 @@ dependencyManagement {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 }
 
