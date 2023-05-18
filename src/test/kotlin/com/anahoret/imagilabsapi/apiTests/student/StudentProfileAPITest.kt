@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.apiTests.student
 
+import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
 import com.anahoret.imagilabsapi.students.web.StudentController
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ImagiLabsTestPropertySource
 @DisplayName("When student tries to fetch profile")
 class StudentProfileAPITest (
     @Autowired private val mockMvc: MockMvc

@@ -4,6 +4,7 @@ import com.anahoret.imagilabsapi.auth.web.AuthenticationController
 import com.anahoret.imagilabsapi.auth.web.RequestAuthenticatorService
 import com.anahoret.imagilabsapi.signup.domain.TeacherEmailVerificationCodeSenderUseCaseImpl
 import com.anahoret.imagilabsapi.signup.web.TeacherSignupController
+import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
 import com.anahoret.imagilabsapi.teachers.domain.TeacherPasswordResetCodeSenderUseCaseImpl
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import org.junit.jupiter.api.DisplayName
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ImagiLabsTestPropertySource
 @DisplayName("When teacher tries to sign up")
 class TeacherSignUpAPITest (
     @Autowired private val mockMvc: MockMvc

@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.apiTests.teacher
 
+import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 import com.anahoret.imagilabsapi.teachers.web.TeacherProfileController
@@ -18,6 +19,7 @@ import java.util.*
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ImagiLabsTestPropertySource
 @DisplayName("When teacher tries to delete their account")
 class TeacherDeleteAccountAPITest (
     @Autowired private val mockMvc: MockMvc
