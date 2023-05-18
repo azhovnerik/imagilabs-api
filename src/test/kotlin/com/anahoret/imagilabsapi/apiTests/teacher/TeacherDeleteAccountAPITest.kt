@@ -41,7 +41,17 @@ class TeacherDeleteAccountAPITest (
 
     private fun setupTeacher() {
         teacherProfileEntity = teacherProfileEntityRepository.save(
-            TeacherProfileEntity("teacher2@mail.com", "", "Teacher", "Edu", "Sweden", "imagi", "other", true)
+            TeacherProfileEntity(
+                email = "teacher2@mail.com",
+                passwordHash = "",
+                firstName = "Teacher",
+                lastName = "Edu",
+                country = "Sweden",
+                organization = "imagi",
+                howDidYouHearAboutUs = "other",
+                howDidYouHearAboutUsOther = "other way",
+                marketingEmailSubscribed = true
+            )
         )
         teacherId = teacherProfileEntity.id!!
     }

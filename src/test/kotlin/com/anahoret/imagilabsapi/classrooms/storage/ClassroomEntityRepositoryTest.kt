@@ -35,7 +35,7 @@ class ClassroomEntityRepositoryTest {
 
     private fun setupTeacher() {
         teacherId = teacherProfileEntityRepository.save(
-            TeacherProfileEntity("teacher4@mail.com", "", "Eddard", "Stark", "", "", "", true)
+            TeacherProfileEntity("teacher4@mail.com", "", "Eddard", "Stark", "", "", "", "", true)
         ).id!!
     }
 

@@ -1,10 +1,9 @@
 package com.anahoret.imagilabsapi.security
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
+import org.springframework.boot.context.properties.bind.ConstructorBinding
 
-@ConstructorBinding
 @ConfigurationProperties("cors")
-class CorsSettings(
+class CorsSettings @ConstructorBinding constructor(
     val allowedOrigins: Array<String>
 )

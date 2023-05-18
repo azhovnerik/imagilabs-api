@@ -10,7 +10,7 @@ val javaJwtVersion = "4.4.0"
 val mockitoVersion = "5.2.0"
 val mockkVersion = "1.13.4"
 val pdfBoxVersion = "2.0.28"
-val springDocVersion = "1.7.0"
+val springDocVersion = "2.0.4"
 val springmockkVersion = "4.0.2"
 val testcontainersVersion = "1.18.1"
 
@@ -27,9 +27,9 @@ plugins {
 }
 
 allOpen {
-    annotation("javax.persistence.Entity")
-    annotation("javax.persistence.MappedSuperclass")
-    annotation("javax.persistence.Embeddable")
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
 }
 
 group = "com.anahoret"
@@ -52,7 +52,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.springdoc:springdoc-openapi-kotlin")
 
     // Utils
     implementation("io.arrow-kt:arrow-core:$arrowKtVersion")
@@ -84,8 +83,10 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    implementation("org.springdoc:springdoc-openapi-ui")
-    implementation("org.springdoc:springdoc-openapi-security")
+
+    // Documentation
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
+    implementation("org.springdoc:springdoc-openapi-starter-common:$springDocVersion")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -105,7 +106,6 @@ dependencyManagement {
     imports {
         mavenBom("org.testcontainers:testcontainers-bom:$testcontainersVersion")
         mavenBom("io.cucumber:cucumber-bom:$cucumberVersion")
-        mavenBom("org.springdoc:springdoc-openapi:$springDocVersion")
     }
 }
 

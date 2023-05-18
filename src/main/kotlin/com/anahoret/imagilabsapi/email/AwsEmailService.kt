@@ -4,8 +4,8 @@ import org.springframework.context.annotation.Profile
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
-import javax.mail.Message
-import javax.mail.internet.InternetAddress
+import jakarta.mail.Message
+import jakarta.mail.internet.InternetAddress
 
 @Service
 @Profile("prod", "stage")

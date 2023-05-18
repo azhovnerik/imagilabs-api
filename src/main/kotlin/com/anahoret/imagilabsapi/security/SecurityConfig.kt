@@ -34,25 +34,25 @@ class SecurityConfig(
             .and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            .authorizeRequests()
+            .authorizeHttpRequests()
             // Index
-            .antMatchers(HttpMethod.GET, "/").permitAll()
+            .requestMatchers(HttpMethod.GET, "/").permitAll()
 
             // Auth
-            .antMatchers(HttpMethod.POST, "/api/auth/teacher").permitAll()
-            .antMatchers(HttpMethod.POST, "/api/auth/student").permitAll()
-            .antMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
-            .antMatchers(HttpMethod.POST, "/api/auth/teacher/forgot-password").permitAll()
-            .antMatchers(HttpMethod.POST, "/api/auth/teacher/reset-password").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/teacher").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/student").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/teacher/forgot-password").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/teacher/reset-password").permitAll()
 
             // Sign up
-            .antMatchers(HttpMethod.POST, "/api/sign-up/teacher").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/sign-up/teacher").permitAll()
 
             // Swagger Documentation
-            .antMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
-            .antMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
-            .antMatchers(HttpMethod.GET, "/v3/api-docs").permitAll()
-            .antMatchers(HttpMethod.GET, "/v3/api-docs/swagger-config").permitAll()
+            .requestMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
+            .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/v3/api-docs").permitAll()
+            .requestMatchers(HttpMethod.GET, "/v3/api-docs/swagger-config").permitAll()
             .anyRequest().authenticated()
 
         http.addFilterBefore(authorizationTokenFilter, UsernamePasswordAuthenticationFilter::class.java)

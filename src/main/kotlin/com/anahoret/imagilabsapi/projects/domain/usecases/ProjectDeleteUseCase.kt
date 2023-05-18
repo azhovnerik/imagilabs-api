@@ -12,7 +12,7 @@ import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import org.springframework.stereotype.Service
 import java.util.*
-import javax.transaction.Transactional
+import jakarta.transaction.Transactional
 
 interface ProjectDeleteUseCase {
 
