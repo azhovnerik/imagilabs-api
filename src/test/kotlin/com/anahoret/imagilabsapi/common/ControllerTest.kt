@@ -62,7 +62,19 @@ abstract class ControllerTest {
 
     fun MockHttpServletRequestBuilder.asTeacher(): MockHttpServletRequestBuilder {
         val userId = UUID.randomUUID()
-        val teacherProfile = TeacherProfile(userId, "John", "Snow", "johnsnow@winterfell.com", "Westeros", "Starks", 0L, true, false)
+        val teacherProfile = TeacherProfile(
+            id = userId,
+            firstName = "John",
+            lastName = "Snow",
+            email = "johnsnow@winterfell.com",
+            country = "Westeros",
+            organization = "Starks",
+            createdAt = 0L,
+            emailVerified = true,
+            marketingEmailSubscribed = false,
+            subscriptionStart = null,
+            subscriptionEnd = null
+        )
         every { teacherProfileService.getTeacherById(userId) } returns teacherProfile
         every { authorityService.getAuthorities(teacherProfile) } returns listOf(SimpleGrantedAuthority(UserRole.teacher))
         val token = jwtTokenUtil.createToken(userId, UserType.TEACHER)

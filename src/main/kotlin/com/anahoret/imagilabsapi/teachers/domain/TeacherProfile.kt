@@ -5,7 +5,7 @@ import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.users.UserType
 import java.util.*
 
-@Suppress("MemberVisibilityCanBePrivate", "CanBeParameter")
+@Suppress("MemberVisibilityCanBePrivate")
 class TeacherProfile(
     override val id: UUID,
     val firstName: String,
@@ -15,7 +15,9 @@ class TeacherProfile(
     val organization: String,
     val createdAt: Long,
     val emailVerified: Boolean,
-    val marketingEmailSubscribed: Boolean
+    val marketingEmailSubscribed: Boolean,
+    val subscriptionStart: Long?,
+    val subscriptionEnd: Long?
 ) : UserProfile {
 
     override val userType = UserType.TEACHER
@@ -25,7 +27,19 @@ class TeacherProfile(
 
         fun fromEntity(entity: TeacherProfileEntity): TeacherProfile {
             return with(entity) {
-                TeacherProfile(id!!, firstName, lastName, email, country, organization, createdAt ?: 0, emailVerified, marketingEmailSubscribed)
+                TeacherProfile(
+                    id!!,
+                    firstName,
+                    lastName,
+                    email,
+                    country,
+                    organization,
+                    createdAt ?: 0,
+                    emailVerified,
+                    marketingEmailSubscribed,
+                    subscriptionStart,
+                    subscriptionEnd
+                )
             }
         }
     }
