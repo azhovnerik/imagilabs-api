@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.apiTests.profile
 import com.anahoret.imagilabsapi.auth.web.AuthenticationController
 import com.anahoret.imagilabsapi.auth.web.RequestAuthenticatorService
 import com.anahoret.imagilabsapi.signup.domain.TeacherEmailVerificationCodeSenderUseCaseImpl
+import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
 import com.anahoret.imagilabsapi.teachers.domain.TeacherPasswordResetCodeSenderUseCaseImpl
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.teachers.web.TeacherProfileController
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ImagiLabsTestPropertySource
 @DisplayName("When teacher tries to fetch profile")
 class TeacherProfileAPITest (
     @Autowired private val mockMvc: MockMvc

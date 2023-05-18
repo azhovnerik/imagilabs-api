@@ -5,7 +5,7 @@ import com.anahoret.imagilabsapi.projectclassroomshare.storage.ProjectClassroomS
 import com.anahoret.imagilabsapi.projectclassroomshare.storage.ProjectClassroomShareEntityRepository
 import org.springframework.stereotype.Service
 import java.util.*
-import javax.transaction.Transactional
+import jakarta.transaction.Transactional
 
 interface ProjectClassroomShareService {
 

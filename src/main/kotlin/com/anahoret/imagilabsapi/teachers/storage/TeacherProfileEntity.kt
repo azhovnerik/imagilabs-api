@@ -1,9 +1,9 @@
 package com.anahoret.imagilabsapi.teachers.storage
 
 import com.anahoret.imagilabsapi.common.storage.BaseEntity
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Table
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Table
 
 @Suppress("unused")
 @Entity
@@ -29,6 +29,9 @@ class TeacherProfileEntity(
 
     @Column(name = "how_did_you_hear_about_us", nullable = false)
     var howDidYouHearAboutUs: String,
+
+    @Column(name = "how_did_you_hear_about_us_other")
+    var howDidYouHearAboutUsOther: String?,
 
     @Column(name = "marketing_email_subscribed", nullable = false)
     var marketingEmailSubscribed: Boolean,

@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.apiTests.classroom
 
 import com.anahoret.imagilabsapi.classrooms.web.ClassroomController
+import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,6 +16,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ImagiLabsTestPropertySource
 @DisplayName("When teacher tries to create a classroom")
 class ClassroomCreateAPITest (
     @Autowired private val mockMvc: MockMvc

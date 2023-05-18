@@ -8,7 +8,7 @@ import com.anahoret.imagilabsapi.common.domain.validation.ValidationErrors
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import org.springframework.stereotype.Service
 import java.util.*
-import javax.transaction.Transactional
+import jakarta.transaction.Transactional
 
 interface TeacherLessonsUpdateUseCase {
 

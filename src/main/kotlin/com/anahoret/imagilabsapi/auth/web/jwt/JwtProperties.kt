@@ -2,12 +2,11 @@ package com.anahoret.imagilabsapi.auth.web.jwt
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
+import org.springframework.boot.context.properties.bind.ConstructorBinding
 import java.time.Duration
 
-@ConstructorBinding
 @ConfigurationProperties(prefix = "jwt")
-class JwtProperties(
+class JwtProperties @ConstructorBinding constructor(
     // Need to get JWT_SECRET from here instead of application.yml because of this issue
     // https://github.com/spring-projects/spring-boot/issues/8693
     @Value("\${JWT_SECRET}") val secret: String,

@@ -31,6 +31,10 @@ class ImagiLabsAuthenticationToken(
         }
     }
 
+    override fun isAuthenticated(): Boolean {
+        return true
+    }
+
     override fun getCredentials(): Any? {
         return credentials
     }

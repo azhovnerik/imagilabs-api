@@ -16,7 +16,7 @@ import java.net.URLEncoder
 import java.time.Duration
 import java.time.Instant
 import java.util.*
-import javax.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpServletResponse
 
 interface RequestAuthenticatorService {
 

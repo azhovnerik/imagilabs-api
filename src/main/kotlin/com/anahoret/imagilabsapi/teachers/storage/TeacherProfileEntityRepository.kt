@@ -1,11 +1,12 @@
 package com.anahoret.imagilabsapi.teachers.storage
 
 import org.springframework.data.domain.Sort
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.PagingAndSortingRepository
 import java.util.*
 
-interface TeacherProfileEntityRepository : PagingAndSortingRepository<TeacherProfileEntity, UUID> {
+interface TeacherProfileEntityRepository : JpaRepository<TeacherProfileEntity, UUID> {
 
     fun findByEmail(email: String): TeacherProfileEntity?
     fun existsByEmail(email: String): Boolean

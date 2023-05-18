@@ -3,10 +3,10 @@ package com.anahoret.imagilabsapi.documentation
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.security.SecurityScheme
-import org.springdoc.core.PropertyResolverUtils
-import org.springdoc.core.SecurityService
-import org.springdoc.core.SpringDocUtils
 import org.springdoc.core.customizers.OperationCustomizer
+import org.springdoc.core.service.SecurityService
+import org.springdoc.core.utils.PropertyResolverUtils
+import org.springdoc.core.utils.SpringDocUtils
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.AnnotationUtils

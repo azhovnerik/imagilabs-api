@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.apiTests.admin
 
+import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,6 +13,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ImagiLabsTestPropertySource
 @DisplayName("When admin tries to fetch teachers")
 class AdminGetTeachersAPITest (
     @Autowired private val mockMvc: MockMvc

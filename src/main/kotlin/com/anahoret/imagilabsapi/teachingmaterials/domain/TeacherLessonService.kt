@@ -4,7 +4,7 @@ import com.anahoret.imagilabsapi.teachingmaterials.storage.TeacherLessonEntity
 import com.anahoret.imagilabsapi.teachingmaterials.storage.TeacherLessonEntityRepository
 import org.springframework.stereotype.Service
 import java.util.*
-import javax.persistence.EntityManager
+import jakarta.persistence.EntityManager
 
 interface TeacherLessonService {
 
