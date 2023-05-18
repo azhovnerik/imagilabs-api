@@ -1,3 +1,5 @@
+import com.anahoret.gradle.plugin.metrics.CodeMetricsPlugin
+import com.anahoret.gradle.plugin.metrics.CodeMetricsPluginExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val arrowKtVersion = "1.1.5"
@@ -16,6 +18,7 @@ val testcontainersVersion = "1.18.1"
 plugins {
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
+    id("jacoco")
     kotlin("jvm") version "1.8.21"
     kotlin("plugin.allopen") version "1.8.21"
     kotlin("plugin.spring") version "1.8.21"
@@ -123,4 +126,10 @@ tasks.withType<Test> {
 
 tasks.getByName<Jar>("jar") {
     enabled = false
+}
+
+apply<CodeMetricsPlugin>()
+
+configure<CodeMetricsPluginExtension> {
+    projectId.set(178)
 }
