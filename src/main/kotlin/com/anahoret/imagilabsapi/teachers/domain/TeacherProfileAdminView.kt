@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.teachers.domain
 
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import java.util.*
 
@@ -16,13 +17,12 @@ class TeacherProfileAdminView(
     val marketingEmailSubscribed: Boolean,
     val createdAt: Long,
     val lastModifiedAt: Long,
-    val subscriptionStart: Long?,
-    val subscriptionEnd: Long?
+    val subscription: TeacherSubscription
 ) {
 
     companion object {
 
-        fun fromEntity(entity: TeacherProfileEntity): TeacherProfileAdminView {
+        fun fromEntity(entity: TeacherProfileEntity, subscription: TeacherSubscription): TeacherProfileAdminView {
             return with(entity) {
                 TeacherProfileAdminView(
                     id!!,
@@ -36,8 +36,7 @@ class TeacherProfileAdminView(
                     marketingEmailSubscribed,
                     createdAt ?: 0,
                     lastModifiedAt?: 0,
-                    subscriptionStart,
-                    subscriptionEnd
+                    subscription
                 )
             }
         }

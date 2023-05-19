@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.teachers.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.users.UserType
 import java.util.*
@@ -16,8 +17,7 @@ class TeacherProfile(
     val createdAt: Long,
     val emailVerified: Boolean,
     val marketingEmailSubscribed: Boolean,
-    val subscriptionStart: Long?,
-    val subscriptionEnd: Long?
+    val subscription: TeacherSubscription
 ) : UserProfile {
 
     override val userType = UserType.TEACHER
@@ -25,7 +25,7 @@ class TeacherProfile(
 
     companion object {
 
-        fun fromEntity(entity: TeacherProfileEntity): TeacherProfile {
+        fun fromEntity(entity: TeacherProfileEntity, subscription: TeacherSubscription): TeacherProfile {
             return with(entity) {
                 TeacherProfile(
                     id!!,
@@ -37,8 +37,7 @@ class TeacherProfile(
                     createdAt ?: 0,
                     emailVerified,
                     marketingEmailSubscribed,
-                    subscriptionStart,
-                    subscriptionEnd
+                    subscription
                 )
             }
         }
