@@ -1,0 +1,16 @@
+name: Publish code metrics
+on:
+  push:
+    branches:
+      - master
+jobs:
+  Publish-Code-Metrics:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+      - run: ./gradlew test publishMetrics --no-daemon
