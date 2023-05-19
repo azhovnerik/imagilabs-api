@@ -10,6 +10,8 @@ import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.users.UserType
@@ -72,8 +74,7 @@ abstract class ControllerTest {
             createdAt = 0L,
             emailVerified = true,
             marketingEmailSubscribed = false,
-            subscriptionStart = null,
-            subscriptionEnd = null
+            subscription = TeacherSubscription(null, null, TeacherSubscriptionPlan.STANDARD)
         )
         every { teacherProfileService.getTeacherById(userId) } returns teacherProfile
         every { authorityService.getAuthorities(teacherProfile) } returns listOf(SimpleGrantedAuthority(UserRole.teacher))

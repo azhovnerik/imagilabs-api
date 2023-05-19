@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.teachers.domain
 
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 import org.springframework.data.domain.Sort
@@ -27,7 +28,8 @@ interface TeacherProfileService {
 @Service
 class TeacherProfileServiceImpl(
     private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val teacherSubscriptionService: TeacherSubscriptionService
 ) : TeacherProfileService {
 
     override fun createTeacher(request: TeacherSignupRequest): TeacherProfile {
@@ -44,30 +46,50 @@ class TeacherProfileServiceImpl(
                     howDidYouHearAboutUsOther,
                     marketingEmailSubscribed,
                 )
-            ).let(TeacherProfile.Companion::fromEntity)
+            ).let {
+                val subscription =
+                    teacherSubscriptionService.buildSubscriptionDto(it.subscriptionStart, it.subscriptionEnd)
+                TeacherProfile.fromEntity(it, subscription)
+            }
         }
     }
 
     override fun getTeacherById(id: UUID): TeacherProfile? {
         return teacherProfileEntityRepository.findByIdOrNull(id)
-            ?.let(TeacherProfile.Companion::fromEntity)
+            ?.let {
+                val subscription =
+                    teacherSubscriptionService.buildSubscriptionDto(it.subscriptionStart, it.subscriptionEnd)
+                TeacherProfile.fromEntity(it, subscription)
+            }
     }
 
     override fun getTeacherByIdForAdmin(id: UUID): TeacherProfileAdminView? {
         return teacherProfileEntityRepository.findByIdOrNull(id)
-            ?.let(TeacherProfileAdminView.Companion::fromEntity)
+            ?.let {
+                val subscription =
+                    teacherSubscriptionService.buildSubscriptionDto(it.subscriptionStart, it.subscriptionEnd)
+                TeacherProfileAdminView.fromEntity(it, subscription)
+            }
     }
 
     override fun listByIds(ids: Iterable<UUID>): List<TeacherProfile> {
         return teacherProfileEntityRepository.findAllById(ids)
-            .map(TeacherProfile.Companion::fromEntity)
+            .map {
+                val subscription =
+                    teacherSubscriptionService.buildSubscriptionDto(it.subscriptionStart, it.subscriptionEnd)
+                TeacherProfile.fromEntity(it, subscription)
+            }
     }
 
     override fun listAllForAdmin(searchQuery: String?, sort: Sort): List<TeacherProfileAdminView> {
         return (
             searchQuery?.let { teacherProfileEntityRepository.findAll(searchQuery, sort) }
                 ?: teacherProfileEntityRepository.findAll(sort)
-            ).map(TeacherProfileAdminView.Companion::fromEntity)
+            ).map {
+                val subscription =
+                    teacherSubscriptionService.buildSubscriptionDto(it.subscriptionStart, it.subscriptionEnd)
+                TeacherProfileAdminView.fromEntity(it, subscription)
+            }
     }
 
     override fun listForAdmin(excludeIds: List<UUID>, sort: Sort): List<TeacherProfileAdminView> {
@@ -76,7 +98,11 @@ class TeacherProfileServiceImpl(
         } else {
             teacherProfileEntityRepository.findAllByIdNotIn(excludeIds, sort)
         }
-        return teacherEntities.map(TeacherProfileAdminView.Companion::fromEntity)
+        return teacherEntities.map {
+            val subscription =
+                teacherSubscriptionService.buildSubscriptionDto(it.subscriptionStart, it.subscriptionEnd)
+            TeacherProfileAdminView.fromEntity(it, subscription)
+        }
     }
 
     override fun getTeacherCredentialsByEmail(email: String): TeacherCredentials? {
