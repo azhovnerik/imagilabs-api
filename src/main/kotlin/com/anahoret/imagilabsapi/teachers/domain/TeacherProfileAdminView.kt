@@ -15,7 +15,9 @@ class TeacherProfileAdminView(
     val emailVerified: Boolean,
     val marketingEmailSubscribed: Boolean,
     val createdAt: Long,
-    val lastModifiedAt: Long
+    val lastModifiedAt: Long,
+    val subscriptionStart: Long?,
+    val subscriptionEnd: Long?
 ) {
 
     companion object {
@@ -33,7 +35,9 @@ class TeacherProfileAdminView(
                     emailVerified,
                     marketingEmailSubscribed,
                     createdAt ?: 0,
-                    lastModifiedAt?: 0
+                    lastModifiedAt?: 0,
+                    subscriptionStart,
+                    subscriptionEnd
                 )
             }
         }

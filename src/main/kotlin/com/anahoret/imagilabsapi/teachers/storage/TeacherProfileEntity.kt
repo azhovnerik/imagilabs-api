@@ -43,5 +43,11 @@ class TeacherProfileEntity(
     var emailVerified: Boolean = false,
 
     @Column(name = "password_reset_code")
-    var passwordResetCode: String? = null
+    var passwordResetCode: String? = null,
+
+    @Column(name = "subscription_start")
+    var subscriptionStart: Long? = null,
+
+    @Column(name = "subscription_end")
+    var subscriptionEnd: Long? = null
 ) : BaseEntity()
