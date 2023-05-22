@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.teachers.storage
 
 import com.anahoret.imagilabsapi.common.storage.BaseEntity
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionData
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
@@ -46,8 +47,12 @@ class TeacherProfileEntity(
     var passwordResetCode: String? = null,
 
     @Column(name = "subscription_start")
-    var subscriptionStart: Long? = null,
+    override var subscriptionStart: Long? = null,
 
     @Column(name = "subscription_end")
-    var subscriptionEnd: Long? = null
-) : BaseEntity()
+    override var subscriptionEnd: Long? = null,
+
+    @Column(name = "subscription_canceled", nullable = false)
+    override var subscriptionCanceled: Boolean = false
+
+) : BaseEntity(), TeacherSubscriptionData
