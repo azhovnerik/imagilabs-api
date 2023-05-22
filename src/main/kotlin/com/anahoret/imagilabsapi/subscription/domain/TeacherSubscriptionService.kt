@@ -1,5 +1,7 @@
 package com.anahoret.imagilabsapi.subscription.domain
 
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -9,12 +11,15 @@ import java.util.*
 interface TeacherSubscriptionService {
     fun setPeriod(teacherId: UUID, start: Long, end: Long)
     fun buildSubscriptionDto(start: Long?, end: Long?): TeacherSubscription
+    fun canCreateClassroom(teacherProfile: TeacherProfile): Boolean
+    fun studentLimitPerClassExceeded(teacherProfile: TeacherProfile, studentCountInClassroom: Long): Boolean
 }
 
 @Service
 class TeacherSubscriptionServiceImpl(
     private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
-    private val clock: Clock
+    private val clock: Clock,
+    private val classroomService: ClassroomService
 ) : TeacherSubscriptionService {
     override fun setPeriod(teacherId: UUID, start: Long, end: Long) {
         teacherProfileEntityRepository.findByIdOrNull(teacherId)
@@ -31,6 +36,21 @@ class TeacherSubscriptionServiceImpl(
             TeacherSubscription(start, end, TeacherSubscriptionPlan.STANDARD)
         } else {
             TeacherSubscription(start, end, TeacherSubscriptionPlan.PRO)
+        }
+    }
+
+    override fun canCreateClassroom(teacherProfile: TeacherProfile): Boolean {
+        val currentClassCount = classroomService.countByTeacher(teacherProfile.id)
+        return when (teacherProfile.subscription.plan) {
+            TeacherSubscriptionPlan.STANDARD -> currentClassCount < TeacherSubscriptionLimits.Standard.CLASSROOMS
+            TeacherSubscriptionPlan.PRO -> currentClassCount < TeacherSubscriptionLimits.Pro.CLASSROOMS
+        }
+    }
+
+    override fun studentLimitPerClassExceeded(teacherProfile: TeacherProfile, studentCountInClassroom: Long): Boolean {
+        return when (teacherProfile.subscription.plan) {
+            TeacherSubscriptionPlan.STANDARD -> studentCountInClassroom <= TeacherSubscriptionLimits.Standard.STUDENTS_PER_CLASSROOM
+            TeacherSubscriptionPlan.PRO -> studentCountInClassroom <= TeacherSubscriptionLimits.Pro.STUDENTS_PER_CLASSROOM
         }
     }
 
