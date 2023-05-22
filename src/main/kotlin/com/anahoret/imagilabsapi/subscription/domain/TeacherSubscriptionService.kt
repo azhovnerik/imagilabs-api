@@ -10,9 +10,8 @@ import java.util.*
 
 interface TeacherSubscriptionService {
     fun setPeriod(teacherId: UUID, start: Long, end: Long)
-    fun buildSubscriptionDto(teacherSubscriptionData: TeacherSubscriptionData): TeacherSubscription
     fun cancelSubscription(teacherId: UUID)
-    fun buildSubscriptionDto(start: Long?, end: Long?): TeacherSubscription
+    fun buildSubscriptionDto(teacherSubscriptionData: TeacherSubscriptionData): TeacherSubscription
     fun canCreateClassroom(teacherProfile: TeacherProfile): Boolean
     fun studentLimitPerClassExceeded(teacherProfile: TeacherProfile, studentCountInClassroom: Long): Boolean
 }

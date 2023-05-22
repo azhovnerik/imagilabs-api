@@ -1,6 +1,5 @@
 package com.anahoret.imagilabsapi.subscription.domain
 
-import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
@@ -28,7 +27,7 @@ class TeacherSubscriptionServiceTest {
         classroomService
     )
 
-    private val teacherProfileEntity = mockk<TeacherProfileEntity>()
+    private val teacherProfileEntity = mockk<TeacherSubscriptionData>()
 
     @DisplayName("when build subscription DTO")
     @Nested
