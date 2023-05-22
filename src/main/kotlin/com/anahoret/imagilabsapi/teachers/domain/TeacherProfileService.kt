@@ -48,7 +48,7 @@ class TeacherProfileServiceImpl(
                 )
             ).let {
                 val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it.subscriptionStart, it.subscriptionEnd)
+                    teacherSubscriptionService.buildSubscriptionDto(it)
                 TeacherProfile.fromEntity(it, subscription)
             }
         }
@@ -58,7 +58,7 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findByIdOrNull(id)
             ?.let {
                 val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it.subscriptionStart, it.subscriptionEnd)
+                    teacherSubscriptionService.buildSubscriptionDto(it)
                 TeacherProfile.fromEntity(it, subscription)
             }
     }
@@ -67,7 +67,7 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findByIdOrNull(id)
             ?.let {
                 val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it.subscriptionStart, it.subscriptionEnd)
+                    teacherSubscriptionService.buildSubscriptionDto(it)
                 TeacherProfileAdminView.fromEntity(it, subscription)
             }
     }
@@ -76,7 +76,7 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findAllById(ids)
             .map {
                 val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it.subscriptionStart, it.subscriptionEnd)
+                    teacherSubscriptionService.buildSubscriptionDto(it)
                 TeacherProfile.fromEntity(it, subscription)
             }
     }
@@ -87,7 +87,7 @@ class TeacherProfileServiceImpl(
                 ?: teacherProfileEntityRepository.findAll(sort)
             ).map {
                 val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it.subscriptionStart, it.subscriptionEnd)
+                    teacherSubscriptionService.buildSubscriptionDto(it)
                 TeacherProfileAdminView.fromEntity(it, subscription)
             }
     }
@@ -100,7 +100,7 @@ class TeacherProfileServiceImpl(
         }
         return teacherEntities.map {
             val subscription =
-                teacherSubscriptionService.buildSubscriptionDto(it.subscriptionStart, it.subscriptionEnd)
+                teacherSubscriptionService.buildSubscriptionDto(it)
             TeacherProfileAdminView.fromEntity(it, subscription)
         }
     }

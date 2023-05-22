@@ -8,7 +8,8 @@ import java.util.*
 
 interface TeacherSubscriptionService {
     fun setPeriod(teacherId: UUID, start: Long, end: Long)
-    fun buildSubscriptionDto(start: Long?, end: Long?): TeacherSubscription
+    fun buildSubscriptionDto(teacherSubscriptionData: TeacherSubscriptionData): TeacherSubscription
+    fun cancelSubscription(teacherId: UUID)
 }
 
 @Service
@@ -25,14 +26,22 @@ class TeacherSubscriptionServiceImpl(
             }
     }
 
-    override fun buildSubscriptionDto(start: Long?, end: Long?): TeacherSubscription {
-        val now = clock.instant().toEpochMilli()
-        return if (start == null || end == null || now > end || now < start) {
-            TeacherSubscription(start, end, TeacherSubscriptionPlan.STANDARD)
-        } else {
-            TeacherSubscription(start, end, TeacherSubscriptionPlan.PRO)
+    override fun buildSubscriptionDto(teacherSubscriptionData: TeacherSubscriptionData): TeacherSubscription {
+        with(teacherSubscriptionData) {
+            val now = clock.instant().toEpochMilli()
+            return if (subscriptionStart == null || subscriptionEnd == null || now > subscriptionEnd!! || now < subscriptionStart!!) {
+                TeacherSubscription(subscriptionStart, subscriptionEnd, TeacherSubscriptionPlan.STANDARD, subscriptionCanceled)
+            } else {
+                TeacherSubscription(subscriptionStart, subscriptionEnd, TeacherSubscriptionPlan.PRO, subscriptionCanceled)
+            }
         }
     }
 
-
+    override fun cancelSubscription(teacherId: UUID) {
+        teacherProfileEntityRepository.findByIdOrNull(teacherId)
+            ?.let {
+                it.subscriptionCanceled = true
+                teacherProfileEntityRepository.save(it)
+            }
+    }
 }

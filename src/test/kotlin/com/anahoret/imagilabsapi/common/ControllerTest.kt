@@ -74,7 +74,7 @@ abstract class ControllerTest {
             createdAt = 0L,
             emailVerified = true,
             marketingEmailSubscribed = false,
-            subscription = TeacherSubscription(null, null, TeacherSubscriptionPlan.STANDARD)
+            subscription = TeacherSubscription(null, null, TeacherSubscriptionPlan.STANDARD, false)
         )
         every { teacherProfileService.getTeacherById(userId) } returns teacherProfile
         every { authorityService.getAuthorities(teacherProfile) } returns listOf(SimpleGrantedAuthority(UserRole.teacher))
