@@ -10,9 +10,9 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationErrors
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.*
-import jakarta.transaction.Transactional
 
 interface ClassroomUpdateUseCase {
 
@@ -44,7 +44,7 @@ class ClassroomUpdateUseCaseImpl(
         if (!classroomAccessService.canUpdateClassroom(updateBy, classroom))
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-        return classroomValidator.validate(classroomId, classroomUpdateRequest)
+        return classroomValidator.validate(updateBy, classroomId, classroomUpdateRequest)
             .mapLeft(::ValidationErrors)
             .flatMap { doUpdateClassroom(classroomId, classroomUpdateRequest) }
     }

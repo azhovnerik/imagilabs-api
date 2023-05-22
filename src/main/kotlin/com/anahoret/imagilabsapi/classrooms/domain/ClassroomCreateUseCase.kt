@@ -6,11 +6,11 @@ import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.*
-import jakarta.transaction.Transactional
-import com.anahoret.imagilabsapi.utils.Constants.CLASSROOM_LIMIT
 
 interface ClassroomCreateUseCase {
 
@@ -24,7 +24,8 @@ interface ClassroomCreateUseCase {
 class ClassroomCreateUseCaseImpl(
     private val classroomValidator: ClassroomValidator,
     private val classroomService: ClassroomService,
-    private val studentProfileService: StudentProfileService
+    private val studentProfileService: StudentProfileService,
+    private val teacherSubscriptionService: TeacherSubscriptionService
 ) : ClassroomCreateUseCase {
 
     @Transactional(rollbackOn = [Throwable::class])
@@ -32,7 +33,7 @@ class ClassroomCreateUseCaseImpl(
         teacherProfile: TeacherProfile,
         classroomCreateRequest: ClassroomCreateRequest
     ): Either<List<ValidationError>, Classroom> {
-        return classroomValidator.validate(classroomCreateRequest)
+        return classroomValidator.validate(teacherProfile, classroomCreateRequest)
             .flatMap { checkTeacherClassesMaxCount(teacherProfile) }
             .map { doCreateClassroom(teacherProfile.id, classroomCreateRequest) }
     }
@@ -44,10 +45,10 @@ class ClassroomCreateUseCaseImpl(
     }
 
     private fun checkTeacherClassesMaxCount(teacherProfile: TeacherProfile): Either<List<ValidationError>, Unit> {
-        return if (classroomService.countByTeacher(teacherProfile.id) >= CLASSROOM_LIMIT) {
-            listOf(ValidationError("TEACHER_CLASSES_COUNT_LIMIT_EXCEEDED")).left()
-        } else {
+        return if (teacherSubscriptionService.canCreateClassroom(teacherProfile)) {
             Unit.right()
+        } else {
+            listOf(ValidationError("TEACHER_CLASSES_COUNT_LIMIT_EXCEEDED")).left()
         }
     }
 }
