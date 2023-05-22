@@ -12,6 +12,7 @@ interface TeacherSubscriptionService {
     fun setPeriod(teacherId: UUID, start: Long, end: Long)
     fun buildSubscriptionDto(start: Long?, end: Long?): TeacherSubscription
     fun canCreateClassroom(teacherProfile: TeacherProfile): Boolean
+    fun studentLimitPerClassExceeded(teacherProfile: TeacherProfile, studentCountInClassroom: Long): Boolean
 }
 
 @Service
@@ -43,6 +44,13 @@ class TeacherSubscriptionServiceImpl(
         return when (teacherProfile.subscription.plan) {
             TeacherSubscriptionPlan.STANDARD -> currentClassCount < TeacherSubscriptionLimits.Standard.CLASSROOMS
             TeacherSubscriptionPlan.PRO -> currentClassCount < TeacherSubscriptionLimits.Pro.CLASSROOMS
+        }
+    }
+
+    override fun studentLimitPerClassExceeded(teacherProfile: TeacherProfile, studentCountInClassroom: Long): Boolean {
+        return when (teacherProfile.subscription.plan) {
+            TeacherSubscriptionPlan.STANDARD -> studentCountInClassroom <= TeacherSubscriptionLimits.Standard.STUDENTS_PER_CLASSROOM
+            TeacherSubscriptionPlan.PRO -> studentCountInClassroom <= TeacherSubscriptionLimits.Pro.STUDENTS_PER_CLASSROOM
         }
     }
 

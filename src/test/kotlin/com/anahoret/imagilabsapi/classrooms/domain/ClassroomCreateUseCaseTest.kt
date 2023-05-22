@@ -37,7 +37,7 @@ class ClassroomCreateUseCaseTest {
         val classroomCreateRequest = mockk<ClassroomCreateRequest>()
 
         every { teacherSubscriptionService.canCreateClassroom(teacherProfile) } returns false
-        every { classroomValidator.validate(classroomCreateRequest) } returns Unit.right()
+        every { classroomValidator.validate(teacherProfile, classroomCreateRequest) } returns Unit.right()
         val result = classroomCreateUseCase.create(teacherProfile, classroomCreateRequest)
         assertTrue(result.isLeft())
     }
@@ -50,7 +50,7 @@ class ClassroomCreateUseCaseTest {
         val classroomCreateRequest = mockk<ClassroomCreateRequest>()
 
         every { teacherSubscriptionService.canCreateClassroom(teacherProfile) } returns true
-        every { classroomValidator.validate(classroomCreateRequest) } returns mockk<List<ValidationError>>().left()
+        every { classroomValidator.validate(teacherProfile, classroomCreateRequest) } returns mockk<List<ValidationError>>().left()
         val result = classroomCreateUseCase.create(teacherProfile, classroomCreateRequest)
         assertTrue(result.isLeft())
     }
@@ -70,7 +70,7 @@ class ClassroomCreateUseCaseTest {
 
         every { studentProfileService.createStudents(classroom.id, studentCreateRequests) } returns listOf(mockk())
         every { teacherSubscriptionService.canCreateClassroom(teacherProfile) } returns true
-        every { classroomValidator.validate(classroomCreateRequest) } returns Unit.right()
+        every { classroomValidator.validate(teacherProfile, classroomCreateRequest) } returns Unit.right()
         every { classroomService.create(teacherProfile.id, classroomCreateRequest) } returns classroom
 
         val result = classroomCreateUseCase.create(teacherProfile, classroomCreateRequest)

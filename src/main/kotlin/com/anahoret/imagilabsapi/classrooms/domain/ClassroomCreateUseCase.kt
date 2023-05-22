@@ -33,7 +33,7 @@ class ClassroomCreateUseCaseImpl(
         teacherProfile: TeacherProfile,
         classroomCreateRequest: ClassroomCreateRequest
     ): Either<List<ValidationError>, Classroom> {
-        return classroomValidator.validate(classroomCreateRequest)
+        return classroomValidator.validate(teacherProfile, classroomCreateRequest)
             .flatMap { checkTeacherClassesMaxCount(teacherProfile) }
             .map { doCreateClassroom(teacherProfile.id, classroomCreateRequest) }
     }

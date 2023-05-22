@@ -128,4 +128,60 @@ class TeacherSubscriptionServiceTest {
 
     }
 
+    @DisplayName("when checking the ability to add students to classroom")
+    @Nested
+    inner class CheckAbilityToAddStudentsToClassroomTest {
+
+        @DisplayName("when teacher has standard subscription")
+        @Nested
+        inner class StandardSubscriptionTest {
+
+            private val teacherProfile = mockk<TeacherProfile> {
+                every { id } returns UUID.randomUUID()
+                every { subscription } returns mockk {
+                    every { plan } returns TeacherSubscriptionPlan.STANDARD
+                }
+            }
+
+            @ParameterizedTest
+            @ValueSource(longs = [0L, 25L, 50L])
+            fun `should return true if teacher has no more than 50 students in the classroom`(studentCountInClassroom: Long) {
+                assertTrue(teacherSubscriptionService.studentLimitPerClassExceeded(teacherProfile, studentCountInClassroom))
+            }
+
+            @ParameterizedTest
+            @ValueSource(longs = [51L, 100L, Long.MAX_VALUE])
+            fun `should return false if teacher has more than 50 students in the classroom`(studentCountInClassroom: Long) {
+                assertFalse(teacherSubscriptionService.studentLimitPerClassExceeded(teacherProfile, studentCountInClassroom))
+            }
+
+        }
+
+        @DisplayName("when teacher has pro subscription")
+        @Nested
+        inner class ProSubscriptionTest {
+
+            private val teacherProfile = mockk<TeacherProfile> {
+                every { id } returns UUID.randomUUID()
+                every { subscription } returns mockk {
+                    every { plan } returns TeacherSubscriptionPlan.PRO
+                }
+            }
+
+            @ParameterizedTest
+            @ValueSource(longs = [0L, 100L, 200L])
+            fun `should return true if teacher has no more than 200 students in the classroom`(studentCountInClassroom: Long) {
+                assertTrue(teacherSubscriptionService.studentLimitPerClassExceeded(teacherProfile, studentCountInClassroom))
+            }
+
+            @ParameterizedTest
+            @ValueSource(longs = [201L, 500L, Long.MAX_VALUE])
+            fun `should return false if teacher has more than 200 students in the classroom`(studentCountInClassroom: Long) {
+                assertFalse(teacherSubscriptionService.studentLimitPerClassExceeded(teacherProfile, studentCountInClassroom))
+            }
+
+        }
+
+    }
+
 }
