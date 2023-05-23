@@ -13,6 +13,7 @@ interface TeacherProfileService {
 
     fun createTeacher(request: TeacherSignupRequest): TeacherProfile
     fun getTeacherById(id: UUID): TeacherProfile?
+    fun getTeacherIdByEmail(email: String): UUID?
     fun getTeacherByIdForAdmin(id: UUID): TeacherProfileAdminView?
     fun getTeacherCredentialsByEmail(email: String): TeacherCredentials?
     fun getTeacherCredentialsById(teacherId: UUID): TeacherCredentials?
@@ -61,6 +62,10 @@ class TeacherProfileServiceImpl(
                     teacherSubscriptionService.buildSubscriptionDto(it)
                 TeacherProfile.fromEntity(it, subscription)
             }
+    }
+
+    override fun getTeacherIdByEmail(email: String): UUID? {
+        return teacherProfileEntityRepository.findByEmail(email)?.id
     }
 
     override fun getTeacherByIdForAdmin(id: UUID): TeacherProfileAdminView? {

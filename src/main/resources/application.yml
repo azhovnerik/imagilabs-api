@@ -34,6 +34,9 @@ spring:
     activate:
       on-profile: stage
 
+domains:
+  web: edu-stage.imagilabs.com
+
 integrations:
   google:
     sheets:
@@ -45,6 +48,9 @@ spring:
   config:
     activate:
       on-profile: prod
+
+domains:
+  web: edu.imagilabs.com
 
 integrations:
   google:
