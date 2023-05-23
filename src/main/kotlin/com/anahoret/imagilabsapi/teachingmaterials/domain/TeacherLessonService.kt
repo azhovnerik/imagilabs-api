@@ -2,9 +2,9 @@ package com.anahoret.imagilabsapi.teachingmaterials.domain
 
 import com.anahoret.imagilabsapi.teachingmaterials.storage.TeacherLessonEntity
 import com.anahoret.imagilabsapi.teachingmaterials.storage.TeacherLessonEntityRepository
+import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Service
 import java.util.*
-import jakarta.persistence.EntityManager
 
 interface TeacherLessonService {
 
@@ -49,7 +49,7 @@ class TeacherLessonServiceImpl(
         val remapFromIndex = if (lastExistingIndex == null) 0 else lastExistingIndex + 1
         val newLessonsWithRemappedIndices = lessons.map { it.copy(index = remapFromIndex + it.index) }
         newLessonsWithRemappedIndices.map {
-            TeacherLessonEntity(teacherId, it.index, it.locked, it.name, it.worksheetUri, it.slidesUri)
+            TeacherLessonEntity(teacherId, it.index, it.proLesson, it.name, it.worksheetUri, it.slidesUri)
         }.let(teacherLessonEntityRepository::saveAll)
     }
 
