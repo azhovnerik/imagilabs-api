@@ -11,4 +11,6 @@ interface CoTeacherRepository: JpaRepository<CoTeacherEntity, UUID> {
         WHERE teacherId = :teacherId
     """)
     fun getClassroomIdsByTeacherId(teacherId: UUID): List<UUID>
+
+    fun existsByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): Boolean
 }

@@ -12,6 +12,7 @@ interface CoTeacherService {
     fun setTeacherIdByEmail(invitationId: UUID, teacherId: UUID)
     fun getCoTeacher(invitationId: UUID): CoTeacher?
     fun getClassroomIdListByTeacherId(teacherId: UUID): List<UUID>
+    fun isCoClassroom(classroomId: UUID, teacherId: UUID): Boolean
 }
 
 @Service
@@ -43,5 +44,9 @@ class CoTeacherServiceImpl(
 
     override fun getClassroomIdListByTeacherId(teacherId: UUID): List<UUID> {
         return coTeacherRepository.getClassroomIdsByTeacherId(teacherId)
+    }
+
+    override fun isCoClassroom(classroomId: UUID, teacherId: UUID): Boolean {
+        return coTeacherRepository.existsByClassroomIdAndTeacherId(classroomId, teacherId)
     }
 }
