@@ -47,7 +47,7 @@ class ClassroomController(
     @Secured(UserRole.teacher)
     @GetMapping("/api/classrooms")
     fun listClassrooms(@AuthenticationPrincipal teacherProfile: TeacherProfile): ResponseDto<List<Classroom>> {
-        return SuccessResponseDto(classroomGetListUseCase.getList(teacherProfile))
+        return SuccessResponseDto(classroomGetListUseCase.getList(teacherProfile.id))
     }
 
     @Secured(UserRole.teacher, UserRole.student)
