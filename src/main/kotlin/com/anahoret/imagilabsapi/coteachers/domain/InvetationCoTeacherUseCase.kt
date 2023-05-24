@@ -26,7 +26,7 @@ interface InvitationCoTeacherUseCase {
 class InvitationCoTeacherUseCaseImpl(
     private val emailValidator: ImagiLabsEmailValidator,
     private val classroomService: ClassroomService,
-    private val invitationCoTeacherService: InvitationCoTeacherService,
+    private val coTeacherService: CoTeacherService,
     private val invitationCoTeacherEmailSender: InvitationCoTeacherEmailSender
 ) : InvitationCoTeacherUseCase {
 
@@ -46,7 +46,7 @@ class InvitationCoTeacherUseCaseImpl(
             if (teacherProfile.id != classroom.teacherId)
                 return AccessDeniedError("TEACHER_SHOULD_BE_OWNER_FOR_INVITATION").left()
 
-            invitationCoTeacherService.createCoTeacher(classroomId, teacherEmail)
+            coTeacherService.createCoTeacher(classroomId, teacherEmail)
             invitationCoTeacherEmailSender.send(teacherEmail, classroomId)
 
             return Unit.right()
