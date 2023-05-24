@@ -10,7 +10,8 @@ class Classroom(
     val accessCode: String,
     val studentsCount: Long,
     val projectsCount: Long,
-    val teacherId: UUID
+    val teacherId: UUID,
+    var teacherRole: TeacherRole? = TeacherRole.OWNER
 ) {
 
     companion object {
@@ -21,4 +22,9 @@ class Classroom(
             }
         }
     }
+}
+
+@Suppress("unused")
+enum class TeacherRole {
+    CO_TEACHER, OWNER
 }

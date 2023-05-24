@@ -21,6 +21,7 @@ interface ClassroomService {
     fun delete(classroomId: UUID)
     fun update(classroomId: UUID, classroomUpdateRequest: ClassroomUpdateRequest): Classroom?
     fun listIdsByTeacher(teacherId: UUID): Set<UUID>
+    fun getAllClassroomAsCoTeacher(classroomIds: List<UUID>): List<Classroom>
 }
 
 @Service
@@ -55,6 +56,11 @@ class ClassroomServiceImpl(
 
     override fun listByTeacher(teacherId: UUID): List<Classroom> {
         return mapToClassrooms(classroomEntityRepository.findAllByTeacherId(teacherId))
+    }
+
+    override fun getAllClassroomAsCoTeacher(classroomIds: List<UUID>): List<Classroom> {
+        return mapToClassrooms(classroomEntityRepository.findAllById(classroomIds))
+            .toCoTeacherClassrooms()
     }
 
     override fun listByIds(classroomIds: Collection<UUID>): List<Classroom> {
@@ -119,5 +125,9 @@ class ClassroomServiceImpl(
             }
         }
         throw RuntimeException("EXCEEDED_NUMBER_OF_ATTEMPTS_TO_GENERATE_UNIQUE_CODE_FOR_CLASS")
+    }
+
+    fun List<Classroom>.toCoTeacherClassrooms(): List<Classroom> {
+        return this.map { it.teacherRole = TeacherRole.CO_TEACHER; it }
     }
 }
