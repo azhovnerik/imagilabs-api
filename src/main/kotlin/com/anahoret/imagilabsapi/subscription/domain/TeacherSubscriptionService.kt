@@ -52,8 +52,8 @@ class TeacherSubscriptionServiceImpl(
 
     override fun studentLimitPerClassExceeded(teacherProfile: TeacherProfile, studentCountInClassroom: Long): Boolean {
         return when (teacherProfile.subscription.plan) {
-            TeacherSubscriptionPlan.STANDARD -> studentCountInClassroom <= TeacherSubscriptionLimits.Standard.STUDENTS_PER_CLASSROOM
-            TeacherSubscriptionPlan.PRO -> studentCountInClassroom <= TeacherSubscriptionLimits.Pro.STUDENTS_PER_CLASSROOM
+            TeacherSubscriptionPlan.STANDARD -> studentCountInClassroom > TeacherSubscriptionLimits.Standard.STUDENTS_PER_CLASSROOM
+            TeacherSubscriptionPlan.PRO -> studentCountInClassroom > TeacherSubscriptionLimits.Pro.STUDENTS_PER_CLASSROOM
         }
     }
 

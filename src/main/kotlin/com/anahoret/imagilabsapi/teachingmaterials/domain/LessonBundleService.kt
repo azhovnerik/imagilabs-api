@@ -4,12 +4,12 @@ import com.anahoret.imagilabsapi.teachingmaterials.storage.BundleLessonEntity
 import com.anahoret.imagilabsapi.teachingmaterials.storage.BundleLessonEntityRepository
 import com.anahoret.imagilabsapi.teachingmaterials.storage.LessonBundleEntity
 import com.anahoret.imagilabsapi.teachingmaterials.storage.LessonBundleEntityRepository
+import jakarta.persistence.EntityManager
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import jakarta.persistence.EntityManager
 
 interface LessonBundleService {
 
@@ -96,7 +96,7 @@ class LessonBundleServiceImpl(
         lessons: List<LessonData>
     ): Iterable<BundleLessonEntity> {
         return lessons.mapIndexed { index, lesson ->
-            BundleLessonEntity(bundleId, index, lesson.locked, lesson.name, lesson.worksheetUri, lesson.slidesUri)
+            BundleLessonEntity(bundleId, index, lesson.proLesson, lesson.name, lesson.worksheetUri, lesson.slidesUri)
         }.let(bundleLessonEntityRepository::saveAll)
     }
 

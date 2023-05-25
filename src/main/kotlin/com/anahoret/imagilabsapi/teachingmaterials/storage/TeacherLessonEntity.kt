@@ -1,10 +1,10 @@
 package com.anahoret.imagilabsapi.teachingmaterials.storage
 
-import java.util.*
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
+import java.util.*
 
 @Entity
 @Table(
@@ -23,8 +23,8 @@ class TeacherLessonEntity(
     @Column(name = "lesson_index")
     var index: Int,
 
-    @Column(name = "locked")
-    var locked: Boolean = true,
+    @Column(name = "pro_lesson")
+    var proLesson: Boolean = true,
 
     name: String,
     worksheetUri: String,
