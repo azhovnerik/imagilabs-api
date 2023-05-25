@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.coteachers
 
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.coteachers.domain.CoTeacher
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherRemoveUseCaseImpl
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import io.mockk.every
@@ -40,7 +41,7 @@ class CoTeacherRemoveUseCaseTest {
         val currentTeacherId = UUID.randomUUID()
 
         every { classroomService.getById(classroomId) } returns mockk<Classroom>()
-        every { coTeacherService.existsById(coTeacherId) } returns false
+        every { coTeacherService.getCoTeacher(coTeacherId) } returns null
 
         val result = coTeacherRemoveUseCase.remove(classroomId, coTeacherId, currentTeacherId)
 
@@ -56,7 +57,7 @@ class CoTeacherRemoveUseCaseTest {
         every { classroomService.getById(classroomId) } returns mockk<Classroom> {
             every { teacherId } returns UUID.randomUUID()
         }
-        every { coTeacherService.existsById(coTeacherId) } returns false
+        every { coTeacherService.getCoTeacher(coTeacherId) } returns null
 
         val result = coTeacherRemoveUseCase.remove(classroomId, coTeacherId, currentTeacherId)
 
@@ -64,18 +65,38 @@ class CoTeacherRemoveUseCaseTest {
     }
 
     @Test
-    fun `should return unit`() {
-        val classroomId = UUID.randomUUID()
+    fun `should return teacher must be member of classroom error`() {
+        val classId = UUID.randomUUID()
         val coTeacherId = UUID.randomUUID()
         val currentTeacherId = UUID.randomUUID()
 
-        every { classroomService.getById(classroomId) } returns mockk<Classroom> {
+        every { classroomService.getById(classId) } returns mockk<Classroom> {
+            every { teacherId } returns UUID.randomUUID()
+        }
+        every { coTeacherService.getCoTeacher(coTeacherId) } returns mockk<CoTeacher> {
+            every { classroomId } returns UUID.randomUUID()
+        }
+
+        val result = coTeacherRemoveUseCase.remove(classId, coTeacherId, currentTeacherId)
+
+        assertTrue(result.isLeft())
+    }
+
+    @Test
+    fun `should return unit`() {
+        val classroomIdDeleteFrom = UUID.randomUUID()
+        val coTeacherId = UUID.randomUUID()
+        val currentTeacherId = UUID.randomUUID()
+
+        every { classroomService.getById(classroomIdDeleteFrom) } returns mockk<Classroom> {
             every { teacherId } returns currentTeacherId
         }
-        every { coTeacherService.existsById(coTeacherId) } returns true
+        every { coTeacherService.getCoTeacher(coTeacherId) } returns mockk<CoTeacher> {
+            every { classroomId } returns classroomIdDeleteFrom
+        }
         every { coTeacherService.deleteCoTeacher(coTeacherId) } returns Unit
 
-        val result = coTeacherRemoveUseCase.remove(classroomId, coTeacherId, currentTeacherId)
+        val result = coTeacherRemoveUseCase.remove(classroomIdDeleteFrom, coTeacherId, currentTeacherId)
 
         assertTrue(result.isRight())
     }

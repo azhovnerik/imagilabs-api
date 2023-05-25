@@ -30,8 +30,11 @@ class CoTeacherRemoveUseCaseImpl(
         val classroom = classroomService.getById(classroomId)
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
-        if (!coTeacherService.existsById(coTeacherId))
-            return NotFoundError("CO_TEACHER_NOT_FOUND").left()
+        val coTeacher = coTeacherService.getCoTeacher(coTeacherId)
+            ?: return NotFoundError("CO_TEACHER_NOT_FOUND").left()
+
+        if (coTeacher.classroomId != classroomId)
+            return AccessDeniedError("CO_TEACHER_MUST_BE_MEMBER_OF_CLASSROOM").left()
 
         if (currentTeacherId != classroom.teacherId)
             return AccessDeniedError("ONLY_OWNER_CAN_REMOVE_CO_TEACHER").left()
