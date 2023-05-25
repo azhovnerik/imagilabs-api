@@ -10,10 +10,12 @@ interface CoTeacherService {
 
     fun createCoTeacher(classroomId: UUID, teacherEmail: String): CoTeacher
     fun setTeacherId(coTeacherId: UUID, teacherId: UUID)
-    fun getCoTeacher(invitationId: UUID): CoTeacher?
+    fun getCoTeacher(coTeacherId: UUID): CoTeacher?
     fun getClassroomIdListByTeacherId(teacherId: UUID): List<UUID>
     fun isCoClassroom(classroomId: UUID, teacherId: UUID): Boolean
     fun getAllCoTeachersByClassroomId(classroomId: UUID): List<CoTeacher>
+    fun existsById(coTeacherId: UUID): Boolean
+    fun deleteCoTeacher(coTeacherId: UUID)
 }
 
 @Service
@@ -30,8 +32,8 @@ class CoTeacherServiceImpl(
 
     }
 
-    override fun getCoTeacher(invitationId: UUID): CoTeacher? {
-        return coTeacherRepository.findByIdOrNull(invitationId)
+    override fun getCoTeacher(coTeacherId: UUID): CoTeacher? {
+        return coTeacherRepository.findByIdOrNull(coTeacherId)
             ?.let(CoTeacher.Companion::mapFromEntity)
     }
 
@@ -54,5 +56,13 @@ class CoTeacherServiceImpl(
     override fun getAllCoTeachersByClassroomId(classroomId: UUID): List<CoTeacher> {
         return coTeacherRepository.findAllByClassroomId(classroomId)
             .map { CoTeacher.mapFromEntity(it) }
+    }
+
+    override fun existsById(coTeacherId: UUID): Boolean {
+        return coTeacherRepository.existsById(coTeacherId)
+    }
+
+    override fun deleteCoTeacher(coTeacherId: UUID) {
+        coTeacherRepository.deleteById(coTeacherId)
     }
 }
