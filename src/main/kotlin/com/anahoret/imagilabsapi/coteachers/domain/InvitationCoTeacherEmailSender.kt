@@ -8,7 +8,7 @@ import java.util.*
 
 interface InvitationCoTeacherEmailSender {
 
-    fun send(email: String, classroomId: UUID)
+    fun send(email: String, invitationId: UUID)
 }
 
 @Service
@@ -18,12 +18,12 @@ class InvitationCoTeacherEmailSenderImpl(
     private val domainProperties: DomainProperties
 ): InvitationCoTeacherEmailSender {
 
-    override fun send(email: String, classroomId: UUID) {
+    override fun send(email: String, invitationId: UUID) {
         emailService.sendAsync(
             emailProperties.noReplyAddress,
             email,
-            "imagi Edu email ",
-            "Invitation link: https://${domainProperties.web}/{link}"
+            "Imagi Edu invitation",
+            "Invitation link: https://${domainProperties.web}/#/invitation/${invitationId}/accept"
         )
     }
 }

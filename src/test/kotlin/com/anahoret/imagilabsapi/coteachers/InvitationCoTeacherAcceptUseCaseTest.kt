@@ -59,7 +59,7 @@ class InvitationCoTeacherAcceptUseCaseTest {
         }
 
         every { coTeacherService.getCoTeacher(invitationId) } returns coTeacher
-        every { coTeacherService.setTeacherIdByEmail(invitationId, invitedTeacherId) } returns Unit
+        every { coTeacherService.setTeacherId(invitationId, invitedTeacherId) } returns Unit
 
         val result = invitationCoTeacherAcceptUseCase.accept(invitationId, currentTeacherProfile)
 

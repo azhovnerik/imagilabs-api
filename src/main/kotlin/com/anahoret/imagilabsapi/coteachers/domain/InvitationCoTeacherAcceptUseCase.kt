@@ -12,7 +12,7 @@ import java.util.*
 
 interface InvitationCoTeacherAcceptUseCase {
 
-    fun accept(invitationId: UUID, teacherProfile: TeacherProfile): Either<OperationError, Unit>
+    fun accept(coTeacherId: UUID, teacherProfile: TeacherProfile): Either<OperationError, Unit>
 }
 
 @Service
@@ -21,17 +21,17 @@ class InvitationCoTeacherAcceptUseCaseImpl(
 ): InvitationCoTeacherAcceptUseCase {
 
     override fun accept(
-        invitationId: UUID,
+        coTeacherId: UUID,
         teacherProfile: TeacherProfile
     ): Either<OperationError, Unit> {
 
-        val coTeacher = coTeacherService.getCoTeacher(invitationId)
+        val coTeacher = coTeacherService.getCoTeacher(coTeacherId)
             ?: return NotFoundError("INVITATION_NOT_FOUND").left()
 
         if (teacherProfile.email != coTeacher.teacherEmail)
-            return AccessDeniedError("INVITED_TEACHER_SHOULD_ACCEPT_INVITATION").left()
+            return AccessDeniedError("ONLY_INVITED_TEACHER_CAN_ACCEPT_INVITATION").left()
 
-        coTeacherService.setTeacherIdByEmail(invitationId, teacherProfile.id)
+        coTeacherService.setTeacherId(coTeacherId, teacherProfile.id)
 
         return Unit.right()
     }

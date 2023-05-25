@@ -9,10 +9,11 @@ import java.util.*
 interface CoTeacherService {
 
     fun createCoTeacher(classroomId: UUID, teacherEmail: String): CoTeacher
-    fun setTeacherIdByEmail(invitationId: UUID, teacherId: UUID)
+    fun setTeacherId(coTeacherId: UUID, teacherId: UUID)
     fun getCoTeacher(invitationId: UUID): CoTeacher?
     fun getClassroomIdListByTeacherId(teacherId: UUID): List<UUID>
     fun isCoClassroom(classroomId: UUID, teacherId: UUID): Boolean
+    fun getAllCoTeachersByClassroomId(classroomId: UUID): List<CoTeacher>
 }
 
 @Service
@@ -34,8 +35,8 @@ class CoTeacherServiceImpl(
             ?.let(CoTeacher.Companion::mapFromEntity)
     }
 
-    override fun setTeacherIdByEmail(invitationId: UUID, teacherId: UUID) {
-        coTeacherRepository.findByIdOrNull(invitationId)
+    override fun setTeacherId(coTeacherId: UUID, teacherId: UUID) {
+        coTeacherRepository.findByIdOrNull(coTeacherId)
             ?.let {
                 it.teacherId = teacherId
                 coTeacherRepository.save(it)
@@ -48,5 +49,10 @@ class CoTeacherServiceImpl(
 
     override fun isCoClassroom(classroomId: UUID, teacherId: UUID): Boolean {
         return coTeacherRepository.existsByClassroomIdAndTeacherId(classroomId, teacherId)
+    }
+
+    override fun getAllCoTeachersByClassroomId(classroomId: UUID): List<CoTeacher> {
+        return coTeacherRepository.findAllByClassroomId(classroomId)
+            .map { CoTeacher.mapFromEntity(it) }
     }
 }

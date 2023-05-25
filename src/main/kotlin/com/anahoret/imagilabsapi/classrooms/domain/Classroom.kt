@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.classrooms.domain
 
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
+import com.anahoret.imagilabsapi.coteachers.domain.CoTeacher
 import java.util.*
 
 @Suppress("unused")

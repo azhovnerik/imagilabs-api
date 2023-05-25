@@ -3,27 +3,34 @@ package com.anahoret.imagilabsapi.coteachers.web
 import arrow.core.Either
 import com.anahoret.imagilabsapi.common.web.EmptySuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.ResponseDto
+import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
-import com.anahoret.imagilabsapi.coteachers.domain.InvitationCoTeacherAcceptUseCase
-import com.anahoret.imagilabsapi.coteachers.domain.InvitationCoTeacherRequest
-import com.anahoret.imagilabsapi.coteachers.domain.InvitationCoTeacherUseCase
+import com.anahoret.imagilabsapi.coteachers.domain.*
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 class CoTeachersController(
     private val invitationCoTeacherUseCase: InvitationCoTeacherUseCase,
-    private val invitationCoTeacherAcceptUseCase: InvitationCoTeacherAcceptUseCase
+    private val invitationCoTeacherAcceptUseCase: InvitationCoTeacherAcceptUseCase,
+    private val coTeachersByClassroomIdUseCase: CoTeachersClassroomIdUseCase
 ) {
+
+    @Secured(UserRole.teacher, UserRole.student)
+    @GetMapping("/api/classrooms/{classroomId}/co-teachers")
+    fun getAllCoTeachers(
+        @PathVariable classroomId: UUID
+    ): ResponseEntity<ResponseDto<List<CoTeacher>>> {
+        return when (val result = coTeachersByClassroomIdUseCase.getAll(classroomId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
+    }
 
     @Secured(UserRole.teacher)
     @PostMapping("/api/classrooms/{classroomId}/invite-teacher")
@@ -31,10 +38,10 @@ class CoTeachersController(
         @PathVariable classroomId: UUID,
         @RequestBody request: InvitationCoTeacherRequest,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
-    ): ResponseEntity<ResponseDto<Void>> {
+    ): ResponseEntity<ResponseDto<CoTeacher>> {
         return when (val result = invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile.id)) {
             is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 

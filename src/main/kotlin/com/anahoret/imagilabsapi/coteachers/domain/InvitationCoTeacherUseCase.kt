@@ -9,7 +9,6 @@ import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.signup.domain.ImagiLabsEmailValidator
-import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -19,7 +18,7 @@ interface InvitationCoTeacherUseCase {
         classroomId: UUID,
         request: InvitationCoTeacherRequest,
         currentTeacherId: UUID
-    ): Either<OperationError, Unit>
+    ): Either<OperationError, CoTeacher>
 }
 
 @Service
@@ -34,7 +33,7 @@ class InvitationCoTeacherUseCaseImpl(
         classroomId: UUID,
         request: InvitationCoTeacherRequest,
         currentTeacherId: UUID
-    ): Either<OperationError, Unit> {
+    ): Either<OperationError, CoTeacher> {
 
         with(request.normalized()) {
             if (!emailValidator.isValid(teacherEmail))
@@ -46,10 +45,10 @@ class InvitationCoTeacherUseCaseImpl(
             if (currentTeacherId != classroom.teacherId)
                 return AccessDeniedError("TEACHER_SHOULD_BE_OWNER_FOR_INVITATION").left()
 
-            coTeacherService.createCoTeacher(classroomId, teacherEmail)
-            invitationCoTeacherEmailSender.send(teacherEmail, classroomId)
+            val coTeacher = coTeacherService.createCoTeacher(classroomId, teacherEmail)
+            invitationCoTeacherEmailSender.send(teacherEmail, coTeacher.id)
 
-            return Unit.right()
+            return coTeacher.right()
         }
     }
 }
