@@ -10,20 +10,20 @@ class TeacherLesson(
     val name: String,
     val worksheetUri: String,
     val slidesUri: String,
-    val locked: Boolean
+    val proLesson: Boolean
 ) {
 
     companion object {
 
         fun fromEntity(teacherLessonEntity: TeacherLessonEntity): TeacherLesson {
             return with(teacherLessonEntity) {
-                TeacherLesson(id!!, teacherId, index, name, worksheetUri, slidesUri, locked)
+                TeacherLesson(id!!, teacherId, index, name, worksheetUri, slidesUri, proLesson)
             }
         }
 
         fun fromBundleLesson(bundleLesson: BundleLesson, teacherId: UUID): TeacherLesson {
             return with(bundleLesson) {
-                TeacherLesson(id, teacherId, index, name, worksheetUri, slidesUri, locked)
+                TeacherLesson(id, teacherId, index, name, worksheetUri, slidesUri, proLesson)
             }
         }
     }

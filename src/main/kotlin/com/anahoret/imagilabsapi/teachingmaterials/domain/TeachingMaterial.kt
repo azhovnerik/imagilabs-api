@@ -10,10 +10,10 @@ class TeachingMaterial(
     path: String,
     val isExternalLink: Boolean,
     val category: TeachingMaterialCategory,
-    val locked: Boolean
+    val proMaterial: Boolean
 ) {
 
-    val path = if (locked) null else path
+    val path = if (proMaterial) null else path
 
     companion object {
 
@@ -34,7 +34,7 @@ class TeachingMaterial(
                 TeachingMaterialCategory.WORKSHEETS -> teacherLesson.worksheetUri
             }
             return with(teacherLesson) {
-                TeachingMaterial(id, index, name, uri, isExternalLink = true, category, locked)
+                TeachingMaterial(id, index, name, uri, isExternalLink = true, category, proLesson)
             }
         }
 

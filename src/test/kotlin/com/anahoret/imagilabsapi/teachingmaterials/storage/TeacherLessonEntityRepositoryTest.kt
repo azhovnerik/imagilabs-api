@@ -1,9 +1,8 @@
 package com.anahoret.imagilabsapi.teachingmaterials.storage
 
+import com.anahoret.imagilabsapi.spring.ImagiLabsDatabaseTest
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
-
-import com.anahoret.imagilabsapi.spring.ImagiLabsDatabaseTest
 import com.anahoret.imagilabsapi.teachingmaterials.domain.LessonData
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -12,7 +11,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.util.UUID
+import java.util.*
 
 @ImagiLabsDatabaseTest
 @DisplayName("Teacher Lesson entity repository")
@@ -53,8 +52,8 @@ class TeacherLessonEntityRepositoryTest {
         val remapFromIndex = if (lastExistingIndex == null) 0 else lastExistingIndex + 1
         val newLessonsWithRemappedIndices = lessonList.map { it.copy(index = remapFromIndex + it.index) }
         teacherSavedLessons = newLessonsWithRemappedIndices.map {
-            TeacherLessonEntity(teacherId, it.index, it.locked, it.name, it.worksheetUri, it.slidesUri)
-        }.let(teacherLessonEntityRepository::saveAll) as List<TeacherLessonEntity>
+            TeacherLessonEntity(teacherId, it.index, it.proLesson, it.name, it.worksheetUri, it.slidesUri)
+        }.let(teacherLessonEntityRepository::saveAll).toList()
     }
 
     @DisplayName("when fetching teacher lessons")
