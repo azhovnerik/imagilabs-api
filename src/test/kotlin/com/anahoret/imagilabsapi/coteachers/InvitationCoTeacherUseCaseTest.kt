@@ -68,18 +68,22 @@ class InvitationCoTeacherUseCaseTest {
     }
 
     @Test
-    fun `should return Unit`() {
+    fun `should return co-teacher`() {
         val teacherEmail = "teacher@gmail.com"
         val currentTeacherId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
         val classroom = mockk<Classroom> {
             every { teacherId } returns currentTeacherId
         }
+        val coTeacherId = UUID.randomUUID()
+        val coTeacher = mockk<CoTeacher> {
+            every { id } returns coTeacherId
+        }
 
         every { emailValidator.isValid(teacherEmail) } returns true
         every { classroomService.getById(classroomId) } returns classroom
-        every { coTeacherService.createCoTeacher(classroomId, teacherEmail) } returns mockk<CoTeacher>()
-        every { invitationCoTeacherEmailSender.send(teacherEmail, classroomId) } returns Unit
+        every { coTeacherService.createCoTeacher(classroomId, teacherEmail) } returns coTeacher
+        every { invitationCoTeacherEmailSender.send(teacherEmail, coTeacherId) } returns Unit
 
         val request = InvitationCoTeacherRequest(teacherEmail)
         val result = invitationCoTeacherUseCase.invite(classroomId, request, currentTeacherId)
