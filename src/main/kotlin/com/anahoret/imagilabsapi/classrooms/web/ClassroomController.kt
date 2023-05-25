@@ -24,12 +24,12 @@ import java.util.*
 class ClassroomController(
     private val classroomCreateUseCase: ClassroomCreateUseCase,
     private val classroomGetUseCase: ClassroomGetUseCase,
-    private val classroomService: ClassroomService,
     private val listStudentsInClassroomUseCase: ListStudentsInClassroomUseCase,
     private val listProjectsInClassroomUseCase: ListProjectsInClassroomUseCase,
     private val studentCredentialsCardsGenerator: StudentCredentialsCardsGenerator,
     private val classroomDeleteUseCase: ClassroomDeleteUseCase,
-    private val classroomUpdateUseCase: ClassroomUpdateUseCase
+    private val classroomUpdateUseCase: ClassroomUpdateUseCase,
+    private val classroomGetListUseCase: ClassroomGetListUseCase
 ) {
 
     @Secured(UserRole.teacher)
@@ -47,7 +47,7 @@ class ClassroomController(
     @Secured(UserRole.teacher)
     @GetMapping("/api/classrooms")
     fun listClassrooms(@AuthenticationPrincipal teacherProfile: TeacherProfile): ResponseDto<List<Classroom>> {
-        return SuccessResponseDto(classroomService.listByTeacher(teacherProfile.id))
+        return SuccessResponseDto(classroomGetListUseCase.getList(teacherProfile.id))
     }
 
     @Secured(UserRole.teacher, UserRole.student)

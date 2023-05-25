@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.classrooms.domain
 
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
+import com.anahoret.imagilabsapi.coteachers.domain.CoTeacher
 import java.util.*
 
 @Suppress("unused")
@@ -10,7 +11,8 @@ class Classroom(
     val accessCode: String,
     val studentsCount: Long,
     val projectsCount: Long,
-    val teacherId: UUID
+    val teacherId: UUID,
+    var teacherRole: TeacherRole? = TeacherRole.OWNER
 ) {
 
     companion object {
@@ -21,4 +23,9 @@ class Classroom(
             }
         }
     }
+}
+
+@Suppress("unused")
+enum class TeacherRole {
+    CO_TEACHER, OWNER
 }
