@@ -18,7 +18,8 @@ import java.util.*
 class CoTeachersController(
     private val invitationCoTeacherUseCase: InvitationCoTeacherUseCase,
     private val invitationCoTeacherAcceptUseCase: InvitationCoTeacherAcceptUseCase,
-    private val coTeachersByClassroomIdUseCase: CoTeachersClassroomIdUseCase
+    private val coTeachersByClassroomIdUseCase: CoTeachersClassroomIdUseCase,
+    private val coTeacherRemoveUseCase: CoTeacherRemoveUseCase
 ) {
 
     @Secured(UserRole.teacher, UserRole.student)
@@ -52,6 +53,19 @@ class CoTeachersController(
         @AuthenticationPrincipal teacherProfile: TeacherProfile
     ): ResponseEntity<ResponseDto<Void>> {
         return when (val result = invitationCoTeacherAcceptUseCase.accept(invitationId, teacherProfile)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
+        }
+    }
+
+    @Secured(UserRole.teacher)
+    @DeleteMapping("/api/classrooms/{classroomId}/{coTeacherId}/remove")
+    fun removeCoTeacher(
+        @PathVariable classroomId: UUID,
+        @PathVariable coTeacherId: UUID,
+        @AuthenticationPrincipal teacherProfile: TeacherProfile
+    ): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = coTeacherRemoveUseCase.remove(classroomId, coTeacherId, teacherProfile.id)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
         }
