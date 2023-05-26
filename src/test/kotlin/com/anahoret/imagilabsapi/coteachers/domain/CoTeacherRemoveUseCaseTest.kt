@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.coteachers
+package com.anahoret.imagilabsapi.coteachers.domain
 
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService

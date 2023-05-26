@@ -19,7 +19,8 @@ class CoTeachersController(
     private val invitationCoTeacherUseCase: InvitationCoTeacherUseCase,
     private val invitationCoTeacherAcceptUseCase: InvitationCoTeacherAcceptUseCase,
     private val coTeachersByClassroomIdUseCase: CoTeachersClassroomIdUseCase,
-    private val coTeacherRemoveUseCase: CoTeacherRemoveUseCase
+    private val coTeacherRemoveUseCase: CoTeacherRemoveUseCase,
+    private val coTeacherLeaveUseCase: CoTeacherLeaveUseCase
 ) {
 
     @Secured(UserRole.teacher, UserRole.student)
@@ -66,6 +67,18 @@ class CoTeachersController(
         @AuthenticationPrincipal teacherProfile: TeacherProfile
     ): ResponseEntity<ResponseDto<Void>> {
         return when (val result = coTeacherRemoveUseCase.remove(classroomId, coTeacherId, teacherProfile.id)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
+        }
+    }
+
+    @Secured(UserRole.teacher)
+    @DeleteMapping("/api/classrooms/{classroomId}/co-teacher/leave")
+    fun leaveFromClassroom(
+        @PathVariable classroomId: UUID,
+        @AuthenticationPrincipal teacherProfile: TeacherProfile
+    ): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = coTeacherLeaveUseCase.leave(classroomId, teacherProfile.id)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
         }

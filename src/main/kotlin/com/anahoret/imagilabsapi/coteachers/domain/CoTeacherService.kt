@@ -15,6 +15,7 @@ interface CoTeacherService {
     fun isCoClassroom(classroomId: UUID, teacherId: UUID): Boolean
     fun getAllCoTeachersByClassroomId(classroomId: UUID): List<CoTeacher>
     fun deleteCoTeacher(coTeacherId: UUID)
+    fun getByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): CoTeacher?
 }
 
 @Service
@@ -55,6 +56,11 @@ class CoTeacherServiceImpl(
     override fun getAllCoTeachersByClassroomId(classroomId: UUID): List<CoTeacher> {
         return coTeacherRepository.findAllByClassroomId(classroomId)
             .map { CoTeacher.mapFromEntity(it) }
+    }
+
+    override fun getByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): CoTeacher? {
+       return coTeacherRepository.findByClassroomIdAndTeacherId(classroomId, teacherId)
+           ?.let(CoTeacher.Companion::mapFromEntity)
     }
 
     override fun deleteCoTeacher(coTeacherId: UUID) {
