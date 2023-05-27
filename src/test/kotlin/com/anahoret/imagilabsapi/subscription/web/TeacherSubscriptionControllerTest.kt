@@ -241,30 +241,30 @@ class TeacherSubscriptionControllerTest {
         fun `should return access denied error`() {
             val teacherProfile = testTeacher()
 
-            every { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) } returns AccessDeniedError("").left()
+            every { checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile) } returns AccessDeniedError("").left()
 
             mvc.perform(
-                put("/api/teachers/$teacherId/subscription/cancel")
+                get("/api/teacher/subscription/access/pro-lessons")
                     .contentType(MediaType.APPLICATION_JSON)
                     .withTeacher(teacherProfile)
             ).andExpect(status().isForbidden)
 
-            verify { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) }
+            verify { checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile) }
         }
 
         @Test
         fun `should return success response`() {
             val teacherProfile = testTeacher()
 
-            every { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) } returns Unit.right()
+            every { checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile) } returns Unit.right()
 
             mvc.perform(
-                put("/api/teachers/$teacherId/subscription/cancel")
+                get("/api/teacher/subscription/access/pro-lessons")
                     .contentType(MediaType.APPLICATION_JSON)
                     .withTeacher(teacherProfile)
             ).andExpect(status().is2xxSuccessful)
 
-            verify { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) }
+            verify { checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile) }
         }
     }
 
