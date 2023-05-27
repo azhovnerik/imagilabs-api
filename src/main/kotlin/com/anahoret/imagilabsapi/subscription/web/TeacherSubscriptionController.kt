@@ -7,11 +7,14 @@ import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.subscription.domain.CancelTeacherSubscriptionUseCase
+import com.anahoret.imagilabsapi.subscription.domain.CheckTeacherAccessProLessonsUseCase
 import com.anahoret.imagilabsapi.subscription.domain.SetSubscriptionPeriodRequest
 import com.anahoret.imagilabsapi.subscription.domain.SetSubscriptionPeriodUseCase
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -21,7 +24,8 @@ import java.util.*
 @RestController
 class TeacherSubscriptionController(
     private val setSubscriptionPeriodUseCase: SetSubscriptionPeriodUseCase,
-    private val cancelTeacherSubscriptionUseCase: CancelTeacherSubscriptionUseCase
+    private val cancelTeacherSubscriptionUseCase: CancelTeacherSubscriptionUseCase,
+    private val checkTeacherAccessProLessonsUseCase: CheckTeacherAccessProLessonsUseCase
 ) {
 
     @Secured(UserRole.admin)
@@ -43,6 +47,17 @@ class TeacherSubscriptionController(
         @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<Void>> {
         return when (val result = cancelTeacherSubscriptionUseCase.cancel(teacherId, userProfile)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
+        }
+    }
+
+    @Secured(UserRole.teacher)
+    @GetMapping("/api/teacher/subscription/access/pro-lessons")
+    fun checkTeacherHasAccessToProLessons(
+        @AuthenticationPrincipal teacherProfile: TeacherProfile
+    ): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
         }
