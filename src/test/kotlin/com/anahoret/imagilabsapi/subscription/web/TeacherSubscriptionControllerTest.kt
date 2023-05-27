@@ -11,12 +11,9 @@ import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.subscription.domain.CancelTeacherSubscriptionUseCase
 import com.anahoret.imagilabsapi.subscription.domain.SetSubscriptionPeriodRequest
 import com.anahoret.imagilabsapi.subscription.domain.SetSubscriptionPeriodUseCase
-import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.verify
-import org.hibernate.annotations.NotFound
 import org.json.JSONObject
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName

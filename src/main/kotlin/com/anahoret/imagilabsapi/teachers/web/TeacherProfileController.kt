@@ -5,7 +5,6 @@ import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.security.UserRole
-import com.anahoret.imagilabsapi.students.domain.StudentDeleteUseCase
 import com.anahoret.imagilabsapi.teachers.domain.*
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
