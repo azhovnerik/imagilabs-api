@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.teachingmaterials.domain
 
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
 import com.anahoret.imagilabsapi.teachingmaterials.storage.BundleLessonEntity
 import com.anahoret.imagilabsapi.teachingmaterials.storage.BundleLessonEntityRepository
 import com.anahoret.imagilabsapi.teachingmaterials.storage.LessonBundleEntity
@@ -18,7 +19,8 @@ interface LessonBundleService {
     fun list(searchQuery: String?, sort: Sort): List<LessonBundleBase>
     fun delete(bundleId: UUID)
     fun get(bundleId: UUID): LessonBundle?
-    fun getDefaultBundle(): LessonBundle?
+    fun getDefaultBundle(includePro: Boolean): LessonBundle?
+    fun exists(bundleId: UUID): Boolean
 }
 
 @Service
@@ -83,12 +85,16 @@ class LessonBundleServiceImpl(
         }
     }
 
-    override fun getDefaultBundle(): LessonBundle? {
+    override fun getDefaultBundle(includePro: Boolean): LessonBundle? {
         return lessonBundleEntityRepository.findByDefaultBundleTrue()?.let { bundleEntity ->
-            val lessons = bundleLessonEntityRepository.findAllByBundleIdOrderByIndex(bundleEntity.id!!)
+            val lessons = bundleLessonEntityRepository.findBundlesByIncludedProOrderedByIndex(bundleEntity.id!!, includePro)
                 .map { BundleLesson.fromEntity(it) }
             LessonBundle.fromEntity(bundleEntity, lessons)
         }
+    }
+
+    override fun exists(bundleId: UUID): Boolean {
+        return lessonBundleEntityRepository.existsById(bundleId)
     }
 
     private fun addBundleLessons(
