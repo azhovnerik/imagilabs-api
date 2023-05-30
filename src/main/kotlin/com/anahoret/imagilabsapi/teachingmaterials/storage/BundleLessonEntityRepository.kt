@@ -20,9 +20,9 @@ interface BundleLessonEntityRepository : CrudRepository<BundleLessonEntity, UUID
     @Query("""
         SELECT bl
         FROM BundleLessonEntity bl
-        WHERE bl.bundleId in :bundlesIds
+        WHERE bl.bundleId in :bundlesIds AND (:includePro = true OR bl.proLesson = false)
     """)
-    fun findAllByBundleIds(bundlesIds: List<UUID>): List<BundleLessonEntity>
+    fun findAllByBundleIds(bundlesIds: List<UUID>, includePro: Boolean): List<BundleLessonEntity>
 
     @Query("""
         SELECT bl

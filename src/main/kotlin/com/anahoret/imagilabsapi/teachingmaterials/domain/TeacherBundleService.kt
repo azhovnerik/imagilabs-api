@@ -7,7 +7,7 @@ import java.util.*
 interface TeacherBundleService {
 
     fun create(teacherId: UUID, bundleId: UUID)
-    fun getBundlesByTeacherId(teacherId: UUID): List<LessonBundle>
+    fun getBundlesByTeacherId(teacherId: UUID, includePro: Boolean): List<LessonBundle>
     fun deleteAllByTeacherId(teacherId: UUID)
     fun getBundleLessonsByTeacherId(teacherId: UUID, includePro: Boolean): List<BundleLesson>
     fun exists(teacherBundleId: UUID): Boolean
@@ -27,10 +27,10 @@ class TeacherBundleServiceImpl(
         )
     }
 
-    override fun getBundlesByTeacherId(teacherId: UUID): List<LessonBundle> {
+    override fun getBundlesByTeacherId(teacherId: UUID, includePro: Boolean): List<LessonBundle> {
         val lessonBundlesEntities = lessonBundleEntityRepository.findAllByTeacherId(teacherId)
         val lessonBundlesEntitiesIds = lessonBundlesEntities.map { it.id!! }
-        val bundleLessonsMap = bundleLessonEntityRepository.findAllByBundleIds(lessonBundlesEntitiesIds)
+        val bundleLessonsMap = bundleLessonEntityRepository.findAllByBundleIds(lessonBundlesEntitiesIds, includePro)
             .map { BundleLesson.fromEntity(it) }
             .groupBy { it.bundleId }
 

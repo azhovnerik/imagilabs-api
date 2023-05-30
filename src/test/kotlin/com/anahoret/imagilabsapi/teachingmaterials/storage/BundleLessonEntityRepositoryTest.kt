@@ -96,7 +96,7 @@ class BundleLessonEntityRepositoryTest {
         @Test
         fun `should return six bundles lessons by bundles ids`() {
             val bundlesIds = listOf(bundleId)
-            val result = bundleLessonEntityRepository.findAllByBundleIds(bundlesIds)
+            val result = bundleLessonEntityRepository.findAllByBundleIds(bundlesIds, true)
             assertFalse(result.isEmpty())
             assertTrue(result.size == 6)
         }
@@ -104,7 +104,7 @@ class BundleLessonEntityRepositoryTest {
         @Test
         fun `should return no one bundles lessons`() {
             val bundlesIds = emptyList<UUID>()
-            val result = bundleLessonEntityRepository.findAllByBundleIds(bundlesIds)
+            val result = bundleLessonEntityRepository.findAllByBundleIds(bundlesIds, true)
             assertTrue(result.isEmpty())
         }
     }
