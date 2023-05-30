@@ -93,4 +93,11 @@ abstract class ControllerTest {
         return this.header("Authorization", "Bearer+${token.token}")
     }
 
+    fun MockHttpServletRequestBuilder.withStudent(studentProfile: StudentProfile): MockHttpServletRequestBuilder {
+        every { studentProfileService.getStudentById(studentProfile.id) } returns studentProfile
+        every { authorityService.getAuthorities(studentProfile) } returns listOf(SimpleGrantedAuthority(UserRole.student))
+        val token = jwtTokenUtil.createToken(studentProfile.id, UserType.STUDENT)
+        return this.header("Authorization", "Bearer+${token.token}")
+    }
+
 }

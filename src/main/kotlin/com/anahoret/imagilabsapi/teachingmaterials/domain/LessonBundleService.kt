@@ -1,6 +1,5 @@
 package com.anahoret.imagilabsapi.teachingmaterials.domain
 
-import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
 import com.anahoret.imagilabsapi.teachingmaterials.storage.BundleLessonEntity
 import com.anahoret.imagilabsapi.teachingmaterials.storage.BundleLessonEntityRepository
 import com.anahoret.imagilabsapi.teachingmaterials.storage.LessonBundleEntity
@@ -87,7 +86,7 @@ class LessonBundleServiceImpl(
 
     override fun getDefaultBundle(includePro: Boolean): LessonBundle? {
         return lessonBundleEntityRepository.findByDefaultBundleTrue()?.let { bundleEntity ->
-            val lessons = bundleLessonEntityRepository.findBundlesByIncludedProOrderedByIndex(bundleEntity.id!!, includePro)
+            val lessons = bundleLessonEntityRepository.findLessonsByIncludedProOrderedByIndex(bundleEntity.id!!, includePro)
                 .map { BundleLesson.fromEntity(it) }
             LessonBundle.fromEntity(bundleEntity, lessons)
         }

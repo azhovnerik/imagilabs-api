@@ -27,7 +27,7 @@ class TeacherBundleController(
         @PathVariable teacherId: UUID,
         @RequestBody request: TeacherBundleCreateRequest
     ): ResponseEntity<ResponseDto<Void>> {
-        return when (val result = teacherBundleCreateUseCase.create(teacherId, request)) {
+        return when (val result = teacherBundleCreateUseCase.create(teacherId, request.bundleId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
         }

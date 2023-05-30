@@ -15,7 +15,7 @@ interface BundleLessonEntityRepository : CrudRepository<BundleLessonEntity, UUID
         WHERE bl.bundleId = :bundleId AND (:includePro = true OR bl.proLesson = false)
         ORDER BY bl.index
     """)
-    fun findBundlesByIncludedProOrderedByIndex(bundleId: UUID, includePro: Boolean): List<BundleLessonEntity>
+    fun findLessonsByIncludedProOrderedByIndex(bundleId: UUID, includePro: Boolean): List<BundleLessonEntity>
 
     @Query("""
         SELECT bl

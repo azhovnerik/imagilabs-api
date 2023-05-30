@@ -11,7 +11,7 @@ import java.util.*
 
 interface TeacherBundleCreateUseCase {
 
-    fun create(teacherId: UUID, request: TeacherBundleCreateRequest): Either<OperationError, Unit>
+    fun create(teacherId: UUID, bundleId: UUID): Either<OperationError, Unit>
 }
 
 @Service
@@ -21,15 +21,15 @@ class TeacherBundleCreateUseCaseImpl(
     private val lessonBundleService: LessonBundleService
 ): TeacherBundleCreateUseCase {
 
-    override fun create(teacherId: UUID, request: TeacherBundleCreateRequest): Either<OperationError, Unit> {
+    override fun create(teacherId: UUID, bundleId: UUID): Either<OperationError, Unit> {
 
         if (!teacherProfileService.exists(teacherId))
             return NotFoundError("TEACHER_NOT_FOUND").left()
 
-        if (!lessonBundleService.exists(request.bundleId))
+        if (!lessonBundleService.exists(bundleId))
             return NotFoundError("BUNDLE_NOT_FOUND").left()
 
-        teacherBundleService.create(teacherId, request.bundleId)
+        teacherBundleService.create(teacherId, bundleId)
 
         return Unit.right()
     }
