@@ -9,6 +9,7 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.subscription.domain.CancelTeacherSubscriptionUseCase
+import com.anahoret.imagilabsapi.subscription.domain.CheckTeacherAccessProLessonsUseCase
 import com.anahoret.imagilabsapi.subscription.domain.SetSubscriptionPeriodRequest
 import com.anahoret.imagilabsapi.subscription.domain.SetSubscriptionPeriodUseCase
 import com.ninjasquad.springmockk.MockkBean
@@ -48,6 +49,9 @@ class TeacherSubscriptionControllerTest {
 
         @MockkBean
         lateinit var cancelTeacherSubscriptionUseCase: CancelTeacherSubscriptionUseCase
+
+        @MockkBean
+        lateinit var checkTeacherAccessProLessonsUseCase: CheckTeacherAccessProLessonsUseCase
 
         private val request = SetSubscriptionPeriodRequest(100, 200)
         private val payload = JSONObject()
@@ -107,6 +111,9 @@ class TeacherSubscriptionControllerTest {
         @MockkBean
         lateinit var cancelTeacherSubscriptionUseCase: CancelTeacherSubscriptionUseCase
 
+        @MockkBean
+        lateinit var checkTeacherAccessProLessonsUseCase: CheckTeacherAccessProLessonsUseCase
+
         @Test
         fun `should call cancel teacher subscription use case`() {
             val adminProfile = AdminProfile(UUID.randomUUID(), "")
@@ -161,6 +168,9 @@ class TeacherSubscriptionControllerTest {
         @MockkBean
         lateinit var cancelTeacherSubscriptionUseCase: CancelTeacherSubscriptionUseCase
 
+        @MockkBean
+        lateinit var checkTeacherAccessProLessonsUseCase: CheckTeacherAccessProLessonsUseCase
+
         @Test
         fun `should return success response`() {
             val teacherProfile = testTeacher()
@@ -206,6 +216,56 @@ class TeacherSubscriptionControllerTest {
             verify { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) }
         }
         
+    }
+
+    @ExtendWith(SpringExtension::class)
+    @DisplayName("when canceling teacher subscription by teacher")
+    @Nested
+    @WebMvcTest(
+        TeacherSubscriptionController::class,
+        AuthenticationEntryPoint::class,
+        JwtTokenUtil::class
+    )
+    inner class CheckTeacherAccessProLessons: ControllerTest() {
+
+        @MockkBean
+        lateinit var setSubscriptionPeriodUseCase: SetSubscriptionPeriodUseCase
+
+        @MockkBean
+        lateinit var cancelTeacherSubscriptionUseCase: CancelTeacherSubscriptionUseCase
+
+        @MockkBean
+        lateinit var checkTeacherAccessProLessonsUseCase: CheckTeacherAccessProLessonsUseCase
+
+        @Test
+        fun `should return access denied error`() {
+            val teacherProfile = testTeacher()
+
+            every { checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile) } returns AccessDeniedError("").left()
+
+            mvc.perform(
+                get("/api/teacher/subscription/access/pro-lessons")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .withTeacher(teacherProfile)
+            ).andExpect(status().isForbidden)
+
+            verify { checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile) }
+        }
+
+        @Test
+        fun `should return success response`() {
+            val teacherProfile = testTeacher()
+
+            every { checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile) } returns Unit.right()
+
+            mvc.perform(
+                get("/api/teacher/subscription/access/pro-lessons")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .withTeacher(teacherProfile)
+            ).andExpect(status().is2xxSuccessful)
+
+            verify { checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile) }
+        }
     }
 
 }
