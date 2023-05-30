@@ -2,9 +2,12 @@ package com.anahoret.imagilabsapi.subscription.web
 
 import arrow.core.left
 import arrow.core.right
+import com.anahoret.imagilabsapi.admins.domain.AdminProfile
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
 import com.anahoret.imagilabsapi.common.ControllerTest
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
+import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.subscription.domain.CancelTeacherSubscriptionUseCase
 import com.anahoret.imagilabsapi.subscription.domain.SetSubscriptionPeriodRequest
 import com.anahoret.imagilabsapi.subscription.domain.SetSubscriptionPeriodUseCase
@@ -106,25 +109,29 @@ class TeacherSubscriptionControllerTest {
 
         @Test
         fun `should call cancel teacher subscription use case`() {
-            every { cancelTeacherSubscriptionUseCase.cancel(teacherId) } returns Unit.right()
+            val adminProfile = AdminProfile(UUID.randomUUID(), "")
+
+            every { cancelTeacherSubscriptionUseCase.cancel(teacherId, adminProfile) } returns Unit.right()
 
             mvc.perform(
                 put("/api/teachers/$teacherId/subscription/cancel")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .asAdmin()
+                    .withAdmin(adminProfile)
             ).andExpect(status().is2xxSuccessful)
 
-            verify { cancelTeacherSubscriptionUseCase.cancel(teacherId) }
+            verify { cancelTeacherSubscriptionUseCase.cancel(teacherId, adminProfile) }
         }
 
         @Test
         fun `should return teacher not found error`() {
-            every { cancelTeacherSubscriptionUseCase.cancel(teacherId) } returns NotFoundError("TEACHER_NOT_FOUND").left()
+            val adminProfile = AdminProfile(UUID.randomUUID(), "")
+
+            every { cancelTeacherSubscriptionUseCase.cancel(teacherId, adminProfile) } returns NotFoundError("TEACHER_NOT_FOUND").left()
 
             mvc.perform(
                 put("/api/teachers/$teacherId/subscription/cancel")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .asAdmin()
+                    .withAdmin(adminProfile)
             ).andExpect(status().isNotFound)
         }
 
@@ -136,6 +143,69 @@ class TeacherSubscriptionControllerTest {
                     .asStudent()
             ).andExpect(status().isForbidden)
         }
+    }
+
+    @ExtendWith(SpringExtension::class)
+    @DisplayName("when canceling teacher subscription by teacher")
+    @Nested
+    @WebMvcTest(
+        TeacherSubscriptionController::class,
+        AuthenticationEntryPoint::class,
+        JwtTokenUtil::class
+    )
+    inner class CancelTeacherSubscriptionByTeacher: ControllerTest() {
+
+        @MockkBean
+        lateinit var setSubscriptionPeriodUseCase: SetSubscriptionPeriodUseCase
+
+        @MockkBean
+        lateinit var cancelTeacherSubscriptionUseCase: CancelTeacherSubscriptionUseCase
+
+        @Test
+        fun `should return success response`() {
+            val teacherProfile = testTeacher()
+
+            every { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) } returns Unit.right()
+
+            mvc.perform(
+                put("/api/teachers/$teacherId/subscription/cancel")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .withTeacher(teacherProfile)
+            ).andExpect(status().is2xxSuccessful)
+
+            verify { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) }
+        }
+
+        @Test
+        fun `should return not found error`() {
+            val teacherProfile = testTeacher()
+
+            every { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) } returns NotFoundError("").left()
+
+            mvc.perform(
+                put("/api/teachers/$teacherId/subscription/cancel")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .withTeacher(teacherProfile)
+            ).andExpect(status().isNotFound)
+
+            verify { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) }
+        }
+
+        @Test
+        fun `should return forbidden error`() {
+            val teacherProfile = testTeacher()
+
+            every { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) } returns AccessDeniedError("").left()
+
+            mvc.perform(
+                put("/api/teachers/$teacherId/subscription/cancel")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .withTeacher(teacherProfile)
+            ).andExpect(status().isForbidden)
+
+            verify { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) }
+        }
+        
     }
 
 }
