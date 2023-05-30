@@ -27,6 +27,7 @@ class TeacherSubscriptionServiceImpl(
             ?.let {
                 it.subscriptionStart = start
                 it.subscriptionEnd = end
+                it.subscriptionCanceled = false
                 teacherProfileEntityRepository.save(it)
             }
     }
