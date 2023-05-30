@@ -22,6 +22,7 @@ interface TeacherBundlesGetUseCase {
 class TeacherBundlesGetUseCaseImpl(
     private val teacherBundleService: TeacherBundleService,
     private val teacherProfileService: TeacherProfileService,
+    private val lessonBundleService: LessonBundleService
 ): TeacherBundlesGetUseCase {
 
     override fun getAll(teacherId: UUID, currentUser: UserProfile): Either<OperationError, List<LessonBundle>> {
@@ -32,11 +33,23 @@ class TeacherBundlesGetUseCaseImpl(
         val includePro = teacherProfile.subscription.plan == TeacherSubscriptionPlan.PRO
 
         return when (currentUser.userType) {
-            UserType.ADMIN -> teacherBundleService.getBundlesByTeacherId(teacherId, true).right()
+            UserType.ADMIN -> getTeacherBundles(teacherId).right()
             else -> {
-                if (currentUser.id == teacherId) teacherBundleService.getBundlesByTeacherId(teacherId, includePro).right()
+                if (currentUser.id == teacherId) getTeacherBundles(teacherId, includePro).right()
                 else AccessDeniedError("TEACHER_CAN_GET_ONLY_HIS_BUNDLES").left()
             }
         }
+    }
+
+    private fun getTeacherBundles(teacherId: UUID, includePro: Boolean = true): List<LessonBundle> {
+        return teacherBundleService.getBundlesByTeacherId(teacherId, includePro).takeIf { it.isNotEmpty() }
+            ?: defaultBundles(includePro)
+    }
+
+    private fun defaultBundles(includePro: Boolean): List<LessonBundle> {
+        val defaultBundle = lessonBundleService.getDefaultBundle(includePro)
+            ?: return emptyList()
+
+        return listOf(defaultBundle)
     }
 }
