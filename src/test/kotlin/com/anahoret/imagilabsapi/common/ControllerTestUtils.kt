@@ -26,7 +26,7 @@ fun testTeacher(): TeacherProfile {
     )
 }
 
-fun testStudent(classroomId: UUID): StudentProfile {
+fun testStudent(classroomId: UUID = UUID.randomUUID()): StudentProfile {
     return StudentProfile(
         UUID.randomUUID(),
         "Martin",
