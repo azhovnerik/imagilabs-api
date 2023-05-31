@@ -52,7 +52,7 @@ class TeachingMaterialsControllerTest {
                 MockMvcRequestBuilders.get("/api/teaching-materials")
                     .contentType(MediaType.APPLICATION_JSON)
                     .param("classroomId", classroomId.toString())
-                    .withTeacher(teacherProfile)
+                    .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
             verify { teachingMaterialsGetUseCase.get(teacherProfile, classroomId) }
@@ -69,7 +69,7 @@ class TeachingMaterialsControllerTest {
                 MockMvcRequestBuilders.get("/api/teaching-materials")
                     .contentType(MediaType.APPLICATION_JSON)
                     .param("classroomId", classroomId.toString())
-                    .withStudent(studentProfile)
+                    .asStudent(studentProfile)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
             verify { teachingMaterialsGetUseCase.get(studentProfile, classroomId) }

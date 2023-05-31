@@ -131,7 +131,7 @@ class TeacherBundleControllerTest {
             mvc.perform(
                 MockMvcRequestBuilders.get("/api/teachers/$teacherId/bundles")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .withAdmin(adminProfile)
+                    .asAdmin(adminProfile)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
             verify { teacherBundlesGetUseCase.getAll(teacherId, adminProfile) }
@@ -146,7 +146,7 @@ class TeacherBundleControllerTest {
             mvc.perform(
                 MockMvcRequestBuilders.get("/api/teachers/$teacherId/bundles")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .withTeacher(teacherProfile)
+                    .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
             verify { teacherBundlesGetUseCase.getAll(teacherId, teacherProfile) }
@@ -161,7 +161,7 @@ class TeacherBundleControllerTest {
             mvc.perform(
                 MockMvcRequestBuilders.get("/api/teachers/$teacherId/bundles")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .withTeacher(teacherProfile)
+                    .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().isNotFound)
 
             verify { teacherBundlesGetUseCase.getAll(teacherId, teacherProfile) }
@@ -208,7 +208,7 @@ class TeacherBundleControllerTest {
             mvc.perform(
                 MockMvcRequestBuilders.delete("/api/teachers/bundles/$teacherBundleId")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .withAdmin(adminProfile)
+                    .asAdmin(adminProfile)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
             verify { teacherBundleDeleteUseCase.delete(teacherBundleId) }
@@ -223,7 +223,7 @@ class TeacherBundleControllerTest {
             mvc.perform(
                 MockMvcRequestBuilders.delete("/api/teachers/bundles/$teacherBundleId")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .withAdmin(adminProfile)
+                    .asAdmin(adminProfile)
             ).andExpect(MockMvcResultMatchers.status().isNotFound)
 
             verify { teacherBundleDeleteUseCase.delete(teacherBundleId) }

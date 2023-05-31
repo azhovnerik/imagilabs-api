@@ -123,7 +123,7 @@ class TeacherSubscriptionControllerTest {
             mvc.perform(
                 put("/api/teachers/$teacherId/subscription/cancel")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .withAdmin(adminProfile)
+                    .asAdmin(adminProfile)
             ).andExpect(status().is2xxSuccessful)
 
             verify { cancelTeacherSubscriptionUseCase.cancel(teacherId, adminProfile) }
@@ -138,7 +138,7 @@ class TeacherSubscriptionControllerTest {
             mvc.perform(
                 put("/api/teachers/$teacherId/subscription/cancel")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .withAdmin(adminProfile)
+                    .asAdmin(adminProfile)
             ).andExpect(status().isNotFound)
         }
 
@@ -180,7 +180,7 @@ class TeacherSubscriptionControllerTest {
             mvc.perform(
                 put("/api/teachers/$teacherId/subscription/cancel")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .withTeacher(teacherProfile)
+                    .asTeacher(teacherProfile)
             ).andExpect(status().is2xxSuccessful)
 
             verify { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) }
@@ -195,7 +195,7 @@ class TeacherSubscriptionControllerTest {
             mvc.perform(
                 put("/api/teachers/$teacherId/subscription/cancel")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .withTeacher(teacherProfile)
+                    .asTeacher(teacherProfile)
             ).andExpect(status().isNotFound)
 
             verify { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) }
@@ -210,7 +210,7 @@ class TeacherSubscriptionControllerTest {
             mvc.perform(
                 put("/api/teachers/$teacherId/subscription/cancel")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .withTeacher(teacherProfile)
+                    .asTeacher(teacherProfile)
             ).andExpect(status().isForbidden)
 
             verify { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) }
@@ -246,7 +246,7 @@ class TeacherSubscriptionControllerTest {
             mvc.perform(
                 get("/api/teacher/subscription/access/pro-lessons")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .withTeacher(teacherProfile)
+                    .asTeacher(teacherProfile)
             ).andExpect(status().isForbidden)
 
             verify { checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile) }
@@ -261,7 +261,7 @@ class TeacherSubscriptionControllerTest {
             mvc.perform(
                 get("/api/teacher/subscription/access/pro-lessons")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .withTeacher(teacherProfile)
+                    .asTeacher(teacherProfile)
             ).andExpect(status().is2xxSuccessful)
 
             verify { checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile) }

@@ -30,11 +30,9 @@ class TeacherBundleServiceImpl(
     override fun getBundlesByTeacherId(teacherId: UUID, includePro: Boolean): List<LessonBundle> {
         val lessonBundlesEntities = lessonBundleEntityRepository.findAllByTeacherId(teacherId)
         val lessonBundlesEntitiesIds = lessonBundlesEntities.map { it.id!! }
-        val bundleLessonsMap = bundleLessonEntityRepository.findAllByBundleIds(lessonBundlesEntitiesIds, includePro)
-            .map { BundleLesson.fromEntity(it) }
-            .groupBy { it.bundleId }
+        val bundleLessons = bundleLessonEntityRepository.findAllByBundleIds(lessonBundlesEntitiesIds, includePro)
 
-        return mapToLessonBundles(lessonBundlesEntities, bundleLessonsMap)
+        return mapToLessonBundles(lessonBundlesEntities, bundleLessons)
     }
 
     override fun deleteAllByTeacherId(teacherId: UUID) {
@@ -56,8 +54,12 @@ class TeacherBundleServiceImpl(
 
     private fun mapToLessonBundles(
         lessonBundlesEntities: List<LessonBundleEntity>,
-        bundleLessonsMap: Map<UUID, List<BundleLesson>>
+        bundleLessons: List<BundleLessonEntity>
     ): List<LessonBundle> {
+        val bundleLessonsMap = bundleLessons
+            .map { BundleLesson.fromEntity(it) }
+            .groupBy { it.bundleId }
+
         return lessonBundlesEntities.map {
             LessonBundle.fromEntity(it, bundleLessonsMap[it.id]!!)
         }
