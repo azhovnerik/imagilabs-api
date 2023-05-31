@@ -28,7 +28,8 @@ class ClassroomGetListUseCaseTest {
             "1111",
             5L,
             2L,
-            teacherId
+            teacherId,
+            2L
         )
 
         val emptyListCoClassroomIds = emptyList<UUID>()
@@ -56,7 +57,8 @@ class ClassroomGetListUseCaseTest {
             "1111",
             5L,
             2L,
-            teacherId
+            teacherId,
+            2L
         )
 
         val coTeacherClassroom = Classroom(
@@ -66,6 +68,7 @@ class ClassroomGetListUseCaseTest {
             8L,
             1L,
             teacherId,
+            2L,
             TeacherRole.CO_TEACHER
         )
 

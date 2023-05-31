@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.classrooms.domain
 
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
+import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.apache.commons.lang3.RandomStringUtils
@@ -28,7 +29,8 @@ interface ClassroomService {
 class ClassroomServiceImpl(
     private val classroomEntityRepository: ClassroomEntityRepository,
     private val studentClassroomLinkService: StudentClassroomLinkService,
-    private val projectClassroomShareService: ProjectClassroomShareService
+    private val projectClassroomShareService: ProjectClassroomShareService,
+    private val coTeacherService: CoTeacherService
 ) : ClassroomService {
 
     override fun create(teacherId: UUID, classroomCreateRequest: ClassroomCreateRequest): Classroom {
@@ -39,7 +41,7 @@ class ClassroomServiceImpl(
                 accessCode,
                 teacherId
             )
-        ).let { Classroom.fromEntity(it, studentsCount = 0, projectsCount = 0) }
+        ).let { Classroom.fromEntity(it, studentsCount = 0, projectsCount = 0, coTeachersCount = 0) }
     }
 
     override fun update(classroomId: UUID, classroomUpdateRequest: ClassroomUpdateRequest): Classroom? {
@@ -76,7 +78,8 @@ class ClassroomServiceImpl(
             ?.let {
                 val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
                 val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
-                Classroom.fromEntity(it, studentsCount, projectsCount)
+                val coTeachersCount = coTeacherService.getCoTeacherCountByClassroomId(it.id!!)
+                Classroom.fromEntity(it, studentsCount, projectsCount, coTeachersCount)
             }
     }
 
@@ -99,7 +102,8 @@ class ClassroomServiceImpl(
             ?.let {
                 val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
                 val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
-                Classroom.fromEntity(it, studentsCount, projectsCount)
+                val coTeachersCount = coTeacherService.getCoTeacherCountByClassroomId(it.id!!)
+                Classroom.fromEntity(it, studentsCount, projectsCount, coTeachersCount)
             }
     }
 
@@ -107,12 +111,14 @@ class ClassroomServiceImpl(
         val classroomIds = classroomEntities.map { it.id!! }
         val studentCounts = studentClassroomLinkService.getStudentCounts(classroomIds)
         val projectCounts = projectClassroomShareService.getProjectCountsByClassrooms(classroomIds)
+        val coTeacherCounts = coTeacherService.getCoTeacherCoutsBtClassroomIds(classroomIds)
         return classroomEntities
             .map {
                 Classroom.fromEntity(
                     classroomEntity = it,
                     studentCounts.getOrDefault(it.id!!, 0),
-                    projectCounts.getOrDefault(it.id!!, 0)
+                    projectCounts.getOrDefault(it.id!!, 0),
+                    coTeacherCounts.getOrDefault(it.id!!, 0)
                 )
             }
     }
