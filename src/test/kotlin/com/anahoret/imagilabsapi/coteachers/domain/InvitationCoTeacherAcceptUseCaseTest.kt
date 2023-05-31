@@ -1,8 +1,6 @@
 package com.anahoret.imagilabsapi.coteachers.domain
 
-import com.anahoret.imagilabsapi.coteachers.domain.CoTeacher
-import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
-import com.anahoret.imagilabsapi.coteachers.domain.InvitationCoTeacherAcceptUseCaseImpl
+import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import io.mockk.every
 import io.mockk.mockk
@@ -56,10 +54,13 @@ class InvitationCoTeacherAcceptUseCaseTest {
         val currentTeacherProfile = mockk<TeacherProfile> {
             every { id } returns invitedTeacherId
             every { email } returns invitedTeacherEmail
+            every { firstName } returns "Test"
+            every { lastName } returns "Teacher"
         }
 
+        val teacherName = with(currentTeacherProfile) { "$firstName $lastName" }
         every { coTeacherService.getCoTeacher(invitationId) } returns coTeacher
-        every { coTeacherService.setTeacherId(invitationId, invitedTeacherId) } returns Unit
+        every { coTeacherService.setTeacherIdAndName(invitationId, invitedTeacherId, teacherName) } returns Unit
 
         val result = invitationCoTeacherAcceptUseCase.accept(invitationId, currentTeacherProfile)
 
