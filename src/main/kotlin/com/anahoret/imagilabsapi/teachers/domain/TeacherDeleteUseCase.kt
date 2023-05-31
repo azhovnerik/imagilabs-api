@@ -9,10 +9,10 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
-import com.anahoret.imagilabsapi.teachingmaterials.domain.TeacherLessonService
+import com.anahoret.imagilabsapi.teachingmaterials.domain.TeacherBundleService
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.*
-import jakarta.transaction.Transactional
 
 
 interface TeacherDeleteUseCase {
@@ -27,7 +27,7 @@ class TeacherDeleteUseCaseImpl(
     private val classroomDeleteUseCase: ClassroomDeleteUseCase,
     private val projectService: ProjectService,
     private val classroomService: ClassroomService,
-    private val teacherLessonService: TeacherLessonService,
+    private val teacherBundleService: TeacherBundleService
 ) : TeacherDeleteUseCase {
 
     @Transactional(rollbackOn = [Throwable::class])
@@ -39,7 +39,7 @@ class TeacherDeleteUseCaseImpl(
 
         deleteClassrooms(teacherProfile)
         deleteTeacherProjects(teacherProfile.id)
-        teacherLessonService.delete(teacherProfile.id)
+        teacherBundleService.deleteAllByTeacherId(teacherProfile.id)
         teacherProfileService.delete(teacherProfile.id)
         return Unit.right()
     }

@@ -9,6 +9,8 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.stereotype.Service
 import java.util.*
@@ -20,10 +22,11 @@ interface TeachingMaterialsGetUseCase {
 
 @Service
 class TeachingMaterialsGetUseCaseImpl(
-    private val teacherLessonService: TeacherLessonService,
+    private val teacherBundleService: TeacherBundleService,
     private val classroomService: ClassroomService,
     private val classroomAccessService: ClassroomAccessService,
-    private val lessonBundleService: LessonBundleService
+    private val lessonBundleService: LessonBundleService,
+    private val teacherSubscriptionService: TeacherSubscriptionService
 ) : TeachingMaterialsGetUseCase {
 
     override fun get(getBy: UserProfile, classroomId: UUID?): Either<OperationError, TeachingMaterials> {
@@ -43,15 +46,17 @@ class TeachingMaterialsGetUseCaseImpl(
     }
 
     private fun getForTeacher(teacherId: UUID): Either<OperationError, TeachingMaterials> {
-        val teacherLessons = getTeacherLessons(teacherId)
-        val worksheets = teacherLessons.map(TeachingMaterial.Companion::worksheetFromTeacherLesson)
-        val teachingSlides = teacherLessons.map(TeachingMaterial.Companion::teachingSlidesFromTeacherLesson)
+        val bundleLessons = getBundleLessons(teacherId)
+        val worksheets = bundleLessons.map(TeachingMaterial.Companion::worksheetFromBundleLesson)
+        val teachingSlides = bundleLessons.map(TeachingMaterial.Companion::teachingSlidesFromBundleLesson)
         return TeachingMaterials(teachingSlides, worksheets).right()
     }
 
-    private fun getTeacherLessons(teacherId: UUID): List<TeacherLesson> {
-        return teacherLessonService.listByTeacherId(teacherId).takeIf { it.isNotEmpty() }
-            ?: lessonBundleService.getDefaultBundle()?.lessons?.map { TeacherLesson.fromBundleLesson(it, teacherId) }
+    private fun getBundleLessons(teacherId: UUID): List<BundleLesson> {
+        val includePro = teacherSubscriptionService.getSubscriptionDto(teacherId)
+            ?.plan == TeacherSubscriptionPlan.PRO
+        return teacherBundleService.getBundleLessonsByTeacherId(teacherId, includePro).takeIf { it.isNotEmpty() }
+            ?: lessonBundleService.getDefaultBundle(includePro)?.lessons
             ?: emptyList()
     }
 

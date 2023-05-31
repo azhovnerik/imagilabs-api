@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.common
 
 import com.anahoret.imagilabsapi.admins.domain.AdminProfile
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
@@ -22,5 +23,15 @@ fun testTeacher(): TeacherProfile {
         emailVerified = true,
         marketingEmailSubscribed = false,
         subscription = TeacherSubscription(null, null, TeacherSubscriptionPlan.STANDARD, false)
+    )
+}
+
+fun testStudent(classroomId: UUID = UUID.randomUUID()): StudentProfile {
+    return StudentProfile(
+        UUID.randomUUID(),
+        "Martin",
+        "mrtinos",
+        createdAt = 0L,
+        classroomId
     )
 }

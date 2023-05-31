@@ -17,23 +17,23 @@ class TeachingMaterial(
 
     companion object {
 
-        fun worksheetFromTeacherLesson(teacherLesson: TeacherLesson): TeachingMaterial {
-            return fromTeacherLesson(teacherLesson, TeachingMaterialCategory.WORKSHEETS)
+        fun worksheetFromBundleLesson(bundleLesson: BundleLesson): TeachingMaterial {
+            return fromBundleLesson(bundleLesson, TeachingMaterialCategory.WORKSHEETS)
         }
 
-        fun teachingSlidesFromTeacherLesson(teacherLesson: TeacherLesson): TeachingMaterial {
-            return fromTeacherLesson(teacherLesson, TeachingMaterialCategory.TEACHING_SLIDES)
+        fun teachingSlidesFromBundleLesson(bundleLesson: BundleLesson): TeachingMaterial {
+            return fromBundleLesson(bundleLesson, TeachingMaterialCategory.TEACHING_SLIDES)
         }
 
-        private fun fromTeacherLesson(
-            teacherLesson: TeacherLesson,
+        private fun fromBundleLesson(
+            bundleLesson: BundleLesson,
             category: TeachingMaterialCategory
         ): TeachingMaterial {
             val uri = when (category) {
-                TeachingMaterialCategory.TEACHING_SLIDES -> teacherLesson.slidesUri
-                TeachingMaterialCategory.WORKSHEETS -> teacherLesson.worksheetUri
+                TeachingMaterialCategory.TEACHING_SLIDES -> bundleLesson.slidesUri
+                TeachingMaterialCategory.WORKSHEETS -> bundleLesson.worksheetUri
             }
-            return with(teacherLesson) {
+            return with(bundleLesson) {
                 TeachingMaterial(id, index, name, uri, isExternalLink = true, category, proLesson)
             }
         }

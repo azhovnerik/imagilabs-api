@@ -14,6 +14,7 @@ interface TeacherSubscriptionService {
     fun buildSubscriptionDto(teacherSubscriptionData: TeacherSubscriptionData): TeacherSubscription
     fun canCreateClassroom(teacherProfile: TeacherProfile): Boolean
     fun studentLimitPerClassExceeded(teacherProfile: TeacherProfile, studentCountInClassroom: Long): Boolean
+    fun getSubscriptionDto(teacherId: UUID): TeacherSubscription?
 }
 
 @Service
@@ -43,6 +44,11 @@ class TeacherSubscriptionServiceImpl(
         }
     }
 
+    override fun getSubscriptionDto(teacherId: UUID): TeacherSubscription? {
+        return teacherProfileEntityRepository.findByIdOrNull(teacherId)
+            ?.let { buildSubscriptionDto(it) }
+    }
+
     override fun canCreateClassroom(teacherProfile: TeacherProfile): Boolean {
         val currentClassCount = classroomService.countByTeacher(teacherProfile.id)
         return when (teacherProfile.subscription.plan) {
@@ -57,7 +63,6 @@ class TeacherSubscriptionServiceImpl(
             TeacherSubscriptionPlan.PRO -> studentCountInClassroom > TeacherSubscriptionLimits.Pro.STUDENTS_PER_CLASSROOM
         }
     }
-
 
     override fun cancelSubscription(teacherId: UUID) {
         teacherProfileEntityRepository.findByIdOrNull(teacherId)
