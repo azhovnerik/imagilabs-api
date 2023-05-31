@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
+import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
@@ -31,7 +32,8 @@ class InvitationCoTeacherAcceptUseCaseImpl(
         if (teacherProfile.email != coTeacher.teacherEmail)
             return AccessDeniedError("ONLY_INVITED_TEACHER_CAN_ACCEPT_INVITATION").left()
 
-        coTeacherService.setTeacherId(coTeacherId, teacherProfile.id)
+        val teacherName = with(teacherProfile) { "$firstName $lastName" }
+        coTeacherService.setTeacherIdAndName(coTeacherId, teacherProfile.id, teacherName)
 
         return Unit.right()
     }
