@@ -19,6 +19,7 @@ import java.util.*
 class CoTeachersController(
     private val invitationCoTeacherUseCase: InvitationCoTeacherUseCase,
     private val invitationCoTeacherAcceptUseCase: InvitationCoTeacherAcceptUseCase,
+    private val invitationCoTeacherResendUseCase: InvitationCoTeacherResendUseCase,
     private val coTeachersByClassroomIdUseCase: CoTeachersClassroomIdUseCase,
     private val coTeacherRemoveUseCase: CoTeacherRemoveUseCase,
     private val coTeacherLeaveUseCase: CoTeacherLeaveUseCase
@@ -42,9 +43,21 @@ class CoTeachersController(
         @RequestBody request: InvitationCoTeacherRequest,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
     ): ResponseEntity<ResponseDto<CoTeacher>> {
-        return when (val result = invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile.id)) {
+        return when (val result = invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
+    }
+
+    @Secured(UserRole.teacher)
+    @PostMapping("/api/classrooms/{invitationId}/resend-invite")
+    fun resentInvite(
+        @PathVariable invitationId: UUID,
+        @AuthenticationPrincipal teacherProfile: TeacherProfile
+    ): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
         }
     }
 

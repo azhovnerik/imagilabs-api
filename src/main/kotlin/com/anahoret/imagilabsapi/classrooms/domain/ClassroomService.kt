@@ -111,7 +111,7 @@ class ClassroomServiceImpl(
         val classroomIds = classroomEntities.map { it.id!! }
         val studentCounts = studentClassroomLinkService.getStudentCounts(classroomIds)
         val projectCounts = projectClassroomShareService.getProjectCountsByClassrooms(classroomIds)
-        val coTeacherCounts = coTeacherService.getCoTeacherCoutsBtClassroomIds(classroomIds)
+        val coTeacherCounts = coTeacherService.getCoTeacherCountsByClassroomIds(classroomIds)
         return classroomEntities
             .map {
                 Classroom.fromEntity(
