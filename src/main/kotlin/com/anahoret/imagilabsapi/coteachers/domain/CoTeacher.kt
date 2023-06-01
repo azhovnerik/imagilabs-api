@@ -8,8 +8,8 @@ class CoTeacher(
     val id: UUID,
     val classroomId: UUID,
     val teacherEmail: String,
-    val teacherId: UUID?,
-    val name: String?
+    val teacherId: UUID? = null,
+    val name: String? = null
 ) {
 
     companion object {
