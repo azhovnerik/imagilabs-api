@@ -17,8 +17,5 @@ class CoTeacherEntity(
     var teacherEmail: String,
 
     @Column(name = "teacher_id")
-    var teacherId: UUID? = null,
-
-    @Column(name = "name")
-    var name: String? = null
+    var teacherId: UUID? = null
 ): BaseEntity()

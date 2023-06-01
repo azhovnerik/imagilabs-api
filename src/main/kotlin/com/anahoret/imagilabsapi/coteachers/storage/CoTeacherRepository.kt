@@ -13,7 +13,16 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
     """
     )
     fun getClassroomIdsByTeacherId(teacherId: UUID): List<UUID>
-    fun findAllByClassroomId(classroomId: UUID): List<CoTeacherEntity>
+    @Query("""
+        SELECT ct.id AS id, ct.classroomId AS classroomId, 
+               ct.teacherId AS teacherId, ct.teacherEmail AS teacherEmail,
+               tp.firstName AS firstName, tp.lastName AS lastName
+        FROM CoTeacherEntity ct
+        LEFT JOIN TeacherProfileEntity tp ON ct.teacherId = tp.id
+        WHERE ct.classroomId = :classroomId
+        GROUP BY ct.id, tp.firstName, tp.lastName
+    """)
+    fun findAllByClassroomId(classroomId: UUID): List<CoTeacherData>
     fun existsByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): Boolean
     fun findByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): CoTeacherEntity?
     fun countAllByClassroomId(classroomId: UUID): Long
@@ -35,4 +44,13 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
 interface ClassroomCoTeacherCount {
     val classroomId: UUID
     val coTeacherCount: Long
+}
+
+interface CoTeacherData {
+    val id: UUID
+    val classroomId: UUID
+    val teacherEmail: String
+    val teacherId: UUID?
+    val firstName: String?
+    val lastName: String?
 }

@@ -9,7 +9,7 @@ import java.util.*
 interface CoTeacherService {
 
     fun createCoTeacher(classroomId: UUID, teacherEmail: String): CoTeacher
-    fun setTeacherIdAndName(coTeacherId: UUID, teacherId: UUID, name: String)
+    fun setTeacherIdAndName(coTeacherId: UUID, teacherId: UUID)
     fun getCoTeacher(coTeacherId: UUID): CoTeacher?
     fun getClassroomIdListByTeacherId(teacherId: UUID): List<UUID>
     fun isCoClassroom(classroomId: UUID, teacherId: UUID): Boolean
@@ -39,11 +39,10 @@ class CoTeacherServiceImpl(
             ?.let(CoTeacher.Companion::mapFromEntity)
     }
 
-    override fun setTeacherIdAndName(coTeacherId: UUID, teacherId: UUID, name: String) {
+    override fun setTeacherIdAndName(coTeacherId: UUID, teacherId: UUID) {
         coTeacherRepository.findByIdOrNull(coTeacherId)
             ?.let {
                 it.teacherId = teacherId
-                it.name = name
                 coTeacherRepository.save(it)
             }
     }
@@ -58,7 +57,7 @@ class CoTeacherServiceImpl(
 
     override fun getAllCoTeachersByClassroomId(classroomId: UUID): List<CoTeacher> {
         return coTeacherRepository.findAllByClassroomId(classroomId)
-            .map { CoTeacher.mapFromEntity(it) }
+            .map { CoTeacher.mapFromCoTeacherData(it) }
     }
 
     override fun getByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): CoTeacher? {

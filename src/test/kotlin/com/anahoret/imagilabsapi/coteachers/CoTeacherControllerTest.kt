@@ -228,7 +228,9 @@ class CoTeacherControllerTest {
             val coTeacher = CoTeacher(
                 UUID.randomUUID(),
                 UUID.randomUUID(),
-                teacherEmail
+                teacherEmail,
+                null,
+                null
             )
 
             every {

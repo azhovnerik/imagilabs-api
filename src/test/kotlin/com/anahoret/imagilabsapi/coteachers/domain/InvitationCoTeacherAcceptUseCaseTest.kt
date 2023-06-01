@@ -81,10 +81,9 @@ class InvitationCoTeacherAcceptUseCaseTest {
             every { lastName } returns "Teacher"
         }
 
-        val teacherName = with(currentTeacherProfile) { "$firstName $lastName" }
         every { coTeacherService.getCoTeacher(invitationId) } returns coTeacher
         every { classroomService.getById(coTeacher.classroomId) } returns mockk<Classroom>()
-        every { coTeacherService.setTeacherIdAndName(invitationId, invitedTeacherId, teacherName) } returns Unit
+        every { coTeacherService.setTeacherIdAndName(invitationId, invitedTeacherId) } returns Unit
 
         val result = invitationCoTeacherAcceptUseCase.accept(invitationId, currentTeacherProfile)
 

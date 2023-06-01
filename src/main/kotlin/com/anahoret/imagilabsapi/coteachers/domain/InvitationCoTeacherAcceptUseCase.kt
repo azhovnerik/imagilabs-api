@@ -38,8 +38,7 @@ class InvitationCoTeacherAcceptUseCaseImpl(
         val classroom = classroomService.getById(coTeacher.classroomId)
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
-        val teacherName = with(teacherProfile) { "$firstName $lastName" }
-        coTeacherService.setTeacherIdAndName(coTeacherId, teacherProfile.id, teacherName)
+        coTeacherService.setTeacherIdAndName(coTeacherId, teacherProfile.id)
 
         return classroom.right()
     }
