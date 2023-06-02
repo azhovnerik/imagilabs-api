@@ -32,11 +32,9 @@ class ClassroomGetTeachersUseCaseImpl(
             ?: return NotFoundError("OWNER_NOT_FOUND").left()
 
         val classroomTeachers = coTeacherService.getAllCoTeachersByClassroomId(classroomId)
-            .map { ClassroomTeacher.mapFromCoTeacher(it, TeacherRole.CO_TEACHER, teacherId == it.teacherId) }
+            .map { ClassroomTeacher.mapFromCoTeacher(it, teacherId == it.teacherId) }
             .toMutableList()
 
-        classroomTeachers.add(classroomOwner)
-
-        return classroomTeachers.right()
+        return (classroomTeachers + classroomOwner).right()
     }
 }

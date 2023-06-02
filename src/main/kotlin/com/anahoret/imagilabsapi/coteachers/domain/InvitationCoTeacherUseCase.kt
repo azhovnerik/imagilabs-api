@@ -4,11 +4,14 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomTeacher
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.signup.domain.ImagiLabsEmailValidator
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -18,7 +21,7 @@ interface InvitationCoTeacherUseCase {
         classroomId: UUID,
         request: InvitationCoTeacherRequest,
         currentTeacherId: UUID
-    ): Either<OperationError, CoTeacher>
+    ): Either<OperationError, ClassroomTeacher>
 }
 
 @Service
@@ -26,6 +29,7 @@ class InvitationCoTeacherUseCaseImpl(
     private val emailValidator: ImagiLabsEmailValidator,
     private val classroomService: ClassroomService,
     private val coTeacherService: CoTeacherService,
+    private val teacherProfileService: TeacherProfileService,
     private val invitationCoTeacherEmailSender: InvitationCoTeacherEmailSender
 ) : InvitationCoTeacherUseCase {
 
@@ -33,7 +37,7 @@ class InvitationCoTeacherUseCaseImpl(
         classroomId: UUID,
         request: InvitationCoTeacherRequest,
         currentTeacherId: UUID
-    ): Either<OperationError, CoTeacher> {
+    ): Either<OperationError, ClassroomTeacher> {
 
         with(request.normalized()) {
             if (!emailValidator.isValid(teacherEmail))
@@ -45,10 +49,12 @@ class InvitationCoTeacherUseCaseImpl(
             if (currentTeacherId != classroom.teacherId)
                 return AccessDeniedError("TEACHER_SHOULD_BE_OWNER_FOR_INVITATION").left()
 
-            val coTeacher = coTeacherService.createCoTeacher(classroomId, teacherEmail)
+            val teacherId = teacherProfileService.getTeacherIdByEmail(request.teacherEmail)
+
+            val coTeacher = coTeacherService.createCoTeacher(classroomId, teacherEmail, teacherId)
             invitationCoTeacherEmailSender.send(teacherEmail, coTeacher.id)
 
-            return coTeacher.right()
+            return ClassroomTeacher.mapFromCoTeacher(coTeacher, false).right()
         }
     }
 }

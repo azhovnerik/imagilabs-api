@@ -8,18 +8,18 @@ class ClassroomTeacher(
     val id: UUID?,
     val email: String,
     val role: TeacherRole,
-    val isAreYou: Boolean,
+    val isCurrentUser: Boolean,
     val fullName: String? = null,
     val invitationId: UUID?
 ) {
     companion object {
 
-        fun mapFromProfile(teacherProfile: TeacherProfile, role: TeacherRole, isAreYou: Boolean): ClassroomTeacher {
-            return with(teacherProfile) { ClassroomTeacher(id, email, role, isAreYou, fullName, null) }
+        fun mapFromProfile(teacherProfile: TeacherProfile, role: TeacherRole, isCurrentUser: Boolean): ClassroomTeacher {
+            return with(teacherProfile) { ClassroomTeacher(id, email, role, isCurrentUser, fullName, null) }
         }
 
-        fun mapFromCoTeacher(coTeacher: CoTeacher, role: TeacherRole, isAreYou: Boolean): ClassroomTeacher {
-            return with(coTeacher) { ClassroomTeacher(teacherId, teacherEmail, role, isAreYou, name, invitationId = id) }
+        fun mapFromCoTeacher(coTeacher: CoTeacher, isCurrentUser: Boolean): ClassroomTeacher {
+            return with(coTeacher) { ClassroomTeacher(teacherId, teacherEmail, coTeacherStatus, isCurrentUser, name, invitationId = id) }
         }
     }
 }
