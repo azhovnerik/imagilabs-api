@@ -10,7 +10,7 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
     @Query(
         """
         SELECT classroomId FROM CoTeacherEntity
-        WHERE teacherId = :teacherId
+        WHERE teacherId = :teacherId AND coTeacherStatus = 'CO_TEACHER'
     """
     )
     fun getClassroomIdsByTeacherId(teacherId: UUID): List<UUID>
