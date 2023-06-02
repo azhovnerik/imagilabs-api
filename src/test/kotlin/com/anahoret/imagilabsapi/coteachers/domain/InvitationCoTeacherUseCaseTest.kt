@@ -76,6 +76,7 @@ class InvitationCoTeacherUseCaseTest {
     fun `should return validation error`() {
         val testTeacher = testTeacher()
         val teacherEmail = testTeacher.email
+        val teacherIdInviteTo = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
         val classroom = mockk<Classroom> {
             every { teacherId } returns testTeacher.id
@@ -87,7 +88,8 @@ class InvitationCoTeacherUseCaseTest {
 
         every { emailValidator.isValid(teacherEmail) } returns true
         every { classroomService.getById(classroomId) } returns classroom
-        every { coTeacherService.createCoTeacher(classroomId, teacherEmail) } returns coTeacher
+        every { teacherProfileService.getTeacherIdByEmail(teacherEmail) } returns teacherIdInviteTo
+        every { coTeacherService.createCoTeacher(classroomId, teacherEmail, teacherIdInviteTo) } returns coTeacher
         every { invitationCoTeacherEmailSender.send(teacherEmail, coTeacherId) } returns Unit
 
         val request = InvitationCoTeacherRequest(teacherEmail)

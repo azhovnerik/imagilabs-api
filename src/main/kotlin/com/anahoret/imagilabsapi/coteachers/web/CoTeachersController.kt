@@ -44,7 +44,7 @@ class CoTeachersController(
         @RequestBody request: InvitationCoTeacherRequest,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
     ): ResponseEntity<ResponseDto<ClassroomTeacher>> {
-        return when (val result = invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile.id)) {
+        return when (val result = invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
