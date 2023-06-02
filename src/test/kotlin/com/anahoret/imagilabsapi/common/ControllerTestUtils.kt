@@ -1,10 +1,12 @@
 package com.anahoret.imagilabsapi.common
 
 import com.anahoret.imagilabsapi.admins.domain.AdminProfile
+import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import io.mockk.clearAllMocks
 import java.util.*
 
 fun testAdmin(): AdminProfile {
@@ -33,5 +35,17 @@ fun testStudent(classroomId: UUID = UUID.randomUUID()): StudentProfile {
         "mrtinos",
         createdAt = 0L,
         classroomId
+    )
+}
+
+fun testClassroom(teacherId: UUID = UUID.randomUUID()): Classroom {
+    return Classroom(
+        UUID.randomUUID(),
+        "Test classroom",
+        "1111",
+        5L,
+        5L,
+        teacherId,
+        2
     )
 }

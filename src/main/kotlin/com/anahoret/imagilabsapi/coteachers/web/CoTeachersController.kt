@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.coteachers.web
 
 import arrow.core.Either
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomTeacher
 import com.anahoret.imagilabsapi.common.web.EmptySuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
@@ -42,8 +43,8 @@ class CoTeachersController(
         @PathVariable classroomId: UUID,
         @RequestBody request: InvitationCoTeacherRequest,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
-    ): ResponseEntity<ResponseDto<CoTeacher>> {
-        return when (val result = invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile)) {
+    ): ResponseEntity<ResponseDto<ClassroomTeacher>> {
+        return when (val result = invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile.id)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }

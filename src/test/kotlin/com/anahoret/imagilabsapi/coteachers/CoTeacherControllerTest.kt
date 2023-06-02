@@ -5,6 +5,7 @@ import arrow.core.prependTo
 import arrow.core.right
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomTeacher
 import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.common.ControllerTest
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
@@ -231,12 +232,13 @@ class CoTeacherControllerTest {
         fun `should return success`() {
             val teacherProfile = testTeacher()
             val request = InvitationCoTeacherRequest(teacherEmail)
-            val coTeacher = CoTeacher(
-                UUID.randomUUID(),
+            val classroomTeacher = ClassroomTeacher(
                 UUID.randomUUID(),
                 teacherEmail,
-                null,
-                null
+                TeacherRole.CO_TEACHER_PENDING,
+                false,
+                "Someone",
+                UUID.randomUUID()
             )
 
             every {
@@ -245,7 +247,7 @@ class CoTeacherControllerTest {
                     request,
                     teacherProfile
                 )
-            } returns coTeacher.right()
+            } returns classroomTeacher.right()
 
             mvc.perform(
                 MockMvcRequestBuilders.post("/api/classrooms/$classroomId/invite-teacher")
