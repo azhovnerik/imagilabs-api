@@ -7,4 +7,5 @@ import java.util.*
 interface TeacherBundleRepository: JpaRepository<TeacherBundleEntity, UUID> {
 
     fun deleteAllByTeacherId(teacherId: UUID)
+    fun findByTeacherIdAndBundleId(teacherId: UUID, bundleId: UUID): TeacherBundleEntity?
 }

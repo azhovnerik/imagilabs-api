@@ -197,42 +197,43 @@ class TeacherBundleControllerTest {
         @MockkBean
         lateinit var teacherBundleDeleteUseCase: TeacherBundleDeleteUseCase
 
-        private val teacherBundleId = UUID.randomUUID()
+        private val teacherId = UUID.randomUUID()
+        private val bundleId = UUID.randomUUID()
 
         @Test
         fun `should return success`() {
             val adminProfile = testAdmin()
 
-            every { teacherBundleDeleteUseCase.delete(teacherBundleId) } returns Unit.right()
+            every { teacherBundleDeleteUseCase.delete(teacherId, bundleId) } returns Unit.right()
 
             mvc.perform(
-                MockMvcRequestBuilders.delete("/api/teachers/bundles/$teacherBundleId")
+                MockMvcRequestBuilders.delete("/api/teachers/$teacherId/bundles/$bundleId")
                     .contentType(MediaType.APPLICATION_JSON)
                     .asAdmin(adminProfile)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
-            verify { teacherBundleDeleteUseCase.delete(teacherBundleId) }
+            verify { teacherBundleDeleteUseCase.delete(teacherId, bundleId) }
         }
 
         @Test
         fun `should return not found error`() {
             val adminProfile = testAdmin()
 
-            every { teacherBundleDeleteUseCase.delete(teacherBundleId) } returns NotFoundError("").left()
+            every { teacherBundleDeleteUseCase.delete(teacherId, bundleId) } returns NotFoundError("").left()
 
             mvc.perform(
-                MockMvcRequestBuilders.delete("/api/teachers/bundles/$teacherBundleId")
+                MockMvcRequestBuilders.delete("/api/teachers/$teacherId/bundles/$bundleId")
                     .contentType(MediaType.APPLICATION_JSON)
                     .asAdmin(adminProfile)
             ).andExpect(MockMvcResultMatchers.status().isNotFound)
 
-            verify { teacherBundleDeleteUseCase.delete(teacherBundleId) }
+            verify { teacherBundleDeleteUseCase.delete(teacherId, bundleId) }
         }
 
         @Test
         fun `should return forbidden error`() {
             mvc.perform(
-                MockMvcRequestBuilders.delete("/api/teachers/bundles/$teacherBundleId")
+                MockMvcRequestBuilders.delete("/api/teachers/$teacherId/bundles/$bundleId")
                     .contentType(MediaType.APPLICATION_JSON)
                     .asTeacher()
             ).andExpect(MockMvcResultMatchers.status().isForbidden)

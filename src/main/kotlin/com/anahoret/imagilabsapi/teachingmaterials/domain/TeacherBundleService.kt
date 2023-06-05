@@ -10,7 +10,7 @@ interface TeacherBundleService {
     fun getBundlesByTeacherId(teacherId: UUID, includePro: Boolean): List<LessonBundle>
     fun deleteAllByTeacherId(teacherId: UUID)
     fun getBundleLessonsByTeacherId(teacherId: UUID, includePro: Boolean): List<BundleLesson>
-    fun exists(teacherBundleId: UUID): Boolean
+    fun getByTeacherIdAndBundleId(teacherId: UUID, bundleId: UUID): UUID?
     fun delete(teacherBundleId: UUID)
 }
 
@@ -44,8 +44,8 @@ class TeacherBundleServiceImpl(
             .map { BundleLesson.fromEntity(it) }
     }
 
-    override fun exists(teacherBundleId: UUID): Boolean {
-        return teacherBundleRepository.existsById(teacherBundleId)
+    override fun getByTeacherIdAndBundleId(teacherId: UUID, bundleId: UUID): UUID? {
+        return teacherBundleRepository.findByTeacherIdAndBundleId(teacherId, bundleId)?.id
     }
 
     override fun delete(teacherBundleId: UUID) {
