@@ -10,7 +10,7 @@ import java.util.*
 
 interface TeacherBundleDeleteUseCase {
 
-    fun delete(teacherBundleId: UUID): Either<OperationError, Unit>
+    fun delete(teacherId: UUID, bundleId: UUID): Either<OperationError, Unit>
 }
 
 @Service
@@ -18,10 +18,10 @@ class TeacherBundleDeleteUseCaseImpl(
     private val teacherBundleService: TeacherBundleService
 ): TeacherBundleDeleteUseCase {
 
-    override fun delete(teacherBundleId: UUID): Either<OperationError, Unit> {
+    override fun delete(teacherId: UUID, bundleId: UUID): Either<OperationError, Unit> {
 
-        if (!teacherBundleService.exists(teacherBundleId))
-            return NotFoundError("TEACHER_BUNDLE_NOT_FOUND").left()
+        val teacherBundleId = teacherBundleService.getByTeacherIdAndBundleId(teacherId, bundleId)
+            ?: return NotFoundError("TEACHER_BUNDLE_NOT_FOUND").left()
 
         teacherBundleService.delete(teacherBundleId)
 

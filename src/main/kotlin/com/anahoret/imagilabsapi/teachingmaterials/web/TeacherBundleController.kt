@@ -46,11 +46,12 @@ class TeacherBundleController(
     }
 
     @Secured(UserRole.admin)
-    @DeleteMapping("/api/teachers/bundles/{teacherBundleId}")
+    @DeleteMapping("/api/teachers/{teacherId}/bundles/{bundleId}")
     fun deleteTeacherBundle(
-        @PathVariable teacherBundleId: UUID
+        @PathVariable teacherId: UUID,
+        @PathVariable bundleId: UUID
     ): ResponseEntity<ResponseDto<Void>> {
-        return when (val result = teacherBundleDeleteUseCase.delete(teacherBundleId)) {
+        return when (val result = teacherBundleDeleteUseCase.delete(teacherId, bundleId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
         }
