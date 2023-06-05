@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.coteachers.domain
 
 import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
+import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole.CO_TEACHER_PENDING
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherEntity
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherRepository
 import org.springframework.data.repository.findByIdOrNull
@@ -68,7 +69,9 @@ class CoTeacherServiceImpl(
     }
 
     override fun isExistsPendingInvite(classroomId: UUID, teacherEmail: String): Boolean {
-        return coTeacherRepository.existsPendingByClassroomIdAndTeacherEmail(classroomId, teacherEmail)
+        return coTeacherRepository.existsByClassroomIdAndTeacherEmailAndCoTeacherStatus(
+            classroomId, teacherEmail, CO_TEACHER_PENDING
+        )
     }
 
     override fun getAllCoTeachersByClassroomId(classroomId: UUID): List<CoTeacher> {
