@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
@@ -28,7 +29,7 @@ class InvitationCoTeacherResendUseCaseImpl(
         val coTeacher = coTeacherService.getCoTeacher(invitationId)
             ?: return NotFoundError("INVITATION_NOT_FOUND").left()
 
-        if (coTeacher.teacherId != null)
+        if (coTeacher.coTeacherStatus == TeacherRole.CO_TEACHER)
             return ValidationError("INVITATION_ALREADY_ACCEPTED").left()
 
         val classroom = classroomService.getById(coTeacher.classroomId)

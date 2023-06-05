@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.coteachers.domain
 
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -36,6 +37,7 @@ class InvitationCoTeacherResendUseCaseTest {
     fun `should return invitation already accepted`() {
         val coTeacher = mockk<CoTeacher> {
             every { teacherId } returns UUID.randomUUID()
+            every { coTeacherStatus } returns TeacherRole.CO_TEACHER
         }
 
         every { coTeacherService.getCoTeacher(invitationId) } returns coTeacher
@@ -50,6 +52,7 @@ class InvitationCoTeacherResendUseCaseTest {
         val coTeacher = mockk<CoTeacher> {
             every { teacherId } returns null
             every { classroomId } returns UUID.randomUUID()
+            every { coTeacherStatus } returns TeacherRole.CO_TEACHER_PENDING
         }
 
         every { coTeacherService.getCoTeacher(invitationId) } returns coTeacher
@@ -65,6 +68,7 @@ class InvitationCoTeacherResendUseCaseTest {
         val coTeacher = mockk<CoTeacher> {
             every { teacherId } returns null
             every { classroomId } returns UUID.randomUUID()
+            every { coTeacherStatus } returns TeacherRole.CO_TEACHER_PENDING
         }
 
         val classroom = mockk<Classroom> {
@@ -85,6 +89,7 @@ class InvitationCoTeacherResendUseCaseTest {
             every { teacherId } returns null
             every { teacherEmail } returns ""
             every { classroomId } returns UUID.randomUUID()
+            every { coTeacherStatus } returns TeacherRole.CO_TEACHER_PENDING
         }
 
         val classroom = mockk<Classroom> {
