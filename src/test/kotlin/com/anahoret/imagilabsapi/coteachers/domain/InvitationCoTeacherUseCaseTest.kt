@@ -126,6 +126,7 @@ class InvitationCoTeacherUseCaseTest {
         every { classroomService.getById(classroomId) } returns classroom
         every { teacherProfileService.getTeacherIdByEmail(invitationEmailTo) } returns teacherIdInviteTo
         every { coTeacherService.createCoTeacher(classroomId, invitationEmailTo, teacherIdInviteTo) } returns coTeacher
+        every { coTeacherService.isExistsPendingInvite(classroomId, invitationEmailTo) } returns false
         every { invitationCoTeacherEmailSender.send(invitationEmailTo, coTeacher.id) } returns Unit
 
         val result = invitationCoTeacherUseCase.invite(classroomId, request, testTeacher)

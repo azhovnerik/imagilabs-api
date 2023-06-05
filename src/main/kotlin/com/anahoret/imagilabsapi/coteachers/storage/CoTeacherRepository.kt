@@ -32,6 +32,13 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
     fun existsByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): Boolean
 
     @Query("""
+        SELECT ct
+        FROM CoTeacherEntity ct
+        WHERE ct.classroomId = :classroomId AND ct.teacherEmail = :teacherEmail AND ct.coTeacherStatus = 'CO_TEACHER_PENDING'
+    """)
+    fun existsPendingByClassroomIdAndTeacherEmail(classroomId: UUID, teacherEmail: String): Boolean
+
+    @Query("""
         SELECT ct.id AS id, 
                ct.classroomId AS classroomId, 
                ct.teacherId AS teacherId, 
