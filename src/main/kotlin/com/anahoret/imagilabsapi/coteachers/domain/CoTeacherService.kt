@@ -19,7 +19,7 @@ interface CoTeacherService {
     fun deleteCoTeacher(coTeacherId: UUID)
     fun getByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): CoTeacher?
     fun getCoTeacherCountByClassroomId(classroomId: UUID): Long
-    fun getCoTeacherCoutsBtClassroomIds(classroomIds: Iterable<UUID>): Map<UUID, Long>
+    fun getCoTeacherCountsByClassroomIds(classroomIds: Iterable<UUID>): Map<UUID, Long>
 }
 
 @Service
@@ -80,7 +80,7 @@ class CoTeacherServiceImpl(
         return coTeacherRepository.countAllByClassroomId(classroomId)
     }
 
-    override fun getCoTeacherCoutsBtClassroomIds(classroomIds: Iterable<UUID>): Map<UUID, Long> {
+    override fun getCoTeacherCountsByClassroomIds(classroomIds: Iterable<UUID>): Map<UUID, Long> {
         return coTeacherRepository.getCoTeacherCountsByClassrooms(classroomIds)
             .associate { it.classroomId to it.coTeacherCount }
     }

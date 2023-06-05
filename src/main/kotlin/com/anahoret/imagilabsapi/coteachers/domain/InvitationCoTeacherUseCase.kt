@@ -20,7 +20,7 @@ interface InvitationCoTeacherUseCase {
     fun invite(
         classroomId: UUID,
         request: InvitationCoTeacherRequest,
-        currentTeacherId: UUID
+        currentTeacher: TeacherProfile
     ): Either<OperationError, ClassroomTeacher>
 }
 
@@ -36,7 +36,7 @@ class InvitationCoTeacherUseCaseImpl(
     override fun invite(
         classroomId: UUID,
         request: InvitationCoTeacherRequest,
-        currentTeacherId: UUID
+        currentTeacher: TeacherProfile
     ): Either<OperationError, ClassroomTeacher> {
 
         with(request.normalized()) {
@@ -46,12 +46,15 @@ class InvitationCoTeacherUseCaseImpl(
             val classroom = classroomService.getById(classroomId)
                 ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
-            if (currentTeacherId != classroom.teacherId)
+            if (currentTeacher.id != classroom.teacherId)
                 return AccessDeniedError("TEACHER_SHOULD_BE_OWNER_FOR_INVITATION").left()
 
-            val teacherId = teacherProfileService.getTeacherIdByEmail(request.teacherEmail)
+            if (currentTeacher.email == teacherEmail)
+                return ValidationError("TEACHER_CANNOT_INVITE_HIMSELF").left()
 
+            val teacherId = teacherProfileService.getTeacherIdByEmail(request.teacherEmail)
             val coTeacher = coTeacherService.createCoTeacher(classroomId, teacherEmail, teacherId)
+
             invitationCoTeacherEmailSender.send(teacherEmail, coTeacher.id)
 
             return ClassroomTeacher.mapFromCoTeacher(coTeacher, false).right()

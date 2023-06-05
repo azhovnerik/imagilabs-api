@@ -12,7 +12,7 @@ import java.util.*
 
 interface CoTeacherRemoveUseCase {
 
-    fun remove(classroomId: UUID, coTeacherId: UUID, currentTeacherId: UUID): Either<OperationError, Unit>
+    fun remove(classroomId: UUID, invitationId: UUID, currentTeacherId: UUID): Either<OperationError, Unit>
 }
 
 @Service
@@ -23,14 +23,14 @@ class CoTeacherRemoveUseCaseImpl(
 
     override fun remove(
         classroomId: UUID,
-        coTeacherId: UUID,
+        invitationId: UUID,
         currentTeacherId: UUID
     ): Either<OperationError, Unit> {
 
         val classroom = classroomService.getById(classroomId)
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
-        val coTeacher = coTeacherService.getCoTeacher(coTeacherId)
+        val coTeacher = coTeacherService.getCoTeacher(invitationId)
             ?: return NotFoundError("CO_TEACHER_NOT_FOUND").left()
 
         if (coTeacher.classroomId != classroomId)
@@ -39,7 +39,7 @@ class CoTeacherRemoveUseCaseImpl(
         if (currentTeacherId != classroom.teacherId)
             return AccessDeniedError("ONLY_OWNER_CAN_REMOVE_CO_TEACHER").left()
 
-        coTeacherService.deleteCoTeacher(coTeacherId)
+        coTeacherService.deleteCoTeacher(invitationId)
 
         return Unit.right()
     }

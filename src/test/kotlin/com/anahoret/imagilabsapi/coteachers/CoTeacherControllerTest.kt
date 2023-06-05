@@ -48,6 +48,9 @@ class CoTeacherControllerTest {
         lateinit var invitationCoTeacherUseCase: InvitationCoTeacherUseCase
 
         @MockkBean
+        lateinit var invitationCoTeacherResendUseCase: InvitationCoTeacherResendUseCase
+
+        @MockkBean
         lateinit var invitationCoTeacherAcceptUseCase: InvitationCoTeacherAcceptUseCase
 
         @MockkBean
@@ -126,6 +129,9 @@ class CoTeacherControllerTest {
         lateinit var invitationCoTeacherUseCase: InvitationCoTeacherUseCase
 
         @MockkBean
+        lateinit var invitationCoTeacherResendUseCase: InvitationCoTeacherResendUseCase
+
+        @MockkBean
         lateinit var invitationCoTeacherAcceptUseCase: InvitationCoTeacherAcceptUseCase
 
         @MockkBean
@@ -162,7 +168,7 @@ class CoTeacherControllerTest {
                 invitationCoTeacherUseCase.invite(
                     classroomId,
                     request,
-                    teacherProfile.id
+                    teacherProfile
                 )
             } returns ValidationError("").left()
 
@@ -173,7 +179,7 @@ class CoTeacherControllerTest {
                     .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().isBadRequest)
 
-            verify { invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile.id) }
+            verify { invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile) }
         }
 
         @Test
@@ -185,7 +191,7 @@ class CoTeacherControllerTest {
                 invitationCoTeacherUseCase.invite(
                     classroomId,
                     request,
-                    teacherProfile.id
+                    teacherProfile
                 )
             } returns NotFoundError("").left()
 
@@ -196,7 +202,7 @@ class CoTeacherControllerTest {
                     .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().isNotFound)
 
-            verify { invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile.id) }
+            verify { invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile) }
         }
 
         @Test
@@ -208,7 +214,7 @@ class CoTeacherControllerTest {
                 invitationCoTeacherUseCase.invite(
                     classroomId,
                     request,
-                    teacherProfile.id
+                    teacherProfile
                 )
             } returns AccessDeniedError("").left()
 
@@ -219,7 +225,7 @@ class CoTeacherControllerTest {
                     .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().isForbidden)
 
-            verify { invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile.id) }
+            verify { invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile) }
         }
 
         @Test
@@ -239,7 +245,7 @@ class CoTeacherControllerTest {
                 invitationCoTeacherUseCase.invite(
                     classroomId,
                     request,
-                    teacherProfile.id
+                    teacherProfile
                 )
             } returns classroomTeacher.right()
 
@@ -250,7 +256,7 @@ class CoTeacherControllerTest {
                     .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
-            verify { invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile.id) }
+            verify { invitationCoTeacherUseCase.invite(classroomId, request, teacherProfile) }
         }
     }
 
@@ -266,6 +272,9 @@ class CoTeacherControllerTest {
     inner class AcceptInvitationTest : ControllerTest() {
         @MockkBean
         lateinit var invitationCoTeacherUseCase: InvitationCoTeacherUseCase
+
+        @MockkBean
+        lateinit var invitationCoTeacherResendUseCase: InvitationCoTeacherResendUseCase
 
         @MockkBean
         lateinit var invitationCoTeacherAcceptUseCase: InvitationCoTeacherAcceptUseCase
@@ -364,6 +373,9 @@ class CoTeacherControllerTest {
         lateinit var invitationCoTeacherUseCase: InvitationCoTeacherUseCase
 
         @MockkBean
+        lateinit var invitationCoTeacherResendUseCase: InvitationCoTeacherResendUseCase
+
+        @MockkBean
         lateinit var invitationCoTeacherAcceptUseCase: InvitationCoTeacherAcceptUseCase
 
         @MockkBean
@@ -459,6 +471,9 @@ class CoTeacherControllerTest {
         lateinit var invitationCoTeacherUseCase: InvitationCoTeacherUseCase
 
         @MockkBean
+        lateinit var invitationCoTeacherResendUseCase: InvitationCoTeacherResendUseCase
+
+        @MockkBean
         lateinit var invitationCoTeacherAcceptUseCase: InvitationCoTeacherAcceptUseCase
 
         @MockkBean
@@ -524,6 +539,106 @@ class CoTeacherControllerTest {
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
             verify { coTeacherLeaveUseCase.leave(classroomId, teacherProfile.id) }
+        }
+    }
+
+    @ExtendWith(SpringExtension::class)
+    @DisplayName("when resend invitation to co-teacher")
+    @Nested
+    @WebMvcTest(
+        CoTeachersController::class,
+        AuthenticationEntryPoint::class,
+        JwtTokenUtil::class
+    )
+    @Suppress("unused")
+    inner class ResendInvitationCoTeacherTest : ControllerTest() {
+        @MockkBean
+        lateinit var invitationCoTeacherUseCase: InvitationCoTeacherUseCase
+
+        @MockkBean
+        lateinit var invitationCoTeacherResendUseCase: InvitationCoTeacherResendUseCase
+
+        @MockkBean
+        lateinit var invitationCoTeacherAcceptUseCase: InvitationCoTeacherAcceptUseCase
+
+        @MockkBean
+        lateinit var coTeachersByClassroomIdUseCase: CoTeachersClassroomIdUseCase
+
+        @MockkBean
+        lateinit var coTeacherRemoveUseCase: CoTeacherRemoveUseCase
+
+        @MockkBean
+        lateinit var coTeacherLeaveUseCase: CoTeacherLeaveUseCase
+
+        private val invitationId = UUID.randomUUID()
+
+        @Test
+        fun `should return forbidden error`() {
+            mvc.perform(
+                MockMvcRequestBuilders.post("/api/classrooms/$invitationId/resend-invite")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asStudent()
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
+        }
+
+        @Test
+        fun `should return not found error`() {
+            val teacherProfile = testTeacher()
+
+            every { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) } returns NotFoundError("").left()
+
+            mvc.perform(
+                MockMvcRequestBuilders.post("/api/classrooms/$invitationId/resend-invite")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asTeacher(teacherProfile)
+            ).andExpect(MockMvcResultMatchers.status().isNotFound)
+
+            verify { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) }
+        }
+
+        @Test
+        fun `should return validation error`() {
+            val teacherProfile = testTeacher()
+
+            every { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) } returns ValidationError("").left()
+
+            mvc.perform(
+                MockMvcRequestBuilders.post("/api/classrooms/$invitationId/resend-invite")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asTeacher(teacherProfile)
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest)
+
+            verify { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) }
+        }
+
+        @Test
+        fun `should return access denied error`() {
+            val teacherProfile = testTeacher()
+
+            every { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) } returns AccessDeniedError("").left()
+
+            mvc.perform(
+                MockMvcRequestBuilders.post("/api/classrooms/$invitationId/resend-invite")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asTeacher(teacherProfile)
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
+
+            verify { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) }
+        }
+
+        @Test
+        fun `should return success`() {
+            val teacherProfile = testTeacher()
+
+            every { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) } returns Unit.right()
+
+            mvc.perform(
+                MockMvcRequestBuilders.post("/api/classrooms/$invitationId/resend-invite")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asTeacher(teacherProfile)
+            ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
+
+            verify { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) }
         }
     }
 }

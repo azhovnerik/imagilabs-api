@@ -22,7 +22,7 @@ class InvitationCoTeacherEmailSenderImpl(
         emailService.sendAsync(
             emailProperties.noReplyAddress,
             email,
-            "Imagi Edu invitation",
+            "imagi Edu invitation",
             "Invitation link: https://${domainProperties.web}/#/invitation/${invitationId}/accept"
         )
     }
