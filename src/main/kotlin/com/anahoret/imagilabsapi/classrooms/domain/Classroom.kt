@@ -12,14 +12,28 @@ class Classroom(
     val projectsCount: Long,
     val teacherId: UUID,
     val teachersCount: Long,
-    var teacherRole: TeacherRole? = TeacherRole.OWNER
+    var teacherRole: TeacherRole = TeacherRole.OWNER
 ) {
 
     companion object {
 
-        fun fromEntity(classroomEntity: ClassroomEntity, studentsCount: Long, projectsCount: Long, coTeachersCount: Long): Classroom {
+        fun fromEntity(
+            classroomEntity: ClassroomEntity,
+            studentsCount: Long,
+            projectsCount: Long,
+            coTeachersCount: Long,
+        ): Classroom {
+
             return with(classroomEntity) {
-                Classroom(id!!, name, accessCode, studentsCount, projectsCount, teacherId, coTeachersCount + 1)
+                Classroom(
+                    id!!,
+                    name,
+                    accessCode,
+                    studentsCount,
+                    projectsCount,
+                    teacherId,
+                    coTeachersCount + 1,
+                )
             }
         }
     }
@@ -27,5 +41,5 @@ class Classroom(
 
 @Suppress("unused")
 enum class TeacherRole {
-    CO_TEACHER, OWNER
+    CO_TEACHER_PENDING, CO_TEACHER, OWNER
 }

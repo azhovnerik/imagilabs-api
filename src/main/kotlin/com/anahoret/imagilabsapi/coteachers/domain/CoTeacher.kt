@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.coteachers.domain
 
-import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherEntity
+import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
+import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherData
 import java.util.*
 
 @Suppress("unused")
@@ -8,19 +9,21 @@ class CoTeacher(
     val id: UUID,
     val classroomId: UUID,
     val teacherEmail: String,
-    val teacherId: UUID? = null,
-    val name: String? = null
+    val teacherId: UUID?,
+    val coTeacherStatus: TeacherRole,
+    val name: String?
 ) {
 
     companion object {
 
-        fun mapFromEntity(entity: CoTeacherEntity): CoTeacher {
+        fun mapFromCoTeacherData(data: CoTeacherData): CoTeacher {
             return CoTeacher(
-                entity.id!!,
-                entity.classroomId,
-                entity.teacherEmail,
-                entity.teacherId,
-                entity.name
+                data.id,
+                data.classroomId,
+                data.teacherEmail,
+                data.teacherId,
+                data.coTeacherStatus,
+                "${data.firstName?:""} ${data.lastName?:""}".trim()
             )
         }
     }

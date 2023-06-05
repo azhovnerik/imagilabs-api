@@ -5,9 +5,9 @@ import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
-import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
@@ -22,7 +22,7 @@ interface InvitationCoTeacherAcceptUseCase {
 class InvitationCoTeacherAcceptUseCaseImpl(
     private val coTeacherService: CoTeacherService,
     private val classroomService: ClassroomService
-): InvitationCoTeacherAcceptUseCase {
+) : InvitationCoTeacherAcceptUseCase {
 
     override fun accept(
         coTeacherId: UUID,
@@ -36,10 +36,11 @@ class InvitationCoTeacherAcceptUseCaseImpl(
             return AccessDeniedError("ONLY_INVITED_TEACHER_CAN_ACCEPT_INVITATION").left()
 
         val classroom = classroomService.getById(coTeacher.classroomId)
+            ?.let { it.teacherRole = TeacherRole.CO_TEACHER; it}
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
-        val teacherName = with(teacherProfile) { "$firstName $lastName" }
-        coTeacherService.setTeacherIdAndName(coTeacherId, teacherProfile.id, teacherName)
+        if (coTeacher.teacherId == null) coTeacherService.acceptInvitation(coTeacherId, teacherProfile.id)
+        else coTeacherService.acceptInvitation(coTeacherId)
 
         return classroom.right()
     }

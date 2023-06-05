@@ -2,8 +2,12 @@ package com.anahoret.imagilabsapi.coteachers.domain
 
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomTeacher
+import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
+import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.coteachers.domain.*
 import com.anahoret.imagilabsapi.signup.domain.ImagiLabsEmailValidator
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -18,11 +22,13 @@ class InvitationCoTeacherUseCaseTest {
     private val classroomService = mockk<ClassroomService>()
     private val coTeacherService = mockk<CoTeacherService>()
     private val invitationCoTeacherEmailSender = mockk<InvitationCoTeacherEmailSender>()
+    private val teacherProfileService = mockk<TeacherProfileService>()
 
     private val invitationCoTeacherUseCase = InvitationCoTeacherUseCaseImpl(
         emailValidator,
         classroomService,
         coTeacherService,
+        teacherProfileService,
         invitationCoTeacherEmailSender
     )
 
@@ -69,23 +75,32 @@ class InvitationCoTeacherUseCaseTest {
 
     @Test
     fun `should return co-teacher`() {
-        val teacherEmail = "teacher@gmail.com"
-        val currentTeacherId = UUID.randomUUID()
+        val invitationEmailTo = "teacher@gmail.com"
         val classroomId = UUID.randomUUID()
+        val request = InvitationCoTeacherRequest(invitationEmailTo)
+        val currentTeacherId = UUID.randomUUID()
+        val ownerClassroomId = currentTeacherId
+        val teacherIdInviteTo = UUID.randomUUID()
+
         val classroom = mockk<Classroom> {
-            every { teacherId } returns currentTeacherId
-        }
-        val coTeacherId = UUID.randomUUID()
-        val coTeacher = mockk<CoTeacher> {
-            every { id } returns coTeacherId
+            every { teacherId } returns  ownerClassroomId
         }
 
-        every { emailValidator.isValid(teacherEmail) } returns true
+        val coTeacher = CoTeacher(
+            UUID.randomUUID(),
+            classroomId,
+            invitationEmailTo,
+            teacherIdInviteTo,
+            TeacherRole.CO_TEACHER_PENDING,
+            "Test teacher"
+        )
+
+        every { emailValidator.isValid(invitationEmailTo) } returns true
         every { classroomService.getById(classroomId) } returns classroom
-        every { coTeacherService.createCoTeacher(classroomId, teacherEmail) } returns coTeacher
-        every { invitationCoTeacherEmailSender.send(teacherEmail, coTeacherId) } returns Unit
+        every { teacherProfileService.getTeacherIdByEmail(invitationEmailTo) } returns teacherIdInviteTo
+        every { coTeacherService.createCoTeacher(classroomId, invitationEmailTo, teacherIdInviteTo) } returns coTeacher
+        every { invitationCoTeacherEmailSender.send(invitationEmailTo, coTeacher.id) } returns Unit
 
-        val request = InvitationCoTeacherRequest(teacherEmail)
         val result = invitationCoTeacherUseCase.invite(classroomId, request, currentTeacherId)
 
         assertTrue(result.isRight())

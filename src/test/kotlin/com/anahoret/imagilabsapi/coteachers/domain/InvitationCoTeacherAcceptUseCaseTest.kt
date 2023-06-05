@@ -1,7 +1,8 @@
 package com.anahoret.imagilabsapi.coteachers.domain
 
-import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.common.testClassroom
+import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import io.mockk.every
 import io.mockk.mockk
@@ -66,27 +67,45 @@ class InvitationCoTeacherAcceptUseCaseTest {
     }
 
     @Test
-    fun `should return unit `() {
-        val invitedTeacherEmail = "teacher@gmail.com"
-        val invitedTeacherId = UUID.randomUUID()
-        val invitationId = UUID.randomUUID()
+    fun `should return unit when teacherId is defined`() {
+        val coTeacherId = UUID.randomUUID()
+        val coTeacherClassroomId = UUID.randomUUID()
+        val teacherProfile = testTeacher()
         val coTeacher = mockk<CoTeacher> {
-            every { teacherEmail } returns invitedTeacherEmail
-            every { classroomId } returns UUID.randomUUID()
-        }
-        val currentTeacherProfile = mockk<TeacherProfile> {
-            every { id } returns invitedTeacherId
-            every { email } returns invitedTeacherEmail
-            every { firstName } returns "Test"
-            every { lastName } returns "Teacher"
+            every { teacherEmail } returns teacherProfile.email
+            every { classroomId } returns coTeacherClassroomId
+            every { teacherId } returns teacherProfile.id
         }
 
-        val teacherName = with(currentTeacherProfile) { "$firstName $lastName" }
-        every { coTeacherService.getCoTeacher(invitationId) } returns coTeacher
-        every { classroomService.getById(coTeacher.classroomId) } returns mockk<Classroom>()
-        every { coTeacherService.setTeacherIdAndName(invitationId, invitedTeacherId, teacherName) } returns Unit
+        val classroom = testClassroom()
 
-        val result = invitationCoTeacherAcceptUseCase.accept(invitationId, currentTeacherProfile)
+        every { coTeacherService.getCoTeacher(coTeacherId) } returns coTeacher
+        every { classroomService.getById(coTeacherClassroomId) } returns classroom
+        every { coTeacherService.acceptInvitation(coTeacherId) } returns Unit
+
+        val result = invitationCoTeacherAcceptUseCase.accept(coTeacherId, teacherProfile)
+
+        assertTrue(result.isRight())
+    }
+
+    @Test
+    fun `should return unit when teacherId is undefined`() {
+        val coTeacherId = UUID.randomUUID()
+        val coTeacherClassroomId = UUID.randomUUID()
+        val teacherProfile = testTeacher()
+        val coTeacher = mockk<CoTeacher> {
+            every { teacherEmail } returns teacherProfile.email
+            every { classroomId } returns coTeacherClassroomId
+            every { teacherId } returns null
+        }
+
+        val classroom = testClassroom()
+
+        every { coTeacherService.getCoTeacher(coTeacherId) } returns coTeacher
+        every { classroomService.getById(coTeacherClassroomId) } returns classroom
+        every { coTeacherService.acceptInvitation(coTeacherId, teacherProfile.id) } returns Unit
+
+        val result = invitationCoTeacherAcceptUseCase.accept(coTeacherId, teacherProfile)
 
         assertTrue(result.isRight())
     }

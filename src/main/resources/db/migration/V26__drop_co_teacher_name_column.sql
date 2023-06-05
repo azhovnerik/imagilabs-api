@@ -1,0 +1,3 @@
+ALTER TABLE co_teachers
+    ADD COLUMN co_teacher_status TEXT NOT NULL DEFAULT 'CO_TEACHER_PENDING',
+    DROP COLUMN name;

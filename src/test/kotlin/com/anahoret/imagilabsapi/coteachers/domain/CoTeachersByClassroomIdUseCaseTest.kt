@@ -5,6 +5,7 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacher
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherServiceImpl
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeachersClassroomIdUseCaseImpl
+import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherData
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherEntity
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherRepository
 import io.mockk.every
@@ -38,7 +39,7 @@ class CoTeachersByClassroomIdUseCaseTest {
     @Test
     fun `should return list of co-teachers`() {
         val classroomId = UUID.randomUUID()
-        val coTeachers = listOf<CoTeacherEntity>()
+        val coTeachers = listOf<CoTeacherData>()
 
         every { classroomService.getById(classroomId) } returns mockk<Classroom>()
         every { coTeacherRepository.findAllByClassroomId(classroomId) } returns coTeachers

@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.coteachers.domain
 
+import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherEntity
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherRepository
 import org.springframework.data.repository.findByIdOrNull
@@ -8,8 +9,9 @@ import java.util.*
 
 interface CoTeacherService {
 
-    fun createCoTeacher(classroomId: UUID, teacherEmail: String): CoTeacher
-    fun setTeacherIdAndName(coTeacherId: UUID, teacherId: UUID, name: String)
+    fun createCoTeacher(classroomId: UUID, teacherEmail: String, teacherId: UUID?): CoTeacher
+    fun acceptInvitation(coTeacherId: UUID, teacherId: UUID)
+    fun acceptInvitation(coTeacherId: UUID)
     fun getCoTeacher(coTeacherId: UUID): CoTeacher?
     fun getClassroomIdListByTeacherId(teacherId: UUID): List<UUID>
     fun isCoClassroom(classroomId: UUID, teacherId: UUID): Boolean
@@ -28,22 +30,30 @@ class CoTeacherServiceImpl(
     override fun createCoTeacher(
         classroomId: UUID,
         teacherEmail: String,
+        teacherId: UUID?
     ): CoTeacher {
-        return coTeacherRepository.save(CoTeacherEntity(classroomId, teacherEmail))
-            .let(CoTeacher.Companion::mapFromEntity)
-
+        return coTeacherRepository.save(CoTeacherEntity(classroomId, teacherEmail, teacherId))
+            .let { getCoTeacher(it.id!!)!! }
     }
 
     override fun getCoTeacher(coTeacherId: UUID): CoTeacher? {
-        return coTeacherRepository.findByIdOrNull(coTeacherId)
-            ?.let(CoTeacher.Companion::mapFromEntity)
+        return coTeacherRepository.getCoTeacherById(coTeacherId)
+            ?.let(CoTeacher.Companion::mapFromCoTeacherData)
     }
 
-    override fun setTeacherIdAndName(coTeacherId: UUID, teacherId: UUID, name: String) {
+    override fun acceptInvitation(coTeacherId: UUID, teacherId: UUID) {
         coTeacherRepository.findByIdOrNull(coTeacherId)
             ?.let {
                 it.teacherId = teacherId
-                it.name = name
+                it.coTeacherStatus = TeacherRole.CO_TEACHER
+                coTeacherRepository.save(it)
+            }
+    }
+
+    override fun acceptInvitation(coTeacherId: UUID) {
+        coTeacherRepository.findByIdOrNull(coTeacherId)
+            ?.let {
+                it.coTeacherStatus = TeacherRole.CO_TEACHER
                 coTeacherRepository.save(it)
             }
     }
@@ -58,12 +68,12 @@ class CoTeacherServiceImpl(
 
     override fun getAllCoTeachersByClassroomId(classroomId: UUID): List<CoTeacher> {
         return coTeacherRepository.findAllByClassroomId(classroomId)
-            .map { CoTeacher.mapFromEntity(it) }
+            .map { CoTeacher.mapFromCoTeacherData(it) }
     }
 
     override fun getByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): CoTeacher? {
        return coTeacherRepository.findByClassroomIdAndTeacherId(classroomId, teacherId)
-           ?.let(CoTeacher.Companion::mapFromEntity)
+           ?.let(CoTeacher.Companion::mapFromCoTeacherData)
     }
 
     override fun getCoTeacherCountByClassroomId(classroomId: UUID): Long {
