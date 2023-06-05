@@ -37,7 +37,7 @@ class TeachingMaterialsControllerTest {
     inner class ListNewMaterialsTest : ControllerTest() {
 
         @MockkBean
-        lateinit var teachingMaterialsGetUseCase: TeachingMaterialsGetUseCase
+        lateinit var classroomTeachingMaterialsGetUseCase: ClassroomTeachingMaterialsGetUseCase
 
         private val teachingMaterials = teachingMaterials()
 
@@ -46,7 +46,7 @@ class TeachingMaterialsControllerTest {
             val classroomId = UUID.randomUUID()
             val teacherProfile = testTeacher()
 
-            every { teachingMaterialsGetUseCase.get(teacherProfile, classroomId) } returns teachingMaterials.right()
+            every { classroomTeachingMaterialsGetUseCase.get(teacherProfile, classroomId) } returns teachingMaterials.right()
 
             mvc.perform(
                 MockMvcRequestBuilders.get("/api/teaching-materials")
@@ -55,7 +55,7 @@ class TeachingMaterialsControllerTest {
                     .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
-            verify { teachingMaterialsGetUseCase.get(teacherProfile, classroomId) }
+            verify { classroomTeachingMaterialsGetUseCase.get(teacherProfile, classroomId) }
         }
 
         @Test
@@ -63,7 +63,7 @@ class TeachingMaterialsControllerTest {
             val classroomId = UUID.randomUUID()
             val studentProfile = testStudent(classroomId)
 
-            every { teachingMaterialsGetUseCase.get(studentProfile, classroomId) } returns teachingMaterials.right()
+            every { classroomTeachingMaterialsGetUseCase.get(studentProfile, classroomId) } returns teachingMaterials.right()
 
             mvc.perform(
                 MockMvcRequestBuilders.get("/api/teaching-materials")
@@ -72,7 +72,7 @@ class TeachingMaterialsControllerTest {
                     .asStudent(studentProfile)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
-            verify { teachingMaterialsGetUseCase.get(studentProfile, classroomId) }
+            verify { classroomTeachingMaterialsGetUseCase.get(studentProfile, classroomId) }
         }
     }
 
