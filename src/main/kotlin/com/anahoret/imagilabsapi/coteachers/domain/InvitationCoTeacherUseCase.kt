@@ -52,6 +52,9 @@ class InvitationCoTeacherUseCaseImpl(
             if (currentTeacher.email == teacherEmail)
                 return ValidationError("TEACHER_CANNOT_INVITE_HIMSELF").left()
 
+            if (coTeacherService.isExistsPendingInvite(classroomId, teacherEmail))
+                return ValidationError("INVITE_IS_ALREADY_EXISTS").left()
+
             val teacherId = teacherProfileService.getTeacherIdByEmail(request.teacherEmail)
             val coTeacher = coTeacherService.createCoTeacher(classroomId, teacherEmail, teacherId)
 
