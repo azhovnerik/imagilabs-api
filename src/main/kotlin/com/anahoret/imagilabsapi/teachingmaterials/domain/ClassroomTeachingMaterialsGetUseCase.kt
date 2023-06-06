@@ -37,7 +37,7 @@ class ClassroomTeachingMaterialsGetUseCaseImpl(
         return when (getBy.userType) {
             UserType.TEACHER -> {
                 if (!classroomAccessService.canGetTeachingMaterials(getBy, classroom))
-                    AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
+                    return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
                 getForTeacher(classroom)
             }
