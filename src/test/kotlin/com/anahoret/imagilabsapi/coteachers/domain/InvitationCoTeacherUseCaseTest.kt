@@ -73,6 +73,33 @@ class InvitationCoTeacherUseCaseTest {
     }
 
     @Test
+    fun `should return validation error when co-teachers limit exceeded`() {
+        val testTeacher = testTeacher()
+        val teacherEmail = testTeacher.email
+        val teacherIdInviteTo = UUID.randomUUID()
+        val classroomId = UUID.randomUUID()
+        val classroom = mockk<Classroom> {
+            every { teacherId } returns testTeacher.id
+        }
+        val coTeacherId = UUID.randomUUID()
+        val coTeacher = mockk<CoTeacher> {
+            every { id } returns coTeacherId
+        }
+
+        every { emailValidator.isValid(teacherEmail) } returns true
+        every { classroomService.getById(classroomId) } returns classroom
+        every { teacherProfileService.getTeacherIdByEmail(teacherEmail) } returns teacherIdInviteTo
+        every { coTeacherService.getCoTeacherCountByClassroomId(classroomId) } returns 5
+        every { coTeacherService.createCoTeacher(classroomId, teacherEmail, teacherIdInviteTo) } returns coTeacher
+        every { invitationCoTeacherEmailSender.send(teacherEmail, coTeacherId) } returns Unit
+
+        val request = InvitationCoTeacherRequest(teacherEmail)
+        val result = invitationCoTeacherUseCase.invite(classroomId, request, testTeacher)
+
+        assertTrue(result.isLeft())
+    }
+
+    @Test
     fun `should return validation error`() {
         val testTeacher = testTeacher()
         val teacherEmail = testTeacher.email
@@ -89,6 +116,7 @@ class InvitationCoTeacherUseCaseTest {
         every { emailValidator.isValid(teacherEmail) } returns true
         every { classroomService.getById(classroomId) } returns classroom
         every { teacherProfileService.getTeacherIdByEmail(teacherEmail) } returns teacherIdInviteTo
+        every { coTeacherService.getCoTeacherCountByClassroomId(classroomId) } returns 3
         every { coTeacherService.createCoTeacher(classroomId, teacherEmail, teacherIdInviteTo) } returns coTeacher
         every { invitationCoTeacherEmailSender.send(teacherEmail, coTeacherId) } returns Unit
 
@@ -125,6 +153,7 @@ class InvitationCoTeacherUseCaseTest {
         every { emailValidator.isValid(invitationEmailTo) } returns true
         every { classroomService.getById(classroomId) } returns classroom
         every { teacherProfileService.getTeacherIdByEmail(invitationEmailTo) } returns teacherIdInviteTo
+        every { coTeacherService.getCoTeacherCountByClassroomId(classroomId) } returns 3
         every { coTeacherService.createCoTeacher(classroomId, invitationEmailTo, teacherIdInviteTo) } returns coTeacher
         every { coTeacherService.isExistsPendingInvite(classroomId, invitationEmailTo) } returns false
         every { invitationCoTeacherEmailSender.send(invitationEmailTo, coTeacher.id) } returns Unit
