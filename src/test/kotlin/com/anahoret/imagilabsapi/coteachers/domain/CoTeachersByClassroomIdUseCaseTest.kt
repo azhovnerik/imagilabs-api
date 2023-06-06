@@ -2,11 +2,7 @@ package com.anahoret.imagilabsapi.coteachers.domain
 
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
-import com.anahoret.imagilabsapi.coteachers.domain.CoTeacher
-import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherServiceImpl
-import com.anahoret.imagilabsapi.coteachers.domain.CoTeachersClassroomIdUseCaseImpl
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherData
-import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherEntity
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherRepository
 import io.mockk.every
 import io.mockk.mockk

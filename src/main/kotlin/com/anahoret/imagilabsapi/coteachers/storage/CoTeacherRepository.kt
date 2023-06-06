@@ -29,7 +29,12 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
         GROUP BY ct.id, tp.firstName, tp.lastName
     """)
     fun findAllByClassroomId(classroomId: UUID): List<CoTeacherData>
-    fun existsByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): Boolean
+    fun existsByClassroomIdAndTeacherIdAndCoTeacherStatus(
+        classroomId: UUID,
+        teacherId: UUID,
+        coTeacherStatus: TeacherRole
+    ): Boolean
+
     fun existsByClassroomIdAndTeacherEmailAndCoTeacherStatus(
         classroomId: UUID,
         teacherEmail: String,
