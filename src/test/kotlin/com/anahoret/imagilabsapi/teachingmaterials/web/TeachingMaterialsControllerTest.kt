@@ -1,8 +1,10 @@
 package com.anahoret.imagilabsapi.teachingmaterials.web
 
+import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
 import com.anahoret.imagilabsapi.common.ControllerTest
+import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.teachingmaterials.domain.*
@@ -27,31 +29,80 @@ import java.util.*
 class TeachingMaterialsControllerTest {
 
     @ExtendWith(SpringExtension::class)
-    @DisplayName("when setting subscription period")
+    @DisplayName("when getting teaching materials")
     @Nested
     @WebMvcTest(
         TeachingMaterialController::class,
         AuthenticationEntryPoint::class,
         JwtTokenUtil::class
     )
+    @Suppress("unused")
     inner class ListNewMaterialsTest : ControllerTest() {
 
         @MockkBean
         lateinit var classroomTeachingMaterialsGetUseCase: ClassroomTeachingMaterialsGetUseCase
 
+        @MockkBean
+        lateinit var teachingMaterialsGetUseCase: TeachingMaterialsGetUseCase
+
         private val teachingMaterials = teachingMaterials()
 
         @Test
-        fun `get list of materials by teacher`() {
+        fun `should return success for teacher`() {
+            val teacherProfile = testTeacher()
+
+            every { teachingMaterialsGetUseCase.get(teacherProfile.id) } returns teachingMaterials
+
+            mvc.perform(
+                MockMvcRequestBuilders.get("/api/teaching-materials")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asTeacher(teacherProfile)
+            ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
+
+            verify { teachingMaterialsGetUseCase.get(teacherProfile.id) }
+        }
+
+        @Test
+        fun `should return forbidden error`() {
+            val studentProfile = testStudent()
+
+            mvc.perform(
+                MockMvcRequestBuilders.get("/api/teaching-materials")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asStudent(studentProfile)
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
+        }
+    }
+
+    @ExtendWith(SpringExtension::class)
+    @DisplayName("when getting classroom teaching materials")
+    @Nested
+    @WebMvcTest(
+        TeachingMaterialController::class,
+        AuthenticationEntryPoint::class,
+        JwtTokenUtil::class
+    )
+    @Suppress("unused")
+    inner class ClassroomTeachingMaterialsTest: ControllerTest() {
+
+        @MockkBean
+        lateinit var classroomTeachingMaterialsGetUseCase: ClassroomTeachingMaterialsGetUseCase
+
+        @MockkBean
+        lateinit var teachingMaterialsGetUseCase: TeachingMaterialsGetUseCase
+
+        private val teachingMaterials = teachingMaterials()
+
+        @Test
+        fun `should return success for teacher`() {
             val classroomId = UUID.randomUUID()
             val teacherProfile = testTeacher()
 
             every { classroomTeachingMaterialsGetUseCase.get(teacherProfile, classroomId) } returns teachingMaterials.right()
 
             mvc.perform(
-                MockMvcRequestBuilders.get("/api/teaching-materials")
+                MockMvcRequestBuilders.get("/api/classrooms/$classroomId/teaching-materials")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .param("classroomId", classroomId.toString())
                     .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
@@ -59,18 +110,49 @@ class TeachingMaterialsControllerTest {
         }
 
         @Test
-        fun `get list of materials by student`() {
+        fun `should return access denied error for teacher`() {
+            val classroomId = UUID.randomUUID()
+            val teacherProfile = testTeacher()
+
+            every { classroomTeachingMaterialsGetUseCase.get(teacherProfile, classroomId) } returns AccessDeniedError("").left()
+
+            mvc.perform(
+                MockMvcRequestBuilders.get("/api/classrooms/$classroomId/teaching-materials")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asTeacher(teacherProfile)
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
+
+            verify { classroomTeachingMaterialsGetUseCase.get(teacherProfile, classroomId) }
+        }
+
+        @Test
+        fun `should return success for student`() {
             val classroomId = UUID.randomUUID()
             val studentProfile = testStudent(classroomId)
 
             every { classroomTeachingMaterialsGetUseCase.get(studentProfile, classroomId) } returns teachingMaterials.right()
 
             mvc.perform(
-                MockMvcRequestBuilders.get("/api/teaching-materials")
+                MockMvcRequestBuilders.get("/api/classrooms/$classroomId/teaching-materials")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .param("classroomId", classroomId.toString())
                     .asStudent(studentProfile)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
+
+            verify { classroomTeachingMaterialsGetUseCase.get(studentProfile, classroomId) }
+        }
+
+        @Test
+        fun `should return access denied error for student`() {
+            val classroomId = UUID.randomUUID()
+            val studentProfile = testStudent(classroomId)
+
+            every { classroomTeachingMaterialsGetUseCase.get(studentProfile, classroomId) } returns AccessDeniedError("").left()
+
+            mvc.perform(
+                MockMvcRequestBuilders.get("/api/classrooms/$classroomId/teaching-materials")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asStudent(studentProfile)
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
 
             verify { classroomTeachingMaterialsGetUseCase.get(studentProfile, classroomId) }
         }

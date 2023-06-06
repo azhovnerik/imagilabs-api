@@ -68,8 +68,11 @@ class ClassroomTeachingMaterialsGetUseCaseImpl(
     private fun getBundleLessons(teacherId: UUID): List<BundleLesson> {
         val includePro = teacherSubscriptionService.getSubscriptionDto(teacherId)
             ?.plan == TeacherSubscriptionPlan.PRO
-        return teacherBundleService.getBundleLessonsByTeacherId(teacherId, includePro).takeIf { it.isNotEmpty() }
-            ?: lessonBundleService.getDefaultBundle(includePro)?.lessons
+        return teacherBundleService.getBundleLessonsByTeacherId(teacherId, includePro) + getDefaultBundle(includePro)
+    }
+
+    private fun getDefaultBundle(includePro: Boolean): List<BundleLesson> {
+        return lessonBundleService.getDefaultBundle(includePro)?.lessons
             ?: emptyList()
     }
 

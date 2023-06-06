@@ -41,10 +41,8 @@ class TeachingMaterialController(
     fun teacherMaterials(
         @AuthenticationPrincipal teacherProfile: TeacherProfile
     ): ResponseEntity<ResponseDto<TeachingMaterials?>> {
-        return when (val result = teachingMaterialsGetUseCase.get(teacherProfile.id)) {
-            is Either.Left -> mapErrors(result.value)
-            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
-        }
+        val result = teachingMaterialsGetUseCase.get(teacherProfile.id)
+        return ResponseEntity.ok(SuccessResponseDto(result))
     }
 
 }
