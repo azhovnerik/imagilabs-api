@@ -42,11 +42,10 @@ class TeacherBundlesGetUseCaseImpl(
     }
 
     private fun getTeacherBundles(teacherId: UUID, includePro: Boolean = true): List<LessonBundle> {
-        return teacherBundleService.getBundlesByTeacherId(teacherId, includePro).takeIf { it.isNotEmpty() }
-            ?: defaultBundles(includePro)
+        return teacherBundleService.getBundlesByTeacherId(teacherId, includePro) + defaultBundle(includePro)
     }
 
-    private fun defaultBundles(includePro: Boolean): List<LessonBundle> {
+    private fun defaultBundle(includePro: Boolean): List<LessonBundle> {
         val defaultBundle = lessonBundleService.getDefaultBundle(includePro)
             ?: return emptyList()
 
