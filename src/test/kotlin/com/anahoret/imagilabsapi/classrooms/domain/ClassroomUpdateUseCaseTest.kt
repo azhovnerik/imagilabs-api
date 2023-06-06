@@ -6,6 +6,7 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationErrors
+import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.students.domain.StudentCreateRequest
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
@@ -24,15 +25,19 @@ class ClassroomUpdateUseCaseTest {
     private val classroomService = mockk<ClassroomService>()
     private val classroomValidator = mockk<ClassroomValidator>()
     private val studentProfileService = mockk<StudentProfileService>()
+    private val coTeacherService = mockk<CoTeacherService>()
 
     private val classroomUpdateUseCase = ClassroomUpdateUseCaseImpl(
         classroomAccessService,
         classroomService,
         classroomValidator,
-        studentProfileService
+        studentProfileService,
+        coTeacherService
     )
 
-    private val teacherProfile = mockk<TeacherProfile>()
+    private val teacherProfile = mockk<TeacherProfile> {
+        every { id } returns UUID.randomUUID()
+    }
     private val classroomUpdateRequest = mockk<ClassroomUpdateRequest>()
     private val classroomId = UUID.randomUUID()
     private val classroom = mockk<Classroom> {
@@ -47,6 +52,7 @@ class ClassroomUpdateUseCaseTest {
         every { classroomValidator.validate(teacherProfile, classroomId, classroomUpdateRequest) } returns Unit.right()
         every { classroomService.update(classroomId, classroomUpdateRequest) } returns classroom
         every { studentProfileService.createStudents(classroomId, emptyList()) } returns emptyList()
+        every { coTeacherService.isCoClassroom(classroomId, teacherProfile.id) } returns false
 
         classroomUpdateUseCase.update(teacherProfile, classroomId, classroomUpdateRequest)
         verify { classroomService.update(classroomId, classroomUpdateRequest) }
@@ -61,6 +67,7 @@ class ClassroomUpdateUseCaseTest {
         every { classroomValidator.validate(teacherProfile, classroomId, classroomUpdateRequest) } returns Unit.right()
         every { classroomService.update(classroomId, classroomUpdateRequest) } returns classroom
         every { studentProfileService.createStudents(classroomId, studentCreateRequests) } returns emptyList()
+        every { coTeacherService.isCoClassroom(classroomId, teacherProfile.id) } returns false
 
         classroomUpdateUseCase.update(teacherProfile, classroomId, classroomUpdateRequest)
         verify { studentProfileService.createStudents(classroomId, studentCreateRequests) }
@@ -119,6 +126,8 @@ class ClassroomUpdateUseCaseTest {
         every { classroomValidator.validate(teacherProfile, classroomId, classroomUpdateRequest) } returns Unit.right()
         every { classroomService.update(classroomId, classroomUpdateRequest) } returns updatedClassroom
         every { studentProfileService.createStudents(classroomId, studentCreateRequests) } returns listOf(mockk())
+        every { coTeacherService.isCoClassroom(classroomId, teacherProfile.id) } returns false
+
         val result = classroomUpdateUseCase.update(teacherProfile, classroomId, classroomUpdateRequest)
         assertEquals(updatedClassroom.right(), result)
     }
