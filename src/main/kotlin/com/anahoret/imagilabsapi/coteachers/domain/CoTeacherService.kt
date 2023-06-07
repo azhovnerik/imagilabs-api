@@ -23,6 +23,7 @@ interface CoTeacherService {
     fun getByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): CoTeacher?
     fun getCoTeacherCountByClassroomId(classroomId: UUID): Long
     fun getCoTeacherCountsByClassroomIds(classroomIds: Iterable<UUID>): Map<UUID, Long>
+    fun isLinkedToProjectByOwnerId(teacherId: UUID, ownerId: UUID): Boolean
 }
 
 @Service
@@ -94,6 +95,10 @@ class CoTeacherServiceImpl(
     override fun getCoTeacherCountsByClassroomIds(classroomIds: Iterable<UUID>): Map<UUID, Long> {
         return coTeacherRepository.getCoTeacherCountsByClassrooms(classroomIds)
             .associate { it.classroomId to it.coTeacherCount }
+    }
+
+    override fun isLinkedToProjectByOwnerId(teacherId: UUID, ownerId: UUID): Boolean {
+        return coTeacherRepository.isLinkedToProjectByOwnerId(teacherId, ownerId)
     }
 
     override fun deleteCoTeacher(coTeacherId: UUID) {

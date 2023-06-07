@@ -15,7 +15,8 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
     )
     fun getClassroomIdsByTeacherId(teacherId: UUID): List<UUID>
 
-    @Query("""
+    @Query(
+        """
         SELECT ct.id AS id, 
                ct.classroomId AS classroomId, 
                ct.teacherId AS teacherId, 
@@ -27,7 +28,8 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
         LEFT JOIN TeacherProfileEntity tp ON ct.teacherId = tp.id
         WHERE ct.classroomId = :classroomId
         GROUP BY ct.id, tp.firstName, tp.lastName
-    """)
+    """
+    )
     fun findAllByClassroomId(classroomId: UUID): List<CoTeacherData>
     fun existsByClassroomIdAndTeacherIdAndCoTeacherStatus(
         classroomId: UUID,
@@ -41,7 +43,8 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
         coTeacherStatus: TeacherRole
     ): Boolean
 
-    @Query("""
+    @Query(
+        """
         SELECT ct.id AS id, 
                ct.classroomId AS classroomId, 
                ct.teacherId AS teacherId, 
@@ -52,10 +55,12 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
         FROM CoTeacherEntity ct
         LEFT JOIN TeacherProfileEntity tp ON ct.teacherId = tp.id
         WHERE ct.id = :coTeacherId
-    """)
+    """
+    )
     fun getCoTeacherById(coTeacherId: UUID): CoTeacherData?
 
-    @Query("""
+    @Query(
+        """
         SELECT ct.id AS id, 
                ct.classroomId AS classroomId, 
                ct.teacherId AS teacherId, 
@@ -66,7 +71,8 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
         FROM CoTeacherEntity ct
         LEFT JOIN TeacherProfileEntity tp ON ct.teacherId = tp.id
         WHERE ct.classroomId = :classroomId AND ct.teacherId = :teacherId
-    """)
+    """
+    )
     fun findByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): CoTeacherData?
     fun countAllByClassroomId(classroomId: UUID): Long
 
@@ -82,6 +88,17 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
         nativeQuery = true
     )
     fun getCoTeacherCountsByClassrooms(classroomIds: Iterable<UUID>): Iterable<ClassroomCoTeacherCount>
+
+    @Query("""
+        SELECT EXISTS(
+            SELECT ct
+            FROM CoTeacherEntity ct
+            JOIN ProjectClassroomShareEntity prjc ON ct.classroomId = prjc.classroomId
+            JOIN ProjectEntity prj ON prj.id = prjc.projectId
+            WHERE ct.teacherId = :teacherId AND prj.ownerId = :ownerId AND ct.coTeacherStatus = 'CO_TEACHER'
+        )
+    """)
+    fun isLinkedToProjectByOwnerId(teacherId: UUID, ownerId: UUID): Boolean
 }
 
 interface ClassroomCoTeacherCount {

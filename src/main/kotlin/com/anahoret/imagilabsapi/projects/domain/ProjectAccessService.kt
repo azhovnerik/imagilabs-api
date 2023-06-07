@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.projects.domain
 
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShare
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
@@ -26,35 +27,41 @@ interface ProjectAccessService {
 class ProjectAccessServiceImpl(
     private val projectClassroomShareService: ProjectClassroomShareService,
     private val classroomService: ClassroomService,
-    private val studentProfileService: StudentProfileService
+    private val studentProfileService: StudentProfileService,
+    private val coTeacherService: CoTeacherService
 ) : ProjectAccessService {
 
     override fun canEdit(userProfile: UserProfile, project: Project): Boolean {
-        return isOwner(userProfile, project) && !isShared(project)
+        return ( isOwner(userProfile, project) || isCoTeacher(userProfile, project.ownerId) )
+                && !isShared(project)
     }
 
     override fun canDelete(userProfile: UserProfile, project: Project): Boolean {
-        return isOwner(userProfile, project)
+        return isOwner(userProfile, project) || isCoTeacher(userProfile, project.ownerId)
     }
 
     override fun canRun(userProfile: UserProfile, project: Project): Boolean {
-        return isOwner(userProfile, project) || hasSharedAccess(userProfile, project)
+        return ( isOwner(userProfile, project) && isCoTeacher(userProfile, project.ownerId) )
+                || hasSharedAccess(userProfile, project)
     }
 
     override fun canShare(userProfile: UserProfile, project: Project): Boolean {
-        return isOwner(userProfile, project)
+        return isOwner(userProfile, project) || isCoTeacher(userProfile, project.ownerId)
     }
 
     override fun canUnshare(userProfile: UserProfile, project: Project): Boolean {
-        return isOwner(userProfile, project) || userIsTeacherOfOwnerStudent(userProfile, project.ownerId)
+        return isOwner(userProfile, project) || isCoTeacher(userProfile, project.ownerId)
+                || userIsTeacherOfOwnerStudent(userProfile, project.ownerId)
     }
 
     override fun canGet(userProfile: UserProfile, project: Project): Boolean {
         return isOwner(userProfile, project) || hasSharedAccess(userProfile, project)
+                || isCoTeacher(userProfile, project.ownerId)
     }
 
     override fun canListForOwner(userProfile: UserProfile, ownerId: UUID): Boolean {
         return userProfile.id == ownerId || userIsTeacherOfOwnerStudent(userProfile, ownerId)
+                || isCoTeacher(userProfile, ownerId)
     }
 
     private fun userIsTeacherOfOwnerStudent(userProfile: UserProfile, ownerId: UUID): Boolean {
@@ -67,6 +74,10 @@ class ProjectAccessServiceImpl(
 
     private fun isOwner(userProfile: UserProfile, project: Project): Boolean {
         return project.ownerId == userProfile.id && project.ownerUserType == userProfile.userType
+    }
+
+    private fun isCoTeacher(userProfile: UserProfile, ownerId: UUID): Boolean {
+        return coTeacherService.isLinkedToProjectByOwnerId(userProfile.id, ownerId)
     }
 
     private fun isShared(project: Project): Boolean {
