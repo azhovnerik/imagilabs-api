@@ -49,6 +49,9 @@ class InvitationCoTeacherUseCaseImpl(
             if (currentTeacher.id != classroom.teacherId)
                 return AccessDeniedError("TEACHER_SHOULD_BE_OWNER_FOR_INVITATION").left()
 
+            if (coTeacherService.getCoTeacherCountByClassroomId(classroomId) >= 5)
+                return ValidationError("CO_TEACHERS_LIMIT_EXCEEDED").left()
+
             if (currentTeacher.email == teacherEmail)
                 return ValidationError("TEACHER_CANNOT_INVITE_HIMSELF").left()
 
