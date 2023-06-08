@@ -14,12 +14,12 @@ import java.util.*
 
 interface ProjectAccessService {
 
-    fun canEdit(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean
+    fun canEdit(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean
     fun canRun(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean
     fun canShare(userProfile: UserProfile, project: Project, classroomIds: List<UUID>): Boolean
-    fun canUnshare(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean
+    fun canUnshare(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean
     fun canUnshare(userProfile: UserProfile, project: Project, classroomIds: List<UUID>): Boolean
-    fun canGet(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean
+    fun canGet(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean
     fun canDelete(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean
     fun canListForOwner(userProfile: UserProfile, ownerId: UUID, classroomId: UUID?): Boolean
 }
@@ -32,8 +32,8 @@ class ProjectAccessServiceImpl(
     private val coTeacherService: CoTeacherService
 ) : ProjectAccessService {
 
-    override fun canEdit(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean {
-        return ( isOwner(userProfile, project) || isCoTeacher(userProfile, classroomId) )
+    override fun canEdit(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
+        return (isOwner(userProfile, project) || isCoTeacher(userProfile, classroomId))
                 && !isShared(project)
     }
 
@@ -42,7 +42,7 @@ class ProjectAccessServiceImpl(
     }
 
     override fun canRun(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean {
-        return ( isOwner(userProfile, project) && isCoTeacher(userProfile, classroomId) )
+        return (isOwner(userProfile, project) && isCoTeacher(userProfile, classroomId))
                 || hasSharedAccess(userProfile, project)
     }
 
@@ -50,7 +50,7 @@ class ProjectAccessServiceImpl(
         return isOwner(userProfile, project) || isCoTeacher(userProfile, classroomIds)
     }
 
-    override fun canUnshare(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean {
+    override fun canUnshare(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
         return isOwner(userProfile, project) || isCoTeacher(userProfile, classroomId)
                 || userIsTeacherOfOwnerStudent(userProfile, project.ownerId)
     }
@@ -60,14 +60,14 @@ class ProjectAccessServiceImpl(
                 || userIsTeacherOfOwnerStudent(userProfile, project.ownerId)
     }
 
-    override fun canGet(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean {
+    override fun canGet(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
         return isOwner(userProfile, project) || hasSharedAccess(userProfile, project)
                 || isCoTeacher(userProfile, classroomId)
     }
 
     override fun canListForOwner(userProfile: UserProfile, ownerId: UUID, classroomId: UUID?): Boolean {
         return userProfile.id == ownerId || userIsTeacherOfOwnerStudent(userProfile, ownerId)
-                || (classroomId != null && isCoTeacher(userProfile, classroomId))
+                || isCoTeacher(userProfile, classroomId)
     }
 
     private fun userIsTeacherOfOwnerStudent(userProfile: UserProfile, ownerId: UUID): Boolean {
@@ -82,8 +82,8 @@ class ProjectAccessServiceImpl(
         return project.ownerId == userProfile.id && project.ownerUserType == userProfile.userType
     }
 
-    private fun isCoTeacher(userProfile: UserProfile, classroomId: UUID): Boolean {
-        return coTeacherService.isLinkedToClassroom(classroomId, userProfile.id)
+    private fun isCoTeacher(userProfile: UserProfile, classroomId: UUID?): Boolean {
+        return classroomId != null && coTeacherService.isLinkedToClassroom(classroomId, userProfile.id)
     }
 
     private fun isCoTeacher(userProfile: UserProfile, classroomIds: List<UUID>): Boolean {
