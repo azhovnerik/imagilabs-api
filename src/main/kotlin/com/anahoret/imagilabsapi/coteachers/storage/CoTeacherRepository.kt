@@ -88,17 +88,6 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
         nativeQuery = true
     )
     fun getCoTeacherCountsByClassrooms(classroomIds: Iterable<UUID>): Iterable<ClassroomCoTeacherCount>
-
-    @Query("""
-        SELECT EXISTS(
-            SELECT ct
-            FROM CoTeacherEntity ct
-            JOIN ProjectClassroomShareEntity prjc ON ct.classroomId = prjc.classroomId
-            JOIN ProjectEntity prj ON prj.id = prjc.projectId
-            WHERE ct.teacherId = :teacherId AND prj.ownerId = :ownerId AND ct.coTeacherStatus = 'CO_TEACHER'
-        )
-    """)
-    fun isLinkedToProjectByOwnerId(teacherId: UUID, ownerId: UUID): Boolean
 }
 
 interface ClassroomCoTeacherCount {

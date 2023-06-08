@@ -18,6 +18,7 @@ import java.util.*
 interface ProjectUpdateUseCase {
 
     fun update(
+        classroomId: UUID,
         updateBy: UserProfile,
         projectId: UUID,
         projectUpdateRequest: ProjectUpdateRequest
@@ -33,12 +34,13 @@ class ProjectUpdateUseCaseImpl(
 ) : ProjectUpdateUseCase {
 
     override fun update(
+        classroomId: UUID,
         updateBy: UserProfile,
         projectId: UUID,
         projectUpdateRequest: ProjectUpdateRequest
     ): Either<OperationError, ProjectDetails> {
         val project = projectService.getProjectById(projectId) ?: return NotFoundError("PROJECT_NOT_FOUND").left()
-        if (!projectAccessService.canEdit(updateBy, project))
+        if (!projectAccessService.canEdit(updateBy, project, classroomId))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
 
         val owner = projectOwnerGetUseCase.get(project)

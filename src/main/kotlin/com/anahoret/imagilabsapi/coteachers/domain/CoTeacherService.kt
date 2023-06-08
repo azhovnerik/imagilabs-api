@@ -16,14 +16,13 @@ interface CoTeacherService {
     fun acceptInvitation(coTeacherId: UUID)
     fun getCoTeacher(coTeacherId: UUID): CoTeacher?
     fun getClassroomIdListByTeacherId(teacherId: UUID): List<UUID>
-    fun isCoClassroom(classroomId: UUID, teacherId: UUID): Boolean
+    fun isLinkedToClassroom(classroomId: UUID, teacherId: UUID): Boolean
     fun isExistsPendingInvite(classroomId: UUID, teacherEmail: String): Boolean
     fun getAllCoTeachersByClassroomId(classroomId: UUID): List<CoTeacher>
     fun deleteCoTeacher(coTeacherId: UUID)
     fun getByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): CoTeacher?
     fun getCoTeacherCountByClassroomId(classroomId: UUID): Long
     fun getCoTeacherCountsByClassroomIds(classroomIds: Iterable<UUID>): Map<UUID, Long>
-    fun isLinkedToProjectByOwnerId(teacherId: UUID, ownerId: UUID): Boolean
 }
 
 @Service
@@ -66,7 +65,7 @@ class CoTeacherServiceImpl(
         return coTeacherRepository.getClassroomIdsByTeacherId(teacherId)
     }
 
-    override fun isCoClassroom(classroomId: UUID, teacherId: UUID): Boolean {
+    override fun isLinkedToClassroom(classroomId: UUID, teacherId: UUID): Boolean {
         return coTeacherRepository.existsByClassroomIdAndTeacherIdAndCoTeacherStatus(
             classroomId, teacherId, CO_TEACHER
         )
@@ -95,10 +94,6 @@ class CoTeacherServiceImpl(
     override fun getCoTeacherCountsByClassroomIds(classroomIds: Iterable<UUID>): Map<UUID, Long> {
         return coTeacherRepository.getCoTeacherCountsByClassrooms(classroomIds)
             .associate { it.classroomId to it.coTeacherCount }
-    }
-
-    override fun isLinkedToProjectByOwnerId(teacherId: UUID, ownerId: UUID): Boolean {
-        return coTeacherRepository.isLinkedToProjectByOwnerId(teacherId, ownerId)
     }
 
     override fun deleteCoTeacher(coTeacherId: UUID) {
