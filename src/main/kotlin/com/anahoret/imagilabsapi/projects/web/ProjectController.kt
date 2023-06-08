@@ -52,9 +52,9 @@ class ProjectController(
     }
 
     @Secured(UserRole.teacher, UserRole.student)
-    @PutMapping("/api/classrooms/{classroomId}/projects/{projectId}")
+    @PutMapping("/api/projects/{projectId}")
     fun updateProject(
-        @PathVariable classroomId: UUID,
+        @RequestParam(required = false) classroomId: UUID?,
         @PathVariable projectId: UUID,
         @RequestBody projectUpdateRequest: ProjectUpdateRequest,
         @AuthenticationPrincipal userProfile: UserProfile
