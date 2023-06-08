@@ -66,9 +66,9 @@ class ProjectController(
     }
 
     @Secured(UserRole.teacher, UserRole.student)
-    @GetMapping("/api/classrooms/{classroomId}/projects/{projectId}")
+    @GetMapping("/api/projects/{projectId}")
     fun getProject(
-        @PathVariable classroomId: UUID,
+        @RequestParam(required = false) classroomId: UUID?,
         @PathVariable projectId: UUID,
         @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<ProjectDetails>> {

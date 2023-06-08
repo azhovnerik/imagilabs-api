@@ -16,7 +16,7 @@ import java.util.*
 
 interface ProjectGetUseCase {
 
-    fun get(classroomId: UUID, getBy: UserProfile, projectId: UUID): Either<OperationError, ProjectDetails>
+    fun get(classroomId: UUID?, getBy: UserProfile, projectId: UUID): Either<OperationError, ProjectDetails>
 }
 
 @Service
@@ -27,7 +27,7 @@ class ProjectGetUseCaseImpl(
     private val projectClassroomShareDetailsListUseCase: ProjectClassroomShareDetailsListUseCase
 ) : ProjectGetUseCase {
 
-    override fun get(classroomId: UUID, getBy: UserProfile, projectId: UUID): Either<OperationError, ProjectDetails> {
+    override fun get(classroomId: UUID?, getBy: UserProfile, projectId: UUID): Either<OperationError, ProjectDetails> {
         val project = projectService.getProjectById(projectId) ?: return NotFoundError("PROJECT_NOT_FOUND").left()
         if (!projectAccessService.canGet(getBy, project, classroomId))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
