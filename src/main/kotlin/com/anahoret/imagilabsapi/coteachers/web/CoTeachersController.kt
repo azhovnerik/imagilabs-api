@@ -63,6 +63,7 @@ class CoTeachersController(
     }
 
     @Secured(UserRole.teacher)
+    //TODO rename this end-point
     @PutMapping("/api/classrooms/{invitationId}/accept-invite")
     fun acceptInvitation(
         @PathVariable invitationId: UUID,

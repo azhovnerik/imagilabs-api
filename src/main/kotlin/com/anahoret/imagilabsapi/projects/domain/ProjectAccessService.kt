@@ -83,7 +83,7 @@ class ProjectAccessServiceImpl(
     }
 
     private fun isCoTeacher(userProfile: UserProfile, classroomId: UUID): Boolean {
-        return coTeacherService.isLinkedToClassroom(userProfile.id, classroomId)
+        return coTeacherService.isLinkedToClassroom(classroomId, userProfile.id)
     }
 
     private fun isCoTeacher(userProfile: UserProfile, classroomIds: List<UUID>): Boolean {
