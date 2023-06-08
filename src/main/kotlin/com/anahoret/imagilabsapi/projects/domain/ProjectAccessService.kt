@@ -20,7 +20,7 @@ interface ProjectAccessService {
     fun canUnshare(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean
     fun canUnshare(userProfile: UserProfile, project: Project, classroomIds: List<UUID>): Boolean
     fun canGet(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean
-    fun canDelete(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean
+    fun canDelete(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean
     fun canListForOwner(userProfile: UserProfile, ownerId: UUID, classroomId: UUID?): Boolean
 }
 
@@ -37,7 +37,7 @@ class ProjectAccessServiceImpl(
                 && !isShared(project)
     }
 
-    override fun canDelete(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean {
+    override fun canDelete(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
         return isOwner(userProfile, project) || isCoTeacher(userProfile, classroomId)
     }
 
