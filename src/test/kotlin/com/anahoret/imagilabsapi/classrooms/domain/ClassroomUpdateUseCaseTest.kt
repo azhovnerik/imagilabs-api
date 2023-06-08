@@ -52,7 +52,7 @@ class ClassroomUpdateUseCaseTest {
         every { classroomValidator.validate(teacherProfile, classroomId, classroomUpdateRequest) } returns Unit.right()
         every { classroomService.update(classroomId, classroomUpdateRequest) } returns classroom
         every { studentProfileService.createStudents(classroomId, emptyList()) } returns emptyList()
-        every { coTeacherService.isCoClassroom(classroomId, teacherProfile.id) } returns false
+        every { coTeacherService.isLinkedToClassroom(classroomId, teacherProfile.id) } returns false
 
         classroomUpdateUseCase.update(teacherProfile, classroomId, classroomUpdateRequest)
         verify { classroomService.update(classroomId, classroomUpdateRequest) }
@@ -67,7 +67,7 @@ class ClassroomUpdateUseCaseTest {
         every { classroomValidator.validate(teacherProfile, classroomId, classroomUpdateRequest) } returns Unit.right()
         every { classroomService.update(classroomId, classroomUpdateRequest) } returns classroom
         every { studentProfileService.createStudents(classroomId, studentCreateRequests) } returns emptyList()
-        every { coTeacherService.isCoClassroom(classroomId, teacherProfile.id) } returns false
+        every { coTeacherService.isLinkedToClassroom(classroomId, teacherProfile.id) } returns false
 
         classroomUpdateUseCase.update(teacherProfile, classroomId, classroomUpdateRequest)
         verify { studentProfileService.createStudents(classroomId, studentCreateRequests) }
@@ -126,7 +126,7 @@ class ClassroomUpdateUseCaseTest {
         every { classroomValidator.validate(teacherProfile, classroomId, classroomUpdateRequest) } returns Unit.right()
         every { classroomService.update(classroomId, classroomUpdateRequest) } returns updatedClassroom
         every { studentProfileService.createStudents(classroomId, studentCreateRequests) } returns listOf(mockk())
-        every { coTeacherService.isCoClassroom(classroomId, teacherProfile.id) } returns false
+        every { coTeacherService.isLinkedToClassroom(classroomId, teacherProfile.id) } returns false
 
         val result = classroomUpdateUseCase.update(teacherProfile, classroomId, classroomUpdateRequest)
         assertEquals(updatedClassroom.right(), result)

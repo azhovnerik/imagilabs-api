@@ -38,50 +38,54 @@ class ProjectController(
     }
 
     @Secured(UserRole.teacher, UserRole.student)
-    @PostMapping("/api/projects/search")
+    @PostMapping("/api/classrooms/{classroomId}/projects/search")
     fun listProjects(
+        @PathVariable classroomId: UUID,
         @RequestBody searchRequest: SearchProjectsRequest,
         @AuthenticationPrincipal userProfile: UserProfile,
         pageable: Pageable
     ): ResponseEntity<ResponseDto<Page<ProjectCard>>> {
-        return when (val result = projectListUseCase.list(userProfile, searchRequest, pageable)) {
+        return when (val result = projectListUseCase.list(classroomId, userProfile, searchRequest, pageable)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
     @Secured(UserRole.teacher, UserRole.student)
-    @PutMapping("/api/projects/{projectId}")
+    @PutMapping("/api/classrooms/{classroomId}/projects/{projectId}")
     fun updateProject(
+        @PathVariable classroomId: UUID,
         @PathVariable projectId: UUID,
         @RequestBody projectUpdateRequest: ProjectUpdateRequest,
         @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<ProjectDetails?>> {
-        return when (val result = projectUpdateUseCase.update(userProfile, projectId, projectUpdateRequest)) {
+        return when (val result = projectUpdateUseCase.update(classroomId, userProfile, projectId, projectUpdateRequest)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
     @Secured(UserRole.teacher, UserRole.student)
-    @GetMapping("/api/projects/{projectId}")
+    @GetMapping("/api/classrooms/{classroomId}/projects/{projectId}")
     fun getProject(
+        @PathVariable classroomId: UUID,
         @PathVariable projectId: UUID,
         @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<ProjectDetails>> {
-        return when (val result = projectGetUseCase.get(userProfile, projectId)) {
+        return when (val result = projectGetUseCase.get(classroomId, userProfile, projectId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
     @Secured(UserRole.teacher, UserRole.student)
-    @DeleteMapping("/api/projects/{projectId}")
+    @DeleteMapping("/api/classrooms/{classroomId}/projects/{projectId}")
     fun deleteProject(
+        @PathVariable classroomId: UUID,
         @PathVariable projectId: UUID,
         @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<Void>> {
-        return when (val result = projectDeleteUseCase.delete(userProfile, projectId)) {
+        return when (val result = projectDeleteUseCase.delete(classroomId, userProfile, projectId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok().build()
         }

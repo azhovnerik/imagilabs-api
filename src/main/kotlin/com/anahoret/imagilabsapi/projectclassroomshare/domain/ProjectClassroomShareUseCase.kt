@@ -44,7 +44,7 @@ class ProjectClassroomShareUseCaseImpl(
         val project = projectService.getProjectById(projectId)
             ?: return NotFoundError("PROJECT_NOT_FOUND").left()
 
-        if (!projectAccessService.canShare(sharedBy, project))
+        if (!projectAccessService.canShare(sharedBy, project, classroomIds))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
 
         if (classroomIds.any { !userClassroomLinkService.isLinkedToClassroom(sharedBy, it) })

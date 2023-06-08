@@ -60,7 +60,7 @@ class ClassroomUpdateUseCaseImpl(
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
         studentProfileService.createStudents(classroom.id, classroomUpdateRequest.studentCreateRequests)
 
-        if (coTeacherService.isCoClassroom(classroom.id, updateBy.id))
+        if (coTeacherService.isLinkedToClassroom(classroom.id, updateBy.id))
             classroom.teacherRole = TeacherRole.CO_TEACHER
 
         return classroom.right()

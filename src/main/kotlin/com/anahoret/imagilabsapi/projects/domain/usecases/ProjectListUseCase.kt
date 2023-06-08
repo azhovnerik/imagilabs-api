@@ -15,10 +15,12 @@ import com.anahoret.imagilabsapi.projects.domain.SearchProjectsRequest
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import java.util.UUID
 
 interface ProjectListUseCase {
 
     fun list(
+        classroomId: UUID,
         listBy: UserProfile,
         searchRequest: SearchProjectsRequest,
         pageable: Pageable
@@ -34,12 +36,13 @@ class ProjectListUseCaseImpl(
 ) : ProjectListUseCase {
 
     override fun list(
+        classroomId: UUID,
         listBy: UserProfile,
         searchRequest: SearchProjectsRequest,
         pageable: Pageable
     ): Either<OperationError, Page<ProjectCard>> {
         val ownerId = searchRequest.ownerId
-        if (!projectAccessService.canListForOwner(listBy, ownerId)) {
+        if (!projectAccessService.canListForOwner(listBy, ownerId, classroomId)) {
             return AccessDeniedError("ACCESS_TO_OWNER_PROJECTS_DENIED").left()
         }
         val projects = projectService.search(searchRequest, pageable)

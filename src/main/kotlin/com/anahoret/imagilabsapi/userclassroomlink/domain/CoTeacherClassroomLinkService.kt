@@ -24,7 +24,7 @@ class CoTeacherClassroomLinkServiceImpl(
             UserType.TEACHER -> {
                 val teacherProfile = teacherProfileService.getTeacherById(userProfile.id)!!
 
-                coTeacherService.isCoClassroom(classroomId, teacherProfile.id)
+                coTeacherService.isLinkedToClassroom(classroomId, teacherProfile.id)
                         && teacherProfile.subscription.plan == TeacherSubscriptionPlan.PRO
             }
             else -> false
