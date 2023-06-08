@@ -79,9 +79,9 @@ class ProjectController(
     }
 
     @Secured(UserRole.teacher, UserRole.student)
-    @DeleteMapping("/api/classrooms/{classroomId}/projects/{projectId}")
+    @DeleteMapping("/api/projects/{projectId}")
     fun deleteProject(
-        @PathVariable classroomId: UUID,
+        @RequestParam(required = false) classroomId: UUID?,
         @PathVariable projectId: UUID,
         @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<Void>> {
