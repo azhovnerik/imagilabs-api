@@ -20,7 +20,7 @@ import java.util.UUID
 interface ProjectListUseCase {
 
     fun list(
-        classroomId: UUID,
+        classroomId: UUID?,
         listBy: UserProfile,
         searchRequest: SearchProjectsRequest,
         pageable: Pageable
@@ -36,7 +36,7 @@ class ProjectListUseCaseImpl(
 ) : ProjectListUseCase {
 
     override fun list(
-        classroomId: UUID,
+        classroomId: UUID?,
         listBy: UserProfile,
         searchRequest: SearchProjectsRequest,
         pageable: Pageable

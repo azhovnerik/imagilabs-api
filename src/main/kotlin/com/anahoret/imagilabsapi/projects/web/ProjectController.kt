@@ -38,9 +38,9 @@ class ProjectController(
     }
 
     @Secured(UserRole.teacher, UserRole.student)
-    @PostMapping("/api/classrooms/{classroomId}/projects/search")
+    @PostMapping("/api/projects/search")
     fun listProjects(
-        @PathVariable classroomId: UUID,
+        @RequestParam(required = false) classroomId: UUID?,
         @RequestBody searchRequest: SearchProjectsRequest,
         @AuthenticationPrincipal userProfile: UserProfile,
         pageable: Pageable
