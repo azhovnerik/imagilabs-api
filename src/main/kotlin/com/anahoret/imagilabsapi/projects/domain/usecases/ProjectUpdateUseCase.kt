@@ -18,7 +18,7 @@ import java.util.*
 interface ProjectUpdateUseCase {
 
     fun update(
-        classroomId: UUID,
+        classroomId: UUID?,
         updateBy: UserProfile,
         projectId: UUID,
         projectUpdateRequest: ProjectUpdateRequest
@@ -34,7 +34,7 @@ class ProjectUpdateUseCaseImpl(
 ) : ProjectUpdateUseCase {
 
     override fun update(
-        classroomId: UUID,
+        classroomId: UUID?,
         updateBy: UserProfile,
         projectId: UUID,
         projectUpdateRequest: ProjectUpdateRequest
