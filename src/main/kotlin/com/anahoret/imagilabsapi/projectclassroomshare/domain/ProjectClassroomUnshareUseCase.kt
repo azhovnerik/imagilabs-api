@@ -44,7 +44,7 @@ class ProjectClassroomUnshareUseCaseImpl(
         if (!projectAccessService.canUnshare(sharedBy, project, classroomIds))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
 
-        if (classroomIds.any { !isLinkedToClassroom(sharedBy, it) || !isLinkedAsCoTeacher(sharedBy, it) })
+        if (classroomIds.any { !isLinkedToClassroom(sharedBy, it) && !isLinkedAsCoTeacher(sharedBy, it) })
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
         projectClassroomShareService.unshareFromAll(projectId, classroomIds)
