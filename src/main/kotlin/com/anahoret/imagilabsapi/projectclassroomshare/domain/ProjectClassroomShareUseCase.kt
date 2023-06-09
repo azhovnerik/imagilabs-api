@@ -14,8 +14,10 @@ import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.pythoncompiler.domain.CodeRunUseCase
 import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeRequest
 import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeResponse
+import com.anahoret.imagilabsapi.userclassroomlink.domain.CoTeacherClassroomLinkService
 import com.anahoret.imagilabsapi.userclassroomlink.domain.UserClassroomLinkService
 import org.springframework.stereotype.Service
+import java.util.*
 
 interface ProjectClassroomShareUseCase {
 
@@ -30,6 +32,7 @@ class ProjectClassroomShareUseCaseImpl(
     private val projectClassroomShareService: ProjectClassroomShareService,
     private val projectService: ProjectService,
     private val userClassroomLinkService: UserClassroomLinkService,
+    private val coTeacherClassroomLinkService: CoTeacherClassroomLinkService,
     private val projectAccessService: ProjectAccessService,
     private val codeRunUseCase: CodeRunUseCase
 ) : ProjectClassroomShareUseCase {
@@ -47,7 +50,7 @@ class ProjectClassroomShareUseCaseImpl(
         if (!projectAccessService.canShare(sharedBy, project, classroomIds))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
 
-        if (classroomIds.any { !userClassroomLinkService.isLinkedToClassroom(sharedBy, it) })
+        if (classroomIds.any { !isLinkedToClassroom(sharedBy, it) && !isLinkedAsCoTeacher(sharedBy, it) })
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
         val result = codeRunUseCase.run(sharedBy, RunCodeRequest(project.sourceCode))
@@ -60,6 +63,14 @@ class ProjectClassroomShareUseCaseImpl(
                 result.value.right()
             }
         }
+    }
+
+    private fun isLinkedToClassroom(sharedBy: UserProfile, classroomId: UUID): Boolean {
+        return userClassroomLinkService.isLinkedToClassroom(sharedBy, classroomId)
+    }
+
+    private fun isLinkedAsCoTeacher(sharedBy: UserProfile, classroomId: UUID): Boolean {
+        return coTeacherClassroomLinkService.isLinkedToClassroom(classroomId, sharedBy)
     }
 
 }
