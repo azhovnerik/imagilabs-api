@@ -9,8 +9,10 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
+import com.anahoret.imagilabsapi.userclassroomlink.domain.CoTeacherClassroomLinkService
 import com.anahoret.imagilabsapi.userclassroomlink.domain.UserClassroomLinkService
 import org.springframework.stereotype.Service
+import java.util.*
 
 interface ProjectClassroomUnshareUseCase {
 
@@ -25,6 +27,7 @@ class ProjectClassroomUnshareUseCaseImpl(
     private val projectClassroomShareService: ProjectClassroomShareService,
     private val projectService: ProjectService,
     private val userClassroomLinkService: UserClassroomLinkService,
+    private val coTeacherClassroomLinkService: CoTeacherClassroomLinkService,
     private val projectAccessService: ProjectAccessService
 ) : ProjectClassroomUnshareUseCase {
 
@@ -41,12 +44,20 @@ class ProjectClassroomUnshareUseCaseImpl(
         if (!projectAccessService.canUnshare(sharedBy, project, classroomIds))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
 
-        if (classroomIds.any { !userClassroomLinkService.isLinkedToClassroom(sharedBy, it) })
+        if (classroomIds.any { !isLinkedToClassroom(sharedBy, it) || !isLinkedAsCoTeacher(sharedBy, it) })
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
         projectClassroomShareService.unshareFromAll(projectId, classroomIds)
         projectService.updateLastModifiedDate(projectId)
         return Unit.right()
+    }
+
+    private fun isLinkedToClassroom(sharedBy: UserProfile, classroomId: UUID): Boolean {
+        return userClassroomLinkService.isLinkedToClassroom(sharedBy, classroomId)
+    }
+
+    private fun isLinkedAsCoTeacher(sharedBy: UserProfile, classroomId: UUID): Boolean {
+        return coTeacherClassroomLinkService.isLinkedToClassroom(classroomId, sharedBy)
     }
 
 }
