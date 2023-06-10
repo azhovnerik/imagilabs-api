@@ -26,7 +26,7 @@ interface GoogleSheetsTeachersExportUseCase {
 class GoogleSheetsTeachersExportUseCaseImpl(
     private val applicationPropertiesService: ApplicationPropertiesService,
     private val googleSheetApi: GoogleSheetApi,
-    private val teacherProfileService: TeacherProfileService
+    private val teacherProfileService: TeacherProfileService,
 ) : GoogleSheetsTeachersExportUseCase {
 
     companion object {
@@ -84,7 +84,11 @@ class GoogleSheetsTeachersExportUseCaseImpl(
                     organization,
                     howDidYouHearAboutUs,
                     marketingEmailSubscribed.toString(),
-                    registrationDateTime
+                    registrationDateTime,
+                    howDidYouHearAboutUsOther ?: "",
+                    subscription.plan.name,
+                    subscription.start.toString(),
+                    subscription.end.toString()
                 )
             }
         }
