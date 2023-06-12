@@ -2,18 +2,16 @@ package com.anahoret.imagilabsapi.teachingmaterials.domain
 
 import java.util.*
 
-@Suppress("unused", "MemberVisibilityCanBePrivate", "CanBeParameter")
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class TeachingMaterial(
     val id: UUID,
     val index: Int,
     val name: String,
-    path: String,
+    val path: String,
     val isExternalLink: Boolean,
     val category: TeachingMaterialCategory,
     val proMaterial: Boolean
 ) {
-
-    val path = if (proMaterial) null else path
 
     companion object {
 
