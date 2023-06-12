@@ -29,39 +29,39 @@ class ProjectAccessServiceImpl(
     private val projectClassroomShareService: ProjectClassroomShareService,
     private val classroomService: ClassroomService,
     private val studentProfileService: StudentProfileService,
-    private val coTeacherService: CoTeacherService
+    private val coTeacherService: CoTeacherService,
 ) : ProjectAccessService {
 
     override fun canEdit(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
-        return (isOwner(userProfile, project) || isCoTeacher(userProfile, classroomId))
+        return (isProjectOwner(userProfile, project) || isCoTeacher(userProfile, classroomId))
                 && !isShared(project)
     }
 
     override fun canDelete(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
-        return isOwner(userProfile, project) || isCoTeacher(userProfile, classroomId)
+        return isProjectOwner(userProfile, project) || isCoTeacher(userProfile, classroomId)
     }
 
     override fun canRun(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean {
-        return (isOwner(userProfile, project) && isCoTeacher(userProfile, classroomId))
+        return (isProjectOwner(userProfile, project) || isCoTeacher(userProfile, classroomId))
                 || hasSharedAccess(userProfile, project)
     }
 
     override fun canShare(userProfile: UserProfile, project: Project, classroomIds: List<UUID>): Boolean {
-        return isOwner(userProfile, project) || isCoTeacher(userProfile, classroomIds)
+        return isProjectOwner(userProfile, project) || isOwnerOrCoTeacher(userProfile, classroomIds)
     }
 
     override fun canUnshare(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
-        return isOwner(userProfile, project) || isCoTeacher(userProfile, classroomId)
+        return isProjectOwner(userProfile, project) || isCoTeacher(userProfile, classroomId)
                 || userIsTeacherOfOwnerStudent(userProfile, project.ownerId)
     }
 
     override fun canUnshare(userProfile: UserProfile, project: Project, classroomIds: List<UUID>): Boolean {
-        return isOwner(userProfile, project) || isCoTeacher(userProfile, classroomIds)
+        return isProjectOwner(userProfile, project) || isOwnerOrCoTeacher(userProfile, classroomIds)
                 || userIsTeacherOfOwnerStudent(userProfile, project.ownerId)
     }
 
     override fun canGet(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
-        return isOwner(userProfile, project) || hasSharedAccess(userProfile, project)
+        return isProjectOwner(userProfile, project) || hasSharedAccess(userProfile, project)
                 || isCoTeacher(userProfile, classroomId)
     }
 
@@ -78,7 +78,7 @@ class ProjectAccessServiceImpl(
             } ?: false
     }
 
-    private fun isOwner(userProfile: UserProfile, project: Project): Boolean {
+    private fun isProjectOwner(userProfile: UserProfile, project: Project): Boolean {
         return project.ownerId == userProfile.id && project.ownerUserType == userProfile.userType
     }
 
@@ -86,9 +86,12 @@ class ProjectAccessServiceImpl(
         return classroomId != null && coTeacherService.isLinkedToClassroom(classroomId, userProfile.id)
     }
 
-    private fun isCoTeacher(userProfile: UserProfile, classroomIds: List<UUID>): Boolean {
+    private fun isOwnerOrCoTeacher(userProfile: UserProfile, classroomIds: List<UUID>): Boolean {
         val coTeacherClassroomIds = coTeacherService.getClassroomIdListByTeacherId(userProfile.id)
-        return coTeacherClassroomIds.containsAll(classroomIds)
+        val teacherClassroomIds = classroomService.listIdsByTeacher(userProfile.id)
+
+        return coTeacherClassroomIds.any { classroomIds.contains(it) }
+                || teacherClassroomIds.any { classroomIds.contains(it) }
     }
 
     private fun isShared(project: Project): Boolean {
@@ -98,9 +101,7 @@ class ProjectAccessServiceImpl(
     private fun hasSharedAccess(userProfile: UserProfile, project: Project): Boolean {
         return when (userProfile.userType) {
             UserType.TEACHER -> {
-                val teacherClassroomsIds = classroomService.listByTeacher(userProfile.id)
-                    .map { it.id }
-                    .toSet()
+                val teacherClassroomsIds = classroomService.listIdsByTeacher(userProfile.id)
                 val studentOwnerClassroomId = studentProfileService.getStudentById(project.ownerId)?.classroomId
                 return studentOwnerClassroomId in teacherClassroomsIds
             }

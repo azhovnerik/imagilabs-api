@@ -22,7 +22,8 @@ class CoTeacherClassroomLinkServiceImpl(
     override fun isLinkedToClassroom(classroomId: UUID, userProfile: UserProfile): Boolean {
         return when (userProfile.userType) {
             UserType.TEACHER -> {
-                val teacherProfile = teacherProfileService.getTeacherById(userProfile.id)!!
+                val teacherProfile = teacherProfileService.getTeacherById(userProfile.id)
+                        ?: return false
 
                 coTeacherService.isLinkedToClassroom(classroomId, teacherProfile.id)
                         && teacherProfile.subscription.plan == TeacherSubscriptionPlan.PRO
