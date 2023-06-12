@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.subscription.domain
 import arrow.core.getOrElse
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
+import com.anahoret.imagilabsapi.teachers.export.googlesheets.domain.GoogleSheetsTeachersExportUseCase
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -17,9 +18,11 @@ class SetSubscriptionPeriodUseCaseTest {
 
     private val teacherSubscriptionService = mockk<TeacherSubscriptionService>()
     private val teacherProfileService = mockk<TeacherProfileService>()
+    private val googleSheetsTeachersExportUseCase = mockk<GoogleSheetsTeachersExportUseCase>()
     private val setSubscriptionPeriodUseCaseImpl = SetSubscriptionPeriodUseCaseImpl(
         teacherSubscriptionService,
-        teacherProfileService
+        teacherProfileService,
+        googleSheetsTeachersExportUseCase
     )
 
     @Test
@@ -35,6 +38,7 @@ class SetSubscriptionPeriodUseCaseTest {
         val teacherId = UUID.randomUUID()
         val request = SetSubscriptionPeriodRequest(100, 200)
         every { teacherProfileService.exists(teacherId) } returns true
+        every { googleSheetsTeachersExportUseCase.updateAsync(teacherId) } returns Unit
         justRun { teacherSubscriptionService.setPeriod(teacherId, 100, 200) }
         setSubscriptionPeriodUseCaseImpl.set(teacherId, request)
         verify { teacherSubscriptionService.setPeriod(teacherId, 100, 200) }
