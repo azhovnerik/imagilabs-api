@@ -19,6 +19,7 @@ interface GoogleSheetsTeachersExportUseCase {
 
     fun export()
     fun exportAsync(teacherId: UUID)
+    fun updateAsync(teacherId: UUID)
 }
 
 @Service
@@ -51,6 +52,12 @@ class GoogleSheetsTeachersExportUseCaseImpl(
             ?.let { teacherProfile -> doExport { listOf(teacherProfile) } }
     }
 
+    @Async
+    override fun updateAsync(teacherId: UUID) {
+        teacherProfileService.getTeacherByIdForAdmin(teacherId)
+            ?.let { teacherProfile -> doUpdate { listOf(teacherProfile) } }
+    }
+
     private fun doExport(getTeachers: (List<List<String>>) -> List<TeacherProfileAdminView>) {
         val sheetId = applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_ID)
         val sheetName =
@@ -66,6 +73,26 @@ class GoogleSheetsTeachersExportUseCaseImpl(
             startRow = rows.size + 1,
             startCol = 1,
             endRow = rows.size + cells.size,
+            endCol = cells.first().size
+        )
+        googleSheetApi.updateSheet(sheetId, cellRange, cells)
+    }
+
+    private fun doUpdate(getTeachers: (List<List<String>>) -> List<TeacherProfileAdminView>) {
+        val sheetId = applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_ID)
+        val sheetName =
+            applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_NAME)
+        val rows = googleSheetApi.getSheet(sheetId, EntireSheetRange(sheetName))
+
+        val teachers = getTeachers(rows)
+
+        val teacherRowIndex = rows.indexOfFirst { row -> row[0] == teachers[0].id.toString() } + 1
+        val cells = toCells(teachers)
+        val cellRange = CellRange(
+            sheetName = sheetName,
+            startRow = teacherRowIndex,
+            startCol = 1,
+            endRow = teacherRowIndex,
             endCol = cells.first().size
         )
         googleSheetApi.updateSheet(sheetId, cellRange, cells)
@@ -87,10 +114,18 @@ class GoogleSheetsTeachersExportUseCaseImpl(
                     registrationDateTime,
                     howDidYouHearAboutUsOther ?: "",
                     subscription.plan.name,
-                    subscription.start.toString(),
-                    subscription.end.toString()
+                    subscription.start.toStockholmDateTime(),
+                    subscription.end.toStockholmDateTime()
                 )
             }
+        }
+    }
+
+    private fun Long?.toStockholmDateTime(): String {
+        return when(this) {
+            null -> "null"
+            else -> DateUtils.toStockholmDateTime(this)
+                .format(DATE_TIME_FORMAT)
         }
     }
 }
