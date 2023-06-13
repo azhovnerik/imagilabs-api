@@ -60,18 +60,8 @@ class BundleLessonEntityRepositoryTest {
     inner class FindLessonsByIncludedProOrderedByIndex {
 
         @Test
-        fun `should return lessons without pro lessons`() {
-            val result = bundleLessonEntityRepository.findLessonsByBundleIdOrderedByIndex(bundleId, false)
-            assertFalse(result.isEmpty())
-            assertTrue(result.size == 3)
-            assertTrue(result[0].index == 0)
-            assertTrue(result[1].index == 1)
-            assertTrue(result[2].index == 2)
-        }
-
-        @Test
-        fun `should return lessons with pro lessons`() {
-            val result = bundleLessonEntityRepository.findLessonsByBundleIdOrderedByIndex(bundleId, true)
+        fun `should return lessons test`() {
+            val result = bundleLessonEntityRepository.findLessonsByBundleIdOrderedByIndex(bundleId)
             assertFalse(result.isEmpty())
             assertTrue(result.size == 6)
             assertTrue(result[0].index == 0)
@@ -96,7 +86,7 @@ class BundleLessonEntityRepositoryTest {
         @Test
         fun `should return six bundles lessons by bundles ids`() {
             val bundlesIds = listOf(bundleId)
-            val result = bundleLessonEntityRepository.findAllByBundleLessonsIds(bundlesIds, true)
+            val result = bundleLessonEntityRepository.findAllByBundleLessonsIds(bundlesIds)
             assertFalse(result.isEmpty())
             assertTrue(result.size == 6)
         }
@@ -104,7 +94,7 @@ class BundleLessonEntityRepositoryTest {
         @Test
         fun `should return no one bundles lessons`() {
             val bundlesIds = emptyList<UUID>()
-            val result = bundleLessonEntityRepository.findAllByBundleLessonsIds(bundlesIds, true)
+            val result = bundleLessonEntityRepository.findAllByBundleLessonsIds(bundlesIds)
             assertTrue(result.isEmpty())
         }
     }
@@ -114,23 +104,15 @@ class BundleLessonEntityRepositoryTest {
     inner class FindAllBundleLessonsByTeacherId {
 
         @Test
-        fun `should return bundles lessons of teacher without pro lessons`() {
-            val result = bundleLessonEntityRepository.findAllBundleLessonsByTeacherId(teacherId, false)
-            assertFalse(result.isEmpty())
-            assertTrue(result.size == 3)
-            assertTrue(result.none { it.proLesson })
-        }
-
-        @Test
-        fun `should return bundles lessons of teacher with pro lessons`() {
-            val result = bundleLessonEntityRepository.findAllBundleLessonsByTeacherId(teacherId, true)
+        fun `should return bundles lessons test`() {
+            val result = bundleLessonEntityRepository.findAllBundleLessonsByTeacherId(teacherId)
             assertFalse(result.isEmpty())
             assertTrue(result.size == 6)
         }
 
         @Test
         fun `should return no one bundles lessons`() {
-            val result = bundleLessonEntityRepository.findAllBundleLessonsByTeacherId(UUID.randomUUID(), false)
+            val result = bundleLessonEntityRepository.findAllBundleLessonsByTeacherId(UUID.randomUUID())
             assertTrue(result.isEmpty())
         }
     }

@@ -261,6 +261,7 @@ class ProjectAccessServiceTest {
         every { classroomService.listIdsByTeacher(testTeacher.id) } returns emptySet()
         every { studentProfileService.getStudentById(project.ownerId) } returns null
         every { coTeacherService.isLinkedToClassroom(classroomId, testTeacher.id) } returns false
+        every { classroomService.isClassroomOwnedByTeacher(classroomId, testTeacher.id) } returns false
 
         assertFalse(projectAccessService.canGet(testTeacher, project, classroomId))
     }
