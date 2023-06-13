@@ -12,23 +12,23 @@ interface BundleLessonEntityRepository : CrudRepository<BundleLessonEntity, UUID
     @Query("""
         SELECT bl
         FROM BundleLessonEntity bl
-        WHERE bl.bundleId = :bundleId AND (:includePro = true OR bl.proLesson = false)
+        WHERE bl.bundleId = :bundleId
         ORDER BY bl.index
     """)
-    fun findLessonsByIncludedProOrderedByIndex(bundleId: UUID, includePro: Boolean): List<BundleLessonEntity>
+    fun findLessonsByBundleIdOrderedByIndex(bundleId: UUID): List<BundleLessonEntity>
 
     @Query("""
         SELECT bl
         FROM BundleLessonEntity bl
-        WHERE bl.bundleId in :bundlesIds AND (:includePro = true OR bl.proLesson = false)
+        WHERE bl.bundleId in :bundlesIds
     """)
-    fun findAllByBundleIds(bundlesIds: List<UUID>, includePro: Boolean): List<BundleLessonEntity>
+    fun findAllByBundleLessonsIds(bundlesIds: List<UUID>): List<BundleLessonEntity>
 
     @Query("""
         SELECT bl
         FROM BundleLessonEntity bl
         JOIN TeacherBundleEntity tb ON bl.bundleId = tb.bundleId
-        WHERE tb.teacherId = :teacherId AND (:includePro = true OR bl.proLesson = false)
+        WHERE tb.teacherId = :teacherId
     """)
-    fun findAllBundleLessonsByTeacherId(teacherId: UUID, includePro: Boolean): List<BundleLessonEntity>
+    fun findAllBundleLessonsByTeacherId(teacherId: UUID): List<BundleLessonEntity>
 }

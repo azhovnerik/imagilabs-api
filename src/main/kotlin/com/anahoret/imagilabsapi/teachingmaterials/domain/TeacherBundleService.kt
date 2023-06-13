@@ -7,9 +7,9 @@ import java.util.*
 interface TeacherBundleService {
 
     fun create(teacherId: UUID, bundleId: UUID)
-    fun getBundlesByTeacherId(teacherId: UUID, includePro: Boolean): List<LessonBundle>
+    fun getBundlesByTeacherId(teacherId: UUID): List<LessonBundle>
     fun deleteAllByTeacherId(teacherId: UUID)
-    fun getBundleLessonsByTeacherId(teacherId: UUID, includePro: Boolean): List<BundleLesson>
+    fun getBundleLessonsByTeacherId(teacherId: UUID): List<BundleLesson>
     fun getByTeacherIdAndBundleId(teacherId: UUID, bundleId: UUID): UUID?
     fun delete(teacherBundleId: UUID)
 }
@@ -27,10 +27,10 @@ class TeacherBundleServiceImpl(
         )
     }
 
-    override fun getBundlesByTeacherId(teacherId: UUID, includePro: Boolean): List<LessonBundle> {
+    override fun getBundlesByTeacherId(teacherId: UUID): List<LessonBundle> {
         val lessonBundlesEntities = lessonBundleEntityRepository.findAllByTeacherId(teacherId)
         val lessonBundlesEntitiesIds = lessonBundlesEntities.map { it.id!! }
-        val bundleLessons = bundleLessonEntityRepository.findAllByBundleIds(lessonBundlesEntitiesIds, includePro)
+        val bundleLessons = bundleLessonEntityRepository.findAllByBundleLessonsIds(lessonBundlesEntitiesIds)
 
         return mapToLessonBundles(lessonBundlesEntities, bundleLessons)
     }
@@ -39,8 +39,8 @@ class TeacherBundleServiceImpl(
         teacherBundleRepository.deleteAllByTeacherId(teacherId)
     }
 
-    override fun getBundleLessonsByTeacherId(teacherId: UUID, includePro: Boolean): List<BundleLesson> {
-        return bundleLessonEntityRepository.findAllBundleLessonsByTeacherId(teacherId, includePro)
+    override fun getBundleLessonsByTeacherId(teacherId: UUID): List<BundleLesson> {
+        return bundleLessonEntityRepository.findAllBundleLessonsByTeacherId(teacherId)
             .map { BundleLesson.fromEntity(it) }
     }
 

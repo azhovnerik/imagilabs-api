@@ -23,30 +23,28 @@ class TeacherBundlesGetUseCaseImpl(
     private val teacherBundleService: TeacherBundleService,
     private val teacherProfileService: TeacherProfileService,
     private val lessonBundleService: LessonBundleService
-): TeacherBundlesGetUseCase {
+) : TeacherBundlesGetUseCase {
 
     override fun getAll(teacherId: UUID, currentUser: UserProfile): Either<OperationError, List<LessonBundle>> {
 
-        val teacherProfile = teacherProfileService.getTeacherById(teacherId)
+        teacherProfileService.getTeacherById(teacherId)
             ?: return NotFoundError("TEACHER_NOT_FOUND").left()
-
-        val includePro = teacherProfile.subscription.plan == TeacherSubscriptionPlan.PRO
 
         return when (currentUser.userType) {
             UserType.ADMIN -> getTeacherBundles(teacherId).right()
             else -> {
-                if (currentUser.id == teacherId) getTeacherBundles(teacherId, includePro).right()
+                if (currentUser.id == teacherId) getTeacherBundles(teacherId).right()
                 else AccessDeniedError("TEACHER_CAN_GET_ONLY_HIS_BUNDLES").left()
             }
         }
     }
 
-    private fun getTeacherBundles(teacherId: UUID, includePro: Boolean = true): List<LessonBundle> {
-        return teacherBundleService.getBundlesByTeacherId(teacherId, includePro) + defaultBundle(includePro)
+    private fun getTeacherBundles(teacherId: UUID): List<LessonBundle> {
+        return teacherBundleService.getBundlesByTeacherId(teacherId) + defaultBundle()
     }
 
-    private fun defaultBundle(includePro: Boolean): List<LessonBundle> {
-        val defaultBundle = lessonBundleService.getDefaultBundle(includePro)
+    private fun defaultBundle(): List<LessonBundle> {
+        val defaultBundle = lessonBundleService.getDefaultBundle()
             ?: return emptyList()
 
         return listOf(defaultBundle)
