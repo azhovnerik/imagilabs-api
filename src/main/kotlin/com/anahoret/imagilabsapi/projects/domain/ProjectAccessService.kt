@@ -43,7 +43,7 @@ class ProjectAccessServiceImpl(
 
     override fun canRun(userProfile: UserProfile, project: Project, classroomId: UUID): Boolean {
         return (isProjectOwner(userProfile, project) || isCoTeacher(userProfile, classroomId))
-                || hasSharedAccess(userProfile, project)
+                || hasSharedAccess(userProfile, project) || isOwnerOfClassroom(classroomId, userProfile)
     }
 
     override fun canShare(userProfile: UserProfile, project: Project, classroomIds: List<UUID>): Boolean {
@@ -53,6 +53,7 @@ class ProjectAccessServiceImpl(
     override fun canUnshare(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
         return isProjectOwner(userProfile, project) || isCoTeacher(userProfile, classroomId)
                 || userIsTeacherOfOwnerStudent(userProfile, project.ownerId)
+                || isOwnerOfClassroom(classroomId, userProfile)
     }
 
     override fun canUnshare(userProfile: UserProfile, project: Project, classroomIds: List<UUID>): Boolean {
@@ -62,7 +63,7 @@ class ProjectAccessServiceImpl(
 
     override fun canGet(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
         return isProjectOwner(userProfile, project) || hasSharedAccess(userProfile, project)
-                || isCoTeacher(userProfile, classroomId)
+                || isCoTeacher(userProfile, classroomId) || isOwnerOfClassroom(classroomId, userProfile)
     }
 
     override fun canListForOwner(userProfile: UserProfile, ownerId: UUID, classroomId: UUID?): Boolean {
@@ -92,6 +93,10 @@ class ProjectAccessServiceImpl(
 
         return coTeacherClassroomIds.any { classroomIds.contains(it) }
                 || teacherClassroomIds.any { classroomIds.contains(it) }
+    }
+
+    private fun isOwnerOfClassroom(classroomId: UUID?, userProfile: UserProfile): Boolean {
+        return classroomId != null && classroomService.isClassroomOwnedByTeacher(classroomId, userProfile.id)
     }
 
     private fun isShared(project: Project): Boolean {
