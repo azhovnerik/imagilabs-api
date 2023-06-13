@@ -61,7 +61,7 @@ class BundleLessonEntityRepositoryTest {
 
         @Test
         fun `should return lessons without pro lessons`() {
-            val result = bundleLessonEntityRepository.findLessonsByIncludedProOrderedByIndex(bundleId, false)
+            val result = bundleLessonEntityRepository.findLessonsByBundleIdOrderedByIndex(bundleId, false)
             assertFalse(result.isEmpty())
             assertTrue(result.size == 3)
             assertTrue(result[0].index == 0)
@@ -71,7 +71,7 @@ class BundleLessonEntityRepositoryTest {
 
         @Test
         fun `should return lessons with pro lessons`() {
-            val result = bundleLessonEntityRepository.findLessonsByIncludedProOrderedByIndex(bundleId, true)
+            val result = bundleLessonEntityRepository.findLessonsByBundleIdOrderedByIndex(bundleId, true)
             assertFalse(result.isEmpty())
             assertTrue(result.size == 6)
             assertTrue(result[0].index == 0)
@@ -96,7 +96,7 @@ class BundleLessonEntityRepositoryTest {
         @Test
         fun `should return six bundles lessons by bundles ids`() {
             val bundlesIds = listOf(bundleId)
-            val result = bundleLessonEntityRepository.findAllByBundleIds(bundlesIds, true)
+            val result = bundleLessonEntityRepository.findAllByBundleLessonsIds(bundlesIds, true)
             assertFalse(result.isEmpty())
             assertTrue(result.size == 6)
         }
@@ -104,7 +104,7 @@ class BundleLessonEntityRepositoryTest {
         @Test
         fun `should return no one bundles lessons`() {
             val bundlesIds = emptyList<UUID>()
-            val result = bundleLessonEntityRepository.findAllByBundleIds(bundlesIds, true)
+            val result = bundleLessonEntityRepository.findAllByBundleLessonsIds(bundlesIds, true)
             assertTrue(result.isEmpty())
         }
     }

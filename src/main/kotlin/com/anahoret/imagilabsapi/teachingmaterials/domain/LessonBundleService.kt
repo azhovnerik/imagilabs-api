@@ -18,7 +18,7 @@ interface LessonBundleService {
     fun list(searchQuery: String?, sort: Sort): List<LessonBundleBase>
     fun delete(bundleId: UUID)
     fun get(bundleId: UUID): LessonBundle?
-    fun getDefaultBundle(includePro: Boolean): LessonBundle?
+    fun getDefaultBundle(): LessonBundle?
     fun exists(bundleId: UUID): Boolean
 }
 
@@ -84,9 +84,9 @@ class LessonBundleServiceImpl(
         }
     }
 
-    override fun getDefaultBundle(includePro: Boolean): LessonBundle? {
+    override fun getDefaultBundle(): LessonBundle? {
         return lessonBundleEntityRepository.findByDefaultBundleTrue()?.let { bundleEntity ->
-            val lessons = bundleLessonEntityRepository.findLessonsByIncludedProOrderedByIndex(bundleEntity.id!!, includePro)
+            val lessons = bundleLessonEntityRepository.findLessonsByBundleIdOrderedByIndex(bundleEntity.id!!)
                 .map { BundleLesson.fromEntity(it) }
             LessonBundle.fromEntity(bundleEntity, lessons)
         }

@@ -18,20 +18,21 @@ class TeachingMaterialsGetUseCaseImpl(
 ) : TeachingMaterialsGetUseCase {
 
     override fun get(teacherId: UUID): TeachingMaterials? {
+        val includePro = teacherSubscriptionService.getSubscriptionDto(teacherId)
+            ?.plan == TeacherSubscriptionPlan.PRO
+
         val bundleLessons = getBundleLessons(teacherId)
-        val worksheets = bundleLessons.map(TeachingMaterial.Companion::worksheetFromBundleLesson)
-        val teachingSlides = bundleLessons.map(TeachingMaterial.Companion::teachingSlidesFromBundleLesson)
+        val worksheets = bundleLessons.map { TeachingMaterial.worksheetFromBundleLesson(it, includePro) }
+        val teachingSlides = bundleLessons.map { TeachingMaterial.teachingSlidesFromBundleLesson(it, includePro) }
         return TeachingMaterials(teachingSlides, worksheets)
     }
 
     private fun getBundleLessons(teacherId: UUID): List<BundleLesson> {
-        val includePro = teacherSubscriptionService.getSubscriptionDto(teacherId)
-            ?.plan == TeacherSubscriptionPlan.PRO
-        return teacherBundleService.getBundleLessonsByTeacherId(teacherId, includePro) + getDefaultBundle(includePro)
+        return teacherBundleService.getBundleLessonsByTeacherId(teacherId) + getDefaultBundle()
     }
 
-    private fun getDefaultBundle(includePro: Boolean): List<BundleLesson> {
-        return lessonBundleService.getDefaultBundle(includePro)?.lessons
+    private fun getDefaultBundle(): List<BundleLesson> {
+        return lessonBundleService.getDefaultBundle()?.lessons
             ?: emptyList()
     }
 }

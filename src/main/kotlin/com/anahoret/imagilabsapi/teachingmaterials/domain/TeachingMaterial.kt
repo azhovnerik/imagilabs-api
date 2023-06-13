@@ -7,7 +7,7 @@ class TeachingMaterial(
     val id: UUID,
     val index: Int,
     val name: String,
-    val path: String,
+    val path: String?,
     val isExternalLink: Boolean,
     val category: TeachingMaterialCategory,
     val proMaterial: Boolean
@@ -15,21 +15,28 @@ class TeachingMaterial(
 
     companion object {
 
-        fun worksheetFromBundleLesson(bundleLesson: BundleLesson): TeachingMaterial {
-            return fromBundleLesson(bundleLesson, TeachingMaterialCategory.WORKSHEETS)
+        fun worksheetFromBundleLesson(bundleLesson: BundleLesson, proEnabled: Boolean): TeachingMaterial {
+            return fromBundleLesson(bundleLesson, TeachingMaterialCategory.WORKSHEETS, proEnabled)
         }
 
-        fun teachingSlidesFromBundleLesson(bundleLesson: BundleLesson): TeachingMaterial {
-            return fromBundleLesson(bundleLesson, TeachingMaterialCategory.TEACHING_SLIDES)
+        fun teachingSlidesFromBundleLesson(bundleLesson: BundleLesson, proEnabled: Boolean): TeachingMaterial {
+            return fromBundleLesson(bundleLesson, TeachingMaterialCategory.TEACHING_SLIDES, proEnabled)
         }
 
         private fun fromBundleLesson(
             bundleLesson: BundleLesson,
-            category: TeachingMaterialCategory
+            category: TeachingMaterialCategory,
+            proEnabled: Boolean
         ): TeachingMaterial {
             val uri = when (category) {
-                TeachingMaterialCategory.TEACHING_SLIDES -> bundleLesson.slidesUri
-                TeachingMaterialCategory.WORKSHEETS -> bundleLesson.worksheetUri
+                TeachingMaterialCategory.TEACHING_SLIDES -> {
+                    if ((bundleLesson.proLesson && proEnabled) || !bundleLesson.proLesson) bundleLesson.slidesUri
+                    else null
+                }
+                TeachingMaterialCategory.WORKSHEETS -> {
+                    if ((bundleLesson.proLesson && proEnabled) || !bundleLesson.proLesson) bundleLesson.worksheetUri
+                    else null
+                }
             }
             return with(bundleLesson) {
                 TeachingMaterial(id, index, name, uri, isExternalLink = true, category, proLesson)
