@@ -50,7 +50,7 @@ class ProjectClassroomShareUseCaseImpl(
         if (!projectAccessService.canShare(sharedBy, project, classroomIds))
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
 
-        if (classroomIds.any { !isLinkedToClassroom(sharedBy, it) && !isLinkedAsCoTeacher(sharedBy, it) })
+        if (classroomIds.any { !isLinkedToClassroom(sharedBy, it) && !hasAccessToClassroomAsCoTeacher(sharedBy, it) })
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
         val result = codeRunUseCase.run(sharedBy, RunCodeRequest(project.sourceCode))
@@ -69,8 +69,8 @@ class ProjectClassroomShareUseCaseImpl(
         return userClassroomLinkService.isLinkedToClassroom(sharedBy, classroomId)
     }
 
-    private fun isLinkedAsCoTeacher(sharedBy: UserProfile, classroomId: UUID): Boolean {
-        return coTeacherClassroomLinkService.isLinkedToClassroom(classroomId, sharedBy)
+    private fun hasAccessToClassroomAsCoTeacher(sharedBy: UserProfile, classroomId: UUID): Boolean {
+        return coTeacherClassroomLinkService.hasAccessToClassroom(classroomId, sharedBy)
     }
 
 }

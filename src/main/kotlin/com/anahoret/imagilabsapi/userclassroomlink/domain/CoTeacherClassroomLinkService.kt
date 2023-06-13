@@ -10,6 +10,7 @@ import java.util.*
 
 interface CoTeacherClassroomLinkService {
 
+    fun hasAccessToClassroom(classroomId: UUID, userProfile: UserProfile): Boolean
     fun isLinkedToClassroom(classroomId: UUID, userProfile: UserProfile): Boolean
 }
 
@@ -17,18 +18,33 @@ interface CoTeacherClassroomLinkService {
 class CoTeacherClassroomLinkServiceImpl(
     private val teacherProfileService: TeacherProfileService,
     private val coTeacherService: CoTeacherService
-): CoTeacherClassroomLinkService {
+) : CoTeacherClassroomLinkService {
+
+    override fun hasAccessToClassroom(classroomId: UUID, userProfile: UserProfile): Boolean {
+        return when (userProfile.userType) {
+            UserType.TEACHER -> {
+                val teacherProfile = teacherProfileService.getTeacherById(userProfile.id)
+                    ?: return false
+
+                coTeacherService.isLinkedToClassroom(classroomId, teacherProfile.id)
+                        && teacherProfile.subscription.plan == TeacherSubscriptionPlan.PRO
+            }
+
+            else -> false
+        }
+    }
 
     override fun isLinkedToClassroom(classroomId: UUID, userProfile: UserProfile): Boolean {
         return when (userProfile.userType) {
             UserType.TEACHER -> {
                 val teacherProfile = teacherProfileService.getTeacherById(userProfile.id)
-                        ?: return false
+                    ?: return false
 
                 coTeacherService.isLinkedToClassroom(classroomId, teacherProfile.id)
-                        && teacherProfile.subscription.plan == TeacherSubscriptionPlan.PRO
             }
+
             else -> false
         }
     }
+
 }
