@@ -110,9 +110,9 @@ class GoogleSheetsTeachersExportUseCaseImpl(
                     country,
                     organization,
                     howDidYouHearAboutUs,
+                    howDidYouHearAboutUsOther ?: "",
                     marketingEmailSubscribed.toString(),
                     registrationDateTime,
-                    howDidYouHearAboutUsOther ?: "",
                     subscription.plan.name,
                     subscription.start.toStockholmDateTime(),
                     subscription.end.toStockholmDateTime()
