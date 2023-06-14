@@ -43,21 +43,6 @@ class ProjectAccessServiceTest {
     }
 
     @Test
-    fun `can co-teacher edit project test`() {
-        val testTeacher = testTeacher()
-        val project = mockk<Project> {
-            every { id } returns projectId
-            every { ownerId} returns UUID.randomUUID()
-            every { ownerUserType } returns testTeacher.userType
-        }
-
-        every { projectClassroomShareService.getShares(projectId) } returns emptyList()
-        every { coTeacherService.isLinkedToClassroom(classroomId, testTeacher.id) } returns true
-
-        assertTrue(projectAccessService.canEdit(testTeacher, project, classroomId))
-    }
-
-    @Test
     fun `can delete project as project owner test`() {
         val testTeacher = testTeacher()
         val project = mockk<Project> {

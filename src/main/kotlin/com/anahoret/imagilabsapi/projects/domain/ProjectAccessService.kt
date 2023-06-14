@@ -33,8 +33,7 @@ class ProjectAccessServiceImpl(
 ) : ProjectAccessService {
 
     override fun canEdit(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
-        return (isProjectOwner(userProfile, project) || isCoTeacher(userProfile, classroomId))
-                && !isShared(project)
+        return isProjectOwner(userProfile, project) && !isShared(project)
     }
 
     override fun canDelete(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
