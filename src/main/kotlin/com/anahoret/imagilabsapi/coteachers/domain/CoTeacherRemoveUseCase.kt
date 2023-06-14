@@ -4,9 +4,12 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
+import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -18,7 +21,9 @@ interface CoTeacherRemoveUseCase {
 @Service
 class CoTeacherRemoveUseCaseImpl(
     val classroomService: ClassroomService,
-    val coTeacherService: CoTeacherService
+    val coTeacherService: CoTeacherService,
+    private val projectService: ProjectService,
+    private val projectClassroomShareService: ProjectClassroomShareService
 ) : CoTeacherRemoveUseCase {
 
     override fun remove(
@@ -40,6 +45,11 @@ class CoTeacherRemoveUseCaseImpl(
             return AccessDeniedError("ONLY_OWNER_CAN_REMOVE_CO_TEACHER").left()
 
         coTeacherService.deleteCoTeacher(invitationId)
+
+        if (coTeacher.teacherId != null) {
+            val projectIds = projectService.getAllIdsByOwnerId(coTeacher.teacherId)
+            projectClassroomShareService.unshareProjectsFromClassroom(projectIds, classroomId)
+        }
 
         return Unit.right()
     }

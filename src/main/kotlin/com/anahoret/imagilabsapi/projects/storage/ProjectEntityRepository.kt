@@ -25,6 +25,7 @@ interface ProjectEntityRepository : CrudRepository<ProjectEntity, UUID>, Project
 
     fun findAllByOwnerId(ownerId: UUID, pageable: Pageable): Page<ProjectEntity>
     fun findAllByIdIn(ids: Collection<UUID>, pageable: Pageable): Page<ProjectEntity>
+    fun findAllByOwnerId(ownerId: UUID): List<ProjectEntity>
     fun deleteAllByOwnerId(ownerId: UUID)
     fun findAllByOwnerIdIn(ownerIds: Collection<UUID>): List<ProjectEntity>
 

@@ -16,6 +16,7 @@ interface ProjectService {
 
     fun createProject(ownerId: UUID, ownerType: UserType): Project
     fun getProjectById(projectId: UUID): Project?
+    fun getAllIdsByOwnerId(ownerId: UUID): List<UUID>
     fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project?
     fun listByIds(projectIds: Collection<UUID>, pageable: Pageable): Page<Project>
     fun getProjectCounts(ownerIds: Collection<UUID>): Map<UUID, Long>
@@ -79,6 +80,11 @@ class ProjectServiceImpl(
     override fun getProjectCounts(ownerIds: Collection<UUID>): Map<UUID, Long> {
         return projectEntityRepository.countByOwnerIds(ownerIds)
             .associate { it.ownerId to it.projectsCount }
+    }
+
+    override fun getAllIdsByOwnerId(ownerId: UUID): List<UUID> {
+        return projectEntityRepository.findAllByOwnerId(ownerId)
+            .map { it.id!! }
     }
 
     override fun delete(projectId: UUID) {
