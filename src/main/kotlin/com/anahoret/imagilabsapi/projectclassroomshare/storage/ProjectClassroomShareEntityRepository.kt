@@ -51,6 +51,7 @@ interface ProjectClassroomShareEntityRepository : CrudRepository<ProjectClassroo
     fun deleteAllByProjectId(projectId: UUID)
     fun deleteAllByProjectIdIn(projectIds: Collection<UUID>)
     fun deleteAllByClassroomId(classroomId: UUID)
+    fun deleteAllByClassroomIdAndProjectIdIn(classroomId: UUID, projectIds: List<UUID>)
 
     @Query(
         """
