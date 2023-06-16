@@ -585,7 +585,7 @@ class CoTeacherControllerTest {
         fun `should return not found error`() {
             val teacherProfile = testTeacher()
 
-            every { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) } returns NotFoundError("").left()
+            every { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile) } returns NotFoundError("").left()
 
             mvc.perform(
                 MockMvcRequestBuilders.post("/api/classrooms/$invitationId/resend-invite")
@@ -593,14 +593,14 @@ class CoTeacherControllerTest {
                     .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().isNotFound)
 
-            verify { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) }
+            verify { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile) }
         }
 
         @Test
         fun `should return validation error`() {
             val teacherProfile = testTeacher()
 
-            every { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) } returns ValidationError("").left()
+            every { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile) } returns ValidationError("").left()
 
             mvc.perform(
                 MockMvcRequestBuilders.post("/api/classrooms/$invitationId/resend-invite")
@@ -608,14 +608,14 @@ class CoTeacherControllerTest {
                     .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().isBadRequest)
 
-            verify { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) }
+            verify { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile) }
         }
 
         @Test
         fun `should return access denied error`() {
             val teacherProfile = testTeacher()
 
-            every { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) } returns AccessDeniedError("").left()
+            every { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile) } returns AccessDeniedError("").left()
 
             mvc.perform(
                 MockMvcRequestBuilders.post("/api/classrooms/$invitationId/resend-invite")
@@ -623,14 +623,14 @@ class CoTeacherControllerTest {
                     .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().isForbidden)
 
-            verify { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) }
+            verify { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile) }
         }
 
         @Test
         fun `should return success`() {
             val teacherProfile = testTeacher()
 
-            every { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) } returns Unit.right()
+            every { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile) } returns Unit.right()
 
             mvc.perform(
                 MockMvcRequestBuilders.post("/api/classrooms/$invitationId/resend-invite")
@@ -638,7 +638,7 @@ class CoTeacherControllerTest {
                     .asTeacher(teacherProfile)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
-            verify { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id) }
+            verify { invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile) }
         }
     }
 }

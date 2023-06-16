@@ -9,12 +9,13 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
 import java.util.*
 
 interface InvitationCoTeacherResendUseCase {
 
-    fun resend(invitationId: UUID, currentTeacherId: UUID): Either<OperationError, Unit>
+    fun resend(invitationId: UUID, currentTeacher: TeacherProfile): Either<OperationError, Unit>
 }
 
 @Service
@@ -24,7 +25,7 @@ class InvitationCoTeacherResendUseCaseImpl(
     private val invitationCoTeacherEmailSender: InvitationCoTeacherEmailSender
 ): InvitationCoTeacherResendUseCase {
 
-    override fun resend(invitationId: UUID, currentTeacherId: UUID): Either<OperationError, Unit> {
+    override fun resend(invitationId: UUID, currentTeacher: TeacherProfile): Either<OperationError, Unit> {
 
         val coTeacher = coTeacherService.getCoTeacher(invitationId)
             ?: return NotFoundError("INVITATION_NOT_FOUND").left()
@@ -35,10 +36,17 @@ class InvitationCoTeacherResendUseCaseImpl(
         val classroom = classroomService.getById(coTeacher.classroomId)
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
-        if (currentTeacherId != classroom.teacherId)
+        if (currentTeacher.id != classroom.teacherId)
             return AccessDeniedError("TEACHER_SHOULD_BE_OWNER_FOR_RESEND_INVITATION").left()
 
-        invitationCoTeacherEmailSender.send(coTeacher.teacherEmail, invitationId)
+        val preferences = InvitationEmailPreferences(
+            fromName = currentTeacher.fullName,
+            from = currentTeacher.email,
+            sendTo = coTeacher.teacherEmail,
+            invitationId = coTeacher.id
+        )
+
+        invitationCoTeacherEmailSender.send(preferences)
 
         return Unit.right()
     }
