@@ -56,7 +56,7 @@ class CoTeachersController(
         @PathVariable invitationId: UUID,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
     ): ResponseEntity<ResponseDto<Void>> {
-        return when (val result = invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile.id)) {
+        return when (val result = invitationCoTeacherResendUseCase.resend(invitationId, teacherProfile)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
         }

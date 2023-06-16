@@ -61,7 +61,14 @@ class InvitationCoTeacherUseCaseImpl(
             val teacherId = teacherProfileService.getTeacherIdByEmail(request.teacherEmail)
             val coTeacher = coTeacherService.createCoTeacher(classroomId, teacherEmail, teacherId)
 
-            invitationCoTeacherEmailSender.send(teacherEmail, coTeacher.id)
+            val preferences = InvitationEmailPreferences(
+                fromName = currentTeacher.fullName,
+                from = currentTeacher.email,
+                sendTo = teacherEmail,
+                invitationId = coTeacher.id
+            )
+
+            invitationCoTeacherEmailSender.send(preferences)
 
             return ClassroomTeacher.mapFromCoTeacher(coTeacher, false).right()
         }

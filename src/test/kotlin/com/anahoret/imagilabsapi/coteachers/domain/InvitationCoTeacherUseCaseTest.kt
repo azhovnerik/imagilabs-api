@@ -81,17 +81,11 @@ class InvitationCoTeacherUseCaseTest {
         val classroom = mockk<Classroom> {
             every { teacherId } returns testTeacher.id
         }
-        val coTeacherId = UUID.randomUUID()
-        val coTeacher = mockk<CoTeacher> {
-            every { id } returns coTeacherId
-        }
 
         every { emailValidator.isValid(teacherEmail) } returns true
         every { classroomService.getById(classroomId) } returns classroom
         every { teacherProfileService.getTeacherIdByEmail(teacherEmail) } returns teacherIdInviteTo
         every { coTeacherService.getCoTeacherCountByClassroomId(classroomId) } returns 5
-        every { coTeacherService.createCoTeacher(classroomId, teacherEmail, teacherIdInviteTo) } returns coTeacher
-        every { invitationCoTeacherEmailSender.send(teacherEmail, coTeacherId) } returns Unit
 
         val request = InvitationCoTeacherRequest(teacherEmail)
         val result = invitationCoTeacherUseCase.invite(classroomId, request, testTeacher)
@@ -101,27 +95,21 @@ class InvitationCoTeacherUseCaseTest {
 
     @Test
     fun `should return validation error`() {
-        val testTeacher = testTeacher()
-        val teacherEmail = testTeacher.email
+        val currentTeacher = testTeacher()
+        val teacherEmail = currentTeacher.email
         val teacherIdInviteTo = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
         val classroom = mockk<Classroom> {
-            every { teacherId } returns testTeacher.id
-        }
-        val coTeacherId = UUID.randomUUID()
-        val coTeacher = mockk<CoTeacher> {
-            every { id } returns coTeacherId
+            every { teacherId } returns currentTeacher.id
         }
 
         every { emailValidator.isValid(teacherEmail) } returns true
         every { classroomService.getById(classroomId) } returns classroom
         every { teacherProfileService.getTeacherIdByEmail(teacherEmail) } returns teacherIdInviteTo
         every { coTeacherService.getCoTeacherCountByClassroomId(classroomId) } returns 3
-        every { coTeacherService.createCoTeacher(classroomId, teacherEmail, teacherIdInviteTo) } returns coTeacher
-        every { invitationCoTeacherEmailSender.send(teacherEmail, coTeacherId) } returns Unit
 
         val request = InvitationCoTeacherRequest(teacherEmail)
-        val result = invitationCoTeacherUseCase.invite(classroomId, request, testTeacher)
+        val result = invitationCoTeacherUseCase.invite(classroomId, request, currentTeacher)
 
         assertTrue(result.isLeft())
     }
@@ -131,8 +119,8 @@ class InvitationCoTeacherUseCaseTest {
         val invitationEmailTo = "teacher@gmail.com"
         val classroomId = UUID.randomUUID()
         val request = InvitationCoTeacherRequest(invitationEmailTo)
-        val currentTeacherId = UUID.randomUUID()
-        val ownerClassroomId = currentTeacherId
+        val currentTeacher = testTeacher()
+        val ownerClassroomId = currentTeacher.id
         val teacherIdInviteTo = UUID.randomUUID()
 
         val testTeacher = testTeacher()
@@ -150,13 +138,20 @@ class InvitationCoTeacherUseCaseTest {
             "Test teacher"
         )
 
+        val preferences = InvitationEmailPreferences(
+            fromName = currentTeacher.fullName,
+            from = currentTeacher.email,
+            sendTo = coTeacher.teacherEmail,
+            invitationId = coTeacher.id
+        )
+
         every { emailValidator.isValid(invitationEmailTo) } returns true
         every { classroomService.getById(classroomId) } returns classroom
         every { teacherProfileService.getTeacherIdByEmail(invitationEmailTo) } returns teacherIdInviteTo
         every { coTeacherService.getCoTeacherCountByClassroomId(classroomId) } returns 3
         every { coTeacherService.createCoTeacher(classroomId, invitationEmailTo, teacherIdInviteTo) } returns coTeacher
         every { coTeacherService.isExistsPendingInvite(classroomId, invitationEmailTo) } returns false
-        every { invitationCoTeacherEmailSender.send(invitationEmailTo, coTeacher.id) } returns Unit
+        every { invitationCoTeacherEmailSender.send(preferences) } returns Unit
 
         val result = invitationCoTeacherUseCase.invite(classroomId, request, testTeacher)
 
