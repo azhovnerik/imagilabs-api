@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.teachers.export.googlesheets.domain
 
 import com.anahoret.imagilabsapi.applicationproperties.domain.ApplicationPropertiesKey
 import com.anahoret.imagilabsapi.applicationproperties.domain.ApplicationPropertiesService
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileAdminView
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.teachers.export.googlesheets.api.CellRange
@@ -12,6 +13,7 @@ import com.anahoret.imagilabsapi.utils.DateUtils
 import org.springframework.data.domain.Sort
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
+import java.time.Clock
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -28,6 +30,7 @@ class GoogleSheetsTeachersExportUseCaseImpl(
     private val applicationPropertiesService: ApplicationPropertiesService,
     private val googleSheetApi: GoogleSheetApi,
     private val teacherProfileService: TeacherProfileService,
+    private val clock: Clock
 ) : GoogleSheetsTeachersExportUseCase {
 
     companion object {
@@ -113,7 +116,7 @@ class GoogleSheetsTeachersExportUseCaseImpl(
                     howDidYouHearAboutUsOther ?: "",
                     marketingEmailSubscribed.toString(),
                     registrationDateTime,
-                    subscription.plan.name,
+                    subscription.status(),
                     subscription.start.toStockholmDateTime(),
                     subscription.end.toStockholmDateTime()
                 )
@@ -127,5 +130,13 @@ class GoogleSheetsTeachersExportUseCaseImpl(
             else -> DateUtils.toStockholmDateTime(this)
                 .format(DATE_TIME_FORMAT)
         }
+    }
+
+    private fun TeacherSubscription.status(): String {
+        if (start == null || end == null) return "inactive"
+        if (canceled) return "canceled"
+        if (end < clock.instant().toEpochMilli()) return "expired"
+
+        return "active"
     }
 }

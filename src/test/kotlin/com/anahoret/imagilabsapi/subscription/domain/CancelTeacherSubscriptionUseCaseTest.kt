@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.subscription.domain
 import com.anahoret.imagilabsapi.common.testAdmin
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
+import com.anahoret.imagilabsapi.teachers.export.googlesheets.domain.GoogleSheetsTeachersExportUseCase
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -16,9 +17,10 @@ class CancelTeacherSubscriptionUseCaseTest {
 
     private val teacherSubscriptionService =  mockk<TeacherSubscriptionService>()
     private val teacherProfileService = mockk<TeacherProfileService>()
+    private val exportUseCase = mockk<GoogleSheetsTeachersExportUseCase>()
 
     private val cancelTeacherSubscriptionUseCase = CancelTeacherSubscriptionUseCaseImpl(
-        teacherSubscriptionService, teacherProfileService
+        teacherSubscriptionService, teacherProfileService, exportUseCase
     )
 
     @DisplayName("cancel teacher subscription by admin")
@@ -43,6 +45,7 @@ class CancelTeacherSubscriptionUseCaseTest {
             val adminProfile = testAdmin()
 
             every { teacherProfileService.exists(teacherId) } returns true
+            every { exportUseCase.updateAsync(teacherId) } returns Unit
             every { teacherSubscriptionService.cancelSubscription(teacherId) } returns Unit
 
             val result = cancelTeacherSubscriptionUseCase.cancel(teacherId, adminProfile)
@@ -85,7 +88,9 @@ class CancelTeacherSubscriptionUseCaseTest {
         fun `should return unit`() {
             val teacherProfile = testTeacher()
 
+            println(teacherProfile.id)
             every { teacherProfileService.exists(teacherProfile.id) } returns true
+            every { exportUseCase.updateAsync(teacherProfile.id) } returns Unit
             every { teacherSubscriptionService.cancelSubscription(teacherProfile.id) } returns Unit
 
             val result = cancelTeacherSubscriptionUseCase.cancel(teacherProfile.id, teacherProfile)
