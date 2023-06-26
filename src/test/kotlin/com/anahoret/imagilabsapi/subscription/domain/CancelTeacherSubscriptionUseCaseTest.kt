@@ -79,8 +79,6 @@ class CancelTeacherSubscriptionUseCaseTest {
 
             val result = cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile)
 
-            println(result.isLeft())
-
             assertTrue(result.isLeft())
         }
 
@@ -88,7 +86,6 @@ class CancelTeacherSubscriptionUseCaseTest {
         fun `should return unit`() {
             val teacherProfile = testTeacher()
 
-            println(teacherProfile.id)
             every { teacherProfileService.exists(teacherProfile.id) } returns true
             every { exportUseCase.updateAsync(teacherProfile.id) } returns Unit
             every { teacherSubscriptionService.cancelSubscription(teacherProfile.id) } returns Unit
