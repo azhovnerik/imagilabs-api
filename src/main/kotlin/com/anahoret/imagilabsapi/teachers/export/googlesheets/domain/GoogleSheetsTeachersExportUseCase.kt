@@ -22,6 +22,7 @@ interface GoogleSheetsTeachersExportUseCase {
     fun export()
     fun exportAsync(teacherId: UUID)
     fun updateAsync(teacherId: UUID)
+    fun updateAsync(teacherIds: List<UUID>)
 }
 
 @Service
@@ -61,6 +62,13 @@ class GoogleSheetsTeachersExportUseCaseImpl(
             ?.let { teacherProfile -> doUpdate { listOf(teacherProfile) } }
     }
 
+    @Async
+    override fun updateAsync(teacherIds: List<UUID>) {
+        teacherProfileService.getTeachersByIdsForAdmin(teacherIds)
+            .filterNotNull()
+            .map { teacherProfile -> doUpdate { listOf(teacherProfile) } }
+    }
+
     private fun doExport(getTeachers: (List<List<String>>) -> List<TeacherProfileAdminView>) {
         val sheetId = applicationPropertiesService.getProperty(ApplicationPropertiesKey.TEACHERS_EXPORT_GOOGLE_SHEET_ID)
         val sheetName =
@@ -90,6 +98,9 @@ class GoogleSheetsTeachersExportUseCaseImpl(
         val teachers = getTeachers(rows)
 
         val teacherRowIndex = rows.indexOfFirst { row -> row[0] == teachers[0].id.toString() } + 1
+
+        if (teacherRowIndex == 0) return
+
         val cells = toCells(teachers)
         val cellRange = CellRange(
             sheetName = sheetName,

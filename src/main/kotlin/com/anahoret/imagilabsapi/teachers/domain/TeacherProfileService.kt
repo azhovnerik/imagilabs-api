@@ -15,6 +15,7 @@ interface TeacherProfileService {
     fun getTeacherById(id: UUID): TeacherProfile?
     fun getTeacherIdByEmail(email: String): UUID?
     fun getTeacherByIdForAdmin(id: UUID): TeacherProfileAdminView?
+    fun getTeachersByIdsForAdmin(ids: List<UUID>): List<TeacherProfileAdminView?>
     fun getTeacherCredentialsByEmail(email: String): TeacherCredentials?
     fun getTeacherCredentialsById(teacherId: UUID): TeacherCredentials?
     fun exists(email: String): Boolean
@@ -23,6 +24,7 @@ interface TeacherProfileService {
     fun listAllForAdmin(searchQuery: String?, sort: Sort): List<TeacherProfileAdminView>
     fun listForAdmin(excludeIds: List<UUID>, sort: Sort): List<TeacherProfileAdminView>
     fun setPassword(email: String, newPassword: String)
+    fun getTeachersWithSubscriptionLessThan(millis: Long): List<UUID>
     fun delete(teacherId: UUID)
 }
 
@@ -77,6 +79,15 @@ class TeacherProfileServiceImpl(
             }
     }
 
+    override fun getTeachersByIdsForAdmin(ids: List<UUID>): List<TeacherProfileAdminView> {
+        return teacherProfileEntityRepository.findAllById(ids)
+            .map {
+                val subscription =
+                    teacherSubscriptionService.buildSubscriptionDto(it)
+                TeacherProfileAdminView.fromEntity(it, subscription)
+            }
+    }
+
     override fun listByIds(ids: Iterable<UUID>): List<TeacherProfile> {
         return teacherProfileEntityRepository.findAllById(ids)
             .map {
@@ -88,9 +99,9 @@ class TeacherProfileServiceImpl(
 
     override fun listAllForAdmin(searchQuery: String?, sort: Sort): List<TeacherProfileAdminView> {
         return (
-            searchQuery?.let { teacherProfileEntityRepository.findAll(searchQuery, sort) }
-                ?: teacherProfileEntityRepository.findAll(sort)
-            ).map {
+                searchQuery?.let { teacherProfileEntityRepository.findAll(searchQuery, sort) }
+                    ?: teacherProfileEntityRepository.findAll(sort)
+                ).map {
                 val subscription =
                     teacherSubscriptionService.buildSubscriptionDto(it)
                 TeacherProfileAdminView.fromEntity(it, subscription)
@@ -134,6 +145,11 @@ class TeacherProfileServiceImpl(
                 it.passwordHash = passwordEncoder.encode(newPassword)
                 teacherProfileEntityRepository.save(it)
             }
+    }
+
+    override fun getTeachersWithSubscriptionLessThan(millis: Long): List<UUID> {
+        return teacherProfileEntityRepository.findAllBySubscriptionStartIsNotNullAndSubscriptionEndLessThan(millis)
+            .map { it.id!! }
     }
 
     override fun delete(teacherId: UUID) {

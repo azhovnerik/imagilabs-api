@@ -5,5 +5,6 @@ import java.util.*
 
 object TimeZones {
 
-    val EUROPE_STOCKHOLM: TimeZone = TimeZone.getTimeZone("Europe/Stockholm")
+    const val EUROPE_STOCKHOLM_VALUE = "Europe/Stockholm"
+    val EUROPE_STOCKHOLM: TimeZone = TimeZone.getTimeZone(EUROPE_STOCKHOLM_VALUE)
 }

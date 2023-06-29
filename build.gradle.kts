@@ -13,6 +13,7 @@ val pdfBoxVersion = "2.0.28"
 val springDocVersion = "2.0.4"
 val springmockkVersion = "4.0.2"
 val testcontainersVersion = "1.18.1"
+val shedlockVersion = "4.30.0"
 
 
 plugins {
@@ -78,6 +79,10 @@ dependencies {
     // Google
     implementation("com.google.apis:google-api-services-sheets:$googleSheetsApiVersion")
     implementation("com.google.auth:google-auth-library-oauth2-http:$googleAuthVersion")
+
+    // ShedLock
+    implementation("net.javacrumbs.shedlock:shedlock-spring:$shedlockVersion")
+    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc-template:$shedlockVersion")
 
     // Development
     developmentOnly("org.springframework.boot:spring-boot-devtools")
