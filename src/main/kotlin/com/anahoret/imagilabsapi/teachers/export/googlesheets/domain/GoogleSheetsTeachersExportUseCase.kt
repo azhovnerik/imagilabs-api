@@ -62,7 +62,6 @@ class GoogleSheetsTeachersExportUseCaseImpl(
             ?.let { teacherProfile -> doUpdate { listOf(teacherProfile) } }
     }
 
-    @Async
     override fun updateAsync(teacherIds: List<UUID>) {
         teacherProfileService.getTeachersByIdsForAdmin(teacherIds)
             .filterNotNull()

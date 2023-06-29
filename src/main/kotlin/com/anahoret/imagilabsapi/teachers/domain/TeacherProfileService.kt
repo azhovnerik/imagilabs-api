@@ -24,7 +24,7 @@ interface TeacherProfileService {
     fun listAllForAdmin(searchQuery: String?, sort: Sort): List<TeacherProfileAdminView>
     fun listForAdmin(excludeIds: List<UUID>, sort: Sort): List<TeacherProfileAdminView>
     fun setPassword(email: String, newPassword: String)
-    fun getTeachersWithSubscriptionLessThan(millis: Long): List<UUID>
+    fun getTeachersWithExpiredSubscriptionBetween(leftRange: Long, rightRnage: Long): List<TeacherProfile>
     fun delete(teacherId: UUID)
 }
 
@@ -147,9 +147,13 @@ class TeacherProfileServiceImpl(
             }
     }
 
-    override fun getTeachersWithSubscriptionLessThan(millis: Long): List<UUID> {
-        return teacherProfileEntityRepository.findAllBySubscriptionStartIsNotNullAndSubscriptionEndLessThan(millis)
-            .map { it.id!! }
+    override fun getTeachersWithExpiredSubscriptionBetween(leftRange: Long, rightRnage: Long): List<TeacherProfile> {
+        return teacherProfileEntityRepository.getTeachersWithExpiredSubscriptionBetween(leftRange, rightRnage)
+            .map {
+                val subscription =
+                    teacherSubscriptionService.buildSubscriptionDto(it)
+                TeacherProfile.fromEntity(it, subscription)
+            }
     }
 
     override fun delete(teacherId: UUID) {

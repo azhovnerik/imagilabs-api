@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.teachers.export.googlesheets.domain
 
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
+import com.anahoret.imagilabsapi.utils.DateUtils
 import org.springframework.stereotype.Service
 import java.time.Clock
 import java.util.*
@@ -18,6 +19,8 @@ class GetTeachersWithExpiredSubscriptionUseCaseImpl(
 
     override fun getAll(): List<UUID> {
         val now = clock.instant().toEpochMilli()
-        return teacherProfileService.getTeachersWithSubscriptionLessThan(now)
+        val dayAgo = now - DateUtils.DAY_MILLIS
+        return teacherProfileService.getTeachersWithExpiredSubscriptionBetween(dayAgo, now)
+            .map { it.id }
     }
 }
