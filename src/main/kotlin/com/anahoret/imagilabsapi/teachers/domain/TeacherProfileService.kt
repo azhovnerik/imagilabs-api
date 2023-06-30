@@ -148,7 +148,8 @@ class TeacherProfileServiceImpl(
     }
 
     override fun getTeachersWithExpiredSubscriptionBetween(leftRange: Long, rightRnage: Long): List<TeacherProfile> {
-        return teacherProfileEntityRepository.getTeachersWithExpiredSubscriptionBetween(leftRange, rightRnage)
+        return teacherProfileEntityRepository
+            .findAllBySubscriptionStartIsNotNullAndSubscriptionEndBetween(leftRange, rightRnage)
             .map {
                 val subscription =
                     teacherSubscriptionService.buildSubscriptionDto(it)
