@@ -96,9 +96,10 @@ class GoogleSheetsTeachersExportUseCaseImpl(
 
         val teachers = getTeachers(rows)
 
-        val teacherRowIndex = rows.indexOfFirst { row -> row[0] == teachers[0].id.toString() } + 1
-
-        if (teacherRowIndex == 0) return
+        val teacherRowIndex = rows.indexOfFirst { row -> row[0] == teachers[0].id.toString() }
+            .takeIf { it >= 0 }
+            ?.let { it + 1 }
+            ?: return
 
         val cells = toCells(teachers)
         val cellRange = CellRange(
