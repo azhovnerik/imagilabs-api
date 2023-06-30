@@ -14,7 +14,6 @@ import org.springframework.web.client.RestTemplate
 class ClevertapConfig {
 
     @Bean
-    @Qualifier("clevertapRestTemplate")
     fun clevertapRestTemplate(properties: ClevertapProperties): RestTemplate {
         return RestTemplateBuilder()
             .rootUri(properties.apiUrl)
