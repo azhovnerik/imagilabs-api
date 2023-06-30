@@ -1,5 +1,8 @@
-package com.anahoret.imagilabsapi.teachers.export.googlesheets.domain
+package com.anahoret.imagilabsapi.teachers.export
 
+import com.anahoret.imagilabsapi.teachers.export.clevertap.domain.ClevertapSendAnalyticsUseCase
+import com.anahoret.imagilabsapi.teachers.export.googlesheets.domain.GetTeachersWithExpiredSubscriptionUseCase
+import com.anahoret.imagilabsapi.teachers.export.googlesheets.domain.GoogleSheetsTeachersExportUseCase
 import com.anahoret.imagilabsapi.utils.CronExpressions
 import com.anahoret.imagilabsapi.utils.TimeZones
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Component
 @Component
 @Profile("prod", "stage")
 class UpdateSubscriptionExpiredDataAnalyticsJob(
+    private val clevertapSendAnalyticsUseCase: ClevertapSendAnalyticsUseCase,
     private val googleSheetsTeachersExportUseCase: GoogleSheetsTeachersExportUseCase,
     private val getTeachersWithExpiredSubscriptionUseCase: GetTeachersWithExpiredSubscriptionUseCase
 ) {
@@ -18,7 +22,9 @@ class UpdateSubscriptionExpiredDataAnalyticsJob(
     @SchedulerLock(name = "UpdateSubscriptionExpiredDataAnalyticsJob",)
     fun updateSubscriptionExpiredData() {
         val teachersIdsToUpdate = getTeachersWithExpiredSubscriptionUseCase.getAll()
-        if (teachersIdsToUpdate.isNotEmpty())
+        if (teachersIdsToUpdate.isNotEmpty()) {
             googleSheetsTeachersExportUseCase.updateAsync(teachersIdsToUpdate)
+            clevertapSendAnalyticsUseCase.sendTeachersExpiredSubscriptionEvent(teachersIdsToUpdate)
+        }
     }
 }
