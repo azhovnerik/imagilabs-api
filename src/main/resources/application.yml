@@ -27,6 +27,13 @@ python-compiler:
   api-url: ${PYTHON_COMPILER_API_URL:}
   api-token: ${PYTHON_COMPILER_API_TOKEN:}
 
+clevertap:
+  api-url: ${CLEVERTAP_API_URL:}
+  api-project-header-name: ${CLEVERTAP_API_PROJECT_HEADER_NAME:}
+  api-project-id: ${CLEVERTAP_API_PROJECT_ID:}
+  api-passcode-header-name: ${CLEVERTAP_API_PASSCODE_HEADER_NAME:}
+  api-passcode: ${CLEVERTAP_API_PASSCODE:}
+
 ---
 
 spring:
