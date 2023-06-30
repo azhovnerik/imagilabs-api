@@ -22,4 +22,5 @@ interface TeacherProfileEntityRepository : JpaRepository<TeacherProfileEntity, U
     fun findAll(searchQuery: String, sort: Sort): Iterable<TeacherProfileEntity>
     fun findAllByIdNotIn(exclude: List<UUID>, sort: Sort): List<TeacherProfileEntity>
 
+    fun findAllBySubscriptionStartIsNotNullAndSubscriptionEndBetween(leftRange: Long, rightRange: Long): List<TeacherProfileEntity>
 }
