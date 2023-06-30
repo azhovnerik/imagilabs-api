@@ -25,6 +25,6 @@ class ClevertapSendAnalyticsUseCaseImpl(
                     ClevertapEvents.teacherSubscriptionExpired
                 )
             }
-            .apply { clevertapAnalyticsApi.sendAnalytics(this) }
+            .let(clevertapAnalyticsApi::sendAnalytics)
     }
 }
