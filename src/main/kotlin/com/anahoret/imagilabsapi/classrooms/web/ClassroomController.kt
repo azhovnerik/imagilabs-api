@@ -135,7 +135,7 @@ class ClassroomController(
     }
 
     @Secured(UserRole.teacher, UserRole.student)
-    @PostMapping("/api/classrooms/{classroomId}/projects")
+    @PostMapping("/api/classrooms/{classroomId}/projects/search")
     fun listProjectsInClassroom(
         @PathVariable classroomId: UUID,
         @RequestBody searchRequest: ClassroomSearchProjectsRequest,
