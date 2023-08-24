@@ -7,6 +7,7 @@ import com.anahoret.imagilabsapi.common.ControllerTest
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
 import com.anahoret.imagilabsapi.teachers.domain.TeacherDeleteUseCase
+import com.anahoret.imagilabsapi.teachers.domain.TeacherGetStatisticUseCase
 import com.anahoret.imagilabsapi.teachers.domain.TeacherGetUseCase
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileAdminView
 import com.anahoret.imagilabsapi.teachers.web.TeacherProfileController
@@ -42,6 +43,9 @@ class AdminGetTeacherByIdAPITest : ControllerTest() {
 
     @MockkBean
     lateinit var teacherDeleteUseCase: TeacherDeleteUseCase
+
+    @MockkBean
+    lateinit var teacherGetStatisticUseCase: TeacherGetStatisticUseCase
 
     @Test
     fun `should return success`() {

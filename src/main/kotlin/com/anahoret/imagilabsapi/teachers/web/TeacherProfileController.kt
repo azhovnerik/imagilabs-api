@@ -6,6 +6,7 @@ import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.teachers.domain.*
+import com.anahoret.imagilabsapi.teachers.storage.TeacherStatistic
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
@@ -17,13 +18,25 @@ import java.util.*
 class TeacherProfileController(
     private val teacherProfileService: TeacherProfileService,
     private val teacherGetUseCase: TeacherGetUseCase,
-    private val teacherDeleteUseCase: TeacherDeleteUseCase
+    private val teacherDeleteUseCase: TeacherDeleteUseCase,
+    private val teacherGetStatisticUseCase: TeacherGetStatisticUseCase
 ) {
 
     @Secured(UserRole.teacher, UserRole.teacherEmailNotVerified)
     @GetMapping("/api/teacher/profile/me")
     fun getProfile(@AuthenticationPrincipal teacherProfile: TeacherProfile): SuccessResponseDto<TeacherProfile> {
         return SuccessResponseDto(teacherProfile)
+    }
+
+    @Secured(UserRole.teacher)
+    @GetMapping("/api/teacher/statistic")
+    fun getStatistic(
+        @AuthenticationPrincipal teacherProfile: TeacherProfile
+    ): ResponseEntity<ResponseDto<TeacherStatistic>> {
+        return when (val result = teacherGetStatisticUseCase.get(teacherProfile.id)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
     }
 
     @Secured(UserRole.admin)
