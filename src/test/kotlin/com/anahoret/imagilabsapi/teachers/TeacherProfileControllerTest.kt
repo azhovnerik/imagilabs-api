@@ -9,21 +9,20 @@ import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.teachers.domain.TeacherDeleteUseCase
 import com.anahoret.imagilabsapi.teachers.domain.TeacherGetStatisticUseCase
 import com.anahoret.imagilabsapi.teachers.domain.TeacherGetUseCase
-import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.teachers.storage.TeacherStatistic
 import com.anahoret.imagilabsapi.teachers.web.TeacherProfileController
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.security.web.AuthenticationEntryPoint
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
+import org.springframework.security.web.AuthenticationEntryPoint
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 

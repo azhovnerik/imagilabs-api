@@ -117,24 +117,27 @@ class TeacherStatisticRepositoryTest {
                 teacherEmail = "co-teacher@gmail.com",
                 teacherId = coTeacherId,
                 coTeacherStatus = TeacherRole.CO_TEACHER
-            ))
+            )
+        )
     }
 
     fun setupStudents() {
         val testStudent = testStudent(classroomId)
-        studentIds = studentProfileRepository.saveAll(listOf(
-            StudentProfileEntity(
-                name = testStudent.name,
-                username = "student 1",
-                password = "",
-                classroomId = classroomId
-            ),
-            StudentProfileEntity(
-                name = testStudent.name,
-                username = "student 2",
-                password = "",
-                classroomId = classroomId
-        ))
+        studentIds = studentProfileRepository.saveAll(
+            listOf(
+                StudentProfileEntity(
+                    name = testStudent.name,
+                    username = "student 1",
+                    password = "",
+                    classroomId = classroomId
+                ),
+                StudentProfileEntity(
+                    name = testStudent.name,
+                    username = "student 2",
+                    password = "",
+                    classroomId = classroomId
+                )
+            )
         ).map { it.id!! }
     }
 
@@ -152,20 +155,22 @@ class TeacherStatisticRepositoryTest {
     }
 
     fun setupProjectShared() {
-        projectSharedRepository.saveAll(listOf(
-            ProjectClassroomShareEntity(projectsIds[0], classroomId),
-            ProjectClassroomShareEntity(projectsIds[3], classroomId)
-        ))
+        projectSharedRepository.saveAll(
+            listOf(
+                ProjectClassroomShareEntity(projectsIds[0], classroomId),
+                ProjectClassroomShareEntity(projectsIds[3], classroomId)
+            )
+        )
     }
 
     @Test
     fun `fetch statistic data for teacher test`() {
         val teacherStatistic = teacherStatisticRepository.getTeacherStatistic(teacherId)!!
         with(teacherStatistic) {
-            assertTrue(activeClassrooms == 1L)
-            assertTrue(studentAccounts == 2L)
-            assertTrue(studentSharedProjects == 2L)
-            assertTrue(studentDraftProjects == 3L)
+            assertEquals(1, activeClassrooms)
+            assertEquals(2, studentAccounts)
+            assertEquals(2, studentSharedProjects)
+            assertEquals(3, studentDraftProjects)
         }
     }
 
@@ -174,9 +179,9 @@ class TeacherStatisticRepositoryTest {
         val teacherStatistic = teacherStatisticRepository.getTeacherStatistic(coTeacherId)!!
         with(teacherStatistic) {
             assertEquals(1, activeClassrooms)
-            assertEquals(2L, studentAccounts)
-            assertEquals( 2L, studentSharedProjects)
-            assertEquals(3,studentDraftProjects)
+            assertEquals(2, studentAccounts)
+            assertEquals(2, studentSharedProjects)
+            assertEquals(3, studentDraftProjects)
         }
     }
 }
