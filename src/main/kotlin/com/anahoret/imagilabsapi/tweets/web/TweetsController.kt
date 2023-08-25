@@ -10,7 +10,7 @@ import com.anahoret.imagilabsapi.tweets.domain.UpdateTweetsUseCase
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
@@ -33,7 +33,7 @@ class TweetsController(
     }
 
     @Secured(UserRole.admin)
-    @PatchMapping(TWEETS_PATH)
+    @PutMapping(TWEETS_PATH)
     fun updateTweets(
         @RequestBody request: UpdateTweetsRequest
     ): ResponseEntity<ResponseDto<List<Tweet>>> {

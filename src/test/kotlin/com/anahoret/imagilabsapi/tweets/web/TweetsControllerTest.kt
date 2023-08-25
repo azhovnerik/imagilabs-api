@@ -103,7 +103,7 @@ class TweetsControllerTest {
         @Test
         fun `should return forbidden when user is teacher`() {
             mvc.perform(
-                MockMvcRequestBuilders.patch(TWEETS_PATH)
+                MockMvcRequestBuilders.put(TWEETS_PATH)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(payload)
                     .asTeacher()
@@ -113,7 +113,7 @@ class TweetsControllerTest {
         @Test
         fun `should return forbidden when user is student`() {
             mvc.perform(
-                MockMvcRequestBuilders.patch(TWEETS_PATH)
+                MockMvcRequestBuilders.put(TWEETS_PATH)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(payload)
                     .asStudent()
@@ -127,7 +127,7 @@ class TweetsControllerTest {
             every { updateTweetsUseCase.update(request) } returns emptyList()
 
             mvc.perform(
-                MockMvcRequestBuilders.patch(TWEETS_PATH)
+                MockMvcRequestBuilders.put(TWEETS_PATH)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(payload)
                     .asAdmin()
