@@ -1,0 +1,11 @@
+package com.anahoret.imagilabsapi.teacherchecklist.storage
+
+enum class TeacherCheckListStep {
+    CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM,
+    SHARE_STUDENT_ACCESS_CODE,
+    EXPLORE_YOUR_FIRST_LESSON,
+    CREATE_YOUR_FIRST_PROJECT,
+    CHECK_OUT_OUR_EDUCATOR_FACEBOOK_GROUP,
+
+    CONGRATULATION_DIALOG_SHOWN
+}
