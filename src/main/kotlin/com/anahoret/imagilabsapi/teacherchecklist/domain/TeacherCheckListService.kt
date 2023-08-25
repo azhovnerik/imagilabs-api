@@ -14,7 +14,7 @@ interface TeacherCheckListService {
     fun getAllNotCompleted(teacherId: UUID): TeacherCheckList
     fun completeCheckListStep(teacherId: UUID, step: TeacherCheckListStep)
     fun addTeacherCheckListStep(teacherId: UUID, step: TeacherCheckListStep, completed: Boolean)
-    fun isCompletedSteps(teacherId: UUID): Boolean
+    fun hasCompletedAllSteps(teacherId: UUID): Boolean
 }
 
 @Service
@@ -66,7 +66,7 @@ class TeacherCheckListServiceImpl(
         teacherCheckListRepository.save(TeacherCheckListStepEntity(teacherId, step, completed))
     }
 
-    override fun isCompletedSteps(teacherId: UUID): Boolean {
+    override fun hasCompletedAllSteps(teacherId: UUID): Boolean {
         return !teacherCheckListRepository.existsByTeacherIdAndCompletedFalse(teacherId)
     }
 }
