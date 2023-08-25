@@ -7,4 +7,5 @@ interface TeacherCheckListStepRepository: JpaRepository<TeacherCheckListStepEnti
     fun findAllByTeacherId(teacherId: UUID): List<TeacherCheckListStepEntity>
     fun findByTeacherIdAndStep(teacherId: UUID, step: TeacherCheckListStep): TeacherCheckListStepEntity
     fun findAllByTeacherIdAndCompletedIsFalse(teacherId: UUID): List<TeacherCheckListStepEntity>
+    fun existsByTeacherIdAndCompletedFalse(teacherId: UUID): Boolean
 }

@@ -57,14 +57,16 @@ class TeacherCheckListController(
     fun completeTeacherCheckList(
         @AuthenticationPrincipal teacherProfile: TeacherProfile
     ): ResponseEntity<ResponseDto<Void>> {
-        completeTeacherCheckListUseCase.completeTeacherCheckList(teacherProfile)
-        return ResponseEntity.ok(EmptySuccessResponseDto)
+        return when (val result = completeTeacherCheckListUseCase.completeTeacherCheckList(teacherProfile)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
+        }
     }
 
     @Secured(UserRole.admin)
     @Deprecated("Should be deleted after first usage")
     @PostMapping(TEACHER_CHECK_LIST_PATH)
-    fun createTeacherCheckLists() : ResponseEntity<*> {
+    fun createTeacherCheckLists(): ResponseEntity<*> {
         teacherProfileEntityRepository.findAll().map { createAndUpdate(it.id!!) }
         return ResponseEntity.ok("Success")
     }

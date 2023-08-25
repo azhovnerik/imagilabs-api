@@ -17,7 +17,7 @@ interface ProjectService {
     fun createProject(ownerId: UUID, ownerType: UserType): Project
     fun getProjectById(projectId: UUID): Project?
     fun getAllIdsByOwnerId(ownerId: UUID): List<UUID>
-    fun existsByOwnerId(ownerId: UUID): Boolean
+    fun hasOwnProjects(ownerId: UUID): Boolean
     fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project?
     fun listByIds(projectIds: Collection<UUID>, pageable: Pageable): Page<Project>
     fun getProjectCounts(ownerIds: Collection<UUID>): Map<UUID, Long>
@@ -51,8 +51,8 @@ class ProjectServiceImpl(
             ?.let { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
-    override fun existsByOwnerId (ownerId: UUID): Boolean{
-         return projectEntityRepository.existsByOwnerId(ownerId)
+    override fun hasOwnProjects(ownerId: UUID): Boolean {
+        return projectEntityRepository.existsByOwnerId(ownerId)
     }
 
     override fun updateProject(projectId: UUID, projectUpdateRequest: ProjectUpdateRequest): Project? {

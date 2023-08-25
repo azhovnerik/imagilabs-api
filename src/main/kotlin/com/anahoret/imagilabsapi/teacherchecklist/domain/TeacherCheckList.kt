@@ -1,10 +1,10 @@
 package com.anahoret.imagilabsapi.teacherchecklist.domain
 
-import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStepEntity
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep
+import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStepEntity
 
 @Suppress("unused")
-class TeacherCheckList (
+class TeacherCheckList(
     val checkListSteps: List<CheckListStep>
 ) {
 
@@ -26,5 +26,6 @@ class CheckListStep(
 
         fun mapFromEntity(entity: TeacherCheckListStepEntity): CheckListStep {
             return with(entity) { CheckListStep(step, completed) }
-        }    }
+        }
+    }
 }

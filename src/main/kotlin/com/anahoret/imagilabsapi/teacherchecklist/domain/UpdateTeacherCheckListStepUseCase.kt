@@ -34,9 +34,9 @@ class UpdateTeacherCheckListStepUseCaseImpl(
         return when (checkListStep.step) {
 
             TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM ->
-                classroomService.countByTeacher(teacherId) > 0L || coTeacherService.existsByTeacherId(teacherId)
+                classroomService.countByTeacher(teacherId) > 0L || coTeacherService.isCoTeacher(teacherId)
 
-            TeacherCheckListStep.CREATE_YOUR_FIRST_PROJECT -> projectService.existsByOwnerId(teacherId)
+            TeacherCheckListStep.CREATE_YOUR_FIRST_PROJECT -> projectService.hasOwnProjects(teacherId)
 
             else -> false
         }

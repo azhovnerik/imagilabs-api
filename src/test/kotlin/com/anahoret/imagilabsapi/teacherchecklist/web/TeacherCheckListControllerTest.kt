@@ -1,8 +1,10 @@
 package com.anahoret.imagilabsapi.teacherchecklist.web
 
+import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
 import com.anahoret.imagilabsapi.common.ControllerTest
+import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.common.testTeacherCheckList
 import com.anahoret.imagilabsapi.teacherchecklist.domain.*
@@ -26,7 +28,7 @@ import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import java.util.UUID
+import java.util.*
 
 @DisplayName("Teacher checklist controller")
 class TeacherCheckListControllerTest {
@@ -60,11 +62,20 @@ class TeacherCheckListControllerTest {
         lateinit var updateTeacherCheckListStepUseCase: UpdateTeacherCheckListStepUseCase
 
         @Test
-        fun `should return forbidden error`() {
+        fun `should return forbidden error if user is admin`() {
             mvc.perform(
                 MockMvcRequestBuilders.get(TEACHER_CHECK_LIST_PATH)
                     .contentType(MediaType.APPLICATION_JSON)
                     .asAdmin()
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
+        }
+
+        @Test
+        fun `should return forbidden error if user is student`() {
+            mvc.perform(
+                MockMvcRequestBuilders.get(TEACHER_CHECK_LIST_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asStudent()
             ).andExpect(MockMvcResultMatchers.status().isForbidden)
         }
 
@@ -94,7 +105,7 @@ class TeacherCheckListControllerTest {
         JwtTokenUtil::class
     )
     @Suppress("unused")
-    inner class CompleteTeacherCheckListStep: ControllerTest() {
+    inner class CompleteTeacherCheckListStep : ControllerTest() {
 
         @MockkBean
         lateinit var getTeacherCheckListUseCase: GetTeacherCheckListUseCase
@@ -119,7 +130,7 @@ class TeacherCheckListControllerTest {
             .toString()
 
         @Test
-        fun `should return forbidden error`() {
+        fun `should return forbidden error when user is admin`() {
             mvc.perform(
                 MockMvcRequestBuilders.put(TEACHER_CHECK_LIST_COMPLETE_STEP_PATH)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -129,10 +140,25 @@ class TeacherCheckListControllerTest {
         }
 
         @Test
+        fun `should return forbidden error when user is student`() {
+            mvc.perform(
+                MockMvcRequestBuilders.put(TEACHER_CHECK_LIST_COMPLETE_STEP_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(payload)
+                    .asStudent()
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
+        }
+
+        @Test
         fun `should return success`() {
             val testTeacher = testTeacher()
 
-            every { completeTeacherCheckListStepUseCase.complete(testTeacher.id, SHARE_STUDENT_ACCESS_CODE) } returns Unit
+            every {
+                completeTeacherCheckListStepUseCase.complete(
+                    testTeacher.id,
+                    SHARE_STUDENT_ACCESS_CODE
+                )
+            } returns Unit
 
             mvc.perform(
                 MockMvcRequestBuilders.put(TEACHER_CHECK_LIST_COMPLETE_STEP_PATH)
@@ -154,7 +180,7 @@ class TeacherCheckListControllerTest {
         JwtTokenUtil::class
     )
     @Suppress("unused")
-    inner class CompleteTeacherCheckList: ControllerTest() {
+    inner class CompleteTeacherCheckList : ControllerTest() {
 
         @MockkBean
         lateinit var getTeacherCheckListUseCase: GetTeacherCheckListUseCase
@@ -175,7 +201,7 @@ class TeacherCheckListControllerTest {
         lateinit var updateTeacherCheckListStepUseCase: UpdateTeacherCheckListStepUseCase
 
         @Test
-        fun `should return forbidden error`() {
+        fun `should return forbidden error when user is admin`() {
             mvc.perform(
                 MockMvcRequestBuilders.post(TEACHER_CHECK_LIST_COMPLETED_PATH)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -184,10 +210,32 @@ class TeacherCheckListControllerTest {
         }
 
         @Test
+        fun `should return forbidden error when user is student`() {
+            mvc.perform(
+                MockMvcRequestBuilders.post(TEACHER_CHECK_LIST_COMPLETED_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asStudent()
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
+        }
+
+        @Test
+        fun `should return bad request error when check list could not be completed`() {
+            val testTeacher = testTeacher()
+
+            every { completeTeacherCheckListUseCase.completeTeacherCheckList(testTeacher) } returns ValidationError("").left()
+
+            mvc.perform(
+                MockMvcRequestBuilders.post(TEACHER_CHECK_LIST_COMPLETED_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asTeacher(testTeacher)
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest)
+        }
+
+        @Test
         fun `should return success`() {
             val testTeacher = testTeacher()
 
-            every { completeTeacherCheckListUseCase.completeTeacherCheckList(testTeacher) } returns Unit
+            every { completeTeacherCheckListUseCase.completeTeacherCheckList(testTeacher) } returns Unit.right()
 
             mvc.perform(
                 MockMvcRequestBuilders.post(TEACHER_CHECK_LIST_COMPLETED_PATH)
@@ -208,7 +256,7 @@ class TeacherCheckListControllerTest {
         JwtTokenUtil::class
     )
     @Suppress("unused")
-    inner class CreateTeacherCheckLists: ControllerTest() {
+    inner class CreateTeacherCheckLists : ControllerTest() {
 
         @MockkBean
         lateinit var getTeacherCheckListUseCase: GetTeacherCheckListUseCase
@@ -229,7 +277,7 @@ class TeacherCheckListControllerTest {
         lateinit var updateTeacherCheckListStepUseCase: UpdateTeacherCheckListStepUseCase
 
         @Test
-        fun `should return forbidden error when user doesn't have admin role`() {
+        fun `should return forbidden error when user is student`() {
             mvc.perform(
                 MockMvcRequestBuilders.post(TEACHER_CHECK_LIST_PATH)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -238,10 +286,19 @@ class TeacherCheckListControllerTest {
         }
 
         @Test
+        fun `should return forbidden error when user is teacher`() {
+            mvc.perform(
+                MockMvcRequestBuilders.post(TEACHER_CHECK_LIST_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .asTeacher()
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
+        }
+
+        @Test
         fun `should update teacher check lists`() {
             val teacherId = UUID.randomUUID()
             val teacherCheckList = testTeacherCheckList()
-            every { teacherProfileEntityRepository.findAll() } returns listOf(mockk{
+            every { teacherProfileEntityRepository.findAll() } returns listOf(mockk {
                 every { id } returns teacherId
             })
             every { teacherCheckListService.createCheckList(teacherId) } returns teacherCheckList

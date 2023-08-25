@@ -1,11 +1,11 @@
 package com.anahoret.imagilabsapi.teacherchecklist.domain
 
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep
+import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.*
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStepEntity
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStepRepository
-import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.*
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 interface TeacherCheckListService {
     fun createCheckList(teacherId: UUID): TeacherCheckList
@@ -14,6 +14,7 @@ interface TeacherCheckListService {
     fun getAllNotCompleted(teacherId: UUID): TeacherCheckList
     fun completeCheckListStep(teacherId: UUID, step: TeacherCheckListStep)
     fun addTeacherCheckListStep(teacherId: UUID, step: TeacherCheckListStep, completed: Boolean)
+    fun isCompletedSteps(teacherId: UUID): Boolean
 }
 
 @Service
@@ -43,20 +44,14 @@ class TeacherCheckListServiceImpl(
 
     override fun completeCheckListStep(teacherId: UUID, step: TeacherCheckListStep) {
         teacherCheckListRepository.findByTeacherIdAndStep(teacherId, step)
-            .let {
-                it.completed = true
-                it
-            }
+            .also { it.completed = true }
             .let(teacherCheckListRepository::save)
     }
 
     override fun completeCheckListStep(teacherId: UUID, step: List<TeacherCheckListStep>): TeacherCheckList {
         return teacherCheckListRepository.findAllByTeacherId(teacherId)
-            .map {
-                if (step.contains(it.step)) it.completed = true;
-                it
-            }
-            .let { teacherCheckListRepository.saveAll(it) }
+            .onEach { if (step.contains(it.step)) it.completed = true }
+            .let(teacherCheckListRepository::saveAll)
             .map(CheckListStep::mapFromEntity)
             .let(TeacherCheckList::listToTeacherCheckList)
     }
@@ -69,5 +64,9 @@ class TeacherCheckListServiceImpl(
 
     override fun addTeacherCheckListStep(teacherId: UUID, step: TeacherCheckListStep, completed: Boolean) {
         teacherCheckListRepository.save(TeacherCheckListStepEntity(teacherId, step, completed))
+    }
+
+    override fun isCompletedSteps(teacherId: UUID): Boolean {
+        return !teacherCheckListRepository.existsByTeacherIdAndCompletedFalse(teacherId)
     }
 }
