@@ -6,8 +6,10 @@ import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
-import io.mockk.clearAllMocks
 import java.util.*
+import com.anahoret.imagilabsapi.teacherchecklist.domain.TeacherCheckList
+import com.anahoret.imagilabsapi.teacherchecklist.domain.CheckListStep
+import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM
 
 fun testAdmin(): AdminProfile {
     return AdminProfile(UUID.randomUUID(), "Admin")
@@ -48,4 +50,13 @@ fun testClassroom(teacherId: UUID = UUID.randomUUID()): Classroom {
         teacherId,
         2
     )
+}
+
+fun testTeacherCheckList(
+    checkListStep: CheckListStep = CheckListStep(
+        step = CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM,
+        completed = true
+    )
+): TeacherCheckList {
+    return TeacherCheckList(checkListSteps = listOf(checkListStep))
 }

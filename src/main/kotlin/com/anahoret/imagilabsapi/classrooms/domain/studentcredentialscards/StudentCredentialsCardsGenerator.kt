@@ -9,6 +9,8 @@ import com.anahoret.imagilabsapi.classrooms.domain.ListStudentsInClassroomUseCas
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.teacherchecklist.domain.CompleteTeacherCheckListStepUseCase
+import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.SHARE_STUDENT_ACCESS_CODE
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
 import java.util.*
@@ -27,7 +29,8 @@ class StudentCredentialsCardsGeneratorImpl(
     private val classroomAccessService: ClassroomAccessService,
     private val studentCredentialsCardsPdfGenerator: StudentCredentialsCardsPdfGenerator,
     private val studentCredentialsCardsCsvGenerator: StudentCredentialsCardsCsvGenerator,
-    private val listStudentsInClassroomUseCase: ListStudentsInClassroomUseCase
+    private val listStudentsInClassroomUseCase: ListStudentsInClassroomUseCase,
+    private val completeTeacherChecklistStepUseCase: CompleteTeacherCheckListStepUseCase
 ) : StudentCredentialsCardsGenerator {
 
     override fun generate(
@@ -53,6 +56,8 @@ class StudentCredentialsCardsGeneratorImpl(
             StudentsCredentialsCardsFormat.PDF -> studentCredentialsCardsPdfGenerator::generate
             StudentsCredentialsCardsFormat.CSV -> studentCredentialsCardsCsvGenerator::generate
         }
+
+        completeTeacherChecklistStepUseCase.complete(generateBy.id, SHARE_STUDENT_ACCESS_CODE)
 
         return listStudentsInClassroomUseCase.list(generateBy, classroomId)
             .map { allStudentCards ->

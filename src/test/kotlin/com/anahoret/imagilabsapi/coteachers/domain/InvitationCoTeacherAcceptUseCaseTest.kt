@@ -3,6 +3,9 @@ package com.anahoret.imagilabsapi.coteachers.domain
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.testClassroom
 import com.anahoret.imagilabsapi.common.testTeacher
+import com.anahoret.imagilabsapi.teacherchecklist.domain.CompleteTeacherCheckListStepUseCase
+import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep
+import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import io.mockk.every
 import io.mockk.mockk
@@ -16,7 +19,11 @@ class InvitationCoTeacherAcceptUseCaseTest {
 
     private val coTeacherService = mockk<CoTeacherService>()
     private val classroomService = mockk<ClassroomService>()
-    private val invitationCoTeacherAcceptUseCase = InvitationCoTeacherAcceptUseCaseImpl(coTeacherService, classroomService)
+    private val completeTeacherCheckListStepUseCase = mockk<CompleteTeacherCheckListStepUseCase>()
+
+    private val invitationCoTeacherAcceptUseCase = InvitationCoTeacherAcceptUseCaseImpl(
+        coTeacherService, classroomService, completeTeacherCheckListStepUseCase
+    )
 
     @Test
     fun `should return not found invitation error`() {
@@ -82,6 +89,7 @@ class InvitationCoTeacherAcceptUseCaseTest {
         every { coTeacherService.getCoTeacher(coTeacherId) } returns coTeacher
         every { classroomService.getById(coTeacherClassroomId) } returns classroom
         every { coTeacherService.acceptInvitation(coTeacherId) } returns Unit
+        every { completeTeacherCheckListStepUseCase.complete(teacherProfile.id, CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM) } returns Unit
 
         val result = invitationCoTeacherAcceptUseCase.accept(coTeacherId, teacherProfile)
 
@@ -104,6 +112,7 @@ class InvitationCoTeacherAcceptUseCaseTest {
         every { coTeacherService.getCoTeacher(coTeacherId) } returns coTeacher
         every { classroomService.getById(coTeacherClassroomId) } returns classroom
         every { coTeacherService.acceptInvitation(coTeacherId, teacherProfile.id) } returns Unit
+        every { completeTeacherCheckListStepUseCase.complete(teacherProfile.id, CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM) } returns Unit
 
         val result = invitationCoTeacherAcceptUseCase.accept(coTeacherId, teacherProfile)
 

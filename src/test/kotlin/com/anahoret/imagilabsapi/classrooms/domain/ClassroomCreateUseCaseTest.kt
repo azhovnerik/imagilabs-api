@@ -7,6 +7,8 @@ import com.anahoret.imagilabsapi.students.domain.StudentCreateRequest
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.teacherchecklist.domain.CompleteTeacherCheckListStepUseCase
+import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.*
@@ -21,12 +23,14 @@ class ClassroomCreateUseCaseTest {
     private val classroomService = mockk<ClassroomService>()
     private val studentProfileService = mockk<StudentProfileService>()
     private val teacherSubscriptionService = mockk<TeacherSubscriptionService>()
+    private val completeTeacherChecklistStepUseCase = mockk<CompleteTeacherCheckListStepUseCase>()
 
     private val classroomCreateUseCase = ClassroomCreateUseCaseImpl(
         classroomValidator,
         classroomService,
         studentProfileService,
-        teacherSubscriptionService
+        teacherSubscriptionService,
+        completeTeacherChecklistStepUseCase
     )
 
     @Test
@@ -69,6 +73,7 @@ class ClassroomCreateUseCaseTest {
         }
 
         every { studentProfileService.createStudents(classroom.id, studentCreateRequests) } returns listOf(mockk())
+        every { completeTeacherChecklistStepUseCase.complete(teacherProfile.id, CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM) } returns Unit
         every { teacherSubscriptionService.canCreateClassroom(teacherProfile) } returns true
         every { classroomValidator.validate(teacherProfile, classroomCreateRequest) } returns Unit.right()
         every { classroomService.create(teacherProfile.id, classroomCreateRequest) } returns classroom

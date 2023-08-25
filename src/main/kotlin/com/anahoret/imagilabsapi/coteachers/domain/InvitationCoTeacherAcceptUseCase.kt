@@ -9,6 +9,8 @@ import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.teacherchecklist.domain.CompleteTeacherCheckListStepUseCase
+import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
 import java.util.*
@@ -21,7 +23,8 @@ interface InvitationCoTeacherAcceptUseCase {
 @Service
 class InvitationCoTeacherAcceptUseCaseImpl(
     private val coTeacherService: CoTeacherService,
-    private val classroomService: ClassroomService
+    private val classroomService: ClassroomService,
+    private val completeTeacherCheckListStepUseCase: CompleteTeacherCheckListStepUseCase
 ) : InvitationCoTeacherAcceptUseCase {
 
     override fun accept(
@@ -41,6 +44,8 @@ class InvitationCoTeacherAcceptUseCaseImpl(
 
         if (coTeacher.teacherId == null) coTeacherService.acceptInvitation(coTeacherId, teacherProfile.id)
         else coTeacherService.acceptInvitation(coTeacherId)
+
+        completeTeacherCheckListStepUseCase.complete(teacherProfile.id, CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM)
 
         return classroom.right()
     }

@@ -65,6 +65,8 @@ interface ProjectEntityRepository : CrudRepository<ProjectEntity, UUID>, Project
         ownerId: UUID,
         pageable: Pageable
     ): Page<ProjectEntity>
+
+    fun existsByOwnerId(ownerId: UUID): Boolean
 }
 
 interface ProjectEntityRepositoryCustom {

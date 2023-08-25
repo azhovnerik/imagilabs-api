@@ -23,6 +23,7 @@ interface CoTeacherService {
     fun getByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): CoTeacher?
     fun getCoTeacherCountByClassroomId(classroomId: UUID): Long
     fun getCoTeacherCountsByClassroomIds(classroomIds: Iterable<UUID>): Map<UUID, Long>
+    fun existsByTeacherId(teacherId: UUID): Boolean
 }
 
 @Service
@@ -98,5 +99,9 @@ class CoTeacherServiceImpl(
 
     override fun deleteCoTeacher(coTeacherId: UUID) {
         coTeacherRepository.deleteById(coTeacherId)
+    }
+
+    override fun existsByTeacherId(teacherId: UUID): Boolean {
+        return coTeacherRepository.existsByTeacherId(teacherId)
     }
 }

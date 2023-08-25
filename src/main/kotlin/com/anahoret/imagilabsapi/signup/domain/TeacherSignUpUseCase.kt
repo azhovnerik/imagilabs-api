@@ -6,6 +6,7 @@ import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherSignupRequest
 import com.anahoret.imagilabsapi.teachers.export.googlesheets.domain.GoogleSheetsTeachersExportUseCase
+import com.anahoret.imagilabsapi.teacherchecklist.domain.CreateTeacherCheckListUseCase
 import org.springframework.stereotype.Service
 
 interface TeacherSignUpUseCase {
@@ -19,7 +20,8 @@ class TeacherSignUpUseCaseImpl(
     private val teacherSignupRequestValidator: TeacherSignupRequestValidator,
     private val teacherEmailVerificationService: TeacherEmailVerificationService,
     private val teacherEmailVerificationCodeSenderUseCase: TeacherEmailVerificationCodeSenderUseCase,
-    private val googleSheetsTeachersExportUseCase: GoogleSheetsTeachersExportUseCase?
+    private val googleSheetsTeachersExportUseCase: GoogleSheetsTeachersExportUseCase?,
+    private val createTeacherCheckListUseCase: CreateTeacherCheckListUseCase
 ) : TeacherSignUpUseCase {
 
     override fun signUp(request: TeacherSignupRequest): Either<List<ValidationError>, TeacherProfile> {
@@ -27,6 +29,7 @@ class TeacherSignUpUseCaseImpl(
         return teacherSignupRequestValidator.validate(normalizedRequest)
             .map {
                 val teacherProfile = teacherProfileService.createTeacher(normalizedRequest)
+                createTeacherCheckListUseCase.create(teacherProfile.id)
                 teacherEmailVerificationService.generateNewVerificationCode(teacherProfile.id)
                     ?.let { code -> teacherEmailVerificationCodeSenderUseCase.send(request.email, code) }
                 googleSheetsTeachersExportUseCase?.exportAsync(teacherProfile.id)
