@@ -6,7 +6,7 @@ import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
-import io.mockk.clearAllMocks
+import com.anahoret.imagilabsapi.tweets.domain.Tweet
 import java.util.*
 
 fun testAdmin(): AdminProfile {
@@ -48,4 +48,8 @@ fun testClassroom(teacherId: UUID = UUID.randomUUID()): Classroom {
         teacherId,
         2
     )
+}
+
+fun testTweet(): Tweet {
+    return Tweet(1, "twitter.com")
 }
