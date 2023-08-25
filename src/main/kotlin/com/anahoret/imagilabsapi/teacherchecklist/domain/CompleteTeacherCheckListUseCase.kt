@@ -21,7 +21,7 @@ class CompleteTeacherCheckListUseCaseImpl(
 
     override fun completeTeacherCheckList(teacherProfile: TeacherProfile): Either<OperationError, Unit> {
 
-        if (teacherCheckListService.isCompletedSteps(teacherProfile.id))
+        if (!teacherCheckListService.hasCompletedAllSteps(teacherProfile.id))
             return ValidationError("TEACHER_CHECK_LIST_SHOULD_BE_COMPLETED").left()
 
         return teacherCheckListService.addTeacherCheckListStep(
