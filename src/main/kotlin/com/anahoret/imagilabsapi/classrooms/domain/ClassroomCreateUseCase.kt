@@ -7,6 +7,8 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
+import com.anahoret.imagilabsapi.teacherchecklist.domain.CompleteTeacherCheckListStepUseCase
+import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -25,7 +27,8 @@ class ClassroomCreateUseCaseImpl(
     private val classroomValidator: ClassroomValidator,
     private val classroomService: ClassroomService,
     private val studentProfileService: StudentProfileService,
-    private val teacherSubscriptionService: TeacherSubscriptionService
+    private val teacherSubscriptionService: TeacherSubscriptionService,
+    private val completeTeacherChecklistStepUseCase: CompleteTeacherCheckListStepUseCase
 ) : ClassroomCreateUseCase {
 
     @Transactional(rollbackOn = [Throwable::class])
@@ -41,6 +44,7 @@ class ClassroomCreateUseCaseImpl(
     private fun doCreateClassroom(teacherId: UUID, classroomCreateRequest: ClassroomCreateRequest): Classroom {
         val classroom = classroomService.create(teacherId, classroomCreateRequest)
         studentProfileService.createStudents(classroom.id, classroomCreateRequest.studentCreateRequests)
+        completeTeacherChecklistStepUseCase.complete(teacherId, CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM)
         return classroom
     }
 

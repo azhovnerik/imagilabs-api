@@ -88,6 +88,8 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
         nativeQuery = true
     )
     fun getCoTeacherCountsByClassrooms(classroomIds: Iterable<UUID>): Iterable<ClassroomCoTeacherCount>
+
+    fun existsByTeacherId(teacherId: UUID): Boolean
 }
 
 interface ClassroomCoTeacherCount {
