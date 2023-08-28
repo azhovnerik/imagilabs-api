@@ -17,4 +17,5 @@ interface LessonBundleEntityRepository : JpaRepository<LessonBundleEntity, UUID>
         WHERE tb.teacherId = :teacherId
     """)
     fun findAllByTeacherId(teacherId: UUID): List<LessonBundleEntity>
+    fun existsByIdAndDefaultBundleTrue(bundleId: UUID): Boolean
 }
