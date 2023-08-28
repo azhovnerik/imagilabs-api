@@ -105,16 +105,15 @@ class TeacherSubscriptionServiceTest {
                 }
             }
 
-            @ParameterizedTest
-            @ValueSource(longs = [0L, 5L, 9L])
-            fun `should return true if teacher has less than 10 classes`(classroomsCount: Long) {
-                every { classroomService.countByTeacher(teacherProfile.id) } returns classroomsCount
+            @Test
+            fun `should return true if teacher has less than 1 classes`() {
+                every { classroomService.countByTeacher(teacherProfile.id) } returns 0L
                 assertTrue(teacherSubscriptionService.canCreateClassroom(teacherProfile))
             }
 
             @ParameterizedTest
-            @ValueSource(longs = [10L, 100L, Long.MAX_VALUE])
-            fun `should return false if teacher has 10 classes or more`(classroomsCount: Long) {
+            @ValueSource(longs = [1L, 10L, 100L, Long.MAX_VALUE])
+            fun `should return false if teacher has 1 class or more`(classroomsCount: Long) {
                 every { classroomService.countByTeacher(teacherProfile.id) } returns classroomsCount
                 assertFalse(teacherSubscriptionService.canCreateClassroom(teacherProfile))
             }
