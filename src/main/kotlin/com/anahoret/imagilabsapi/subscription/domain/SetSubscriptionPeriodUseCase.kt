@@ -8,6 +8,10 @@ import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.teachers.export.googlesheets.domain.GoogleSheetsTeachersExportUseCase
+import com.anahoret.imagilabsapi.utils.DateUtils
+import com.anahoret.imagilabsapi.utils.DateUtils.millis
+import com.anahoret.imagilabsapi.utils.DateUtils.toEndOfTheDay
+import com.anahoret.imagilabsapi.utils.DateUtils.toMidnight
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -19,7 +23,7 @@ interface SetSubscriptionPeriodUseCase {
 class SetSubscriptionPeriodUseCaseImpl(
     private val teacherSubscriptionService: TeacherSubscriptionService,
     private val teacherProfileService: TeacherProfileService,
-    private val googleSheetsTeachersExportUseCase: GoogleSheetsTeachersExportUseCase?
+    private val googleSheetsTeachersExportUseCase: GoogleSheetsTeachersExportUseCase?,
 ) : SetSubscriptionPeriodUseCase {
     override fun set(teacherId: UUID, request: SetSubscriptionPeriodRequest): Either<OperationError, Unit> {
         if (request.endDate < request.startDate)
@@ -28,7 +32,10 @@ class SetSubscriptionPeriodUseCaseImpl(
         if (!teacherProfileService.exists(teacherId))
             return NotFoundError("TEACHER_NOT_FOUND").left()
 
-        teacherSubscriptionService.setPeriod(teacherId, request.startDate, request.endDate)
+        val startDate = DateUtils.toUTC(request.startDate).toMidnight().millis()
+        val endDate = DateUtils.toUTC(request.endDate).toEndOfTheDay().millis()
+
+        teacherSubscriptionService.setPeriod(teacherId, startDate, endDate)
         googleSheetsTeachersExportUseCase?.updateAsync(teacherId)
 
         return Unit.right()
