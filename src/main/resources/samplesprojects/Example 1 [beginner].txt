@@ -1,0 +1,56 @@
+# Welcome Project for Teachers
+
+# First, we're going to introduce the concept of functions.
+# Functions are like mini-programs inside a program that you can run whenever you need.
+# On imagi Edu there are certain built-in functions that you can use in any program.
+
+# The built-in function below, `scrolling_text()`, displays a scrolling text on a screen.
+# We'll use it to show various welcome messages and examples.
+
+# Let's start by welcoming you by your name:
+
+# This is a variable. It's like a box where we can store data.
+# Replace 'Teacher Name' with your first name.
+teacher_name = "Teacher Name"
+
+# This line will display your name in a welcome message.
+scrolling_text(text="Welcome to imagi Edu, " + teacher_name + "! ")
+
+# Run your code.
+
+# Congrats! You made your first edits and ran your first Python program!
+
+
+# --------------------------------------------------------------------------------
+# More fun for the curious ones:
+
+# In programming, there's something called 'commenting'.
+# It's a way for programmers to leave notes or temporarily disable parts of code.
+# Anything after a # is a comment and is ignored by the computer.
+
+# Below are some more examples of `scrolling_text()`.
+# Uncomment them by removing the '#' to see them in action!
+
+# Change the color of the text to red (`R`)
+# `R` is a variable defined by the programming environment that holds the color red.
+# scrolling_text(text="Warm and cool vibes!", text_color=R)
+
+# Did you get an error message? That's great! Error messages are here to guide us.
+# This one is saying that we can only have one scrolling text animation.
+# So you need to comment out the first one in line 17.
+
+# Green text (like a chalkboard) on a white background.
+# scrolling_text(text="Class is in session. ", text_color=G, back_color=W)
+
+# Makes the text appear like it's taking its sweet time.
+# scrolling_text(text="Slow and steady...", duration=300)
+
+# Some repeated characters for fun visuals. Or could this be Morse Code..?
+# scrolling_text(text="| .... . .-.. .-.. --- |")
+
+# Feel free to play around with the text or the values of any of the other parameters.
+
+# The `scrolling_text()` and all other built-in functions are introduced in-depth
+# in the lesson materials and in the documentation.
+
+# Welcome to the world of coding! We're thrilled to have you here.
