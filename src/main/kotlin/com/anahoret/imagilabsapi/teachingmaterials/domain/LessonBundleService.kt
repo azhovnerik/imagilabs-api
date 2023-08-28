@@ -98,7 +98,7 @@ class LessonBundleServiceImpl(
     }
 
     override fun isDefault(bundleId: UUID): Boolean {
-        return lessonBundleEntityRepository.findByIdOrNull(bundleId)?.defaultBundle ?: false
+        return lessonBundleEntityRepository.existsByIdAndDefaultBundleTrue(bundleId)
     }
 
     private fun addBundleLessons(
