@@ -12,6 +12,7 @@ interface TeacherBundleService {
     fun getBundleLessonsByTeacherId(teacherId: UUID): List<BundleLesson>
     fun getByTeacherIdAndBundleId(teacherId: UUID, bundleId: UUID): UUID?
     fun delete(teacherBundleId: UUID)
+    fun hasLinkedBundle(teacherId: UUID, bundleId: UUID): Boolean
 }
 
 @Service
@@ -50,6 +51,10 @@ class TeacherBundleServiceImpl(
 
     override fun delete(teacherBundleId: UUID) {
         return teacherBundleRepository.deleteById(teacherBundleId)
+    }
+
+    override fun hasLinkedBundle(teacherId: UUID, bundleId: UUID): Boolean {
+        return teacherBundleRepository.existsByTeacherIdAndBundleId(teacherId, bundleId)
     }
 
     private fun mapToLessonBundles(

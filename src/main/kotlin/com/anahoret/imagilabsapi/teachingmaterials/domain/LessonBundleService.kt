@@ -20,6 +20,7 @@ interface LessonBundleService {
     fun get(bundleId: UUID): LessonBundle?
     fun getDefaultBundle(): LessonBundle?
     fun exists(bundleId: UUID): Boolean
+    fun isDefault(bundleId: UUID): Boolean
 }
 
 @Service
@@ -65,9 +66,9 @@ class LessonBundleServiceImpl(
 
     override fun list(searchQuery: String?, sort: Sort): List<LessonBundleBase> {
         return (
-            searchQuery?.let { lessonBundleEntityRepository.findAllByNameContainingIgnoreCase(searchQuery, sort) }
-                ?: lessonBundleEntityRepository.findAll(sort)
-            ).map(LessonBundleBase.Companion::fromEntity)
+                searchQuery?.let { lessonBundleEntityRepository.findAllByNameContainingIgnoreCase(searchQuery, sort) }
+                    ?: lessonBundleEntityRepository.findAll(sort)
+                ).map(LessonBundleBase.Companion::fromEntity)
     }
 
     @Transactional
@@ -94,6 +95,10 @@ class LessonBundleServiceImpl(
 
     override fun exists(bundleId: UUID): Boolean {
         return lessonBundleEntityRepository.existsById(bundleId)
+    }
+
+    override fun isDefault(bundleId: UUID): Boolean {
+        return lessonBundleEntityRepository.findByIdOrNull(bundleId)?.defaultBundle ?: false
     }
 
     private fun addBundleLessons(
