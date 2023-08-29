@@ -37,3 +37,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### General macOS ###
+.DS_Store
+.AppleDouble
+.LSOverride
