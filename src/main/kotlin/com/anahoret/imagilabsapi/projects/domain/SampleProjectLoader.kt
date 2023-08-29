@@ -13,7 +13,7 @@ interface SampleProjectLoader {
 @Component
 class SampleProjectLoaderImpl(
     @Value("${ResourceUtils.CLASSPATH_URL_PREFIX}samplesprojects/*")
-    private val resources: Array<Resource>,
+    private val resources: Array<Resource>
 ): SampleProjectLoader {
 
     override fun load(): List<SampleProject> {
