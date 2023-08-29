@@ -12,14 +12,20 @@ import java.util.*
 class ProjectSampleCreateUseCaseImplTest {
 
     private val projectService = mockk<ProjectService>()
-    private val projectSamplesCreateUseCase = ProjectSamplesCreateUseCaseImpl(projectService)
+    private val sampleProjectLoader = mockk<SampleProjectLoader>()
+    private val projectSamplesCreateUseCase = ProjectSamplesCreateUseCaseImpl(projectService, sampleProjectLoader)
 
     private val teacherId = UUID.randomUUID()
 
     @Test
     fun `should create sample project`() {
-        every { projectService.createSampleProject(teacherId, any()) } returns mockk()
+        val projects = mockk<List<SampleProject>>()
+
+        every { sampleProjectLoader.load() } returns projects
+        every { projectService.createSampleProject(teacherId, projects) } returns mockk()
+
         projectSamplesCreateUseCase.create(teacherId)
-        verify { projectService.createSampleProject(teacherId, any()) }
+
+        verify { projectService.createSampleProject(teacherId, projects) }
     }
 }

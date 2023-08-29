@@ -15,7 +15,7 @@ import java.util.*
 interface ProjectService {
 
     fun createProject(ownerId: UUID, ownerType: UserType): Project
-    fun createSampleProject(teacherId: UUID, requests: List<SampleProject>): List<Project>
+    fun createSampleProject(teacherId: UUID, projects: List<SampleProject>): List<Project>
     fun getProjectById(projectId: UUID): Project?
     fun getAllIdsByOwnerId(ownerId: UUID): List<UUID>
     fun hasOwnProjects(ownerId: UUID): Boolean
@@ -47,8 +47,8 @@ class ProjectServiceImpl(
         ).let { Project.fromEntity(it, ::parseToRunCodeResponse) }
     }
 
-    override fun createSampleProject(teacherId: UUID, requests: List<SampleProject>): List<Project> {
-        return requests
+    override fun createSampleProject(teacherId: UUID, projects: List<SampleProject>): List<Project> {
+        return projects
             .map {
                 ProjectEntity(
                     name = it.name,
