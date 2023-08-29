@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.teacherchecklist.web
 
 import arrow.core.Either
+import arrow.core.continuations.result
 import com.anahoret.imagilabsapi.common.web.EmptySuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
@@ -47,9 +48,9 @@ class TeacherCheckListController(
     fun completeStep(
         @AuthenticationPrincipal teacherProfile: TeacherProfile,
         @RequestBody request: CompleteTeacherCheckListStepRequest
-    ): ResponseEntity<ResponseDto<Void>> {
-        completeTeacherCheckListStepUseCase.complete(teacherProfile.id, request.step)
-        return ResponseEntity.ok(EmptySuccessResponseDto)
+    ): ResponseEntity<ResponseDto<TeacherCheckList>> {
+        val result = completeTeacherCheckListStepUseCase.complete(teacherProfile.id, request.step)
+        return ResponseEntity.ok(SuccessResponseDto(result))
     }
 
     @Secured(UserRole.teacher)
