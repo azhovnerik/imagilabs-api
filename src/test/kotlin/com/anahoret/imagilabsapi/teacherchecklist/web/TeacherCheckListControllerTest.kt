@@ -152,13 +152,14 @@ class TeacherCheckListControllerTest {
         @Test
         fun `should return success`() {
             val testTeacher = testTeacher()
+            val teacherCheckList = TeacherCheckList(emptyList())
 
             every {
                 completeTeacherCheckListStepUseCase.complete(
                     testTeacher.id,
                     SHARE_STUDENT_ACCESS_CODE
                 )
-            } returns Unit
+            } returns teacherCheckList
 
             mvc.perform(
                 MockMvcRequestBuilders.put(TEACHER_CHECK_LIST_COMPLETE_STEP_PATH)

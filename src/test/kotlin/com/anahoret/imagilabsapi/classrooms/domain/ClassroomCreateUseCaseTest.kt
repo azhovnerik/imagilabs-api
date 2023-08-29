@@ -73,7 +73,7 @@ class ClassroomCreateUseCaseTest {
         }
 
         every { studentProfileService.createStudents(classroom.id, studentCreateRequests) } returns listOf(mockk())
-        every { completeTeacherChecklistStepUseCase.complete(teacherProfile.id, CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM) } returns Unit
+        every { completeTeacherChecklistStepUseCase.complete(teacherProfile.id, CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM) } returns mockk()
         every { teacherSubscriptionService.canCreateClassroom(teacherProfile) } returns true
         every { classroomValidator.validate(teacherProfile, classroomCreateRequest) } returns Unit.right()
         every { classroomService.create(teacherProfile.id, classroomCreateRequest) } returns classroom
