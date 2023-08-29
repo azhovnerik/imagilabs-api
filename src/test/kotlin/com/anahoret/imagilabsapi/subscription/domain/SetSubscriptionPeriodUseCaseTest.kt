@@ -8,7 +8,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -38,10 +38,10 @@ class SetSubscriptionPeriodUseCaseTest {
         val teacherId = UUID.randomUUID()
         val request = SetSubscriptionPeriodRequest(100, 200)
         every { teacherProfileService.exists(teacherId) } returns true
-        every { googleSheetsTeachersExportUseCase.updateAsync(teacherId) } returns Unit
-        justRun { teacherSubscriptionService.setPeriod(teacherId, 100, 200) }
+        justRun { googleSheetsTeachersExportUseCase.updateAsync(teacherId) }
+        justRun { teacherSubscriptionService.setPeriod(teacherId, 0, 86340000) }
         setSubscriptionPeriodUseCaseImpl.set(teacherId, request)
-        verify { teacherSubscriptionService.setPeriod(teacherId, 100, 200) }
+        verify { teacherSubscriptionService.setPeriod(teacherId, 0, 86340000) }
     }
 
     @Test

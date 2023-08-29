@@ -36,7 +36,7 @@ class GoogleSheetsTeachersExportUseCaseImpl(
 
     companion object {
 
-        val DATE_TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        val DATE_TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     }
 
     override fun export() {
