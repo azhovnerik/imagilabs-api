@@ -1,0 +1,31 @@
+# Welcome to the Repeat Rainbow project!
+
+# A `for` loop is like a repeating instruction that lets us perform a task multiple times
+# without writing the same code over and over.
+
+
+# We want to color the first row (row 0) with color `R`
+# Instead of writing 8 lines to color each square, we use a for loop.
+
+for col in range(0, 8):  # This tells the computer to repeat the next instruction 8 times
+	m[0][col] = R  # For each repetition, it colors a square in row 0
+	m[1][col] = O  # For each repetition, it colors a square in row 1
+	m[2][col] = Y  # For each repetition, it colors a square in row 2
+	m[3][col] = G  # For each repetition, it colors a square in row 3
+	m[4][col] = A  # For each repetition, it colors a square in row 4
+	m[5][col] = B  # For each repetition, it colors a square in row 5
+	m[6][col] = P  # For each repetition, it colors a square in row 6
+	m[7][col] = M  # For each repetition, it colors a square in row 7
+
+# Now, you might be wondering why we used `range(0, 8)`.
+# In Python, we start counting from 0. So, for 8 squares, we count: 0, 1, 2, ... 7.
+
+
+# --------------------------------------------------------------------------------
+# More fun for the curious ones:
+
+# Challenge for You:
+# 1. Can you color only the left half of the rainbow?
+# 2. How about coloring the right half?
+
+# The `for` loop is introduced in-depth in the lesson materials and in the documentation.

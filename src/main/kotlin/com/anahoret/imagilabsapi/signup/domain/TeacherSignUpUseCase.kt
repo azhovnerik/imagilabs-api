@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.signup.domain
 
 import arrow.core.Either
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
+import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectSamplesCreateUseCase
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherSignupRequest
@@ -21,7 +22,8 @@ class TeacherSignUpUseCaseImpl(
     private val teacherEmailVerificationService: TeacherEmailVerificationService,
     private val teacherEmailVerificationCodeSenderUseCase: TeacherEmailVerificationCodeSenderUseCase,
     private val googleSheetsTeachersExportUseCase: GoogleSheetsTeachersExportUseCase?,
-    private val createTeacherCheckListUseCase: CreateTeacherCheckListUseCase
+    private val createTeacherCheckListUseCase: CreateTeacherCheckListUseCase,
+    private val projectSamplesCreateUseCase: ProjectSamplesCreateUseCase
 ) : TeacherSignUpUseCase {
 
     override fun signUp(request: TeacherSignupRequest): Either<List<ValidationError>, TeacherProfile> {
@@ -30,6 +32,7 @@ class TeacherSignUpUseCaseImpl(
             .map {
                 val teacherProfile = teacherProfileService.createTeacher(normalizedRequest)
                 createTeacherCheckListUseCase.create(teacherProfile.id)
+                projectSamplesCreateUseCase.create(teacherProfile.id)
                 teacherEmailVerificationService.generateNewVerificationCode(teacherProfile.id)
                     ?.let { code -> teacherEmailVerificationCodeSenderUseCase.send(request.email, code) }
                 googleSheetsTeachersExportUseCase?.exportAsync(teacherProfile.id)
