@@ -89,7 +89,7 @@ class InvitationCoTeacherAcceptUseCaseTest {
         every { coTeacherService.getCoTeacher(coTeacherId) } returns coTeacher
         every { classroomService.getById(coTeacherClassroomId) } returns classroom
         every { coTeacherService.acceptInvitation(coTeacherId) } returns Unit
-        every { completeTeacherCheckListStepUseCase.complete(teacherProfile.id, CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM) } returns Unit
+        every { completeTeacherCheckListStepUseCase.complete(teacherProfile.id, CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM) } returns mockk()
 
         val result = invitationCoTeacherAcceptUseCase.accept(coTeacherId, teacherProfile)
 
@@ -112,7 +112,7 @@ class InvitationCoTeacherAcceptUseCaseTest {
         every { coTeacherService.getCoTeacher(coTeacherId) } returns coTeacher
         every { classroomService.getById(coTeacherClassroomId) } returns classroom
         every { coTeacherService.acceptInvitation(coTeacherId, teacherProfile.id) } returns Unit
-        every { completeTeacherCheckListStepUseCase.complete(teacherProfile.id, CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM) } returns Unit
+        every { completeTeacherCheckListStepUseCase.complete(teacherProfile.id, CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM) } returns mockk()
 
         val result = invitationCoTeacherAcceptUseCase.accept(coTeacherId, teacherProfile)
 
