@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.projects.domain
 
+import org.springframework.core.io.Resource
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.stereotype.Component
 import org.springframework.util.ResourceUtils
@@ -21,7 +22,9 @@ class SampleProjectLoaderImpl : SampleProjectLoader {
         return PathMatchingResourcePatternResolver(this.javaClass.classLoader)
             .getResources(DIRECTORY_PATH)
             .filter { it.exists() && it.isFile }
-            .map { SampleProject(it.filename!!, it.getContentAsString(Charsets.UTF_8)) }
+            .map { SampleProject(it.nameWithoutExtension(), it.getContentAsString(Charsets.UTF_8)) }
             .sortedByDescending(SampleProject::name)
     }
+
+    private fun Resource.nameWithoutExtension() = this.filename!!.substringBeforeLast(".")
 }
