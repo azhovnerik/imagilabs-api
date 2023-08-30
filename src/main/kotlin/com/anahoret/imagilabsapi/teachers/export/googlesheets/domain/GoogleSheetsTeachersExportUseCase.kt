@@ -36,7 +36,8 @@ class GoogleSheetsTeachersExportUseCaseImpl(
 
     companion object {
 
-        val DATE_TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val DATE_TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        val LOCAL_DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     }
 
     override fun export() {
@@ -139,7 +140,7 @@ class GoogleSheetsTeachersExportUseCaseImpl(
         return when(this) {
             null -> "null"
             else -> DateUtils.toStockholmDateTime(this)
-                .format(DATE_TIME_FORMAT)
+                .format(LOCAL_DATE_FORMAT)
         }
     }
 
