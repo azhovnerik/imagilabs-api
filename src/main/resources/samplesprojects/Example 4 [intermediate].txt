@@ -8,27 +8,28 @@
 
 # Define a function to draw a face with customizable features.
 def face(face_color, hair_color, eye_color, mouth_color):
-  background(face_color)  # Set the background to the face color
+    background(face_color)  # Set the background to the face color
 
-  # Clear the corners to shape the face
-  m[0][0] = off
-  m[0][7] = off
-  m[7][0] = off
-  m[7][7] = off
+    # Clear the corners to shape the face
+    m[0][0] = off
+    m[0][7] = off
+    m[7][0] = off
+    m[7][7] = off
 
-  # Hair: setting the top row, excluding the corners
-  for i in range(1, 7):
-	m[0][i] = hair_color
+    # Hair: setting the top row, excluding the corners
+    for i in range(1, 7):
+        m[0][i] = hair_color
 
-	# Eyes: Positioned at (2,2) and (2,5)
-	m[2][2] = eye_color
-	m[2][5] = eye_color
+        # Eyes: Positioned at (2,2) and (2,5)
+        m[2][2] = eye_color
+        m[2][5] = eye_color
 
-	# Mouth: A simple curved shape on rows 5 and 6
-	m[5][2] = mouth_color
-	m[6][3] = mouth_color
-	m[6][4] = mouth_color
-	m[5][5] = mouth_color
+        # Mouth: A simple curved shape on rows 5 and 6
+        m[5][2] = mouth_color
+        m[6][3] = mouth_color
+        m[6][4] = mouth_color
+        m[5][5] = mouth_color
+
 
 # Create an instance of the `Animation` class.
 a = Animation()
@@ -40,7 +41,6 @@ a.add_frame(m, 1000)  # Display for 1000 milliseconds (1 second)
 # Add a second frame with a different color set.
 face(A, R, P, M)
 a.add_frame(m, 1000)
-
 
 # --------------------------------------------------------------------------------
 # More fun for the curious ones:
