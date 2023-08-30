@@ -15,45 +15,48 @@ from random import randint as r
 # The elements of the list are just predefined variables representing colors.
 colors = [R, O, Y, G, A, B, P, M]
 
+
 def mark_dice_face(x, y, c):
-  """
-  This function colors a 2x2 segment on our matrix.
-  It takes in x, y as the top-left row and column indices, and c as the color.
-  """
-  m[x][y] = c
-  m[x][y + 1] = c
-  m[x + 1][y] = c
-  m[x + 1][y + 1] = c
+    """
+    This function colors a 2x2 segment on our matrix.
+    It takes in x, y as the top-left row and column indices, and c as the color.
+    """
+    m[x][y] = c
+    m[x][y + 1] = c
+    m[x + 1][y] = c
+    m[x + 1][y + 1] = c
+
 
 def dice_face_indices():
-  """
-  This function returns a dictionary. A dictionary in Python is like a real-life dictionary.
-  Instead of words and their meanings, we have keys (dice numbers) and their values (list of indices).
-  """
-  return {
-	1: [(3, 3)],
-	2: [(1, 1), (5, 5)],
-	3: [(0, 0), (3, 3), (6, 6)],
-	4: [(1, 1), (1, 5), (5, 1), (5, 5)],
-	5: [(0, 0), (0, 6), (3, 3), (6, 0), (6, 6)],
-	6: [(0, 1), (3, 1), (6, 1), (0, 5), (3, 5), (6, 5)]
-  }
+    """
+    This function returns a dictionary. A dictionary in Python is like a real-life dictionary.
+    Instead of words and their meanings, we have keys (dice numbers) and their values (list of indices).
+    """
+    return {
+        1: [(3, 3)],
+        2: [(1, 1), (5, 5)],
+        3: [(0, 0), (3, 3), (6, 6)],
+        4: [(1, 1), (1, 5), (5, 1), (5, 5)],
+        5: [(0, 0), (0, 6), (3, 3), (6, 0), (6, 6)],
+        6: [(0, 1), (3, 1), (6, 1), (0, 5), (3, 5), (6, 5)]
+    }
+
 
 def display_dice(number, color):
-  """
-  Here, we take a dice number and a color, then use the indices
-  from our dictionary to display that dice number on the grid.
-  """
-  indices = dice_face_indices().get(number, [])
-  for x, y in indices:
-	mark_dice_face(x, y, color)
+    """
+    Here, we take a dice number and a color, then use the indices
+    from our dictionary to display that dice number on the grid.
+    """
+    indices = dice_face_indices().get(number, [])
+    for x, y in indices:
+        mark_dice_face(x, y, color)
+
 
 a = Animation()
 for i in range(10):
-  clear()  # This prepares our display for a new frame
-  display_dice(r(1, 6), colors[r(0, len(colors)-1)])
-  a.add_frame(m)
-
+    clear()  # This prepares our display for a new frame
+    display_dice(r(1, 6), colors[r(0, len(colors) - 1)])
+    a.add_frame(m)
 
 # --------------------------------------------------------------------------------
 # More fun for the curious ones:
