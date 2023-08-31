@@ -2,10 +2,11 @@ package com.anahoret.imagilabsapi.tweets.web
 
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
 import com.anahoret.imagilabsapi.common.ControllerTest
-import com.anahoret.imagilabsapi.tweets.domain.GetTweetsUseCase
-import com.anahoret.imagilabsapi.tweets.domain.UpdateTweetsRequest
-import com.anahoret.imagilabsapi.tweets.domain.UpdateTweetsUseCase
+import com.anahoret.imagilabsapi.common.testAdmin
+import com.anahoret.imagilabsapi.common.testTeacher
+import com.anahoret.imagilabsapi.tweets.domain.*
 import com.anahoret.imagilabsapi.tweets.web.TweetsController.Companion.TWEETS_PATH
+import com.anahoret.imagilabsapi.tweets.web.TweetsController.Companion.TWEETS_TEACHER_STATE_PATH
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -42,6 +43,9 @@ class TweetsControllerTest {
         @MockkBean
         lateinit var updateTweetsUseCase: UpdateTweetsUseCase
 
+        @MockkBean
+        lateinit var changeTeacherTweetsSateUseCase: ChangeTeacherTweetsStateUseCase
+
         @Test
         fun `should return forbidden when user is student`() {
             mvc.perform(
@@ -53,28 +57,32 @@ class TweetsControllerTest {
 
         @Test
         fun `should return success when user is admin`() {
-            every { getTweetsUseCase.getAll() } returns emptyList()
+            val testAdmin = testAdmin()
+
+            every { getTweetsUseCase.getAll(testAdmin) } returns Tweets.empty()
 
             mvc.perform(
                 MockMvcRequestBuilders.get(TWEETS_PATH)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .asAdmin()
+                    .asAdmin(testAdmin)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
-            verify { getTweetsUseCase.getAll() }
+            verify { getTweetsUseCase.getAll(testAdmin) }
         }
 
         @Test
         fun `should return success when user is teacher`() {
-            every { getTweetsUseCase.getAll() } returns emptyList()
+            val testTeacher = testTeacher()
+
+            every { getTweetsUseCase.getAll(testTeacher) } returns Tweets.empty()
 
             mvc.perform(
                 MockMvcRequestBuilders.get(TWEETS_PATH)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .asTeacher()
+                    .asTeacher(testTeacher)
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
-            verify { getTweetsUseCase.getAll() }
+            verify { getTweetsUseCase.getAll(testTeacher) }
         }
     }
 
@@ -94,6 +102,9 @@ class TweetsControllerTest {
 
         @MockkBean
         lateinit var updateTweetsUseCase: UpdateTweetsUseCase
+
+        @MockkBean
+        lateinit var changeTeacherTweetsSateUseCase: ChangeTeacherTweetsStateUseCase
 
         private val array = JSONArray()
         private val payload = JSONObject()
@@ -134,6 +145,68 @@ class TweetsControllerTest {
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
             verify { updateTweetsUseCase.update(request) }
+        }
+    }
+
+    @ExtendWith(SpringExtension::class)
+    @DisplayName("when get tweets")
+    @Nested
+    @WebMvcTest(
+        TweetsController::class,
+        AuthenticationEntryPoint::class,
+        JwtTokenUtil::class
+    )
+    @Suppress("unused")
+    inner class ChangeTeacherTweetsState: ControllerTest() {
+
+        @MockkBean
+        lateinit var getTweetsUseCase: GetTweetsUseCase
+
+        @MockkBean
+        lateinit var updateTweetsUseCase: UpdateTweetsUseCase
+
+        @MockkBean
+        lateinit var changeTeacherTweetsSateUseCase: ChangeTeacherTweetsStateUseCase
+
+        private val payload = JSONObject()
+            .put("isHidden", true)
+            .toString()
+
+        @Test
+        fun `should return forbidden when user is admin`() {
+            mvc.perform(
+                MockMvcRequestBuilders.put(TWEETS_TEACHER_STATE_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(payload)
+                    .asAdmin()
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
+        }
+
+        @Test
+        fun `should return forbidden when user is student`() {
+            mvc.perform(
+                MockMvcRequestBuilders.put(TWEETS_TEACHER_STATE_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(payload)
+                    .asStudent()
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
+        }
+
+        @Test
+        fun `should return success`() {
+            val testTeacher = testTeacher()
+            val request = ChangeTeacherTweetsStateRequest(true)
+
+            every { changeTeacherTweetsSateUseCase.change(testTeacher, request) } returns Tweets.empty()
+
+            mvc.perform(
+                MockMvcRequestBuilders.put(TWEETS_TEACHER_STATE_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(payload)
+                    .asTeacher(testTeacher)
+            ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
+
+            verify { changeTeacherTweetsSateUseCase.change(testTeacher, request) }
         }
     }
 }

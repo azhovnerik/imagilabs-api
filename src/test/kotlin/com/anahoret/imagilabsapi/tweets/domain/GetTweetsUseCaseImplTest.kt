@@ -1,5 +1,7 @@
 package com.anahoret.imagilabsapi.tweets.domain
 
+import com.anahoret.imagilabsapi.common.testAdmin
+import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.common.testTweet
 import io.mockk.every
 import io.mockk.mockk
@@ -12,17 +14,62 @@ import org.junit.jupiter.api.Test
 class GetTweetsUseCaseImplTest {
 
     private val tweetService = mockk<TweetService>()
-    private val getTweetsUseCase = GetTweetsUseCaseImpl(tweetService)
+    private val teacherTweetsStateService = mockk<TeacherTweetStateService>()
+    private val getTweetsUseCase = GetTweetsUseCaseImpl(tweetService, teacherTweetsStateService)
 
     @Test
-    fun `should return tweets`() {
+    fun `should return tweets without state for admin`() {
+        val testAdmin = testAdmin()
         val tweet = testTweet()
+
         every { tweetService.getTweets() } returns listOf(tweet)
-        val result = getTweetsUseCase.getAll()
+
+        val result = getTweetsUseCase.getAll(testAdmin)
+
         assertAll(
-            { assertEquals(1, result.size, "Incorrect amount of tweets.") },
-            { assertEquals(tweet.order, result[0].order, "Incorrect order.") },
-            { assertEquals(tweet.uri, result[0].uri, "Incorrect uri.") }
+            { assertEquals(null, result.teacherTweetSate, "Incorrect teacher tweet state.") },
+            { assertEquals(1, result.tweets.size, "Incorrect amount of tweets.") },
+            { assertEquals(tweet.order, result.tweets[0].order, "Incorrect order.") },
+            { assertEquals(tweet.uri, result.tweets[0].uri, "Incorrect uri.") }
+        )
+    }
+
+    @Test
+    fun `should return tweets with state for teacher`() {
+        val testTeacher = testTeacher()
+        val tweet = testTweet()
+        val teacherTweetsState = TeacherTweetsState(testTeacher.id, false, false)
+
+        every { tweetService.getTweets() } returns listOf(tweet)
+        every { teacherTweetsStateService.getByTeacherId(testTeacher.id) } returns teacherTweetsState
+
+        val result = getTweetsUseCase.getAll(testTeacher)
+
+        assertAll(
+            { assertEquals(teacherTweetsState, result.teacherTweetSate, "Incorrect teacher tweet state.") },
+            { assertEquals(1, result.tweets.size, "Incorrect amount of tweets.") },
+            { assertEquals(tweet.order, result.tweets[0].order, "Incorrect order.") },
+            { assertEquals(tweet.uri, result.tweets[0].uri, "Incorrect uri.") }
+        )
+    }
+
+    @Test
+    fun `should return tweets with state for teacher after creation`() {
+        val testTeacher = testTeacher()
+        val tweet = testTweet()
+        val teacherTweetsState = TeacherTweetsState(testTeacher.id, false, false)
+
+        every { tweetService.getTweets() } returns listOf(tweet)
+        every { teacherTweetsStateService.getByTeacherId(testTeacher.id) } returns null
+        every { teacherTweetsStateService.create(testTeacher.id) } returns teacherTweetsState
+
+        val result = getTweetsUseCase.getAll(testTeacher)
+
+        assertAll(
+            { assertEquals(teacherTweetsState, result.teacherTweetSate, "Incorrect teacher tweet state.") },
+            { assertEquals(1, result.tweets.size, "Incorrect amount of tweets.") },
+            { assertEquals(tweet.order, result.tweets[0].order, "Incorrect order.") },
+            { assertEquals(tweet.uri, result.tweets[0].uri, "Incorrect uri.") }
         )
     }
 }
