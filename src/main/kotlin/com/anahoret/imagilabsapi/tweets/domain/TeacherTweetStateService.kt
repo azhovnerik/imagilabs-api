@@ -7,7 +7,7 @@ import java.util.*
 
 interface TeacherTweetStateService {
 
-    fun create(teacherId: UUID, isHidden: Boolean = false): TeacherTweetsState
+    fun create(teacherId: UUID): TeacherTweetsState
     fun getByTeacherId(teacherId: UUID): TeacherTweetsState
     fun update(teacherId: UUID, isHidden: Boolean): TeacherTweetsState
 }
@@ -17,15 +17,14 @@ class TeacherTweetStateServiceImpl(
     private val teacherTweetStateRepository: TeacherTweetStateRepository
 ): TeacherTweetStateService {
 
-    override fun create(teacherId: UUID, isHidden: Boolean): TeacherTweetsState {
-        return teacherTweetStateRepository.save(TeacherTweetStateEntity(teacherId, isHidden))
-            .let(TeacherTweetsState::mapFromEntity)
+    override fun create(teacherId: UUID): TeacherTweetsState {
+        return createTeacherTweetsState(teacherId)
     }
 
     override fun getByTeacherId(teacherId: UUID): TeacherTweetsState {
         return teacherTweetStateRepository.findByTeacherId(teacherId)
             ?.let(TeacherTweetsState::mapFromEntity)
-            ?: create(teacherId)
+            ?: createTeacherTweetsState(teacherId)
     }
 
     override fun update(teacherId: UUID, isHidden: Boolean): TeacherTweetsState {
@@ -36,6 +35,11 @@ class TeacherTweetStateServiceImpl(
                 teacherTweetStateRepository.save(it)
             }
             ?.let(TeacherTweetsState::mapFromEntity)
-            ?: create(teacherId, isHidden)
+            ?: createTeacherTweetsState(teacherId, isHidden)
+    }
+
+    private fun createTeacherTweetsState(teacherId: UUID, isHidden: Boolean = false): TeacherTweetsState {
+        return teacherTweetStateRepository.save(TeacherTweetStateEntity(teacherId = teacherId, isHidden = isHidden))
+            .let(TeacherTweetsState::mapFromEntity)
     }
 }
