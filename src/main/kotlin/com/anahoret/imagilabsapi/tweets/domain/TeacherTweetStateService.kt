@@ -7,10 +7,9 @@ import java.util.*
 
 interface TeacherTweetStateService {
 
-    fun create(teacherId: UUID): TeacherTweetsState
-    fun getByTeacherId(teacherId: UUID): TeacherTweetsState?
-    fun hasTeacherState(teacherId: UUID): Boolean
-    fun update(teacherId: UUID, isHidden: Boolean): TeacherTweetsState?
+    fun create(teacherId: UUID, isHidden: Boolean = false): TeacherTweetsState
+    fun getByTeacherId(teacherId: UUID): TeacherTweetsState
+    fun update(teacherId: UUID, isHidden: Boolean): TeacherTweetsState
 }
 
 @Service
@@ -18,21 +17,18 @@ class TeacherTweetStateServiceImpl(
     private val teacherTweetStateRepository: TeacherTweetStateRepository
 ): TeacherTweetStateService {
 
-    override fun create(teacherId: UUID): TeacherTweetsState {
-        return teacherTweetStateRepository.save(TeacherTweetStateEntity(teacherId = teacherId))
+    override fun create(teacherId: UUID, isHidden: Boolean): TeacherTweetsState {
+        return teacherTweetStateRepository.save(TeacherTweetStateEntity(teacherId, isHidden))
             .let(TeacherTweetsState::mapFromEntity)
     }
 
-    override fun getByTeacherId(teacherId: UUID): TeacherTweetsState? {
+    override fun getByTeacherId(teacherId: UUID): TeacherTweetsState {
         return teacherTweetStateRepository.findByTeacherId(teacherId)
             ?.let(TeacherTweetsState::mapFromEntity)
+            ?: create(teacherId)
     }
 
-    override fun hasTeacherState(teacherId: UUID): Boolean {
-        return teacherTweetStateRepository.existsByTeacherId(teacherId)
-    }
-
-    override fun update(teacherId: UUID, isHidden: Boolean): TeacherTweetsState? {
+    override fun update(teacherId: UUID, isHidden: Boolean): TeacherTweetsState {
         return teacherTweetStateRepository.findByTeacherId(teacherId)
             ?.let {
                 it.isHidden = isHidden
@@ -40,5 +36,6 @@ class TeacherTweetStateServiceImpl(
                 teacherTweetStateRepository.save(it)
             }
             ?.let(TeacherTweetsState::mapFromEntity)
+            ?: create(teacherId, isHidden)
     }
 }

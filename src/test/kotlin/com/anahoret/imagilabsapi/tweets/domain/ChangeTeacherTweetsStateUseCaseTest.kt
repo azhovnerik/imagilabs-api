@@ -24,7 +24,6 @@ class ChangeTeacherTweetsStateUseCaseTest {
         val testTeacherTweetsState = TeacherTweetsState(testTeacher.id, true, true)
         val testTweet = testTweet()
 
-        every { teacherTweetsStateService.hasTeacherState(testTeacher.id) } returns true
         every { tweetService.getTweets() } returns listOf(testTweet)
         every { teacherTweetsStateService.update(testTeacher.id, true) } returns testTeacherTweetsState
 
@@ -45,7 +44,6 @@ class ChangeTeacherTweetsStateUseCaseTest {
         val testTeacherTweetsState = TeacherTweetsState(testTeacher.id, true, true)
         val testTweet = testTweet()
 
-        every { teacherTweetsStateService.hasTeacherState(testTeacher.id) } returns false
         every { teacherTweetsStateService.create(testTeacher.id) } returns testTeacherTweetsState
         every { tweetService.getTweets() } returns listOf(testTweet)
         every { teacherTweetsStateService.update(testTeacher.id, true) } returns testTeacherTweetsState

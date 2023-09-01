@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.tweets.web
 
+import arrow.core.right
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
 import com.anahoret.imagilabsapi.common.ControllerTest
 import com.anahoret.imagilabsapi.common.testAdmin
@@ -59,7 +60,7 @@ class TweetsControllerTest {
         fun `should return success when user is admin`() {
             val testAdmin = testAdmin()
 
-            every { getTweetsUseCase.getAll(testAdmin) } returns Tweets.empty()
+            every { getTweetsUseCase.getAll(testAdmin) } returns Tweets.empty().right()
 
             mvc.perform(
                 MockMvcRequestBuilders.get(TWEETS_PATH)
@@ -74,7 +75,7 @@ class TweetsControllerTest {
         fun `should return success when user is teacher`() {
             val testTeacher = testTeacher()
 
-            every { getTweetsUseCase.getAll(testTeacher) } returns Tweets.empty()
+            every { getTweetsUseCase.getAll(testTeacher) } returns Tweets.empty().right()
 
             mvc.perform(
                 MockMvcRequestBuilders.get(TWEETS_PATH)

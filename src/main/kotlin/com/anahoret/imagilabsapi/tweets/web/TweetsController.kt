@@ -1,8 +1,10 @@
 package com.anahoret.imagilabsapi.tweets.web
 
+import arrow.core.Either
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
+import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.tweets.domain.*
@@ -32,8 +34,10 @@ class TweetsController(
     fun getAllTweets(
         @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<Tweets>> {
-        val tweets = getTweetsUseCase.getAll(userProfile)
-        return ResponseEntity.ok(SuccessResponseDto(tweets))
+        return when (val result = getTweetsUseCase.getAll(userProfile)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
     }
 
     @Secured(UserRole.admin)

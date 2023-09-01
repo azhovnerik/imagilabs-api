@@ -16,9 +16,6 @@ class ChangeTeacherTweetsStateUseCaseImpl(
 
     override fun change(teacherProfile: TeacherProfile, request: ChangeTeacherTweetsStateRequest): Tweets {
 
-        if (!teacherTweetsStateService.hasTeacherState(teacherProfile.id))
-            teacherTweetsStateService.create(teacherProfile.id)
-
         val tweets = tweetService.getTweets()
         val teacherTweetsState = teacherTweetsStateService.update(teacherProfile.id, request.isHidden)
 
