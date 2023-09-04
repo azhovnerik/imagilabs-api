@@ -39,34 +39,37 @@ class ClassroomTeachingMaterialsGetUseCaseImpl(
                 if (!classroomAccessService.canGetTeachingMaterials(getBy, classroom))
                     return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-                getForTeacher(classroom)
+                getTeachingMaterials(classroom).right()
             }
 
-            UserType.STUDENT -> getForStudent(getBy, classroom)
+            UserType.STUDENT -> {
+                if (!classroomAccessService.canGetTeachingMaterials(getBy, classroom))
+                    return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
+
+                getTeachingMaterialsForStudent(classroom).right()
+            }
+
             else -> AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
         }
     }
 
-    private fun getForStudent(
-        userProfile: UserProfile,
-        classroom: Classroom
-    ): Either<OperationError, TeachingMaterials> {
-
-        if (!classroomAccessService.canGetTeachingMaterials(userProfile, classroom))
-            return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
-
-        return getForTeacher(classroom)
-    }
-
-    private fun getForTeacher(classroom: Classroom): Either<OperationError, TeachingMaterials> {
+    private fun getTeachingMaterials(classroom: Classroom): TeachingMaterials {
         val bundleLessons = getBundleLessons(classroom.teacherId)
 
-        val includePro = teacherSubscriptionService.getSubscriptionDto(classroom.teacherId)
+        val proEnabled = teacherSubscriptionService.getSubscriptionDto(classroom.teacherId)
             ?.plan == TeacherSubscriptionPlan.PRO
 
-        val worksheets = bundleLessons.map { TeachingMaterial.worksheetFromBundleLesson(it, includePro) }
-        val teachingSlides = bundleLessons.map { TeachingMaterial.teachingSlidesFromBundleLesson(it, includePro) }
-        return TeachingMaterials(teachingSlides, worksheets).right()
+        val worksheets = bundleLessons.map { TeachingMaterial.worksheetFromBundleLesson(it, proEnabled) }
+        val teachingSlides = bundleLessons.map { TeachingMaterial.teachingSlidesFromBundleLesson(it, proEnabled) }
+        return TeachingMaterials(teachingSlides, worksheets)
+    }
+
+    private fun getTeachingMaterialsForStudent(classroom: Classroom): TeachingMaterials {
+        val teachingMaterials = getTeachingMaterials(classroom)
+        return TeachingMaterials(
+            teachingMaterials.teachingSlides.filter { it.path != null },
+            teachingMaterials.worksheets.filter { it.path != null }
+        )
     }
 
     private fun getBundleLessons(teacherId: UUID): List<BundleLesson> {
