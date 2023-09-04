@@ -5,11 +5,15 @@ import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan.STANDARD
 import com.anahoret.imagilabsapi.teacherchecklist.domain.CheckListStep
 import com.anahoret.imagilabsapi.teacherchecklist.domain.TeacherCheckList
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.teachingmaterials.domain.BundleLesson
+import com.anahoret.imagilabsapi.teachingmaterials.domain.LessonBundle
 import com.anahoret.imagilabsapi.tweets.domain.Tweet
+import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import java.util.*
 
 fun testAdmin(): AdminProfile {
@@ -27,8 +31,12 @@ fun testTeacher(): TeacherProfile {
         createdAt = 0L,
         emailVerified = true,
         marketingEmailSubscribed = false,
-        subscription = TeacherSubscription(null, null, TeacherSubscriptionPlan.STANDARD, false)
+        subscription = TeacherSubscription(null, null, STANDARD, false)
     )
+}
+
+fun testTeacherSubscription(plan: TeacherSubscriptionPlan = STANDARD, canceled: Boolean = false): TeacherSubscription {
+    return TeacherSubscription(0, 100, plan, canceled)
 }
 
 fun testStudent(classroomId: UUID = UUID.randomUUID()): StudentProfile {
@@ -64,4 +72,27 @@ fun testTeacherCheckList(
     )
 ): TeacherCheckList {
     return TeacherCheckList(checkListSteps = listOf(checkListStep))
+}
+
+fun testBundleLesson(bundleId: UUID = UUID.randomUUID(), proLesson: Boolean = false): BundleLesson {
+    return BundleLesson(
+        id = UUID.randomUUID(),
+        bundleId = bundleId,
+        index = -1,
+        name = randomAlphabetic(6),
+        worksheetUri = "http://${randomAlphabetic(4)}.com",
+        slidesUri = "http://${randomAlphabetic(4)}.com",
+        proLesson = proLesson
+    )
+}
+
+fun testLessonBundle(default: Boolean = false, lessons: List<BundleLesson>? = null): LessonBundle {
+    val bundleId = UUID.randomUUID()
+    val bundleLessons = lessons ?: listOf(testBundleLesson(bundleId))
+    return LessonBundle(
+        id = bundleId,
+        name = randomAlphabetic(6),
+        defaultBundle = default,
+        lessons = bundleLessons
+    )
 }
