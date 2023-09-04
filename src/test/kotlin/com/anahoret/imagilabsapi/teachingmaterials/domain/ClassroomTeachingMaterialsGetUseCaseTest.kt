@@ -42,7 +42,7 @@ class ClassroomTeachingMaterialsGetUseCaseTest {
     }
 
     @Test
-    fun `should return classroom not found error`() {
+    fun `should return classroom not found error when classroom does not exists`() {
         val testTeacher = testTeacher()
         val classroomId = UUID.randomUUID()
 
@@ -107,7 +107,7 @@ class ClassroomTeachingMaterialsGetUseCaseTest {
     }
 
     @Test
-    fun `should return teaching materials for student without pro lessons`() {
+    fun `should return teaching materials for student without pro lessons when teacher have standard subscription`() {
         val testClassroom = testClassroom()
         val testStudent = testStudent(testClassroom.id)
         val teacherBundleLessons = listOf(testBundleLesson(proLesson = true))
@@ -131,7 +131,7 @@ class ClassroomTeachingMaterialsGetUseCaseTest {
     }
 
     @Test
-    fun `should return teaching materials for student with pro lessons`() {
+    fun `should return teaching materials for student with pro lessons when teacher have pro subscription`() {
         val testClassroom = testClassroom()
         val testStudent = testStudent(testClassroom.id)
         val teacherBundleLessons = listOf(testBundleLesson(proLesson = true))
