@@ -35,7 +35,7 @@ class ClevertapSendAnalyticsUseCaseTest {
     }
 
     @Test
-    fun `should send complete onboarding step event when teacher complete create or join classroom step`() {
+    fun `should send complete onboarding step event when teacher complete 'create or join classroom' step`() {
         val step = TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM
         val requests = listOf(
             ClevertapRequest("createOrJoinClassroom", eventType, completeOnboardingStepEventName)
@@ -49,7 +49,7 @@ class ClevertapSendAnalyticsUseCaseTest {
     }
 
     @Test
-    fun `should send complete onboarding step event when teacher complete share student credentials step`() {
+    fun `should send complete onboarding step event when teacher complete 'share student credentials' step`() {
         val step = TeacherCheckListStep.SHARE_STUDENT_ACCESS_CODE
         val requests = listOf(
             ClevertapRequest("shareStudentCredentials", eventType, completeOnboardingStepEventName)
@@ -63,7 +63,7 @@ class ClevertapSendAnalyticsUseCaseTest {
     }
 
     @Test
-    fun `should send complete onboarding step event when teacher complete explore first lesson step`() {
+    fun `should send complete onboarding step event when teacher complete 'explore first lesson' step`() {
         val step = TeacherCheckListStep.EXPLORE_YOUR_FIRST_LESSON
         val requests = listOf(
             ClevertapRequest("exploreLesson", eventType, completeOnboardingStepEventName)
@@ -77,7 +77,7 @@ class ClevertapSendAnalyticsUseCaseTest {
     }
 
     @Test
-    fun `should send complete onboarding step event when teacher complete create first project step`() {
+    fun `should send complete onboarding step event when teacher complete 'create first project' step`() {
         val step = TeacherCheckListStep.CREATE_YOUR_FIRST_PROJECT
         val requests = listOf(
             ClevertapRequest("createProject", eventType, completeOnboardingStepEventName)
@@ -91,7 +91,7 @@ class ClevertapSendAnalyticsUseCaseTest {
     }
 
     @Test
-    fun `should send complete onboarding step event when teacher complete check facebook group step`() {
+    fun `should send complete onboarding step event when teacher complete 'check facebook group' step`() {
         val step = TeacherCheckListStep.CHECK_OUT_OUR_EDUCATOR_FACEBOOK_GROUP
         val requests = listOf(
             ClevertapRequest("checkFacebookGroup", eventType, completeOnboardingStepEventName)
