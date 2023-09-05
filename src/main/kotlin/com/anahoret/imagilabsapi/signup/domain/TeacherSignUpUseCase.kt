@@ -32,7 +32,7 @@ class TeacherSignUpUseCaseImpl(
             .map {
                 val teacherProfile = teacherProfileService.createTeacher(normalizedRequest)
                 createTeacherCheckListUseCase.create(teacherProfile.id)
-                projectSamplesCreateUseCase.create(teacherProfile.id)
+                projectSamplesCreateUseCase.create(teacherProfile)
                 teacherEmailVerificationService.generateNewVerificationCode(teacherProfile.id)
                     ?.let { code -> teacherEmailVerificationCodeSenderUseCase.send(request.email, code) }
                 googleSheetsTeachersExportUseCase?.exportAsync(teacherProfile.id)
