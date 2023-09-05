@@ -33,7 +33,7 @@ class ClevertapSendAnalyticsUseCaseImpl(
         if (step == CONGRATULATION_DIALOG_SHOWN)
             return
 
-        val request = ClevertapRequest(step.externalName, event, completeOnboardingStep)
+        val request = ClevertapRequest(step.clevertapName, event, completeOnboardingStep)
         clevertapAnalyticsApi.sendAnalytics(listOf(request))
     }
 }

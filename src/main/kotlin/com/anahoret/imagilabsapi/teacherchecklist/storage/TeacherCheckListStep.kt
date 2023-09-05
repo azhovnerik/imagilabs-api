@@ -1,6 +1,6 @@
 package com.anahoret.imagilabsapi.teacherchecklist.storage
 
-enum class TeacherCheckListStep(val externalName: String) {
+enum class TeacherCheckListStep(val clevertapName: String) {
     CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM("createOrJoinClassroom"),
     SHARE_STUDENT_ACCESS_CODE("shareStudentCredentials"),
     EXPLORE_YOUR_FIRST_LESSON("exploreLesson"),
