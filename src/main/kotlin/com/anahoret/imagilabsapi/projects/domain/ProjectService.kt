@@ -54,7 +54,8 @@ class ProjectServiceImpl(
                     name = it.name,
                     ownerId = teacherId,
                     ownerUserType = UserType.TEACHER,
-                    sourceCode = it.sourceCode
+                    sourceCode = it.sourceCode,
+                    runResult = it.runResult
                 )
             }
             .let { projectEntityRepository.saveAll(it) }

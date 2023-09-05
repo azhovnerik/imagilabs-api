@@ -19,7 +19,7 @@ class SampleProjectLoaderImpl(
     override fun load(): List<SampleProject> {
         return resources
             .filter { it.exists() }
-            .map { SampleProject(it.nameWithoutExtension(), it.getContentAsString(Charsets.UTF_8)) }
+            .map { SampleProject(it.nameWithoutExtension(), it.getContentAsString(Charsets.UTF_8), null) }
             .sortedByDescending(SampleProject::name)
     }
 
