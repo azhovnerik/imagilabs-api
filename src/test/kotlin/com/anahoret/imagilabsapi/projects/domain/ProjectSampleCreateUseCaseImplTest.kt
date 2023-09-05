@@ -30,17 +30,16 @@ class ProjectSampleCreateUseCaseImplTest {
         val projects = listOf(SampleProject(
             name = "Test sample project",
             sourceCode = "m[0][0] = on",
-            null
         ))
         val runCodeResponse = RunCodeResponse(null, emptyList())
 
         every { sampleProjectLoader.load() } returns projects
         every { codeRunUseCase.run(testTeacher, any()) } returns runCodeResponse.right()
         every { objectMapper.writeValueAsString(any()) } returns ""
-        every { projectService.createSampleProject(testTeacher.id, projects) } returns mockk()
+        every { projectService.createSampleProject(testTeacher.id, any()) } returns mockk()
 
         projectSamplesCreateUseCase.create(testTeacher)
 
-        verify { projectService.createSampleProject(testTeacher.id, projects) }
+        verify { projectService.createSampleProject(testTeacher.id, any()) }
     }
 }

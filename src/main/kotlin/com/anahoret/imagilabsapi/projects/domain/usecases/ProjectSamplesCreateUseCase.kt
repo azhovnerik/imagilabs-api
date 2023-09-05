@@ -1,6 +1,8 @@
 package com.anahoret.imagilabsapi.projects.domain.usecases
 
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
+import com.anahoret.imagilabsapi.projects.domain.SampleProject
+import com.anahoret.imagilabsapi.projects.domain.SampleProjectCompiled
 import com.anahoret.imagilabsapi.projects.domain.SampleProjectLoader
 import com.anahoret.imagilabsapi.pythoncompiler.domain.CodeRunUseCase
 import com.anahoret.imagilabsapi.pythoncompiler.domain.RunCodeRequest
@@ -22,12 +24,16 @@ class ProjectSamplesCreateUseCaseImpl(
 ) : ProjectSamplesCreateUseCase {
 
     override fun create(teacherProfile: TeacherProfile) {
-        val projects = sampleProjectLoader.load()
-        projects.map { sample ->
-            val runCodeResponse = codeRunUseCase.run(teacherProfile, RunCodeRequest(sample.sourceCode))
-            runCodeResponse.onRight { sample.runResult = objectMapper.writeValueAsString(it) }
-        }
+        val compiledProjects = sampleProjectLoader.load().compileProjectsBy(teacherProfile)
 
-        projectService.createSampleProject(teacherProfile.id, projects)
+        projectService.createSampleProject(teacherProfile.id, compiledProjects)
+    }
+
+    private fun List<SampleProject>.compileProjectsBy(teacherProfile: TeacherProfile): List<SampleProjectCompiled> {
+        return this.map {
+            val runCodeResponse = codeRunUseCase.run(teacherProfile, RunCodeRequest(it.sourceCode)).getOrNull()
+            val runResult = objectMapper.writeValueAsString(runCodeResponse)
+            SampleProjectCompiled(it.name, it.sourceCode, runResult)
+        }
     }
 }
