@@ -129,17 +129,17 @@ class GoogleSheetsTeachersExportUseCaseImpl(
                     marketingEmailSubscribed.toString(),
                     registrationDateTime,
                     subscription.status(),
-                    subscription.start.toStockholmDateTime(),
-                    subscription.end.toStockholmDateTime()
+                    subscription.start.toUTC(),
+                    subscription.end.toUTC()
                 )
             }
         }
     }
 
-    private fun Long?.toStockholmDateTime(): String {
+    private fun Long?.toUTC(): String {
         return when(this) {
             null -> "null"
-            else -> DateUtils.toStockholmDateTime(this)
+            else -> DateUtils.toUTC(this)
                 .format(LOCAL_DATE_FORMAT)
         }
     }
