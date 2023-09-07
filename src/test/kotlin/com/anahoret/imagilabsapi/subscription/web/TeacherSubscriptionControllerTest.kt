@@ -27,12 +27,15 @@ import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import java.time.LocalDate
 import java.util.*
 
 @DisplayName("Teacher subscription controller")
 class TeacherSubscriptionControllerTest {
 
     private val teacherId = UUID.randomUUID()
+    private val start = LocalDate.of(1970, 1, 1)
+    private val end = LocalDate.of(1970, 1, 2)
 
     @ExtendWith(SpringExtension::class)
     @DisplayName("when setting subscription period")
@@ -53,10 +56,10 @@ class TeacherSubscriptionControllerTest {
         @MockkBean
         lateinit var checkTeacherAccessProLessonsUseCase: CheckTeacherAccessProLessonsUseCase
 
-        private val request = SetSubscriptionPeriodRequest(100, 200)
+        private val request = SetSubscriptionPeriodRequest(start, end)
         private val payload = JSONObject()
-            .put("startDate", 100)
-            .put("endDate", 200)
+            .put("startDate", start.toString())
+            .put("endDate", end.toString())
             .toString()
 
         @Test

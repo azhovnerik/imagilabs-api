@@ -8,7 +8,6 @@ import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.teachers.export.googlesheets.domain.GoogleSheetsTeachersExportUseCase
-import com.anahoret.imagilabsapi.utils.DateUtils
 import com.anahoret.imagilabsapi.utils.DateUtils.millis
 import com.anahoret.imagilabsapi.utils.DateUtils.toEndOfTheDay
 import com.anahoret.imagilabsapi.utils.DateUtils.toMidnight
@@ -32,8 +31,8 @@ class SetSubscriptionPeriodUseCaseImpl(
         if (!teacherProfileService.exists(teacherId))
             return NotFoundError("TEACHER_NOT_FOUND").left()
 
-        val startDate = DateUtils.toUTC(request.startDate).toMidnight().millis()
-        val endDate = DateUtils.toUTC(request.endDate).toEndOfTheDay().millis()
+        val startDate = request.startDate.toMidnight().millis()
+        val endDate = request.endDate.toEndOfTheDay().millis()
 
         teacherSubscriptionService.setPeriod(teacherId, startDate, endDate)
         googleSheetsTeachersExportUseCase?.updateAsync(teacherId)
