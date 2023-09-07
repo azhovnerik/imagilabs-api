@@ -14,12 +14,12 @@ object DateUtils {
         return ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneId.of("UTC"))
     }
 
-    fun ZonedDateTime.toMidnight(): ZonedDateTime {
-        return ZonedDateTime.of(this.toLocalDate(), LocalTime.MIDNIGHT, ZoneOffset.UTC)
+    fun LocalDate.toMidnight(): ZonedDateTime {
+        return ZonedDateTime.of(this, LocalTime.MIDNIGHT, ZoneOffset.UTC)
     }
 
-    fun ZonedDateTime.toEndOfTheDay(): ZonedDateTime {
-        return ZonedDateTime.of(this.toLocalDate(), LocalTime.of(23, 59), ZoneOffset.UTC)
+    fun LocalDate.toEndOfTheDay(): ZonedDateTime {
+        return ZonedDateTime.of(this, LocalTime.of(23, 59, 59, 999), ZoneOffset.UTC)
     }
 
     fun ZonedDateTime.millis(): Long {
