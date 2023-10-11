@@ -92,6 +92,7 @@ draft_projects AS (
             SELECT DISTINCT project_id
             FROM project_classroom_share
         )
+        AND pr.title NOT IN ('Example 1 [beginner]', 'Example 2 [beginner]', 'Example 3 [intermediate]', 'Example 4 [intermediate]', 'Example 5 [advanced]')
         AND owner_user_type = 'TEACHER'
     GROUP BY owner_id,
         tps.email,
