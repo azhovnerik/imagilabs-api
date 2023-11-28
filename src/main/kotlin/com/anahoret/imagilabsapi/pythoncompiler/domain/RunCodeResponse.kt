@@ -10,9 +10,9 @@ data class RunCodeResponse(
 )
 
 data class CodeResult(
-    @field:JsonProperty("animation") val animation: Animation,
-    @field:JsonProperty("scrolling_text") val scrollingText: ScrollingText,
-    @field:JsonProperty("outdoor_mode") val outdoorMode: Boolean
+    @field:JsonProperty("animation") val animation: Animation?,
+    @field:JsonProperty("scrolling_text") val scrollingText: ScrollingText?,
+    @field:JsonProperty("outdoor_mode") val outdoorMode: Boolean?
 )
 
 class FrameObject(

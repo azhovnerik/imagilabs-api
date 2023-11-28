@@ -30,7 +30,7 @@ class CodeRunUseCaseImpl(
 
     private fun generateAnimatedTextIfNeeded(runCodeResponse: RunCodeResponse): RunCodeResponse {
         val output = runCodeResponse.output ?: return runCodeResponse
-        if (output.scrollingText.text == null) return runCodeResponse
+        if (output.scrollingText?.text == null) return runCodeResponse
         val scrollingTextAnimation = animatedTextGenerator.generateScrollingTextAnimation(output.scrollingText)
         return runCodeResponse.copy(output = output.copy(animation = scrollingTextAnimation))
     }
