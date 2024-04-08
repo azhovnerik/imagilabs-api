@@ -47,6 +47,8 @@ class ClevertapSendAnalyticsUseCaseTest {
     inner class SendCompleteOnboardingStepEvent {
 
         private val teacherId = UUID.randomUUID()
+        private val evtDataKey = "step"
+
 
         @ParameterizedTest
         @EnumSource(
@@ -62,7 +64,7 @@ class ClevertapSendAnalyticsUseCaseTest {
                     identity = teacherId.toString(),
                     type = eventType,
                     evtName = completeOnboardingStepEventName,
-                    evtData = step.clevertapName
+                    evtData = mapOf(evtDataKey to step.clevertapName)
                 )
             )
 

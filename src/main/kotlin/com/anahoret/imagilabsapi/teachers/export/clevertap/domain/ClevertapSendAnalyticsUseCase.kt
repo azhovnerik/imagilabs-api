@@ -37,7 +37,7 @@ class ClevertapSendAnalyticsUseCaseImpl(
             identity = teacherId.toString(),
             type = event,
             evtName = completeOnboardingStep,
-            evtData = step.clevertapName
+            evtData = mapOf("step" to step.clevertapName)
         )
         clevertapAnalyticsApi.sendAnalytics(listOf(request))
     }
