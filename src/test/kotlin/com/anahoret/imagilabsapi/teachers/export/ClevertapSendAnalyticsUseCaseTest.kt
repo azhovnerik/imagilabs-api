@@ -22,7 +22,7 @@ class ClevertapSendAnalyticsUseCaseTest {
     private val clevertapSendAnalyticsUseCase = ClevertapSendAnalyticsUseCaseImpl(clevertapAnalyticsApi)
 
     private val eventType = "event"
-    private val completeOnboardingStepEventName = "complete_onboarding_step"
+    private val completeOnboardingStepEventName = "h_complete_onboarding_step"
 
     @Nested
     @DisplayName("When send teachers expired subscription event")
@@ -58,7 +58,12 @@ class ClevertapSendAnalyticsUseCaseTest {
             step: TeacherCheckListStep
         ) {
             val requests = listOf(
-                ClevertapRequest(teacherId.toString(), eventType, completeOnboardingStepEventName)
+                ClevertapRequest(
+                    identity = teacherId.toString(),
+                    type = eventType,
+                    evtName = completeOnboardingStepEventName,
+                    evtData = step.clevertapName
+                )
             )
 
             every { clevertapAnalyticsApi.sendAnalytics(requests) } returns mockk()

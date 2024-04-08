@@ -5,5 +5,5 @@ data class ClevertapRequest(
     val identity: String,
     val type: String,
     val evtName: String,
-    val evtData: Any? = null
+    val evtData: String? = null
 )

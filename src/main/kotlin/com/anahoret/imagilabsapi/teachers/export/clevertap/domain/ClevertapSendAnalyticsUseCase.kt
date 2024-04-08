@@ -36,7 +36,8 @@ class ClevertapSendAnalyticsUseCaseImpl(
         val request = ClevertapRequest(
             identity = teacherId.toString(),
             type = event,
-            evtName = completeOnboardingStep
+            evtName = completeOnboardingStep,
+            evtData = step.clevertapName
         )
         clevertapAnalyticsApi.sendAnalytics(listOf(request))
     }
