@@ -9,7 +9,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import java.util.*
 
 @DisplayName("Clevertap send analytics use case")
@@ -19,97 +22,67 @@ class ClevertapSendAnalyticsUseCaseTest {
     private val clevertapSendAnalyticsUseCase = ClevertapSendAnalyticsUseCaseImpl(clevertapAnalyticsApi)
 
     private val eventType = "event"
-    private val completeOnboardingStepEventName = "complete_onboarding_step"
+    private val completeOnboardingStepEventName = "h_complete_onboarding_step"
 
-    @Test
-    fun `should send teachers expired subscription event when subscription is expired`() {
-        val teacherId = UUID.randomUUID()
-        val teachersIds = listOf(teacherId)
-        val requests = listOf(ClevertapRequest(teacherId.toString(), eventType, "s_subscription_expired"))
+    @Nested
+    @DisplayName("When send teachers expired subscription event")
+    inner class SendTeachersExpiredSubscriptionEvent {
 
-        every { clevertapAnalyticsApi.sendAnalytics(requests) } returns mockk()
+        @Test
+        fun `should send teachers expired subscription event when subscription is expired`() {
+            val teacherId = UUID.randomUUID()
+            val teachersIds = listOf(teacherId)
+            val requests = listOf(ClevertapRequest(teacherId.toString(), eventType, "s_subscription_expired"))
 
-        clevertapSendAnalyticsUseCase.sendTeachersExpiredSubscriptionEvent(teachersIds)
+            every { clevertapAnalyticsApi.sendAnalytics(requests) } returns mockk()
 
-        verify { clevertapAnalyticsApi.sendAnalytics(requests) }
+            clevertapSendAnalyticsUseCase.sendTeachersExpiredSubscriptionEvent(teachersIds)
+
+            verify { clevertapAnalyticsApi.sendAnalytics(requests) }
+        }
     }
 
-    @Test
-    fun `should send complete onboarding step event when teacher complete 'create or join classroom' step`() {
-        val step = TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM
-        val requests = listOf(
-            ClevertapRequest("createOrJoinClassroom", eventType, completeOnboardingStepEventName)
+    @Nested
+    @DisplayName("When send complete onboarding step event")
+    inner class SendCompleteOnboardingStepEvent {
+
+        private val teacherId = UUID.randomUUID()
+        private val evtDataKey = "step"
+
+
+        @ParameterizedTest
+        @EnumSource(
+            TeacherCheckListStep::class,
+            names = ["CONGRATULATION_DIALOG_SHOWN"],
+            mode = EnumSource.Mode.EXCLUDE
         )
+        fun `should send complete onboarding step event when teacher complete all events except 'CONGRATULATION_DIALOG_SHOWN'`(
+            step: TeacherCheckListStep
+        ) {
+            val requests = listOf(
+                ClevertapRequest(
+                    identity = teacherId.toString(),
+                    type = eventType,
+                    evtName = completeOnboardingStepEventName,
+                    evtData = mapOf(evtDataKey to step.clevertapName)
+                )
+            )
 
-        every { clevertapAnalyticsApi.sendAnalytics(requests) } returns mockk()
+            every { clevertapAnalyticsApi.sendAnalytics(requests) } returns mockk()
 
-        clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(step)
+            clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(teacherId, step)
 
-        verify { clevertapAnalyticsApi.sendAnalytics(requests) }
+            verify { clevertapAnalyticsApi.sendAnalytics(requests) }
+        }
+
+        @Test
+        fun `should not send complete onboarding step event when have been showed congratulation dialog`() {
+            val step = TeacherCheckListStep.CONGRATULATION_DIALOG_SHOWN
+
+            clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(teacherId, step)
+
+            verify { clevertapAnalyticsApi.sendAnalytics(any()) wasNot called }
+        }
     }
 
-    @Test
-    fun `should send complete onboarding step event when teacher complete 'share student credentials' step`() {
-        val step = TeacherCheckListStep.SHARE_STUDENT_ACCESS_CODE
-        val requests = listOf(
-            ClevertapRequest("shareStudentCredentials", eventType, completeOnboardingStepEventName)
-        )
-
-        every { clevertapAnalyticsApi.sendAnalytics(requests) } returns mockk()
-
-        clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(step)
-
-        verify { clevertapAnalyticsApi.sendAnalytics(requests) }
-    }
-
-    @Test
-    fun `should send complete onboarding step event when teacher complete 'explore first lesson' step`() {
-        val step = TeacherCheckListStep.EXPLORE_YOUR_FIRST_LESSON
-        val requests = listOf(
-            ClevertapRequest("exploreLesson", eventType, completeOnboardingStepEventName)
-        )
-
-        every { clevertapAnalyticsApi.sendAnalytics(requests) } returns mockk()
-
-        clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(step)
-
-        verify { clevertapAnalyticsApi.sendAnalytics(requests) }
-    }
-
-    @Test
-    fun `should send complete onboarding step event when teacher complete 'create first project' step`() {
-        val step = TeacherCheckListStep.CREATE_YOUR_FIRST_PROJECT
-        val requests = listOf(
-            ClevertapRequest("createProject", eventType, completeOnboardingStepEventName)
-        )
-
-        every { clevertapAnalyticsApi.sendAnalytics(requests) } returns mockk()
-
-        clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(step)
-
-        verify { clevertapAnalyticsApi.sendAnalytics(requests) }
-    }
-
-    @Test
-    fun `should send complete onboarding step event when teacher complete 'check facebook group' step`() {
-        val step = TeacherCheckListStep.CHECK_OUT_OUR_EDUCATOR_FACEBOOK_GROUP
-        val requests = listOf(
-            ClevertapRequest("checkFacebookGroup", eventType, completeOnboardingStepEventName)
-        )
-
-        every { clevertapAnalyticsApi.sendAnalytics(requests) } returns mockk()
-
-        clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(step)
-
-        verify { clevertapAnalyticsApi.sendAnalytics(requests) }
-    }
-
-    @Test
-    fun `should not send complete onboarding step event when have been showed congratulation dialog`() {
-        val step = TeacherCheckListStep.CONGRATULATION_DIALOG_SHOWN
-
-        clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(step)
-
-        verify { clevertapAnalyticsApi.sendAnalytics(any()) wasNot called }
-    }
 }
