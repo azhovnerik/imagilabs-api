@@ -20,17 +20,6 @@ def face(face_color, hair_color, eye_color, mouth_color):
     for i in range(1, 7):
         m[0][i] = hair_color
 
-        # Eyes: Positioned at (2,2) and (2,5)
-        m[2][2] = eye_color
-        m[2][5] = eye_color
-
-        # Mouth: A simple curved shape on rows 5 and 6
-        m[5][2] = mouth_color
-        m[6][3] = mouth_color
-        m[6][4] = mouth_color
-        m[5][5] = mouth_color
-
-
 # Create an instance of the `Animation` class.
 a = Animation()
 
