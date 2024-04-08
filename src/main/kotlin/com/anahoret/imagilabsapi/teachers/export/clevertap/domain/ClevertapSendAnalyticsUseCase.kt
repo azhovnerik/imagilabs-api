@@ -13,7 +13,7 @@ import java.util.*
 interface ClevertapSendAnalyticsUseCase {
 
     fun sendTeachersExpiredSubscriptionEvent(teachersIds: List<UUID>)
-    fun sendCompleteOnboardingStepEvent(step: TeacherCheckListStep)
+    fun sendCompleteOnboardingStepEvent(teacherId: UUID, step: TeacherCheckListStep)
 }
 
 @Service
@@ -24,16 +24,20 @@ class ClevertapSendAnalyticsUseCaseImpl(
 
     override fun sendTeachersExpiredSubscriptionEvent(teachersIds: List<UUID>) {
         teachersIds
-            .map { ClevertapRequest(it.toString(), event, teacherSubscriptionExpired) }
+            .map { ClevertapRequest(identity = it.toString(), type = event, evtName = teacherSubscriptionExpired) }
             .let(clevertapAnalyticsApi::sendAnalytics)
     }
 
-    override fun sendCompleteOnboardingStepEvent(step: TeacherCheckListStep) {
+    override fun sendCompleteOnboardingStepEvent(teacherId: UUID, step: TeacherCheckListStep) {
 
         if (step == CONGRATULATION_DIALOG_SHOWN)
             return
 
-        val request = ClevertapRequest(step.clevertapName, event, completeOnboardingStep)
+        val request = ClevertapRequest(
+            identity = teacherId.toString(),
+            type = event,
+            evtName = completeOnboardingStep
+        )
         clevertapAnalyticsApi.sendAnalytics(listOf(request))
     }
 }

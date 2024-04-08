@@ -18,7 +18,7 @@ class CompleteTeacherCheckListStepUseCaseImpl(
 
     override fun complete(teacherId: UUID, step: TeacherCheckListStep): TeacherCheckList {
         teacherCheckListService.completeCheckListStep(teacherId, step)
-        clevertapSendAnalyticsUseCase?.sendCompleteOnboardingStepEvent(step)
+        clevertapSendAnalyticsUseCase?.sendCompleteOnboardingStepEvent(teacherId, step)
         return teacherCheckListService.getCheckList(teacherId)
     }
 }
