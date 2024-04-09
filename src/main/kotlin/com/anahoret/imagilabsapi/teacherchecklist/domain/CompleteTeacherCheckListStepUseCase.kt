@@ -14,11 +14,14 @@ interface CompleteTeacherCheckListStepUseCase {
 class CompleteTeacherCheckListStepUseCaseImpl(
     private val teacherCheckListService: TeacherCheckListService,
     private val clevertapSendAnalyticsUseCase: ClevertapSendAnalyticsUseCase?
-): CompleteTeacherCheckListStepUseCase {
+) : CompleteTeacherCheckListStepUseCase {
 
     override fun complete(teacherId: UUID, step: TeacherCheckListStep): TeacherCheckList {
-        teacherCheckListService.completeCheckListStep(teacherId, step)
-        clevertapSendAnalyticsUseCase?.sendCompleteOnboardingStepEvent(teacherId, step)
+        if (!teacherCheckListService.getCheckListStepByTeacherIdAndStep(teacherId, step).completed) {
+            teacherCheckListService.completeCheckListStep(teacherId, step)
+            clevertapSendAnalyticsUseCase?.sendCompleteOnboardingStepEvent(teacherId, step)
+        }
+
         return teacherCheckListService.getCheckList(teacherId)
     }
 }
