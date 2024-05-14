@@ -7,7 +7,7 @@ object TeacherSubscriptionLimits {
     }
 
     object Pro {
-        const val CLASSROOMS = 20
+        const val CLASSROOMS = 30
         const val STUDENTS_PER_CLASSROOM = 200
     }
 }
