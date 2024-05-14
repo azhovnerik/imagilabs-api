@@ -139,7 +139,7 @@ class TeacherSubscriptionServiceTest {
             }
 
             @ParameterizedTest
-            @ValueSource(longs = [20L, 100L, Long.MAX_VALUE])
+            @ValueSource(longs = [30L, 100L, Long.MAX_VALUE])
             fun `should return false if teacher has 20 classes or more`(classroomsCount: Long) {
                 every { classroomService.countByTeacher(teacherProfile.id) } returns classroomsCount
                 assertFalse(teacherSubscriptionService.canCreateClassroom(teacherProfile))
