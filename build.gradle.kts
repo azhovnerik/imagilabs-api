@@ -14,7 +14,7 @@ val springDocVersion = "2.0.4"
 val springmockkVersion = "4.0.2"
 val testcontainersVersion = "1.18.1"
 val shedlockVersion = "4.30.0"
-
+val springAiVersion = "0.8.0"
 
 plugins {
     id("org.springframework.boot") version "3.0.6"
@@ -45,7 +45,9 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.spring.io/milestone") }
 }
+
 
 dependencies {
 
@@ -93,6 +95,9 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
     implementation("org.springdoc:springdoc-openapi-starter-common:$springDocVersion")
 
+    // Open AI
+    implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
+
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -111,6 +116,7 @@ dependencyManagement {
     imports {
         mavenBom("org.testcontainers:testcontainers-bom:$testcontainersVersion")
         mavenBom("io.cucumber:cucumber-bom:$cucumberVersion")
+        mavenBom("org.springframework.ai:spring-ai-bom:$springAiVersion")
     }
 }
 
