@@ -28,12 +28,16 @@ class OpenAiAssistanceServiceImpl(
         return openAiAssistanceRepository.save(
             OpenAiAssistanceEntity(
                 sessionId = sessionId,
-                userid = userId,
+                userId = userId,
                 projectId = projectId,
                 userQuestion = userQuestion,
                 aiResponse = aiResponse
             )
         ).toOpenAiAssistance()
+    }
+
+    override fun existsBySessionId(sessionId: UUID): Boolean {
+        return openAiAssistanceRepository.existsBySessionId(sessionId)
     }
 
     override fun getById(id: UUID): OpenAiAssistance? {
@@ -47,11 +51,7 @@ class OpenAiAssistanceServiceImpl(
         }
     }
 
-    override fun existsBySessionId(sessionId: UUID): Boolean {
-        return openAiAssistanceRepository.existsBySessionId(sessionId)
-    }
-
     private fun OpenAiAssistanceEntity.toOpenAiAssistance(): OpenAiAssistance {
-        return OpenAiAssistance(id!!, userid)
+        return OpenAiAssistance(id!!, userId)
     }
 }
