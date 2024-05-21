@@ -16,6 +16,13 @@ spring:
     username: ${JDBC_DATABASE_USERNAME:imagilabs}
     password: ${JDBC_DATABASE_PASSWORD:imagilabs}
 
+  ai:
+    openai:
+      api-key: ${SPRING_OPEN_AI_API_KEY:}
+      chat:
+        options:
+          model: ${SPRING_OPEN_AI_MODEL:gpt-3.5-turbo}
+
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:}
 

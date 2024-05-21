@@ -22,6 +22,7 @@ interface ProjectAccessService {
     fun canGet(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean
     fun canDelete(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean
     fun canListForOwner(userProfile: UserProfile, ownerId: UUID, classroomId: UUID?): Boolean
+    fun isProjectOwner(userProfile: UserProfile, project: Project): Boolean
 }
 
 @Service
@@ -78,7 +79,7 @@ class ProjectAccessServiceImpl(
             } ?: false
     }
 
-    private fun isProjectOwner(userProfile: UserProfile, project: Project): Boolean {
+    override fun isProjectOwner(userProfile: UserProfile, project: Project): Boolean {
         return project.ownerId == userProfile.id && project.ownerUserType == userProfile.userType
     }
 
