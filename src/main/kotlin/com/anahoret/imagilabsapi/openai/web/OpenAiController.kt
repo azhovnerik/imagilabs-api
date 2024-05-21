@@ -6,13 +6,16 @@ import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.openai.domain.usecases.GetOpenAiAssistanceOnSuccessUseCase
+import com.anahoret.imagilabsapi.security.UserRole
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
 
+@Secured(UserRole.student)
 @RestController
 class OpenAiController(
     private val getOpenAiResponseOnSuccess: GetOpenAiAssistanceOnSuccessUseCase
@@ -34,6 +37,7 @@ class OpenAiController(
     }
 
     class AssistanceOnSuccessRequest(
+        val sessionId: UUID,
         val projectId: UUID,
         val userCode: String,
         val userQuestion: String

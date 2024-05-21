@@ -43,12 +43,13 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         every { id } returns userId
     }
     private val projectId = UUID.randomUUID()
-    private val request = AssistanceOnSuccessRequest(projectId, "User code", "What is 'm' in my code?")
+    private val sessionId = UUID.randomUUID()
+    private val request = AssistanceOnSuccessRequest(sessionId, projectId, "User code", "What is 'm' in my code?")
 
     @ParameterizedTest
     @ValueSource(strings = ["", "  "])
     fun `should return error when user question is blank`(question: String) {
-        val requestWithEmptyQuestion = AssistanceOnSuccessRequest(projectId, "User code", question)
+        val requestWithEmptyQuestion = AssistanceOnSuccessRequest(sessionId, projectId, "User code", question)
         every { projectService.getProjectById(projectId) } returns null
         when (val res = getOpenAiAssistanceOnSuccessUseCase.get(user, requestWithEmptyQuestion)) {
             is Either.Left -> assertAll(
@@ -63,7 +64,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "  "])
     fun `should return error when user code is blank`(code: String) {
-        val requestWithEmptyQuestion = AssistanceOnSuccessRequest(projectId, code, "What is 'm' in my code?")
+        val requestWithEmptyQuestion = AssistanceOnSuccessRequest(sessionId, projectId, code, "What is 'm' in my code?")
         every { projectService.getProjectById(projectId) } returns null
         when (val res = getOpenAiAssistanceOnSuccessUseCase.get(user, requestWithEmptyQuestion)) {
             is Either.Left -> assertAll(
@@ -104,6 +105,22 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
     }
 
     @Test
+    fun `should return error when session id already exists`() {
+        val project = mockk<Project>()
+        every { projectService.getProjectById(projectId) } returns project
+        every { openAiAccessService.canGetAssistance(user, project) } returns true
+        every { openAiAssistanceService.existsBySessionId(sessionId) } returns true
+        when (val res = getOpenAiAssistanceOnSuccessUseCase.get(user, request)) {
+            is Either.Left -> assertAll(
+                { assertTrue(res.value is ValidationError) },
+                { assertEquals("SESSION_ID_ALREADY_EXISTS", (res.value as ValidationError).message) }
+            )
+
+            is Either.Right -> fail()
+        }
+    }
+
+    @Test
     fun `should generate secondDirectiveWithQuestion`() {
         val secondDirectiveWithQuestion = "My question is: What is 'm' in my code? ${OpenAiPrompts.SECOND_DIRECTIVE}"
         val project = mockk<Project> {
@@ -118,8 +135,10 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
                 }
             })
         }
+        every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
+                sessionId,
                 userId,
                 projectId,
                 "What is 'm' in my code?",
@@ -147,8 +166,10 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
                 }
             })
         }
+        every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
+                sessionId,
                 userId,
                 projectId,
                 "What is 'm' in my code?",

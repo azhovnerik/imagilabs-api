@@ -9,7 +9,8 @@ import org.springframework.test.context.TestPropertySource
         "jwt.secret = test_jwt_secret",
         "email.no-reply-address = noreply@example.com",
         "python-compiler.api-url = ",
-        "python-compiler.api-token = "
+        "python-compiler.api-token = ",
+        "spring.ai.openai.api-key = key"
     ]
 )
 annotation class ImagiLabsTestPropertySource

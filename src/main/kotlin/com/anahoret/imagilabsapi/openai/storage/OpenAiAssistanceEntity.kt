@@ -9,6 +9,9 @@ import java.util.UUID
 @Entity
 @Table(name = "open_ai_assistance")
 class OpenAiAssistanceEntity(
+    @Column(name = "session_id")
+    var sessionId: UUID,
+
     @Column(name = "user_id")
     var userid: UUID,
 

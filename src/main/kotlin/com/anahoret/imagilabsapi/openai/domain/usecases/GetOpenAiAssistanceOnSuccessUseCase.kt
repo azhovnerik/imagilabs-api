@@ -45,10 +45,11 @@ class GetOpenAiAssistanceOnSuccessUseCaseImpl(
                 project
             )
         ) return AccessDeniedError("ACCESS_TO_OPEN_AI_DENIED").left()
+        if (openAiAssistanceService.existsBySessionId(request.sessionId)) return ValidationError("SESSION_ID_ALREADY_EXISTS").left()
         val secondDirectiveWithQuestion = "My question is: ${request.userQuestion} $SECOND_DIRECTIVE"
         val aiResponse =
             openAiService.getAssistanceOnSuccess(request, secondDirectiveWithQuestion).results[0].output.content
-        openAiAssistanceService.save(userProfile.id, project.id, request.userQuestion, aiResponse)
+        openAiAssistanceService.save(request.sessionId, userProfile.id, project.id, request.userQuestion, aiResponse)
         return AssistanceOnSuccessResponse(aiResponse).right()
     }
 }

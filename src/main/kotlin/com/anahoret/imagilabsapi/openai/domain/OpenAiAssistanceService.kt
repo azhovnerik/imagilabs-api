@@ -6,18 +6,28 @@ import org.springframework.stereotype.Service
 import java.util.UUID
 
 interface OpenAiAssistanceService {
-    fun save(userId: UUID, projectId: UUID, userQuestion: String, aiResponse: String)
+    fun save(sessionId: UUID, userId: UUID, projectId: UUID, userQuestion: String, aiResponse: String)
+    fun existsBySessionId(sessionId: UUID): Boolean
 }
 
 @Service
 class OpenAiAssistanceServiceImpl(
     private val openAiAssistanceRepository: OpenAiAssistanceRepository
 ) : OpenAiAssistanceService {
-    override fun save(userId: UUID, projectId: UUID, userQuestion: String, aiResponse: String) {
+
+    override fun save(sessionId: UUID, userId: UUID, projectId: UUID, userQuestion: String, aiResponse: String) {
         openAiAssistanceRepository.save(
             OpenAiAssistanceEntity(
-                userid = userId, projectId = projectId, userQuestion = userQuestion, aiResponse = aiResponse
+                sessionId = sessionId,
+                userid = userId,
+                projectId = projectId,
+                userQuestion = userQuestion,
+                aiResponse = aiResponse
             )
         )
+    }
+
+    override fun existsBySessionId(sessionId: UUID): Boolean {
+        return openAiAssistanceRepository.existsBySessionId(sessionId)
     }
 }
