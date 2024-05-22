@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service
 
 interface ProceedOpenAiAssistanceOnErrorUseCase {
     fun getAssistance(
-        userProfile: UserProfile,
-        request: ProceedAssistanceRequest
+        request: ProceedAssistanceRequest,
+        userProfile: UserProfile
     ): Either<OperationError, AssistanceResponse>
 }
 
@@ -22,8 +22,8 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImpl(
     private val openAiService: OpenAiService
 ) : ProceedOpenAiAssistanceOnErrorUseCase {
     override fun getAssistance(
-        userProfile: UserProfile,
-        request: ProceedAssistanceRequest
+        request: ProceedAssistanceRequest,
+        userProfile: UserProfile
     ): Either<OperationError, AssistanceResponse> {
         return openAiRequestValidator.validate(userProfile, request).map {
             val allAssistance = openAiAssistanceService.getAllBySessionId(request.sessionId)

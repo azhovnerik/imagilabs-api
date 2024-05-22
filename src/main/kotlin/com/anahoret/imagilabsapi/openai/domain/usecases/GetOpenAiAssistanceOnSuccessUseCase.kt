@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service
 
 interface GetOpenAiAssistanceOnSuccessUseCase {
     fun get(
-        userProfile: UserProfile,
-        request: QuestionAssistanceRequest
+        request: QuestionAssistanceRequest,
+        userProfile: UserProfile
     ): Either<OperationError, AssistanceResponse>
 }
 
@@ -24,8 +24,8 @@ class GetOpenAiAssistanceOnSuccessUseCaseImpl(
 ) : GetOpenAiAssistanceOnSuccessUseCase {
 
     override fun get(
-        userProfile: UserProfile,
-        request: QuestionAssistanceRequest
+        request: QuestionAssistanceRequest,
+        userProfile: UserProfile
     ): Either<OperationError, AssistanceResponse> {
         return openAiRequestValidator.validate(userProfile, request).map {
             val userQuestion = "My question is: ${request.userQuestion}"

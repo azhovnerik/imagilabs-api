@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service
 
 interface StartOpenAiAssistanceOnErrorUseCase {
     fun getAssistance(
-        userProfile: UserProfile,
-        request: ErrorAssistanceRequest
+        request: ErrorAssistanceRequest,
+        userProfile: UserProfile
     ): Either<OperationError, AssistanceResponse>
 }
 
@@ -24,8 +24,8 @@ class StartOpenAiAssistanceOnErrorUseCaseImpl(
 ) : StartOpenAiAssistanceOnErrorUseCase {
 
     override fun getAssistance(
-        userProfile: UserProfile,
-        request: ErrorAssistanceRequest
+        request: ErrorAssistanceRequest,
+        userProfile: UserProfile
     ): Either<OperationError, AssistanceResponse> {
         return openAiRequestValidator.validate(userProfile, request).map {
             val userQuestion = "I am receiving this error: ${request.errorMessage}"

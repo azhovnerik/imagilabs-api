@@ -10,11 +10,7 @@ import com.anahoret.imagilabsapi.security.UserRole
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @Secured(UserRole.student)
@@ -33,34 +29,34 @@ class OpenAiController(
         const val FEEDBACK_PATH = "/api/open-ai/assistance/feedback/{assistanceId}"
     }
 
-    @GetMapping(ON_SUCCESS_PATH)
+    @PostMapping(ON_SUCCESS_PATH)
     fun assistOnSuccess(
-        @AuthenticationPrincipal userProfile: UserProfile,
-        @RequestBody request: QuestionAssistanceRequest
+        @RequestBody request: QuestionAssistanceRequest,
+        @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<AssistanceResponse>> {
-        return when (val result = getOpenAiResponseOnSuccess.get(userProfile, request)) {
+        return when (val result = getOpenAiResponseOnSuccess.get(request, userProfile)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
-    @GetMapping(ON_ERROR_START_PATH)
+    @PostMapping(ON_ERROR_START_PATH)
     fun startAssistanceOnError(
-        @AuthenticationPrincipal userProfile: UserProfile,
-        @RequestBody request: ErrorAssistanceRequest
+        @RequestBody request: ErrorAssistanceRequest,
+        @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<AssistanceResponse>> {
-        return when (val result = startOpenAiAssistanceOnErrorUseCase.getAssistance(userProfile, request)) {
+        return when (val result = startOpenAiAssistanceOnErrorUseCase.getAssistance(request, userProfile)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
-    @GetMapping(ON_ERROR_PROCEED_PATH)
+    @PostMapping(ON_ERROR_PROCEED_PATH)
     fun proceedAssistanceOnError(
-        @AuthenticationPrincipal userProfile: UserProfile,
-        @RequestBody request: ProceedAssistanceRequest
+        @RequestBody request: ProceedAssistanceRequest,
+        @AuthenticationPrincipal userProfile: UserProfile
     ): ResponseEntity<ResponseDto<AssistanceResponse>> {
-        return when (val result = proceedOpenAiAssistanceOnErrorUseCase.getAssistance(userProfile, request)) {
+        return when (val result = proceedOpenAiAssistanceOnErrorUseCase.getAssistance(request, userProfile)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
