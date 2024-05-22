@@ -48,7 +48,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         }
         every { projectService.getProjectById(projectId) } returns project
         every { openAiAccessService.canGetAssistance(user, project) } returns true
-        every { openAiService.getAssistanceOnSuccess("User code", secondDirectiveWithQuestion) } returns mockk {
+        every { openAiService.startAssistance("User code", secondDirectiveWithQuestion) } returns mockk {
             every { results } returns listOf(mockk {
                 every { output } returns mockk {
                     every { content } returns "Great result!"
@@ -67,7 +67,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         } returns OpenAiAssistance(assistanceId, userId)
         when (getOpenAiAssistanceOnSuccessUseCase.get(user, request)) {
             is Either.Left -> fail()
-            is Either.Right -> verify { openAiService.getAssistanceOnSuccess("User code", secondDirectiveWithQuestion) }
+            is Either.Right -> verify { openAiService.startAssistance("User code", secondDirectiveWithQuestion) }
         }
     }
 
@@ -80,7 +80,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         }
         every { projectService.getProjectById(projectId) } returns project
         every { openAiAccessService.canGetAssistance(user, project) } returns true
-        every { openAiService.getAssistanceOnSuccess("User code", secondDirectiveWithQuestion) } returns mockk {
+        every { openAiService.startAssistance("User code", secondDirectiveWithQuestion) } returns mockk {
             every { results } returns listOf(mockk {
                 every { output } returns mockk {
                     every { content } returns "Great result!"

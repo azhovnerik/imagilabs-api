@@ -4,7 +4,6 @@ import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.FIRST_DIR
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.LIBRARY
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.SYSTEM_PROMPT
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.USER_PROMPT
-import com.anahoret.imagilabsapi.openai.web.OpenAiController.AssistanceOnSuccessRequest
 import org.springframework.ai.chat.ChatClient
 import org.springframework.ai.chat.ChatResponse
 import org.springframework.ai.chat.messages.SystemMessage
@@ -13,8 +12,8 @@ import org.springframework.ai.chat.prompt.SystemPromptTemplate
 import org.springframework.stereotype.Service
 
 interface OpenAiService {
-    fun getAssistanceOnSuccess(
-        userRequest: AssistanceOnSuccessRequest,
+    fun startAssistance(
+        userCode: String,
         secondDirectiveWithQuestion: String
     ): ChatResponse
 }
@@ -24,11 +23,11 @@ class OpenAiServiceImpl(
     private val chatClient: ChatClient
 ) : OpenAiService {
 
-    override fun getAssistanceOnSuccess(
-        userRequest: AssistanceOnSuccessRequest,
+    override fun startAssistance(
+        userCode: String,
         secondDirectiveWithQuestion: String
     ): ChatResponse {
-        val prompt = getPrompt(userRequest.userCode, secondDirectiveWithQuestion)
+        val prompt = getPrompt(userCode, secondDirectiveWithQuestion)
         return chatClient.call(prompt)
     }
 
