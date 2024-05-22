@@ -4,9 +4,13 @@ import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.FIRST_DIR
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.LIBRARY
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.SYSTEM_PROMPT
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.USER_PROMPT
+import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceContent
 import org.springframework.ai.chat.ChatClient
 import org.springframework.ai.chat.ChatResponse
+import org.springframework.ai.chat.messages.AssistantMessage
+import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
+import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.chat.prompt.SystemPromptTemplate
 import org.springframework.stereotype.Service
@@ -15,7 +19,12 @@ interface OpenAiService {
     fun startAssistance(
         userCode: String,
         secondDirective: String
-    ): ChatResponse
+    ): String
+
+    fun proceedAssistanceOnError(
+        input: String,
+        content: List<OpenAiAssistanceContent>
+    ): String
 }
 
 @Service
@@ -26,12 +35,39 @@ class OpenAiServiceImpl(
     override fun startAssistance(
         userCode: String,
         secondDirective: String
-    ): ChatResponse {
-        val prompt = getPrompt(userCode, secondDirective)
-        return chatClient.call(prompt)
+    ): String {
+        val prompt = Prompt(getInitialMessages(userCode, secondDirective))
+        return chatClient.call(prompt).results[0].output.content
     }
 
-    private fun getPrompt(userCode: String, secondDirective: String): Prompt {
+    override fun proceedAssistanceOnError(
+        input: String,
+        content: List<OpenAiAssistanceContent>
+    ): String {
+        val messages = mutableListOf<Message>()
+        messages.addAll(
+            getInitialMessages(
+                userCode = content.first().userCode,
+                secondDirective = "${OpenAiPrompts.SECOND_DIRECTIVE} $content.first().userQuestion"
+            )
+        )
+        messages.add(AssistantMessage(content.first().aiResponse))
+        if (content.size > 1) appendLatestMessages(messages, content)
+        messages.add(UserMessage(input))
+        return chatClient.call(Prompt(messages)).results[0].output.content
+    }
+
+    private fun appendLatestMessages(
+        messages: MutableList<Message>,
+        content: List<OpenAiAssistanceContent>
+    ) {
+        for (i in 1..content.lastIndex) {
+            messages.add(UserMessage(content[i].userQuestion))
+            messages.add(AssistantMessage(content[i].aiResponse))
+        }
+    }
+
+    private fun getInitialMessages(userCode: String, secondDirective: String): List<Message> {
         val systemMessage = SystemMessage(SYSTEM_PROMPT)
         val userMessage = SystemPromptTemplate(USER_PROMPT)
             .createMessage(
@@ -42,7 +78,7 @@ class OpenAiServiceImpl(
                     "second_directive" to secondDirective
                 )
             )
-        return Prompt(listOf(systemMessage, userMessage))
+        return listOf(systemMessage, userMessage)
     }
 }
 

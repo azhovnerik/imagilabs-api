@@ -55,13 +55,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         val secondDirectiveWithQuestion = "My question is: What is 'm' in my code? ${OpenAiPrompts.SECOND_DIRECTIVE}"
         every { openAiRequestValidator.validate(user, request) } returns Unit.right()
-        every { openAiService.startAssistance("User code", secondDirectiveWithQuestion) } returns mockk {
-            every { results } returns listOf(mockk {
-                every { output } returns mockk {
-                    every { content } returns "Great result!"
-                }
-            })
-        }
+        every { openAiService.startAssistance("User code", secondDirectiveWithQuestion) } returns "Great result!"
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
@@ -82,13 +76,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         val secondDirectiveWithQuestion = "My question is: What is 'm' in my code? ${OpenAiPrompts.SECOND_DIRECTIVE}"
         every { openAiRequestValidator.validate(user, request) } returns Unit.right()
-        every { openAiService.startAssistance("User code", secondDirectiveWithQuestion) } returns mockk {
-            every { results } returns listOf(mockk {
-                every { output } returns mockk {
-                    every { content } returns "Great result!"
-                }
-            })
-        }
+        every { openAiService.startAssistance("User code", secondDirectiveWithQuestion) } returns "Great result!"
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(

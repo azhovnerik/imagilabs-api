@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.openai.domain
 
 import com.anahoret.imagilabsapi.openai.domain.usecases.AssistanceRequest
+import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceContent
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceEntity
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceRepository
 import org.springframework.data.repository.findByIdOrNull
@@ -18,6 +19,7 @@ interface OpenAiAssistanceService {
     fun existsBySessionId(sessionId: UUID): Boolean
     fun getById(id: UUID): OpenAiAssistance?
     fun leaveFeedback(id: UUID, isHelpful: Boolean)
+    fun getAllBySessionId(sessionId: UUID): List<OpenAiAssistanceContent>
 }
 
 @Service
@@ -56,6 +58,11 @@ class OpenAiAssistanceServiceImpl(
             it.isHelpful = isHelpful
             openAiAssistanceRepository.save(it)
         }
+    }
+
+//    todo add tests
+    override fun getAllBySessionId(sessionId: UUID): List<OpenAiAssistanceContent> {
+        return openAiAssistanceRepository.findAllBySessionIdAndOrderByCreatedAt(sessionId)
     }
 
     private fun OpenAiAssistanceEntity.toOpenAiAssistance(): OpenAiAssistance {

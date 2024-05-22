@@ -38,7 +38,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
     fun `should return error when AI request is invalid`() {
         val error = mockk<OperationError>()
         every { openAiRequestValidator.validate(user, request) } returns error.left()
-        when (val result = getOpenAiAssistanceOnErrorUseCase.get(user, request)) {
+        when (val result = getOpenAiAssistanceOnErrorUseCase.getAssistance(user, request)) {
             is Either.Left -> assertTrue(result.value is OperationError)
             is Either.Right -> fail()
         }
@@ -49,13 +49,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} I am receiving this error: Error message"
         every { openAiRequestValidator.validate(user, request) } returns Unit.right()
-        every { openAiService.startAssistance("User code", secondDirectiveWithError) } returns mockk {
-            every { results } returns listOf(mockk {
-                every { output } returns mockk {
-                    every { content } returns "Your code is incorrect!"
-                }
-            })
-        }
+        every { openAiService.startAssistance("User code", secondDirectiveWithError) } returns "Your code is incorrect!"
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
@@ -65,7 +59,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
                 request
             )
         } returns OpenAiAssistance(assistanceId, userId)
-        when (getOpenAiAssistanceOnErrorUseCase.get(user, request)) {
+        when (getOpenAiAssistanceOnErrorUseCase.getAssistance(user, request)) {
             is Either.Left -> fail()
             is Either.Right -> verify { openAiService.startAssistance("User code", secondDirectiveWithError) }
         }
@@ -76,13 +70,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} I am receiving this error: Error message"
         every { openAiRequestValidator.validate(user, request) } returns Unit.right()
-        every { openAiService.startAssistance("User code", secondDirectiveWithError) } returns mockk {
-            every { results } returns listOf(mockk {
-                every { output } returns mockk {
-                    every { content } returns "Your code is incorrect!"
-                }
-            })
-        }
+        every { openAiService.startAssistance("User code", secondDirectiveWithError) } returns "Your code is incorrect!"
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
@@ -92,7 +80,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
                 request
             )
         } returns OpenAiAssistance(assistanceId, userId)
-        when (val res = getOpenAiAssistanceOnErrorUseCase.get(user, request)) {
+        when (val res = getOpenAiAssistanceOnErrorUseCase.getAssistance(user, request)) {
             is Either.Left -> fail()
             is Either.Right -> assertAll(
                 { assertEquals("Your code is incorrect!", res.value.aiResponse) },
