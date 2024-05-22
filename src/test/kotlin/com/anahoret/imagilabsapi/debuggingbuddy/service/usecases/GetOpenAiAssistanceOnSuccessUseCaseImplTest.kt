@@ -1,13 +1,11 @@
 package com.anahoret.imagilabsapi.debuggingbuddy.service.usecases
 
 import arrow.core.Either
-import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
-import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
-import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.openai.domain.*
 import com.anahoret.imagilabsapi.openai.domain.usecases.GetOpenAiAssistanceOnSuccessUseCaseImpl
-import com.anahoret.imagilabsapi.openai.web.OpenAiController.AssistanceOnSuccessRequest
+import com.anahoret.imagilabsapi.openai.domain.usecases.OpenAiRequestValidator
+import com.anahoret.imagilabsapi.openai.domain.usecases.QuestionAssistanceRequest
 import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import io.mockk.every
@@ -16,8 +14,6 @@ import io.mockk.verify
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
 import java.util.*
 
 @DisplayName("Get Open Ai assistance on success use case")
@@ -27,12 +23,12 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
     private val openAiAccessService = mockk<OpenAiAccessService>()
     private val openAiService = mockk<OpenAiService>()
     private val openAiAssistanceService = mockk<OpenAiAssistanceService>()
+    private val openAiRequestValidator = mockk<OpenAiRequestValidator>()
     private val getOpenAiAssistanceOnSuccessUseCase =
         GetOpenAiAssistanceOnSuccessUseCaseImpl(
-            projectService,
-            openAiAccessService,
             openAiService,
-            openAiAssistanceService
+            openAiAssistanceService,
+            openAiRequestValidator
         )
 
     private val userId = UUID.randomUUID()
@@ -41,81 +37,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
     }
     private val projectId = UUID.randomUUID()
     private val sessionId = UUID.randomUUID()
-    private val request = AssistanceOnSuccessRequest(sessionId, projectId, "User code", "What is 'm' in my code?")
-
-    @ParameterizedTest
-    @ValueSource(strings = ["", "  "])
-    fun `should return error when user question is blank`(question: String) {
-        val requestWithEmptyQuestion = AssistanceOnSuccessRequest(sessionId, projectId, "User code", question)
-        every { projectService.getProjectById(projectId) } returns null
-        when (val res = getOpenAiAssistanceOnSuccessUseCase.get(user, requestWithEmptyQuestion)) {
-            is Either.Left -> assertAll(
-                { assertTrue(res.value is ValidationError) },
-                { assertEquals("USER_QUESTION_IS_BLANK", (res.value as ValidationError).message) }
-            )
-
-            is Either.Right -> fail()
-        }
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = ["", "  "])
-    fun `should return error when user code is blank`(code: String) {
-        val requestWithEmptyQuestion = AssistanceOnSuccessRequest(sessionId, projectId, code, "What is 'm' in my code?")
-        every { projectService.getProjectById(projectId) } returns null
-        when (val res = getOpenAiAssistanceOnSuccessUseCase.get(user, requestWithEmptyQuestion)) {
-            is Either.Left -> assertAll(
-                { assertTrue(res.value is ValidationError) },
-                { assertEquals("USER_CODE_IS_BLANK", (res.value as ValidationError).message) }
-            )
-
-            is Either.Right -> fail()
-        }
-    }
-
-    @Test
-    fun `should return error when project doesn't exist`() {
-        every { projectService.getProjectById(projectId) } returns null
-        when (val res = getOpenAiAssistanceOnSuccessUseCase.get(user, request)) {
-            is Either.Left -> assertAll(
-                { assertTrue(res.value is NotFoundError) },
-                { assertEquals("PROJECT_NOT_FOUND", (res.value as NotFoundError).message) }
-            )
-
-            is Either.Right -> fail()
-        }
-    }
-
-    @Test
-    fun `should return error when has no access to get assistance`() {
-        val project = mockk<Project>()
-        every { projectService.getProjectById(projectId) } returns project
-        every { openAiAccessService.canGetAssistance(user, project) } returns false
-        when (val res = getOpenAiAssistanceOnSuccessUseCase.get(user, request)) {
-            is Either.Left -> assertAll(
-                { assertTrue(res.value is AccessDeniedError) },
-                { assertEquals("ACCESS_TO_OPEN_AI_DENIED", (res.value as AccessDeniedError).message) }
-            )
-
-            is Either.Right -> fail()
-        }
-    }
-
-    @Test
-    fun `should return error when session id already exists`() {
-        val project = mockk<Project>()
-        every { projectService.getProjectById(projectId) } returns project
-        every { openAiAccessService.canGetAssistance(user, project) } returns true
-        every { openAiAssistanceService.existsBySessionId(sessionId) } returns true
-        when (val res = getOpenAiAssistanceOnSuccessUseCase.get(user, request)) {
-            is Either.Left -> assertAll(
-                { assertTrue(res.value is ValidationError) },
-                { assertEquals("SESSION_ID_ALREADY_EXISTS", (res.value as ValidationError).message) }
-            )
-
-            is Either.Right -> fail()
-        }
-    }
+    private val request = QuestionAssistanceRequest(sessionId, projectId, "User code", "What is 'm' in my code?")
 
     @Test
     fun `should generate secondDirectiveWithQuestion`() {
@@ -126,7 +48,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         }
         every { projectService.getProjectById(projectId) } returns project
         every { openAiAccessService.canGetAssistance(user, project) } returns true
-        every { openAiService.getAssistanceOnSuccess(request, secondDirectiveWithQuestion) } returns mockk {
+        every { openAiService.getAssistanceOnSuccess("User code", secondDirectiveWithQuestion) } returns mockk {
             every { results } returns listOf(mockk {
                 every { output } returns mockk {
                     every { content } returns "Great result!"
@@ -145,7 +67,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         } returns OpenAiAssistance(assistanceId, userId)
         when (getOpenAiAssistanceOnSuccessUseCase.get(user, request)) {
             is Either.Left -> fail()
-            is Either.Right -> verify { openAiService.getAssistanceOnSuccess(request, secondDirectiveWithQuestion) }
+            is Either.Right -> verify { openAiService.getAssistanceOnSuccess("User code", secondDirectiveWithQuestion) }
         }
     }
 
@@ -158,7 +80,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         }
         every { projectService.getProjectById(projectId) } returns project
         every { openAiAccessService.canGetAssistance(user, project) } returns true
-        every { openAiService.getAssistanceOnSuccess(request, secondDirectiveWithQuestion) } returns mockk {
+        every { openAiService.getAssistanceOnSuccess("User code", secondDirectiveWithQuestion) } returns mockk {
             every { results } returns listOf(mockk {
                 every { output } returns mockk {
                     every { content } returns "Great result!"
