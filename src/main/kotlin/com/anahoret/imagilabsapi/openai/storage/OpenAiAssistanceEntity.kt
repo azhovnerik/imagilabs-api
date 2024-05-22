@@ -25,5 +25,8 @@ class OpenAiAssistanceEntity(
     var aiResponse: String,
 
     @Column(name = "is_helpful")
-    var isHelpful: Boolean = false
+    var isHelpful: Boolean = false,
+
+    @Column(name = "user_code")
+    var userCode: String
 ) : BaseEntity()

@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.openai.domain
 
+import com.anahoret.imagilabsapi.openai.domain.usecases.QuestionAssistanceRequest
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceEntity
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceRepository
 import io.mockk.*
@@ -27,15 +28,15 @@ class OpenAiAssistanceServiceImplTest {
 
         @Test
         fun `should save AI assistance data`() {
+            val request = QuestionAssistanceRequest(UUID.randomUUID(), projectId, "User code", "What is 'm' in my code?")
             val assistanceId = UUID.randomUUID()
-            val sessionId = UUID.randomUUID()
             val slot = slot<OpenAiAssistanceEntity>()
             every { openAiAssistanceRepository.save(capture(slot)) } answers {
                 val entity = slot.captured
                 entity.id = assistanceId
                 entity
             }
-            val result = openAiAssistanceService.save(sessionId, userId, projectId, userQuestion, aiResponse)
+            val result = openAiAssistanceService.save(userId, userQuestion, aiResponse, request)
             assertAll(
                 { assertEquals(assistanceId, result.id) },
                 { assertEquals(userId, result.userId) }

@@ -4,34 +4,33 @@ import arrow.core.Either
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
-import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.SECOND_DIRECTIVE
+import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts
 import com.anahoret.imagilabsapi.openai.domain.OpenAiService
 import com.anahoret.imagilabsapi.openai.web.OpenAiController.AssistanceResponse
 import org.springframework.stereotype.Service
 
-interface GetOpenAiAssistanceOnSuccessUseCase {
-    fun get(
-        userProfile: UserProfile,
-        request: QuestionAssistanceRequest
-    ): Either<OperationError, AssistanceResponse>
+interface StartOpenAiAssistanceOnErrorUseCase {
+    fun get(userProfile: UserProfile, request: ErrorAssistanceRequest): Either<OperationError, AssistanceResponse>
 }
 
 @Service
-class GetOpenAiAssistanceOnSuccessUseCaseImpl(
+class StartOpenAiAssistanceOnErrorUseCaseImpl(
+    private val openAiRequestValidator: OpenAiRequestValidator,
     private val openAiService: OpenAiService,
-    private val openAiAssistanceService: OpenAiAssistanceService,
-    private val openAiRequestValidator: OpenAiRequestValidator
-) : GetOpenAiAssistanceOnSuccessUseCase {
+    private val openAiAssistanceService: OpenAiAssistanceService
+) : StartOpenAiAssistanceOnErrorUseCase {
 
     override fun get(
         userProfile: UserProfile,
-        request: QuestionAssistanceRequest
+        request: ErrorAssistanceRequest
     ): Either<OperationError, AssistanceResponse> {
         return openAiRequestValidator.validate(userProfile, request).map {
-            val userQuestion = "My question is: ${request.userQuestion}"
-            val secondDirectiveWithQuestion = "$userQuestion $SECOND_DIRECTIVE"
-            val aiResponse =
-                openAiService.startAssistance(request.userCode, secondDirectiveWithQuestion).results[0].output.content
+            val userQuestion = "I am receiving this error: ${request.errorMessage}"
+            val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} $userQuestion"
+            val aiResponse = openAiService.startAssistance(
+                request.userCode,
+                secondDirectiveWithError
+            ).results[0].output.content
             val openAiAssistance = openAiAssistanceService.save(
                 userId = userProfile.id,
                 userQuestion = userQuestion,
