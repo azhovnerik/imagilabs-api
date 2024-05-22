@@ -5,10 +5,7 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
-import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessService
-import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
-import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts
-import com.anahoret.imagilabsapi.openai.domain.OpenAiService
+import com.anahoret.imagilabsapi.openai.domain.*
 import com.anahoret.imagilabsapi.openai.domain.usecases.GetOpenAiAssistanceOnSuccessUseCaseImpl
 import com.anahoret.imagilabsapi.openai.web.OpenAiController.AssistanceOnSuccessRequest
 import com.anahoret.imagilabsapi.projects.domain.Project
@@ -122,6 +119,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
 
     @Test
     fun `should generate secondDirectiveWithQuestion`() {
+        val assistanceId = UUID.randomUUID()
         val secondDirectiveWithQuestion = "My question is: What is 'm' in my code? ${OpenAiPrompts.SECOND_DIRECTIVE}"
         val project = mockk<Project> {
             every { id } returns projectId
@@ -144,7 +142,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
                 "What is 'm' in my code?",
                 "Great result!"
             )
-        } returns Unit
+        } returns OpenAiAssistance(assistanceId, userId)
         when (getOpenAiAssistanceOnSuccessUseCase.get(user, request)) {
             is Either.Left -> fail()
             is Either.Right -> verify { openAiService.getAssistanceOnSuccess(request, secondDirectiveWithQuestion) }
@@ -153,6 +151,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
 
     @Test
     fun `should return content`() {
+        val assistanceId = UUID.randomUUID()
         val secondDirectiveWithQuestion = "My question is: What is 'm' in my code? ${OpenAiPrompts.SECOND_DIRECTIVE}"
         val project = mockk<Project> {
             every { id } returns projectId
@@ -175,10 +174,13 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
                 "What is 'm' in my code?",
                 "Great result!"
             )
-        } returns Unit
+        } returns OpenAiAssistance(assistanceId, userId)
         when (val res = getOpenAiAssistanceOnSuccessUseCase.get(user, request)) {
             is Either.Left -> fail()
-            is Either.Right -> assertEquals("Great result!", res.value.aiResponse)
+            is Either.Right -> assertAll(
+                { assertEquals("Great result!", res.value.aiResponse) },
+                { assertEquals(assistanceId, res.value.assistanceId) }
+            )
         }
     }
 }

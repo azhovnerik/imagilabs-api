@@ -49,7 +49,13 @@ class GetOpenAiAssistanceOnSuccessUseCaseImpl(
         val secondDirectiveWithQuestion = "My question is: ${request.userQuestion} $SECOND_DIRECTIVE"
         val aiResponse =
             openAiService.getAssistanceOnSuccess(request, secondDirectiveWithQuestion).results[0].output.content
-        openAiAssistanceService.save(request.sessionId, userProfile.id, project.id, request.userQuestion, aiResponse)
-        return AssistanceOnSuccessResponse(aiResponse).right()
+        val openAiAssistance = openAiAssistanceService.save(
+            sessionId = request.sessionId,
+            userId = userProfile.id,
+            projectId = project.id,
+            userQuestion = request.userQuestion,
+            aiResponse = aiResponse
+        )
+        return AssistanceOnSuccessResponse(openAiAssistance.id, aiResponse).right()
     }
 }

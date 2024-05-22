@@ -13,7 +13,7 @@ class OpenAiAssistanceEntity(
     var sessionId: UUID,
 
     @Column(name = "user_id")
-    var userid: UUID,
+    var userId: UUID,
 
     @Column(name = "project_id")
     var projectId: UUID,
