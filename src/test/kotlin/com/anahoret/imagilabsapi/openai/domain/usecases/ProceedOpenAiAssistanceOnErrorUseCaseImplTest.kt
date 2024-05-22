@@ -33,7 +33,7 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImplTest {
     fun `should return error when request isn't valid`() {
         val error = mockk<ValidationError>()
         every { openAiRequestValidator.validate(userProfile, request) } returns error.left()
-        when (val res = proceedOpenAiAssistanceOnErrorUseCase.getAssistance(userProfile, request)) {
+        when (val res = proceedOpenAiAssistanceOnErrorUseCase.getAssistance(request, userProfile)) {
             is Either.Left -> assertTrue(res.value is ValidationError)
             is Either.Right -> fail()
         }
@@ -49,7 +49,7 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImplTest {
         every { openAiAssistanceService.save(userProfile.id, request.input, "response", request) } returns mockk {
             every { id } returns assistanceId
         }
-        when (val res = proceedOpenAiAssistanceOnErrorUseCase.getAssistance(userProfile, request)) {
+        when (val res = proceedOpenAiAssistanceOnErrorUseCase.getAssistance(request, userProfile)) {
             is Either.Left -> fail()
             is Either.Right -> assertAll(
                 { assertEquals("response", res.value.aiResponse) },

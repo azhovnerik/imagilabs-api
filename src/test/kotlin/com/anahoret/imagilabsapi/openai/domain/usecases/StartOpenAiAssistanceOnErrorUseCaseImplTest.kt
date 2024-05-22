@@ -38,7 +38,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
     fun `should return error when AI request is invalid`() {
         val error = mockk<OperationError>()
         every { openAiRequestValidator.validate(user, request) } returns error.left()
-        when (val result = getOpenAiAssistanceOnErrorUseCase.getAssistance(user, request)) {
+        when (val result = getOpenAiAssistanceOnErrorUseCase.getAssistance(request, user)) {
             is Either.Left -> assertTrue(result.value is OperationError)
             is Either.Right -> fail()
         }
@@ -59,7 +59,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
                 request
             )
         } returns OpenAiAssistance(assistanceId, userId)
-        when (getOpenAiAssistanceOnErrorUseCase.getAssistance(user, request)) {
+        when (getOpenAiAssistanceOnErrorUseCase.getAssistance(request, user)) {
             is Either.Left -> fail()
             is Either.Right -> verify { openAiService.startAssistance("User code", secondDirectiveWithError) }
         }
@@ -80,7 +80,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
                 request
             )
         } returns OpenAiAssistance(assistanceId, userId)
-        when (val res = getOpenAiAssistanceOnErrorUseCase.getAssistance(user, request)) {
+        when (val res = getOpenAiAssistanceOnErrorUseCase.getAssistance(request, user)) {
             is Either.Left -> fail()
             is Either.Right -> assertAll(
                 { assertEquals("Your code is incorrect!", res.value.aiResponse) },
