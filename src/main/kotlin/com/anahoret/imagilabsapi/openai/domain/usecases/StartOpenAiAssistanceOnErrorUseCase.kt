@@ -9,34 +9,33 @@ import com.anahoret.imagilabsapi.openai.domain.OpenAiService
 import com.anahoret.imagilabsapi.openai.web.OpenAiController.AssistanceResponse
 import org.springframework.stereotype.Service
 
-interface GetOpenAiAssistanceOnErrorUseCase {
+interface StartOpenAiAssistanceOnErrorUseCase {
     fun get(userProfile: UserProfile, request: ErrorAssistanceRequest): Either<OperationError, AssistanceResponse>
 }
 
 @Service
-class GetOpenAiAssistanceOnErrorUseCaseImpl(
+class StartOpenAiAssistanceOnErrorUseCaseImpl(
     private val openAiRequestValidator: OpenAiRequestValidator,
     private val openAiService: OpenAiService,
     private val openAiAssistanceService: OpenAiAssistanceService
-) : GetOpenAiAssistanceOnErrorUseCase {
+) : StartOpenAiAssistanceOnErrorUseCase {
 
     override fun get(
         userProfile: UserProfile,
         request: ErrorAssistanceRequest
     ): Either<OperationError, AssistanceResponse> {
         return openAiRequestValidator.validate(userProfile, request).map {
-            val secondDirectiveWithQuestion =
-                "${OpenAiPrompts.SECOND_DIRECTIVE} I am receiving this error: ${request.errorMessage}"
+            val userQuestion = "I am receiving this error: ${request.errorMessage}"
+            val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} $userQuestion"
             val aiResponse = openAiService.startAssistance(
                 request.userCode,
-                secondDirectiveWithQuestion
+                secondDirectiveWithError
             ).results[0].output.content
             val openAiAssistance = openAiAssistanceService.save(
-                sessionId = request.sessionId,
                 userId = userProfile.id,
-                projectId = request.projectId,
-                userQuestion = request.errorMessage, //todo add errorMessage into Db
-                aiResponse = aiResponse
+                userQuestion = userQuestion,
+                aiResponse = aiResponse,
+                request = request
             )
             AssistanceResponse(openAiAssistance.id, aiResponse)
         }

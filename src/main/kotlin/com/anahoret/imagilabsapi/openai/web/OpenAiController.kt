@@ -21,12 +21,12 @@ import java.util.*
 class OpenAiController(
     private val getOpenAiResponseOnSuccess: GetOpenAiAssistanceOnSuccessUseCase,
     private val leaveFeedbackUseCase: LeaveFeedbackUseCase,
-    private val getOpenAiAssistanceOnErrorUseCase: GetOpenAiAssistanceOnErrorUseCase
+    private val startOpenAiAssistanceOnErrorUseCase: StartOpenAiAssistanceOnErrorUseCase
 ) {
 
     companion object {
         const val ON_SUCCESS_PATH = "/api/open-ai/assistance/on-success"
-        const val ON_ERROR_PATH = "/api/open-ai/assistance/on-error"
+        const val ON_ERROR_PATH = "/api/open-ai/assistance/on-error/start"
         const val FEEDBACK_PATH = "/api/open-ai/assistance/feedback/{assistanceId}"
     }
 
@@ -42,11 +42,11 @@ class OpenAiController(
     }
 
     @PostMapping(ON_ERROR_PATH)
-    fun assistOnError(
+    fun startAssistanceOnError(
         @AuthenticationPrincipal userProfile: UserProfile,
         @RequestBody request: ErrorAssistanceRequest
     ): ResponseEntity<ResponseDto<AssistanceResponse>> {
-        return when (val result = getOpenAiAssistanceOnErrorUseCase.get(userProfile, request)) {
+        return when (val result = startOpenAiAssistanceOnErrorUseCase.get(userProfile, request)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }

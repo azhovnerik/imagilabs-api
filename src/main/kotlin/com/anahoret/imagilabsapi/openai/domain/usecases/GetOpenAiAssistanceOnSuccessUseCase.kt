@@ -28,15 +28,15 @@ class GetOpenAiAssistanceOnSuccessUseCaseImpl(
         request: QuestionAssistanceRequest
     ): Either<OperationError, AssistanceResponse> {
         return openAiRequestValidator.validate(userProfile, request).map {
-            val secondDirectiveWithQuestion = "My question is: ${request.userQuestion} $SECOND_DIRECTIVE"
+            val userQuestion = "My question is: ${request.userQuestion}"
+            val secondDirectiveWithQuestion = "$userQuestion $SECOND_DIRECTIVE"
             val aiResponse =
                 openAiService.startAssistance(request.userCode, secondDirectiveWithQuestion).results[0].output.content
             val openAiAssistance = openAiAssistanceService.save(
-                sessionId = request.sessionId,
                 userId = userProfile.id,
-                projectId = request.projectId,
-                userQuestion = request.userQuestion,
-                aiResponse = aiResponse
+                userQuestion = userQuestion,
+                aiResponse = aiResponse,
+                request = request
             )
             AssistanceResponse(openAiAssistance.id, aiResponse)
         }

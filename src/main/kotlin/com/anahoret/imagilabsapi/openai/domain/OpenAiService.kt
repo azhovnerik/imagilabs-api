@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 interface OpenAiService {
     fun startAssistance(
         userCode: String,
-        secondDirectiveWithQuestion: String
+        secondDirective: String
     ): ChatResponse
 }
 
@@ -25,13 +25,13 @@ class OpenAiServiceImpl(
 
     override fun startAssistance(
         userCode: String,
-        secondDirectiveWithQuestion: String
+        secondDirective: String
     ): ChatResponse {
-        val prompt = getPrompt(userCode, secondDirectiveWithQuestion)
+        val prompt = getPrompt(userCode, secondDirective)
         return chatClient.call(prompt)
     }
 
-    private fun getPrompt(userCode: String, secondDirectiveWithQuestion: String): Prompt {
+    private fun getPrompt(userCode: String, secondDirective: String): Prompt {
         val systemMessage = SystemMessage(SYSTEM_PROMPT)
         val userMessage = SystemPromptTemplate(USER_PROMPT)
             .createMessage(
@@ -39,7 +39,7 @@ class OpenAiServiceImpl(
                     "first_directive" to FIRST_DIRECTIVE,
                     "user_code" to userCode,
                     "LIBRARY" to LIBRARY,
-                    "second_directive" to secondDirectiveWithQuestion
+                    "second_directive" to secondDirective
                 )
             )
         return Prompt(listOf(systemMessage, userMessage))
