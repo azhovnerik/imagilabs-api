@@ -60,7 +60,6 @@ class OpenAiAssistanceServiceImpl(
         }
     }
 
-//    todo add tests
     override fun getAllBySessionId(sessionId: UUID): List<OpenAiAssistanceContent> {
         return openAiAssistanceRepository.findAllBySessionIdAndOrderByCreatedAt(sessionId)
     }
