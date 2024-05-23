@@ -54,8 +54,8 @@ class StudentProfileEntityRepositoryTest {
 
     private fun setupStudents() {
         val classroomStudents = listOf(
-            StudentProfileEntity("Rob Stark", "rstark", "rstark", classroomId),
-            StudentProfileEntity("Sansa Stark", "sstark", "sstark", classroomId),
+            StudentProfileEntity("Rob Stark", "rstark", "rstark", classroomId, 2),
+            StudentProfileEntity("Sansa Stark", "sstark", "sstark", classroomId, 2),
         ).let(studentProfileEntityRepository::saveAll)
         sansaId = classroomStudents.find { it.username == "sstark" }?.id!!
         brandonId = classroomStudents.find { it.username == "rstark" }?.id!!
@@ -68,7 +68,9 @@ class StudentProfileEntityRepositoryTest {
 
         @Test
         fun `should delete students by ids`() {
-            assertEquals(classroomStudentIds, studentProfileEntityRepository.findAllByClassroomId(classroomId).map { it.id })
+            assertEquals(
+                classroomStudentIds,
+                studentProfileEntityRepository.findAllByClassroomId(classroomId).map { it.id })
             studentProfileEntityRepository.deleteByIdIn(classroomStudentIds)
             val result = studentProfileEntityRepository.findAllByClassroomId(classroomId).map { it.id }
             assertTrue(result.isEmpty())

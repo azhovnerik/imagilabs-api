@@ -32,13 +32,4 @@ interface StudentProfileEntityRepository : CrudRepository<StudentProfileEntity, 
     fun findByCredentials(username: String, password: String, classroomAccessCode: String): StudentProfileEntity?
     fun deleteByIdIn(studentIds: Collection<UUID>)
     fun countByClassroomId(classroomId: UUID): Long
-
-    @Modifying
-    @Query(
-        """
-        UPDATE StudentProfileEntity 
-        SET tipTokens = :tipTokens
-    """
-    )
-    fun updateTipTokens(tipTokens: Int)
 }

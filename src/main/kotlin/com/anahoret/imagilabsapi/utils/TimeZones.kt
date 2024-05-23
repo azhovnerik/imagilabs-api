@@ -2,7 +2,6 @@ package com.anahoret.imagilabsapi.utils
 
 import java.util.*
 
-
 object TimeZones {
 
     const val EUROPE_STOCKHOLM_VALUE = "Europe/Stockholm"

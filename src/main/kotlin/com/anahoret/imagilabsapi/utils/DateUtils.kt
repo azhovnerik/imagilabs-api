@@ -26,4 +26,7 @@ object DateUtils {
         return this.toInstant().toEpochMilli()
     }
 
+    fun getCurrentTime(): LocalDateTime {
+        return LocalDateTime.now(ZoneId.of(TimeZones.EUROPE_STOCKHOLM_VALUE))
+    }
 }

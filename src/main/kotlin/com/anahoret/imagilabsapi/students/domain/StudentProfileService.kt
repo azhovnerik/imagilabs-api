@@ -38,7 +38,6 @@ interface StudentProfileService {
     fun listByClassroom(classroomId: UUID): List<StudentProfile>
     fun listByClassroom(classroomId: UUID, searchQuery: String?, sort: Sort): List<StudentProfile>
     fun resetPassword(studentId: UUID): StudentCredentials?
-    fun refreshTipTokens()
 }
 
 @Service
@@ -155,11 +154,6 @@ class StudentProfileServiceImpl(
             it.password = createStudentPassword()
             studentProfileEntityRepository.save(it)
         }?.let(StudentCredentials.Companion::fromEntity)
-    }
-
-    @Transactional
-    override fun refreshTipTokens() {
-        studentProfileEntityRepository.updateTipTokens(tipTokens)
     }
 
     private fun doListByClassroom(classroomId: UUID, sort: Sort): List<StudentProfile> {
