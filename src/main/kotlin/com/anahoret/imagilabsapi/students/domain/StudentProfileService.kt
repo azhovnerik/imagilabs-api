@@ -5,9 +5,11 @@ import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
 import org.apache.commons.lang3.RandomStringUtils
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 interface StudentProfileService {
@@ -36,12 +38,14 @@ interface StudentProfileService {
     fun listByClassroom(classroomId: UUID): List<StudentProfile>
     fun listByClassroom(classroomId: UUID, searchQuery: String?, sort: Sort): List<StudentProfile>
     fun resetPassword(studentId: UUID): StudentCredentials?
+    fun refreshTipTokens()
 }
 
 @Service
 class StudentProfileServiceImpl(
     private val studentProfileEntityRepository: StudentProfileEntityRepository,
-    private val classroomEntityRepository: ClassroomEntityRepository
+    private val classroomEntityRepository: ClassroomEntityRepository,
+    @Value("\${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : StudentProfileService {
 
     companion object {
@@ -61,7 +65,7 @@ class StudentProfileServiceImpl(
             val username = createUniqueStudentUsername(it.name, existingUserNames)
             existingUserNames.add(username)
             val password = createStudentPassword()
-            StudentProfileEntity(it.name, username, password, classroomId)
+            StudentProfileEntity(it.name, username, password, classroomId, tipTokens)
         }.let(studentProfileEntityRepository::saveAll)
             .map(StudentProfile.Companion::fromEntity)
     }
@@ -151,6 +155,11 @@ class StudentProfileServiceImpl(
             it.password = createStudentPassword()
             studentProfileEntityRepository.save(it)
         }?.let(StudentCredentials.Companion::fromEntity)
+    }
+
+    @Transactional
+    override fun refreshTipTokens() {
+        studentProfileEntityRepository.updateTipTokens(tipTokens)
     }
 
     private fun doListByClassroom(classroomId: UUID, sort: Sort): List<StudentProfile> {

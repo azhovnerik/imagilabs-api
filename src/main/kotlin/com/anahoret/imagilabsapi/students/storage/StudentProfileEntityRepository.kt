@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.students.storage
 
 import org.springframework.data.domain.Sort
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import java.util.*
@@ -31,4 +32,13 @@ interface StudentProfileEntityRepository : CrudRepository<StudentProfileEntity, 
     fun findByCredentials(username: String, password: String, classroomAccessCode: String): StudentProfileEntity?
     fun deleteByIdIn(studentIds: Collection<UUID>)
     fun countByClassroomId(classroomId: UUID): Long
+
+    @Modifying
+    @Query(
+        """
+        UPDATE StudentProfileEntity 
+        SET tipTokens = :tipTokens
+    """
+    )
+    fun updateTipTokens(tipTokens: Int)
 }
