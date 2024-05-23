@@ -61,7 +61,7 @@ class OpenAiAssistanceServiceImpl(
     }
 
     override fun getAllBySessionId(sessionId: UUID): List<OpenAiAssistanceContent> {
-        return openAiAssistanceRepository.findAllBySessionIdAndOrderByCreatedAt(sessionId)
+        return openAiAssistanceRepository.findAllBySessionIdOrderByCreatedAt(sessionId)
     }
 
     private fun OpenAiAssistanceEntity.toOpenAiAssistance(): OpenAiAssistance {

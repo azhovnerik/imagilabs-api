@@ -132,7 +132,7 @@ class OpenAiAssistanceServiceImplTest {
                 every { aiResponse } returns testAiResponse
                 every { userCode } returns testUserCode
             }
-            every { openAiAssistanceRepository.findAllBySessionIdAndOrderByCreatedAt(sessionId) } returns listOf(content)
+            every { openAiAssistanceRepository.findAllBySessionIdOrderByCreatedAt(sessionId) } returns listOf(content)
             val result = openAiAssistanceService.getAllBySessionId(sessionId)
             assertAll(
                 { assertEquals(1, result.size) },

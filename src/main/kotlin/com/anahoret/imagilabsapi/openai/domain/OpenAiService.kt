@@ -6,7 +6,6 @@ import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.SYSTEM_PR
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.USER_PROMPT
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceContent
 import org.springframework.ai.chat.ChatClient
-import org.springframework.ai.chat.ChatResponse
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
@@ -44,27 +43,14 @@ class OpenAiServiceImpl(
         input: String,
         content: List<OpenAiAssistanceContent>
     ): String {
-        val messages = mutableListOf<Message>()
-        messages.addAll(
-            getInitialMessages(
-                userCode = content.first().userCode,
-                secondDirective = "${OpenAiPrompts.SECOND_DIRECTIVE} $content.first().userQuestion"
-            )
-        )
-        messages.add(AssistantMessage(content.first().aiResponse))
-        if (content.size > 1) appendLatestMessages(messages, content)
-        messages.add(UserMessage(input))
+        val initialMessage = getInitialMessages(
+            userCode = content.first().userCode,
+            secondDirective = "${OpenAiPrompts.SECOND_DIRECTIVE} $content.first().userQuestion"
+        ) + AssistantMessage(content.first().aiResponse)
+        val latestMessages = content.drop(1)
+            .flatMap { listOf(UserMessage(it.userQuestion), AssistantMessage(it.aiResponse)) }
+        val messages = initialMessage + latestMessages + UserMessage(input)
         return chatClient.call(Prompt(messages)).results[0].output.content
-    }
-
-    private fun appendLatestMessages(
-        messages: MutableList<Message>,
-        content: List<OpenAiAssistanceContent>
-    ) {
-        for (i in 1..content.lastIndex) {
-            messages.add(UserMessage(content[i].userQuestion))
-            messages.add(AssistantMessage(content[i].aiResponse))
-        }
     }
 
     private fun getInitialMessages(userCode: String, secondDirective: String): List<Message> {
@@ -81,5 +67,3 @@ class OpenAiServiceImpl(
         return listOf(systemMessage, userMessage)
     }
 }
-
-
