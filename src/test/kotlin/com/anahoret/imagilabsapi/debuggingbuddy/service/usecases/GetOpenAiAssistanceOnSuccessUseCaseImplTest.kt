@@ -1,15 +1,16 @@
 package com.anahoret.imagilabsapi.debuggingbuddy.service.usecases
 
-import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import com.anahoret.imagilabsapi.common.domain.error.OperationError
+import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistance
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts
 import com.anahoret.imagilabsapi.openai.domain.OpenAiService
 import com.anahoret.imagilabsapi.openai.domain.usecases.GetOpenAiAssistanceOnSuccessUseCaseImpl
+import com.anahoret.imagilabsapi.openai.domain.usecases.OpenAiPreconditionChecker
 import com.anahoret.imagilabsapi.openai.domain.usecases.OpenAiRequestValidator
 import com.anahoret.imagilabsapi.openai.domain.usecases.QuestionAssistanceRequest
 import io.mockk.every
@@ -26,10 +27,12 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
     private val openAiService = mockk<OpenAiService>()
     private val openAiAssistanceService = mockk<OpenAiAssistanceService>()
     private val openAiRequestValidator = mockk<OpenAiRequestValidator>()
+    private val openAiPreconditionChecker = mockk<OpenAiPreconditionChecker>()
     private val getOpenAiAssistanceOnSuccessUseCase = GetOpenAiAssistanceOnSuccessUseCaseImpl(
         openAiService,
         openAiAssistanceService,
-        openAiRequestValidator
+        openAiRequestValidator,
+        openAiPreconditionChecker
     )
 
     private val userId = UUID.randomUUID()
@@ -42,26 +45,32 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
 
     @Test
     fun `should return error when AI request is invalid`() {
-        val error = mockk<OperationError>()
-        every { openAiRequestValidator.validate(user, request) } returns error.left()
-        when (val result = getOpenAiAssistanceOnSuccessUseCase.get(user, request)) {
-            is Either.Left -> assertTrue(result.value is OperationError)
-            is Either.Right -> fail()
-        }
+        val error = mockk<ValidationError>()
+        every { openAiRequestValidator.validate(request, user) } returns error.left()
+        getOpenAiAssistanceOnSuccessUseCase.get(request, user).fold(
+            { assertTrue(it is ValidationError) },
+            { fail() }
+        )
+    }
+
+    @Test
+    fun `should return error when preconditions not checked`() {
+        val error = mockk<NotFoundError>()
+        every { openAiRequestValidator.validate(request, user) } returns Unit.right()
+        every { openAiPreconditionChecker.check(request, user) } returns error.left()
+        getOpenAiAssistanceOnSuccessUseCase.get(request, user).fold(
+            { assertTrue(it is NotFoundError) },
+            { fail() }
+        )
     }
 
     @Test
     fun `should generate second directive with question`() {
         val assistanceId = UUID.randomUUID()
         val secondDirectiveWithQuestion = "My question is: What is 'm' in my code? ${OpenAiPrompts.SECOND_DIRECTIVE}"
-        every { openAiRequestValidator.validate(user, request) } returns Unit.right()
-        every { openAiService.startAssistance("User code", secondDirectiveWithQuestion) } returns mockk {
-            every { results } returns listOf(mockk {
-                every { output } returns mockk {
-                    every { content } returns "Great result!"
-                }
-            })
-        }
+        every { openAiRequestValidator.validate(request, user) } returns Unit.right()
+        every { openAiPreconditionChecker.check(request, user) } returns Unit.right()
+        every { openAiService.startAssistance("User code", secondDirectiveWithQuestion) } returns "Great result!"
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
@@ -71,24 +80,19 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
                 request
             )
         } returns OpenAiAssistance(assistanceId, userId)
-        when (getOpenAiAssistanceOnSuccessUseCase.get(user, request)) {
-            is Either.Left -> fail()
-            is Either.Right -> verify { openAiService.startAssistance("User code", secondDirectiveWithQuestion) }
-        }
+        getOpenAiAssistanceOnSuccessUseCase.get(request, user).fold(
+            { fail() },
+            { verify { openAiService.startAssistance("User code", secondDirectiveWithQuestion) } }
+        )
     }
 
     @Test
     fun `should return content`() {
         val assistanceId = UUID.randomUUID()
         val secondDirectiveWithQuestion = "My question is: What is 'm' in my code? ${OpenAiPrompts.SECOND_DIRECTIVE}"
-        every { openAiRequestValidator.validate(user, request) } returns Unit.right()
-        every { openAiService.startAssistance("User code", secondDirectiveWithQuestion) } returns mockk {
-            every { results } returns listOf(mockk {
-                every { output } returns mockk {
-                    every { content } returns "Great result!"
-                }
-            })
-        }
+        every { openAiRequestValidator.validate(request, user) } returns Unit.right()
+        every { openAiPreconditionChecker.check(request, user) } returns Unit.right()
+        every { openAiService.startAssistance("User code", secondDirectiveWithQuestion) } returns "Great result!"
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
@@ -98,12 +102,14 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
                 request
             )
         } returns OpenAiAssistance(assistanceId, userId)
-        when (val res = getOpenAiAssistanceOnSuccessUseCase.get(user, request)) {
-            is Either.Left -> fail()
-            is Either.Right -> assertAll(
-                { assertEquals("Great result!", res.value.aiResponse) },
-                { assertEquals(assistanceId, res.value.assistanceId) }
-            )
-        }
+        getOpenAiAssistanceOnSuccessUseCase.get(request, user).fold(
+            { fail() },
+            {
+                assertAll(
+                    { assertEquals("Great result!", it.aiResponse) },
+                    { assertEquals(assistanceId, it.assistanceId) }
+                )
+            }
+        )
     }
 }

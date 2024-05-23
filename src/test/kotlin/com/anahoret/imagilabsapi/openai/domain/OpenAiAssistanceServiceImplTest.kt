@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.openai.domain
 
 import com.anahoret.imagilabsapi.openai.domain.usecases.QuestionAssistanceRequest
+import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceContent
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceEntity
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceRepository
 import io.mockk.*
@@ -28,7 +29,8 @@ class OpenAiAssistanceServiceImplTest {
 
         @Test
         fun `should save AI assistance data`() {
-            val request = QuestionAssistanceRequest(UUID.randomUUID(), projectId, "User code", "What is 'm' in my code?")
+            val request =
+                QuestionAssistanceRequest(UUID.randomUUID(), projectId, "User code", "What is 'm' in my code?")
             val assistanceId = UUID.randomUUID()
             val slot = slot<OpenAiAssistanceEntity>()
             every { openAiAssistanceRepository.save(capture(slot)) } answers {
@@ -111,6 +113,33 @@ class OpenAiAssistanceServiceImplTest {
             every { openAiAssistanceRepository.save(entity) } returns entity
             openAiAssistanceService.leaveFeedback(id, true)
             verify { openAiAssistanceRepository.save(entity) }
+        }
+    }
+
+    @DisplayName("When get all by session id")
+    @Nested
+    inner class GetAllBySessionId {
+
+        private val sessionId = UUID.randomUUID()
+        private val testUserQuestion = "user question"
+        private val testAiResponse = "AI response"
+        private val testUserCode = "user code"
+
+        @Test
+        fun `should return content`() {
+            val content = mockk<OpenAiAssistanceContent> {
+                every { userQuestion } returns testUserQuestion
+                every { aiResponse } returns testAiResponse
+                every { userCode } returns testUserCode
+            }
+            every { openAiAssistanceRepository.findAllBySessionIdOrderByCreatedAt(sessionId) } returns listOf(content)
+            val result = openAiAssistanceService.getAllBySessionId(sessionId)
+            assertAll(
+                { assertEquals(1, result.size) },
+                { assertEquals(testUserQuestion, result[0].userQuestion) },
+                { assertEquals(testAiResponse, result[0].aiResponse) },
+                { assertEquals(testUserCode, result[0].userCode) }
+            )
         }
     }
 }

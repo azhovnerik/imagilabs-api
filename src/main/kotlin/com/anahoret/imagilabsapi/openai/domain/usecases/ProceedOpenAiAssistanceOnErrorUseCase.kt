@@ -5,48 +5,41 @@ import arrow.core.flatMap
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
-import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.SECOND_DIRECTIVE
 import com.anahoret.imagilabsapi.openai.domain.OpenAiService
 import com.anahoret.imagilabsapi.openai.web.OpenAiController.AssistanceResponse
 import org.springframework.stereotype.Service
 
-interface GetOpenAiAssistanceOnSuccessUseCase {
-    fun get(
-        request: QuestionAssistanceRequest,
+interface ProceedOpenAiAssistanceOnErrorUseCase {
+    fun getAssistance(
+        request: ProceedAssistanceRequest,
         userProfile: UserProfile
     ): Either<OperationError, AssistanceResponse>
 }
 
 @Service
-class GetOpenAiAssistanceOnSuccessUseCaseImpl(
-    private val openAiService: OpenAiService,
-    private val openAiAssistanceService: OpenAiAssistanceService,
+class ProceedOpenAiAssistanceOnErrorUseCaseImpl(
     private val openAiRequestValidator: OpenAiRequestValidator,
+    private val openAiAssistanceService: OpenAiAssistanceService,
+    private val openAiService: OpenAiService,
     private val openAiPreconditionChecker: OpenAiPreconditionChecker
-) : GetOpenAiAssistanceOnSuccessUseCase {
+) : ProceedOpenAiAssistanceOnErrorUseCase {
 
-    override fun get(
-        request: QuestionAssistanceRequest,
+    override fun getAssistance(
+        request: ProceedAssistanceRequest,
         userProfile: UserProfile
     ): Either<OperationError, AssistanceResponse> {
         return openAiRequestValidator.validate(request, userProfile)
             .flatMap { openAiPreconditionChecker.check(request, userProfile) }
-            .map { startAssistance(request, userProfile) }
+            .map { proceedAssistance(request, userProfile) }
     }
 
-    private fun startAssistance(
-        request: QuestionAssistanceRequest,
+    private fun proceedAssistance(
+        request: ProceedAssistanceRequest,
         userProfile: UserProfile
     ): AssistanceResponse {
-        val userQuestion = "My question is: ${request.userQuestion}"
-        val secondDirectiveWithQuestion = "$userQuestion $SECOND_DIRECTIVE"
-        val aiResponse = openAiService.startAssistance(request.userCode, secondDirectiveWithQuestion)
-        val openAiAssistance = openAiAssistanceService.save(
-            userId = userProfile.id,
-            userQuestion = userQuestion,
-            aiResponse = aiResponse,
-            request = request
-        )
+        val allAssistance = openAiAssistanceService.getAllBySessionId(request.sessionId)
+        val aiResponse = openAiService.proceedAssistanceOnError(request.input, allAssistance)
+        val openAiAssistance = openAiAssistanceService.save(userProfile.id, request.input, aiResponse, request)
         return AssistanceResponse(openAiAssistance.id, aiResponse)
     }
 }

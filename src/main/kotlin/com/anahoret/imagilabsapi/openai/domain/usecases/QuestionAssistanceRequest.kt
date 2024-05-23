@@ -21,3 +21,9 @@ class ErrorAssistanceRequest(
     override val userCode: String,
     val errorMessage: String
 ) : AssistanceRequest(sessionId, projectId, userCode)
+
+class ProceedAssistanceRequest(
+    override val sessionId: UUID,
+    override val projectId: UUID,
+    val input: String
+) : AssistanceRequest(sessionId, projectId, "")
