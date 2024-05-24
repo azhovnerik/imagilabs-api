@@ -15,7 +15,7 @@ interface TipTokensRepository : CrudRepository<StudentProfileEntity, UUID> {
             WHERE id = :studentId
         """
     )
-    fun getStudentTipToken(studentId: UUID): Int
+    fun getStudentTipTokens(studentId: UUID): Int
 
     @Modifying
     @Query(

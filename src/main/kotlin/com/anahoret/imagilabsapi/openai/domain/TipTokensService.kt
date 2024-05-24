@@ -22,7 +22,7 @@ class TipTokensServiceImpl(
 
     override fun getStudentTipTokens(studentId: UUID): Int? {
         return tipTokensRepository.findByIdOrNull(studentId)
-            ?.let { tipTokensRepository.getStudentTipToken(studentId) }
+            ?.let { tipTokensRepository.getStudentTipTokens(studentId) }
     }
 
     @Transactional

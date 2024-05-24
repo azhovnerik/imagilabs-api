@@ -32,7 +32,7 @@ class TipTokensServiceImplTest {
         @Test
         fun `should return tip tokens when student exists`() {
             every { tipTokensRepository.findByIdOrNull(studentId) } returns mockk()
-            every { tipTokensRepository.getStudentTipToken(studentId) } returns 4
+            every { tipTokensRepository.getStudentTipTokens(studentId) } returns 4
             assertEquals(4, tipTokensService.getStudentTipTokens(studentId))
         }
     }
