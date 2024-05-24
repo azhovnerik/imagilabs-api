@@ -78,7 +78,7 @@ class OpenAiPreconditionCheckerImplTest {
             {
                 assertAll(
                     { assertTrue(it is AccessDeniedError) },
-                    { assertEquals("ACCESS_TO_OPEN_AI_DENIED", (it as AccessDeniedError).message) }
+                    { assertEquals("NO_TIP_TOKENS_LEFT", (it as AccessDeniedError).message) }
                 )
             },
             { fail() }
