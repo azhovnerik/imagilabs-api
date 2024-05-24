@@ -45,8 +45,7 @@ fun testStudent(classroomId: UUID = UUID.randomUUID()): StudentProfile {
         "Martin",
         "mrtinos",
         createdAt = 0L,
-        classroomId,
-        4
+        classroomId
     )
 }
 

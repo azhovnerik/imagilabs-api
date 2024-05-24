@@ -6,6 +6,7 @@ import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
 import com.anahoret.imagilabsapi.openai.domain.OpenAiService
+import com.anahoret.imagilabsapi.openai.domain.TipTokensService
 import com.anahoret.imagilabsapi.openai.web.OpenAiController.AssistanceResponse
 import org.springframework.stereotype.Service
 
@@ -21,7 +22,8 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImpl(
     private val openAiRequestValidator: OpenAiRequestValidator,
     private val openAiAssistanceService: OpenAiAssistanceService,
     private val openAiService: OpenAiService,
-    private val openAiPreconditionChecker: OpenAiPreconditionChecker
+    private val openAiPreconditionChecker: OpenAiPreconditionChecker,
+    private val tipTokensService: TipTokensService
 ) : ProceedOpenAiAssistanceOnErrorUseCase {
 
     override fun getAssistance(
@@ -40,6 +42,7 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImpl(
         val allAssistance = openAiAssistanceService.getAllBySessionId(request.sessionId)
         val aiResponse = openAiService.proceedAssistanceOnError(request.input, allAssistance)
         val openAiAssistance = openAiAssistanceService.save(userProfile.id, request.input, aiResponse, request)
+        tipTokensService.withdrawOneTipToken(userProfile.id)
         return AssistanceResponse(openAiAssistance.id, aiResponse)
     }
 }

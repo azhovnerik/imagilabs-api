@@ -27,9 +27,10 @@ class OpenAiPreconditionCheckerImpl(
     override fun check(request: AssistanceRequest, userProfile: UserProfile): Either<OperationError, Unit> {
         val project = projectService.getProjectById(request.projectId)
             ?: return NotFoundError("PROJECT_NOT_FOUND").left()
-        if (!openAiAccessService.canGetAssistance(userProfile, project)) {
-            return AccessDeniedError("ACCESS_TO_OPEN_AI_DENIED").left()
+        if (!openAiAccessService.canGetAssistanceForProject(userProfile, project)) {
+            return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
         }
+        if (!openAiAccessService.hasTipTokens(userProfile.id)) return AccessDeniedError("ACCESS_TO_OPEN_AI_DENIED").left()
         if (request is ProceedAssistanceRequest && !openAiAssistanceService.existsBySessionId(request.sessionId)) {
             return NotFoundError("SESSION_ID_NOT_FOUND").left()
         }
