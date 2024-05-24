@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.util.*
@@ -30,7 +31,7 @@ class OpenAiRequestValidatorImplTest {
             {
                 assertAll(
                     { assertTrue(it is ValidationError) },
-                    { assertEquals("USER_QUESTION_IS_BLANK", (it as ValidationError).message) }
+                    { assertEquals("USERQUESTION_IS_BLANK", (it as ValidationError).message) }
                 )
             },
             { fail() }
@@ -45,7 +46,7 @@ class OpenAiRequestValidatorImplTest {
             {
                 assertAll(
                     { assertTrue(it is ValidationError) },
-                    { assertEquals("ERROR_MESSAGE_IS_BLANK", (it as ValidationError).message) }
+                    { assertEquals("ERRORMESSAGE_IS_BLANK", (it as ValidationError).message) }
                 )
             },
             { fail() }
@@ -61,7 +62,7 @@ class OpenAiRequestValidatorImplTest {
             {
                 assertAll(
                     { assertTrue(it is ValidationError) },
-                    { assertEquals("USER_INPUT_IS_BLANK", (it as ValidationError).message) }
+                    { assertEquals("INPUT_IS_BLANK", (it as ValidationError).message) }
                 )
             },
             { fail() }
@@ -77,7 +78,7 @@ class OpenAiRequestValidatorImplTest {
             {
                 assertAll(
                     { assertTrue(it is ValidationError) },
-                    { assertEquals("USER_CODE_IS_BLANK", (it as ValidationError).message) }
+                    { assertEquals("USERCODE_IS_BLANK", (it as ValidationError).message) }
                 )
             },
             { fail() }
@@ -92,10 +93,56 @@ class OpenAiRequestValidatorImplTest {
             {
                 assertAll(
                     { assertTrue(it is ValidationError) },
-                    { assertEquals("USER_CODE_IS_BLANK", (it as ValidationError).message) }
+                    { assertEquals("USERCODE_IS_BLANK", (it as ValidationError).message) }
                 )
             },
             { fail() }
         )
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi.",
+            """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi.
+               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi.
+            """]
+    )
+    fun `should return error when user question is too long and request is QuestionAssistanceRequest`(input: String) {
+        val request = QuestionAssistanceRequest(sessionId, projectId, "code", input)
+        openAiRequestValidator.validate(request, user).fold(
+            {
+                assertAll(
+                    { assertTrue(it is ValidationError.FieldIsTooLong) },
+                    { assertEquals("USERQUESTION_IS_TOO_LONG", (it as ValidationError).message) }
+                )
+            },
+            { fail() }
+        )
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi.",
+            """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi.
+               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi.
+            """]
+    )
+    fun `should return error when user input is too long and request is ProceedAssistanceRequest`(input: String) {
+        val request = ProceedAssistanceRequest(sessionId, projectId, input)
+        openAiRequestValidator.validate(request, user).fold(
+            {
+                assertAll(
+                    { assertTrue(it is ValidationError.FieldIsTooLong) },
+                    { assertEquals("INPUT_IS_TOO_LONG", (it as ValidationError).message) }
+                )
+            },
+            { fail() }
+        )
+    }
+
+    @Test
+    fun `should return Unit when user input is valid`() {
+        val request = ProceedAssistanceRequest(sessionId, projectId, "input")
+        openAiRequestValidator.validate(request, user).fold({ fail() }, { })
     }
 }
