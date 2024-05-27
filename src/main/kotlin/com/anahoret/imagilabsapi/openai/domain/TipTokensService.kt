@@ -21,8 +21,7 @@ class TipTokensServiceImpl(
 ) : TipTokensService {
 
     override fun getStudentTipTokens(studentId: UUID): Int? {
-        return tipTokensRepository.findByIdOrNull(studentId)
-            ?.let { tipTokensRepository.getStudentTipTokens(studentId) }
+        return tipTokensRepository.getStudentTipTokens(studentId)
     }
 
     @Transactional

@@ -24,14 +24,13 @@ class TipTokensServiceImplTest {
         private val studentId = UUID.randomUUID()
 
         @Test
-        fun `should return null when student doesn't exist`() {
-            every { tipTokensRepository.findByIdOrNull(studentId) } returns null
+        fun `should return null when user not found`() {
+            every { tipTokensRepository.getStudentTipTokens(studentId) } returns null
             assertNull(tipTokensService.getStudentTipTokens(studentId))
         }
 
         @Test
         fun `should return tip tokens when student exists`() {
-            every { tipTokensRepository.findByIdOrNull(studentId) } returns mockk()
             every { tipTokensRepository.getStudentTipTokens(studentId) } returns 4
             assertEquals(4, tipTokensService.getStudentTipTokens(studentId))
         }
