@@ -9,7 +9,7 @@ import java.util.UUID
 
 interface TipTokensService {
     fun getStudentTipTokens(studentId: UUID): Int?
-    fun refreshTipTokens()
+    fun replenishTipTokens()
     fun withdrawOneTipToken(studentId: UUID)
     fun hasTipTokens(studentId: UUID): Boolean
 }
@@ -26,7 +26,7 @@ class TipTokensServiceImpl(
     }
 
     @Transactional
-    override fun refreshTipTokens() {
+    override fun replenishTipTokens() {
         tipTokensRepository.updateTipTokens(tipTokens)
     }
 

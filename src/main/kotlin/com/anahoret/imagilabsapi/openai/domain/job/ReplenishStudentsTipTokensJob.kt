@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component
 
 @Component
 @Profile("prod", "stage")
-class RefreshStudentsTipTokensGob(
+class ReplenishStudentsTipTokensJob(
     private val tipTokensService: TipTokensService
 ) {
     @Scheduled(cron = CronExpressions.EVERY_HOUR, zone = TimeZones.EUROPE_STOCKHOLM_VALUE)
-    @SchedulerLock(name = "RefreshStudentsTipTokensGob")
-    fun refreshTipTokens() {
-        tipTokensService.refreshTipTokens()
+    @SchedulerLock(name = "ReplenishStudentsTipTokensJob")
+    fun replenishTipTokens() {
+        tipTokensService.replenishTipTokens()
     }
 }

@@ -37,14 +37,14 @@ class TipTokensServiceImplTest {
         }
     }
 
-    @DisplayName("When refresh tip tokens")
+    @DisplayName("When replenish tip tokens")
     @Nested
-    inner class RefreshTipTokens {
+    inner class ReplenishTipTokens {
 
         @Test
         fun `should refresh tip tokens`() {
             every { tipTokensRepository.updateTipTokens(tipTokens) } returns Unit
-            tipTokensService.refreshTipTokens()
+            tipTokensService.replenishTipTokens()
             verify { tipTokensRepository.updateTipTokens(tipTokens) }
         }
     }
