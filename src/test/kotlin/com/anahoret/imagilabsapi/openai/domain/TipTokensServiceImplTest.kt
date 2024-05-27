@@ -81,25 +81,21 @@ class TipTokensServiceImplTest {
         private val studentId = UUID.randomUUID()
 
         @Test
-        fun `should return false when student not found`() {
-            every { tipTokensRepository.findByIdOrNull(studentId) } returns null
-            assertFalse(tipTokensService.hasTipTokens(studentId))
+        fun `should return null when student not found`() {
+            every { tipTokensRepository.hasTipTokens(studentId) } returns null
+            assertNull(tipTokensService.hasTipTokens(studentId))
         }
 
         @Test
-        fun `should return false when student exists and do not have tip tokens`() {
-            val entity = mockk<StudentProfileEntity>()
-            every { tipTokensRepository.findByIdOrNull(studentId) } returns entity
+        fun `should return false when student do not have tip tokens`() {
             every { tipTokensRepository.hasTipTokens(studentId) } returns false
-            assertFalse(tipTokensService.hasTipTokens(studentId))
+            assertFalse(tipTokensService.hasTipTokens(studentId)!!)
         }
 
         @Test
-        fun `should return true when student exists and have tip tokens`() {
-            val entity = mockk<StudentProfileEntity>()
-            every { tipTokensRepository.findByIdOrNull(studentId) } returns entity
+        fun `should return true when student has tip tokens`() {
             every { tipTokensRepository.hasTipTokens(studentId) } returns true
-            assertTrue(tipTokensService.hasTipTokens(studentId))
+            assertTrue(tipTokensService.hasTipTokens(studentId)!!)
         }
     }
 }

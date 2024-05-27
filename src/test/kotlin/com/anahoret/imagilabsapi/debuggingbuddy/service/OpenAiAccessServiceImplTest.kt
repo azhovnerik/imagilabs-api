@@ -47,6 +47,12 @@ class OpenAiAccessServiceImplTest {
         private val userId = UUID.randomUUID()
 
         @Test
+        fun `should return false when student not found`() {
+            every { tipTokensService.hasTipTokens(userId) } returns null
+            assertFalse(aiAccessService.hasTipTokens(userId))
+        }
+
+        @Test
         fun `should return false when student has not tip tokens`() {
             every { tipTokensService.hasTipTokens(userId) } returns false
             assertFalse(aiAccessService.hasTipTokens(userId))

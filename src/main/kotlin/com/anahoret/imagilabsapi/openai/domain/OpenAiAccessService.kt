@@ -22,6 +22,6 @@ class OpenAiAccessServiceImpl(
     }
 
     override fun hasTipTokens(studentId: UUID): Boolean {
-        return tipTokensService.hasTipTokens(studentId)
+        return tipTokensService.hasTipTokens(studentId) ?: false
     }
 }

@@ -31,5 +31,5 @@ interface TipTokensRepository : CrudRepository<StudentProfileEntity, UUID> {
         SELECT (tipTokens > 0) FROM StudentProfileEntity WHERE id = :studentId
     """
     )
-    fun hasTipTokens(studentId: UUID): Boolean
+    fun hasTipTokens(studentId: UUID): Boolean?
 }

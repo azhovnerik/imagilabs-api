@@ -11,7 +11,7 @@ interface TipTokensService {
     fun getStudentTipTokens(studentId: UUID): Int?
     fun replenishTipTokens()
     fun withdrawOneTipToken(studentId: UUID)
-    fun hasTipTokens(studentId: UUID): Boolean
+    fun hasTipTokens(studentId: UUID): Boolean?
 }
 
 @Service
@@ -36,9 +36,7 @@ class TipTokensServiceImpl(
         }
     }
 
-    override fun hasTipTokens(studentId: UUID): Boolean {
-        return tipTokensRepository.findByIdOrNull(studentId)
-            ?.let { tipTokensRepository.hasTipTokens(studentId) }
-            ?: false
+    override fun hasTipTokens(studentId: UUID): Boolean? {
+        return tipTokensRepository.hasTipTokens(studentId)
     }
 }
