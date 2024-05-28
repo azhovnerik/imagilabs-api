@@ -1,10 +1,9 @@
 package com.anahoret.imagilabsapi.openai.domain
 
-import com.anahoret.imagilabsapi.openai.storage.TipTokensRepository
+import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 interface TipTokensService {
@@ -16,27 +15,31 @@ interface TipTokensService {
 
 @Service
 class TipTokensServiceImpl(
-    private val tipTokensRepository: TipTokensRepository,
+    private val studentProfileEntityRepository: StudentProfileEntityRepository,
     @Value("\${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : TipTokensService {
 
     override fun getStudentTipTokens(studentId: UUID): Int? {
-        return tipTokensRepository.getStudentTipTokens(studentId)
+        return studentProfileEntityRepository.findByIdOrNull(studentId)?.tipTokens
     }
 
-    @Transactional
     override fun replenishTipTokens() {
-        tipTokensRepository.updateTipTokens(tipTokens)
+        val updatedEntities = studentProfileEntityRepository.findAll()
+            .map {
+                it.tipTokens = tipTokens
+                it
+            }
+        studentProfileEntityRepository.saveAll(updatedEntities)
     }
 
     override fun withdrawOneTipToken(studentId: UUID) {
-        tipTokensRepository.findByIdOrNull(studentId)?.let {
+        studentProfileEntityRepository.findByIdOrNull(studentId)?.let {
             it.tipTokens -= 1
-            tipTokensRepository.save(it)
+            studentProfileEntityRepository.save(it)
         }
     }
 
     override fun hasTipTokens(studentId: UUID): Boolean? {
-        return tipTokensRepository.hasTipTokens(studentId)
+        return studentProfileEntityRepository.findByIdOrNull(studentId)?.tipTokens?.let { it > 0 }
     }
 }

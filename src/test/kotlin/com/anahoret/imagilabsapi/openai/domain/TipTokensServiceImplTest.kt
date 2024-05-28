@@ -1,7 +1,8 @@
 package com.anahoret.imagilabsapi.openai.domain
 
-import com.anahoret.imagilabsapi.openai.storage.TipTokensRepository
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
+import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
+import com.google.common.base.Verify.verify
 import io.mockk.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
@@ -13,9 +14,9 @@ import java.util.*
 @DisplayName("Tip tokens service")
 class TipTokensServiceImplTest {
 
-    private val tipTokensRepository = mockk<TipTokensRepository>()
+    private val studentProfileEntityRepository = mockk<StudentProfileEntityRepository>()
     private val tipTokens = 5
-    private val tipTokensService = TipTokensServiceImpl(tipTokensRepository, tipTokens)
+    private val tipTokensService = TipTokensServiceImpl(studentProfileEntityRepository, tipTokens)
 
     @DisplayName("When get student tip tokens")
     @Nested
@@ -25,13 +26,15 @@ class TipTokensServiceImplTest {
 
         @Test
         fun `should return null when user not found`() {
-            every { tipTokensRepository.getStudentTipTokens(studentId) } returns null
+            every { studentProfileEntityRepository.findByIdOrNull(studentId) } returns null
             assertNull(tipTokensService.getStudentTipTokens(studentId))
         }
 
         @Test
         fun `should return tip tokens when student exists`() {
-            every { tipTokensRepository.getStudentTipTokens(studentId) } returns 4
+            every { studentProfileEntityRepository.findByIdOrNull(studentId) } returns mockk {
+                every { tipTokens } returns 4
+            }
             assertEquals(4, tipTokensService.getStudentTipTokens(studentId))
         }
     }
@@ -42,9 +45,13 @@ class TipTokensServiceImplTest {
 
         @Test
         fun `should refresh tip tokens`() {
-            every { tipTokensRepository.updateTipTokens(tipTokens) } returns Unit
+            val entity = mockk<StudentProfileEntity>()
+            val entities = listOf(entity)
+            every { studentProfileEntityRepository.findAll() } returns entities
+            every { entity setProperty "tipTokens" value 5 } just runs
+            every { studentProfileEntityRepository.saveAll(entities) } returns entities
             tipTokensService.replenishTipTokens()
-            verify { tipTokensRepository.updateTipTokens(tipTokens) }
+            verify { entity setProperty "tipTokens" value 5 }
         }
     }
 
@@ -56,9 +63,9 @@ class TipTokensServiceImplTest {
 
         @Test
         fun `shouldn't withdraw one tip token when student not found`() {
-            every { tipTokensRepository.findByIdOrNull(studentId) } returns null
+            every { studentProfileEntityRepository.findByIdOrNull(studentId) } returns null
             tipTokensService.withdrawOneTipToken(studentId)
-            verify(exactly = 0) { tipTokensRepository.save(allAny()) }
+            verify(exactly = 0) { studentProfileEntityRepository.save(allAny()) }
         }
 
         @Test
@@ -66,9 +73,9 @@ class TipTokensServiceImplTest {
             val entity = mockk<StudentProfileEntity> {
                 every { tipTokens } returns 3
             }
-            every { tipTokensRepository.findByIdOrNull(studentId) } returns entity
+            every { studentProfileEntityRepository.findByIdOrNull(studentId) } returns entity
             every { entity setProperty "tipTokens" value 2 } just runs
-            every { tipTokensRepository.save(entity) } returns entity
+            every { studentProfileEntityRepository.save(entity) } returns entity
             tipTokensService.withdrawOneTipToken(studentId)
             verify { entity setProperty "tipTokens" value 2 }
         }
@@ -82,19 +89,23 @@ class TipTokensServiceImplTest {
 
         @Test
         fun `should return null when student not found`() {
-            every { tipTokensRepository.hasTipTokens(studentId) } returns null
+            every { studentProfileEntityRepository.findByIdOrNull(studentId) } returns null
             assertNull(tipTokensService.hasTipTokens(studentId))
         }
 
         @Test
         fun `should return false when student do not have tip tokens`() {
-            every { tipTokensRepository.hasTipTokens(studentId) } returns false
+            every { studentProfileEntityRepository.findByIdOrNull(studentId) } returns mockk {
+                every { tipTokens } returns 0
+            }
             assertFalse(tipTokensService.hasTipTokens(studentId)!!)
         }
 
         @Test
         fun `should return true when student has tip tokens`() {
-            every { tipTokensRepository.hasTipTokens(studentId) } returns true
+            every { studentProfileEntityRepository.findByIdOrNull(studentId) } returns mockk {
+                every { tipTokens } returns 2
+            }
             assertTrue(tipTokensService.hasTipTokens(studentId)!!)
         }
     }
