@@ -129,13 +129,15 @@ class TeacherStatisticRepositoryTest {
                     name = testStudent.name,
                     username = "student 1",
                     password = "",
-                    classroomId = classroomId
+                    classroomId = classroomId,
+                    tipTokens = 1
                 ),
                 StudentProfileEntity(
                     name = testStudent.name,
                     username = "student 2",
                     password = "",
-                    classroomId = classroomId
+                    classroomId = classroomId,
+                    tipTokens = 1
                 )
             )
         ).map { it.id!! }

@@ -5,10 +5,7 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
-import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistance
-import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
-import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts
-import com.anahoret.imagilabsapi.openai.domain.OpenAiService
+import com.anahoret.imagilabsapi.openai.domain.*
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -24,12 +21,14 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
     private val openAiService = mockk<OpenAiService>()
     private val openAiAssistanceService = mockk<OpenAiAssistanceService>()
     private val openAiPreconditionChecker = mockk<OpenAiPreconditionChecker>()
+    private val tipTokensService = mockk<TipTokensService>()
     private val getOpenAiAssistanceOnErrorUseCase =
         StartOpenAiAssistanceOnErrorUseCaseImpl(
             openAiRequestValidator,
             openAiService,
             openAiAssistanceService,
-            openAiPreconditionChecker
+            openAiPreconditionChecker,
+            tipTokensService
         )
 
     private val userId = UUID.randomUUID()
@@ -75,6 +74,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
                 request
             )
         } returns OpenAiAssistance(assistanceId, userId)
+        every { tipTokensService.withdrawOneTipToken(userId) } returns Unit
         getOpenAiAssistanceOnErrorUseCase.getAssistance(request, user).fold(
             { fail() }, { verify { openAiService.startAssistance("User code", secondDirectiveWithError) } }
         )
@@ -96,6 +96,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
                 request
             )
         } returns OpenAiAssistance(assistanceId, userId)
+        every { tipTokensService.withdrawOneTipToken(userId) } returns Unit
         getOpenAiAssistanceOnErrorUseCase.getAssistance(request, user).fold(
             { fail() }, {
                 assertAll(
@@ -104,5 +105,26 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
                 )
             }
         )
+    }
+
+    @Test
+    fun `should withdraw tip token`() {
+        val assistanceId = UUID.randomUUID()
+        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} I am receiving this error: Error message"
+        every { openAiRequestValidator.validate(request, user) } returns Unit.right()
+        every { openAiPreconditionChecker.check(request, user) } returns Unit.right()
+        every { openAiService.startAssistance("User code", secondDirectiveWithError) } returns "Your code is incorrect!"
+        every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
+        every {
+            openAiAssistanceService.save(
+                userId,
+                "I am receiving this error: Error message",
+                "Your code is incorrect!",
+                request
+            )
+        } returns OpenAiAssistance(assistanceId, userId)
+        every { tipTokensService.withdrawOneTipToken(userId) } returns Unit
+        getOpenAiAssistanceOnErrorUseCase.getAssistance(request, user)
+            .fold({ fail() }, { verify { tipTokensService.withdrawOneTipToken(userId) } })
     }
 }

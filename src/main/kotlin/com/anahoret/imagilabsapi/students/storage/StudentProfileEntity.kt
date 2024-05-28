@@ -19,5 +19,8 @@ class StudentProfileEntity(
     var password: String,
 
     @Column(name = "classroom_id")
-    var classroomId: UUID
+    var classroomId: UUID,
+
+    @Column(name = "tip_tokens")
+    var tipTokens: Int
 ) : BaseEntity()
