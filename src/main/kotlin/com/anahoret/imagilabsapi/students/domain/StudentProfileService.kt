@@ -5,9 +5,11 @@ import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
 import org.apache.commons.lang3.RandomStringUtils
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 interface StudentProfileService {
@@ -41,7 +43,8 @@ interface StudentProfileService {
 @Service
 class StudentProfileServiceImpl(
     private val studentProfileEntityRepository: StudentProfileEntityRepository,
-    private val classroomEntityRepository: ClassroomEntityRepository
+    private val classroomEntityRepository: ClassroomEntityRepository,
+    @Value("\${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : StudentProfileService {
 
     companion object {
@@ -61,7 +64,7 @@ class StudentProfileServiceImpl(
             val username = createUniqueStudentUsername(it.name, existingUserNames)
             existingUserNames.add(username)
             val password = createStudentPassword()
-            StudentProfileEntity(it.name, username, password, classroomId)
+            StudentProfileEntity(it.name, username, password, classroomId, tipTokens)
         }.let(studentProfileEntityRepository::saveAll)
             .map(StudentProfile.Companion::fromEntity)
     }

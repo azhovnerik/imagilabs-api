@@ -19,7 +19,8 @@ class OpenAiController(
     private val getOpenAiResponseOnSuccess: GetOpenAiAssistanceOnSuccessUseCase,
     private val leaveFeedbackUseCase: LeaveFeedbackUseCase,
     private val startOpenAiAssistanceOnErrorUseCase: StartOpenAiAssistanceOnErrorUseCase,
-    private val proceedOpenAiAssistanceOnErrorUseCase: ProceedOpenAiAssistanceOnErrorUseCase
+    private val proceedOpenAiAssistanceOnErrorUseCase: ProceedOpenAiAssistanceOnErrorUseCase,
+    private val getTipTokensUseCase: GetTipTokensUseCase
 ) {
 
     companion object {
@@ -27,6 +28,7 @@ class OpenAiController(
         const val ON_ERROR_START_PATH = "/api/open-ai/assistance/on-error/start"
         const val ON_ERROR_PROCEED_PATH = "/api/open-ai/assistance/on-error/proceed"
         const val FEEDBACK_PATH = "/api/open-ai/assistance/feedback/{assistanceId}"
+        const val TIP_TOKENS_PATH = "/api/open-ai/tip-tokens"
     }
 
     @PostMapping(ON_SUCCESS_PATH)
@@ -74,6 +76,14 @@ class OpenAiController(
         }
     }
 
+    @GetMapping(TIP_TOKENS_PATH)
+    fun getTipTokens(@AuthenticationPrincipal userProfile: UserProfile): ResponseEntity<ResponseDto<TipTokensResponse>> {
+        return when (val result = getTipTokensUseCase.get(userProfile)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
+    }
+
     class AssistanceResponse(
         val assistanceId: UUID,
         val aiResponse: String
@@ -81,5 +91,10 @@ class OpenAiController(
 
     class LeaveFeedbackRequest(
         val isHelpful: Boolean
+    )
+
+    class TipTokensResponse(
+        val leftTipTokens: Int,
+        val refreshInMin: Long
     )
 }

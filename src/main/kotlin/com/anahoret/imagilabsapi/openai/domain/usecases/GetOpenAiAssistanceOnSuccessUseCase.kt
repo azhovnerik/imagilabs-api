@@ -7,6 +7,7 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.SECOND_DIRECTIVE
 import com.anahoret.imagilabsapi.openai.domain.OpenAiService
+import com.anahoret.imagilabsapi.openai.domain.TipTokensService
 import com.anahoret.imagilabsapi.openai.web.OpenAiController.AssistanceResponse
 import org.springframework.stereotype.Service
 
@@ -22,7 +23,8 @@ class GetOpenAiAssistanceOnSuccessUseCaseImpl(
     private val openAiService: OpenAiService,
     private val openAiAssistanceService: OpenAiAssistanceService,
     private val openAiRequestValidator: OpenAiRequestValidator,
-    private val openAiPreconditionChecker: OpenAiPreconditionChecker
+    private val openAiPreconditionChecker: OpenAiPreconditionChecker,
+    private val tipTokensService: TipTokensService
 ) : GetOpenAiAssistanceOnSuccessUseCase {
 
     override fun get(
@@ -47,6 +49,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImpl(
             aiResponse = aiResponse,
             request = request
         )
+        tipTokensService.withdrawOneTipToken(userProfile.id)
         return AssistanceResponse(openAiAssistance.id, aiResponse)
     }
 }
