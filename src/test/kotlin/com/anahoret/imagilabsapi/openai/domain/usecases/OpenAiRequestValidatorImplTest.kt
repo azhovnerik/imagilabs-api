@@ -4,6 +4,7 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import io.mockk.every
 import io.mockk.mockk
+import org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -100,15 +101,10 @@ class OpenAiRequestValidatorImplTest {
         )
     }
 
-    @ParameterizedTest
-    @ValueSource(
-        strings = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi.",
-            """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi.
-               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi.
-            """]
-    )
-    fun `should return error when user question is too long and request is QuestionAssistanceRequest`(input: String) {
-        val request = QuestionAssistanceRequest(sessionId, projectId, "code", input)
+    @Test
+    fun `should return error when user question length is greater than 300 characters and request is QuestionAssistanceRequest`() {
+        val questionLongerThan300Chars = RandomStringUtils.random(301)
+        val request = QuestionAssistanceRequest(sessionId, projectId, "code", questionLongerThan300Chars)
         openAiRequestValidator.validate(request, user).fold(
             {
                 assertAll(
@@ -120,15 +116,10 @@ class OpenAiRequestValidatorImplTest {
         )
     }
 
-    @ParameterizedTest
-    @ValueSource(
-        strings = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi.",
-            """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi.
-               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi.
-            """]
-    )
-    fun `should return error when user input is too long and request is ProceedAssistanceRequest`(input: String) {
-        val request = ProceedAssistanceRequest(sessionId, projectId, input)
+    @Test
+    fun `should return error when user input length is longer than 300 characters and request is ProceedAssistanceRequest`() {
+        val inputLongerThan300Chars = RandomStringUtils.random(301)
+        val request = ProceedAssistanceRequest(sessionId, projectId, inputLongerThan300Chars)
         openAiRequestValidator.validate(request, user).fold(
             {
                 assertAll(
