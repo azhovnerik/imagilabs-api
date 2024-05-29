@@ -124,6 +124,13 @@ class OpenAiRequestValidatorImplTest {
     }
 
     @Test
+    fun `should return Unit when user input is less than 300 and request is QuestionAssistanceRequest`() {
+        val inputLessThan300Chars = RandomStringUtils.random(5)
+        val request = QuestionAssistanceRequest(sessionId, projectId, "code", inputLessThan300Chars)
+        openAiRequestValidator.validate(request, user).fold({ fail() }, { assertEquals(Unit, it) })
+    }
+
+    @Test
     fun `should return error when user input length is longer than 300 characters and request is ProceedAssistanceRequest`() {
         val inputLongerThan300Chars = RandomStringUtils.random(301)
         val request = ProceedAssistanceRequest(sessionId, projectId, inputLongerThan300Chars)
@@ -146,8 +153,9 @@ class OpenAiRequestValidatorImplTest {
     }
 
     @Test
-    fun `should return Unit when user input is valid`() {
-        val request = ProceedAssistanceRequest(sessionId, projectId, "input")
-        openAiRequestValidator.validate(request, user).fold({ fail() }, { })
+    fun `should return Unit when user input is less than 300 and request is ProceedAssistanceRequest`() {
+        val inputLessThan300Chars = RandomStringUtils.random(5)
+        val request = ProceedAssistanceRequest(sessionId, projectId, inputLessThan300Chars)
+        openAiRequestValidator.validate(request, user).fold({ fail() }, { assertEquals(Unit, it) })
     }
 }
