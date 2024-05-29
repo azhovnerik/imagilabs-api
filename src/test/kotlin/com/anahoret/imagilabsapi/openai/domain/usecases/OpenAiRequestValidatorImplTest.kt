@@ -4,8 +4,10 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import io.mockk.every
 import io.mockk.mockk
+import org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.util.*
@@ -30,7 +32,7 @@ class OpenAiRequestValidatorImplTest {
             {
                 assertAll(
                     { assertTrue(it is ValidationError) },
-                    { assertEquals("USER_QUESTION_IS_BLANK", (it as ValidationError).message) }
+                    { assertEquals("USERQUESTION_IS_BLANK", (it as ValidationError).message) }
                 )
             },
             { fail() }
@@ -45,7 +47,7 @@ class OpenAiRequestValidatorImplTest {
             {
                 assertAll(
                     { assertTrue(it is ValidationError) },
-                    { assertEquals("ERROR_MESSAGE_IS_BLANK", (it as ValidationError).message) }
+                    { assertEquals("ERRORMESSAGE_IS_BLANK", (it as ValidationError).message) }
                 )
             },
             { fail() }
@@ -61,7 +63,7 @@ class OpenAiRequestValidatorImplTest {
             {
                 assertAll(
                     { assertTrue(it is ValidationError) },
-                    { assertEquals("USER_INPUT_IS_BLANK", (it as ValidationError).message) }
+                    { assertEquals("INPUT_IS_BLANK", (it as ValidationError).message) }
                 )
             },
             { fail() }
@@ -77,7 +79,7 @@ class OpenAiRequestValidatorImplTest {
             {
                 assertAll(
                     { assertTrue(it is ValidationError) },
-                    { assertEquals("USER_CODE_IS_BLANK", (it as ValidationError).message) }
+                    { assertEquals("USERCODE_IS_BLANK", (it as ValidationError).message) }
                 )
             },
             { fail() }
@@ -92,10 +94,68 @@ class OpenAiRequestValidatorImplTest {
             {
                 assertAll(
                     { assertTrue(it is ValidationError) },
-                    { assertEquals("USER_CODE_IS_BLANK", (it as ValidationError).message) }
+                    { assertEquals("USERCODE_IS_BLANK", (it as ValidationError).message) }
                 )
             },
             { fail() }
         )
+    }
+
+    @Test
+    fun `should return error when user question length is greater than 300 characters and request is QuestionAssistanceRequest`() {
+        val questionLongerThan300Chars = RandomStringUtils.random(301)
+        val request = QuestionAssistanceRequest(sessionId, projectId, "code", questionLongerThan300Chars)
+        openAiRequestValidator.validate(request, user).fold(
+            {
+                assertAll(
+                    { assertTrue(it is ValidationError.FieldIsTooLong) },
+                    { assertEquals("USERQUESTION_IS_TOO_LONG", (it as ValidationError).message) }
+                )
+            },
+            { fail() }
+        )
+    }
+
+    @Test
+    fun `should return Unit when user question length is 300 characters and request is QuestionAssistanceRequest`() {
+        val questionWithLength300Chars = RandomStringUtils.random(300)
+        val request = QuestionAssistanceRequest(sessionId, projectId, "code", questionWithLength300Chars)
+        openAiRequestValidator.validate(request, user).fold({ fail() }, { assertEquals(Unit, it) })
+    }
+
+    @Test
+    fun `should return Unit when user input is less than 300 and request is QuestionAssistanceRequest`() {
+        val inputLessThan300Chars = RandomStringUtils.random(5)
+        val request = QuestionAssistanceRequest(sessionId, projectId, "code", inputLessThan300Chars)
+        openAiRequestValidator.validate(request, user).fold({ fail() }, { assertEquals(Unit, it) })
+    }
+
+    @Test
+    fun `should return error when user input length is longer than 300 characters and request is ProceedAssistanceRequest`() {
+        val inputLongerThan300Chars = RandomStringUtils.random(301)
+        val request = ProceedAssistanceRequest(sessionId, projectId, inputLongerThan300Chars)
+        openAiRequestValidator.validate(request, user).fold(
+            {
+                assertAll(
+                    { assertTrue(it is ValidationError.FieldIsTooLong) },
+                    { assertEquals("INPUT_IS_TOO_LONG", (it as ValidationError).message) }
+                )
+            },
+            { fail() }
+        )
+    }
+
+    @Test
+    fun `should return Unit when user input length is  300 characters and request is ProceedAssistanceRequest`() {
+        val inputWithLength300Chars = RandomStringUtils.random(300)
+        val request = ProceedAssistanceRequest(sessionId, projectId, inputWithLength300Chars)
+        openAiRequestValidator.validate(request, user).fold({ fail() }, { assertEquals(Unit, it) })
+    }
+
+    @Test
+    fun `should return Unit when user input is less than 300 and request is ProceedAssistanceRequest`() {
+        val inputLessThan300Chars = RandomStringUtils.random(5)
+        val request = ProceedAssistanceRequest(sessionId, projectId, inputLessThan300Chars)
+        openAiRequestValidator.validate(request, user).fold({ fail() }, { assertEquals(Unit, it) })
     }
 }

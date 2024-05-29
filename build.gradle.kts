@@ -15,6 +15,7 @@ val springmockkVersion = "4.0.2"
 val testcontainersVersion = "1.18.1"
 val shedlockVersion = "4.30.0"
 val springAiVersion = "0.8.0"
+val commonsLangVersion = "3.14.0"
 
 plugins {
     id("org.springframework.boot") version "3.0.6"
@@ -58,6 +59,7 @@ dependencies {
     // Utils
     implementation("io.arrow-kt:arrow-core:$arrowKtVersion")
     implementation("org.apache.pdfbox:pdfbox:$pdfBoxVersion")
+    implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
 
     // Web
     implementation("org.springframework.boot:spring-boot-starter-web")
