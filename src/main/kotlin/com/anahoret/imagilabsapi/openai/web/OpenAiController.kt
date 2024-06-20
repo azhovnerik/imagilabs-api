@@ -2,9 +2,13 @@ package com.anahoret.imagilabsapi.openai.web
 
 import arrow.core.Either
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.common.web.EmptySuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
+import com.anahoret.imagilabsapi.openai.domain.AssistanceResponse
+import com.anahoret.imagilabsapi.openai.domain.LeaveFeedbackRequest
+import com.anahoret.imagilabsapi.openai.domain.TipTokensResponse
 import com.anahoret.imagilabsapi.openai.domain.usecases.*
 import com.anahoret.imagilabsapi.security.UserRole
 import org.springframework.http.ResponseEntity
@@ -20,7 +24,8 @@ class OpenAiController(
     private val leaveFeedbackUseCase: LeaveFeedbackUseCase,
     private val startOpenAiAssistanceOnErrorUseCase: StartOpenAiAssistanceOnErrorUseCase,
     private val proceedOpenAiAssistanceOnErrorUseCase: ProceedOpenAiAssistanceOnErrorUseCase,
-    private val getTipTokensUseCase: GetTipTokensUseCase
+    private val getTipTokensUseCase: GetTipTokensUseCase,
+    private val spendTipTokensUseCase: SpendTipTokensUseCase
 ) {
 
     companion object {
@@ -76,6 +81,14 @@ class OpenAiController(
         }
     }
 
+    @DeleteMapping(TIP_TOKENS_PATH)
+    fun spendTipToken(@AuthenticationPrincipal userProfile: UserProfile): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = spendTipTokensUseCase.spend(userProfile)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
+        }
+    }
+
     @GetMapping(TIP_TOKENS_PATH)
     fun getTipTokens(@AuthenticationPrincipal userProfile: UserProfile): ResponseEntity<ResponseDto<TipTokensResponse>> {
         return when (val result = getTipTokensUseCase.get(userProfile)) {
@@ -84,17 +97,4 @@ class OpenAiController(
         }
     }
 
-    class AssistanceResponse(
-        val assistanceId: UUID,
-        val aiResponse: String
-    )
-
-    class LeaveFeedbackRequest(
-        val isHelpful: Boolean
-    )
-
-    class TipTokensResponse(
-        val leftTipTokens: Int,
-        val refreshInMin: Long
-    )
 }

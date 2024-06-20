@@ -4,11 +4,11 @@ import arrow.core.Either
 import arrow.core.flatMap
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.openai.domain.AssistanceResponse
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.SECOND_DIRECTIVE
 import com.anahoret.imagilabsapi.openai.domain.OpenAiService
 import com.anahoret.imagilabsapi.openai.domain.TipTokensService
-import com.anahoret.imagilabsapi.openai.web.OpenAiController.AssistanceResponse
 import org.springframework.stereotype.Service
 
 interface GetOpenAiAssistanceOnSuccessUseCase {

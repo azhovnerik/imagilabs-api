@@ -6,8 +6,8 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.openai.domain.TipTokensResponse
 import com.anahoret.imagilabsapi.openai.domain.TipTokensService
-import com.anahoret.imagilabsapi.openai.web.OpenAiController.TipTokensResponse
 import com.anahoret.imagilabsapi.utils.DateUtils.getCurrentTime
 import org.springframework.stereotype.Service
 import java.time.temporal.ChronoUnit
