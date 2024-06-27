@@ -17,7 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
-@Secured(UserRole.student)
+@Secured(UserRole.teacher)
 @RestController
 class OpenAiController(
     private val getOpenAiResponseOnSuccess: GetOpenAiAssistanceOnSuccessUseCase,
