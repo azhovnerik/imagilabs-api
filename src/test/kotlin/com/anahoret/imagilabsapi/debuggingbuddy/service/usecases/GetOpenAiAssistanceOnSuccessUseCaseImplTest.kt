@@ -75,12 +75,12 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
-                userId,
+                userProfile,
                 "My question is: What is 'm' in my code?",
                 "Great result!",
                 request
             )
-        } returns OpenAiAssistance(assistanceId, userId)
+        } returns OpenAiAssistance(assistanceId, userId, UserType.STUDENT)
         every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit
         getOpenAiAssistanceOnSuccessUseCase.get(request, userProfile).fold(
             { fail() },
@@ -98,12 +98,12 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
-                userId,
+                userProfile,
                 "My question is: What is 'm' in my code?",
                 "Great result!",
                 request
             )
-        } returns OpenAiAssistance(assistanceId, userId)
+        } returns OpenAiAssistance(assistanceId, userId, UserType.STUDENT)
         every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit
         getOpenAiAssistanceOnSuccessUseCase.get(request, userProfile).fold(
             { fail() },
@@ -126,12 +126,12 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
-                userId,
+                userProfile,
                 "My question is: What is 'm' in my code?",
                 "Great result!",
                 request
             )
-        } returns OpenAiAssistance(assistanceId, userId)
+        } returns OpenAiAssistance(assistanceId, userId, UserType.STUDENT)
         every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit
         getOpenAiAssistanceOnSuccessUseCase.get(request, userProfile)
             .fold({ fail() }, { verify { tipTokensService.withdrawOneTipToken(userProfile) } })

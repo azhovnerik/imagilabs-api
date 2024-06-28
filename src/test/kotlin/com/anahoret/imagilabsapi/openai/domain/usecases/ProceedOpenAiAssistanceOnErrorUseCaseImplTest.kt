@@ -66,7 +66,7 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImplTest {
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
         every { openAiAssistanceService.getAllBySessionId(request.sessionId) } returns allAssistance
         every { openAiService.proceedAssistanceOnError(request.input, allAssistance) } returns "response"
-        every { openAiAssistanceService.save(userProfile.id, request.input, "response", request) } returns mockk {
+        every { openAiAssistanceService.save(userProfile, request.input, "response", request) } returns mockk {
             every { id } returns assistanceId
         }
         every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit
@@ -89,7 +89,7 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImplTest {
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
         every { openAiAssistanceService.getAllBySessionId(request.sessionId) } returns allAssistance
         every { openAiService.proceedAssistanceOnError(request.input, allAssistance) } returns "response"
-        every { openAiAssistanceService.save(userProfile.id, request.input, "response", request) } returns mockk {
+        every { openAiAssistanceService.save(userProfile, request.input, "response", request) } returns mockk {
             every { id } returns assistanceId
         }
         every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit

@@ -1,9 +1,11 @@
 package com.anahoret.imagilabsapi.openai.domain
 
+import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.openai.domain.usecases.QuestionAssistanceRequest
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceContent
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceEntity
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceRepository
+import com.anahoret.imagilabsapi.users.UserType
 import io.mockk.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
@@ -23,6 +25,10 @@ class OpenAiAssistanceServiceImplTest {
     inner class Save {
 
         private val userId = UUID.randomUUID()
+        private val userProfile = mockk<UserProfile>() {
+            every { id } returns userId
+            every { userType } returns UserType.STUDENT
+        }
         private val projectId = UUID.randomUUID()
         private val userQuestion = "What is the latest version of Python?"
         private val aiResponse = "The latest version of Python is 3.12.2"
@@ -38,7 +44,7 @@ class OpenAiAssistanceServiceImplTest {
                 entity.id = assistanceId
                 entity
             }
-            val result = openAiAssistanceService.save(userId, userQuestion, aiResponse, request)
+            val result = openAiAssistanceService.save(userProfile, userQuestion, aiResponse, request)
             assertAll(
                 { assertEquals(assistanceId, result.id) },
                 { assertEquals(userId, result.userId) }
@@ -83,6 +89,7 @@ class OpenAiAssistanceServiceImplTest {
             every { openAiAssistanceRepository.findByIdOrNull(assistanceId) } returns mockk {
                 every { id } returns assistanceId
                 every { userId } returns testUserId
+                every { userType } returns UserType.STUDENT
             }
             val result = openAiAssistanceService.getById(assistanceId)
             assertAll(
