@@ -1,10 +1,12 @@
 package com.anahoret.imagilabsapi.debuggingbuddy.service
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.openai.domain.EnvironmentPermissionService
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessServiceImpl
 import com.anahoret.imagilabsapi.openai.domain.TipTokensService
 import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.users.UserType
 import io.mockk.every
 import io.mockk.mockk
@@ -20,7 +22,9 @@ class OpenAiAccessServiceImplTest {
 
     private val projectAccessService = mockk<ProjectAccessService>()
     private val tipTokensService = mockk<TipTokensService>()
-    private val aiAccessService = OpenAiAccessServiceImpl(projectAccessService, tipTokensService)
+    private val environmentPermissionService = mockk<EnvironmentPermissionService>()
+    private val aiAccessService =
+        OpenAiAccessServiceImpl(projectAccessService, tipTokensService, environmentPermissionService)
     private val userProfile = mockk<UserProfile>()
 
     @Nested
@@ -28,18 +32,36 @@ class OpenAiAccessServiceImplTest {
     inner class CanGetAssistanceForProject {
 
         private val project = mockk<Project>()
+        private val teacherProfile = mockk<TeacherProfile>()
 
         @Test
         fun `should return true when user is project owner`() {
             every { projectAccessService.isProjectOwner(userProfile, project) } returns true
+            every { environmentPermissionService.canGetAssistanceForProject(userProfile) } returns true
             assertTrue(aiAccessService.canGetAssistanceForProject(userProfile, project))
         }
 
         @Test
         fun `should return false when user isn't project owner`() {
             every { projectAccessService.isProjectOwner(userProfile, project) } returns false
+            every { environmentPermissionService.canGetAssistanceForProject(userProfile) } returns true
             assertFalse(aiAccessService.canGetAssistanceForProject(userProfile, project))
         }
+
+        @Test
+        fun `should return true when environment permission service grants access`() {
+            every { projectAccessService.isProjectOwner(teacherProfile, project) } returns true
+            every { environmentPermissionService.canGetAssistanceForProject(teacherProfile) } returns true
+            assertTrue(aiAccessService.canGetAssistanceForProject(teacherProfile, project))
+        }
+
+        @Test
+        fun `should return false when environment permission service denies access`() {
+            every { projectAccessService.isProjectOwner(userProfile, project) } returns true
+            every { environmentPermissionService.canGetAssistanceForProject(teacherProfile) } returns false
+            assertFalse(aiAccessService.canGetAssistanceForProject(teacherProfile, project))
+        }
+
     }
 
     @Nested
