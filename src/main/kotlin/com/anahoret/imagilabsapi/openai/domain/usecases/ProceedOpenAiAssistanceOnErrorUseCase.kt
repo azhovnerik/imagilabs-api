@@ -42,7 +42,7 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImpl(
         val allAssistance = openAiAssistanceService.getAllBySessionId(request.sessionId)
         val aiResponse = openAiService.proceedAssistanceOnError(request.input, allAssistance)
         val openAiAssistance = openAiAssistanceService.save(userProfile.id, request.input, aiResponse, request)
-        tipTokensService.withdrawOneTipToken(userProfile.id)
+        tipTokensService.withdrawOneTipToken(userProfile)
         return AssistanceResponse(openAiAssistance.id, aiResponse)
     }
 }

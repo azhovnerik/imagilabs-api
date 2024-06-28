@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.teachers.domain
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -32,7 +33,8 @@ interface TeacherProfileService {
 class TeacherProfileServiceImpl(
     private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val teacherSubscriptionService: TeacherSubscriptionService
+    private val teacherSubscriptionService: TeacherSubscriptionService,
+    @Value("\${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : TeacherProfileService {
 
     override fun createTeacher(request: TeacherSignupRequest): TeacherProfile {
@@ -48,6 +50,7 @@ class TeacherProfileServiceImpl(
                     howDidYouHearAboutUs,
                     howDidYouHearAboutUsOther,
                     marketingEmailSubscribed,
+                    tipTokens
                 )
             ).let {
                 val subscription =

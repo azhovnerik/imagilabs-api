@@ -6,6 +6,7 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.openai.domain.TipTokensResponse
 import com.anahoret.imagilabsapi.openai.domain.TipTokensService
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.users.UserType
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -26,6 +27,7 @@ class SpendTipTokensUseCaseTest {
     private val studentId = UUID.randomUUID()
     private val userProfile = mockk<UserProfile> {
         every { id } returns studentId
+        every { userType } returns UserType.STUDENT
     }
 
     @Test
@@ -44,7 +46,7 @@ class SpendTipTokensUseCaseTest {
     @Test
     fun `should spend tip token data`() {
         every { studentProfileService.getStudentById(studentId) } returns mockk()
-        justRun { tipTokensService.withdrawOneTipToken(studentId) }
+        justRun { tipTokensService.withdrawOneTipToken(userProfile) }
         every { getTipTokensUseCase.get(userProfile) } returns TipTokensResponse(3, 60L).right()
         spendTipTokensUseCase.spend(userProfile).fold({ fail() }, { assertEquals(3, it.leftTipTokens) })
     }

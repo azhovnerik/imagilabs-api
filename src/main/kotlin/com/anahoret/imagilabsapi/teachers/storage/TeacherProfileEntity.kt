@@ -37,6 +37,9 @@ class TeacherProfileEntity(
     @Column(name = "marketing_email_subscribed", nullable = false)
     var marketingEmailSubscribed: Boolean,
 
+    @Column(name = "tip_tokens")
+    var tipTokens: Int,
+
     @Column(name = "email_verification_code")
     var emailVerificationCode: String? = null,
 
@@ -53,6 +56,5 @@ class TeacherProfileEntity(
     override var subscriptionEnd: Long? = null,
 
     @Column(name = "subscription_canceled", nullable = false)
-    override var subscriptionCanceled: Boolean = false
-
+    override var subscriptionCanceled: Boolean = false,
 ) : BaseEntity(), TeacherSubscriptionData

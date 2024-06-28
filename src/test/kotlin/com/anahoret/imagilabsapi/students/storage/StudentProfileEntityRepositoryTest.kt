@@ -2,10 +2,9 @@ package com.anahoret.imagilabsapi.students.storage
 
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
+import com.anahoret.imagilabsapi.spring.ImagiLabsDatabaseTest
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
-
-import com.anahoret.imagilabsapi.spring.ImagiLabsDatabaseTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -13,7 +12,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.util.UUID
+import java.util.*
 
 @ImagiLabsDatabaseTest
 @DisplayName("Student Profile entity repository")
@@ -43,7 +42,7 @@ class StudentProfileEntityRepositoryTest {
 
     private fun setupTeacher() {
         teacherId = teacherProfileEntityRepository.save(
-            TeacherProfileEntity("teacher5@mail.com", "", "Eddard", "Stark", "", "", "", "", true)
+            TeacherProfileEntity("teacher5@mail.com", "", "Eddard", "Stark", "", "", "", "", true, 3)
         ).id!!
     }
 

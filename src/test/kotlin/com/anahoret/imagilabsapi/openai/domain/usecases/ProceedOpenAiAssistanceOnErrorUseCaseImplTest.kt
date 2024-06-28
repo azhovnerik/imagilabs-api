@@ -69,7 +69,7 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImplTest {
         every { openAiAssistanceService.save(userProfile.id, request.input, "response", request) } returns mockk {
             every { id } returns assistanceId
         }
-        every { tipTokensService.withdrawOneTipToken(userProfile.id) } returns Unit
+        every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit
         proceedOpenAiAssistanceOnErrorUseCase.getAssistance(request, userProfile).fold(
             { fail() },
             {
@@ -92,8 +92,8 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImplTest {
         every { openAiAssistanceService.save(userProfile.id, request.input, "response", request) } returns mockk {
             every { id } returns assistanceId
         }
-        every { tipTokensService.withdrawOneTipToken(userProfile.id) } returns Unit
+        every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit
         proceedOpenAiAssistanceOnErrorUseCase.getAssistance(request, userProfile)
-            .fold({ fail() }, { tipTokensService.withdrawOneTipToken(userProfile.id) })
+            .fold({ fail() }, { tipTokensService.withdrawOneTipToken(userProfile) })
     }
 }
