@@ -1,45 +1,67 @@
 package com.anahoret.imagilabsapi.openai.domain
 
+import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
+import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
+import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.util.UUID
 
 interface TipTokensService {
-    fun getStudentTipTokens(studentId: UUID): Int?
+    fun getTipTokens(userProfile: UserProfile): Int?
     fun replenishTipTokens()
-    fun withdrawOneTipToken(studentId: UUID)
-    fun hasTipTokens(studentId: UUID): Boolean?
+    fun withdrawOneTipToken(userProfile: UserProfile)
+    fun hasTipTokens(userProfile: UserProfile): Boolean?
 }
 
 @Service
 class TipTokensServiceImpl(
     private val studentProfileEntityRepository: StudentProfileEntityRepository,
+    private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
     @Value("\${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : TipTokensService {
 
-    override fun getStudentTipTokens(studentId: UUID): Int? {
-        return studentProfileEntityRepository.findByIdOrNull(studentId)?.tipTokens
-    }
-
-    override fun replenishTipTokens() {
-        val updatedEntities = studentProfileEntityRepository.findAll()
-            .map {
-                it.tipTokens = tipTokens
-                it
-            }
-        studentProfileEntityRepository.saveAll(updatedEntities)
-    }
-
-    override fun withdrawOneTipToken(studentId: UUID) {
-        studentProfileEntityRepository.findByIdOrNull(studentId)?.let {
-            it.tipTokens -= 1
-            studentProfileEntityRepository.save(it)
+    override fun getTipTokens(userProfile: UserProfile): Int? {
+        return when (userProfile.userType) {
+            UserType.TEACHER -> teacherProfileEntityRepository.findByIdOrNull(userProfile.id)?.tipTokens
+            UserType.STUDENT -> studentProfileEntityRepository.findByIdOrNull(userProfile.id)?.tipTokens
+            UserType.ADMIN -> 0
         }
     }
 
-    override fun hasTipTokens(studentId: UUID): Boolean? {
-        return studentProfileEntityRepository.findByIdOrNull(studentId)?.tipTokens?.let { it > 0 }
+    override fun replenishTipTokens() {
+        val updatedTeachers = teacherProfileEntityRepository.findAll()
+            .onEach { it.tipTokens = tipTokens }
+        teacherProfileEntityRepository.saveAll(updatedTeachers)
+
+        val updatedStudents = studentProfileEntityRepository.findAll()
+            .onEach { it.tipTokens = tipTokens }
+        studentProfileEntityRepository.saveAll(updatedStudents)
+    }
+
+    override fun withdrawOneTipToken(userProfile: UserProfile) {
+        when (userProfile.userType) {
+            UserType.TEACHER -> teacherProfileEntityRepository.findByIdOrNull(userProfile.id)?.let {
+                it.tipTokens -= 1
+                teacherProfileEntityRepository.save(it)
+            }
+
+            UserType.STUDENT -> studentProfileEntityRepository.findByIdOrNull(userProfile.id)?.let {
+                it.tipTokens -= 1
+                studentProfileEntityRepository.save(it)
+            }
+
+            UserType.ADMIN -> {}
+        }
+
+    }
+
+    override fun hasTipTokens(userProfile: UserProfile): Boolean? {
+        return when (userProfile.userType) {
+            UserType.TEACHER -> teacherProfileEntityRepository.findByIdOrNull(userProfile.id)?.tipTokens?.let { it > 0 }
+            UserType.STUDENT -> studentProfileEntityRepository.findByIdOrNull(userProfile.id)?.tipTokens?.let { it > 0 }
+            UserType.ADMIN -> false
+        }
     }
 }

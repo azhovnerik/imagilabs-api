@@ -50,7 +50,8 @@ class TeacherDeleteAccountAPITest (
                 organization = "imagi",
                 howDidYouHearAboutUs = "other",
                 howDidYouHearAboutUsOther = "other way",
-                marketingEmailSubscribed = true
+                marketingEmailSubscribed = true,
+                tipTokens = 3
             )
         )
         teacherId = teacherProfileEntity.id!!

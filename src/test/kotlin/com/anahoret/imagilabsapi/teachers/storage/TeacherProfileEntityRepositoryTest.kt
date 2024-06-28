@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.util.UUID
+import java.util.*
 
 @ImagiLabsDatabaseTest
 @DisplayName("Teacher Profile entity repository")
@@ -29,7 +29,7 @@ class TeacherProfileEntityRepositoryTest {
 
     private fun setupTeacher() {
         teacherProfileEntity = teacherProfileEntityRepository.save(
-            TeacherProfileEntity("teacher1@mail.com", "", "Teacher", "Edu", "Sweden", "imagi", "other", "", true)
+            TeacherProfileEntity("teacher1@mail.com", "", "Teacher", "Edu", "Sweden", "imagi", "other", "", true, 3)
         )
         teacherId = teacherProfileEntity.id!!
     }

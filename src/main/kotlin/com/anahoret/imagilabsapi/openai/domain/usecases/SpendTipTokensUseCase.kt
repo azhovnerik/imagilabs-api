@@ -23,7 +23,7 @@ class SpendTipTokensUseCaseImpl(
 
     override fun spend(userProfile: UserProfile): Either<OperationError, TipTokensResponse> {
         studentProfileService.getStudentById(userProfile.id) ?: return NotFoundError("STUDENT_NOT_FOUND").left()
-        tipTokensService.withdrawOneTipToken(userProfile.id)
+        tipTokensService.withdrawOneTipToken(userProfile)
         return getTipTokensUseCase.get(userProfile)
     }
 }

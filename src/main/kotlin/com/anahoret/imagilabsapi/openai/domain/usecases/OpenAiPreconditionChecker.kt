@@ -30,7 +30,7 @@ class OpenAiPreconditionCheckerImpl(
         if (!openAiAccessService.canGetAssistanceForProject(userProfile, project)) {
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
         }
-        if (!openAiAccessService.hasTipTokens(userProfile.id)) return AccessDeniedError("NO_TIP_TOKENS_LEFT").left()
+        if (!openAiAccessService.hasTipTokens(userProfile)) return AccessDeniedError("NO_TIP_TOKENS_LEFT").left()
         if (request is ProceedAssistanceRequest && !openAiAssistanceService.existsBySessionId(request.sessionId)) {
             return NotFoundError("SESSION_ID_NOT_FOUND").left()
         }

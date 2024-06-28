@@ -8,6 +8,7 @@ import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessService
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
 import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
+import com.anahoret.imagilabsapi.users.UserType
 import com.anahoret.imagilabsapi.utils.OpenAiRequestGenerator.createErrorAssistanceRequest
 import com.anahoret.imagilabsapi.utils.OpenAiRequestGenerator.createProceedAssistanceRequest
 import com.anahoret.imagilabsapi.utils.OpenAiRequestGenerator.createQuestionAssistanceRequest
@@ -36,6 +37,7 @@ class OpenAiPreconditionCheckerImplTest {
     private val userId = UUID.randomUUID()
     private val userProfile = mockk<UserProfile> {
         every { id } returns userId
+        every { userType } returns UserType.STUDENT
     }
 
     @Test
@@ -73,7 +75,7 @@ class OpenAiPreconditionCheckerImplTest {
         val project = mockk<Project>()
         every { projectService.getProjectById(testProjectId) } returns project
         every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
-        every { openAiAccessService.hasTipTokens(userId) } returns false
+        every { openAiAccessService.hasTipTokens(userProfile) } returns false
         openAiPreconditionChecker.check(request, userProfile).fold(
             {
                 assertAll(
@@ -91,7 +93,7 @@ class OpenAiPreconditionCheckerImplTest {
         val request = createQuestionAssistanceRequest(sessionId = testSessionId, projectId = testProjectId)
         every { projectService.getProjectById(testProjectId) } returns project
         every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
-        every { openAiAccessService.hasTipTokens(userId) } returns true
+        every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns true
         openAiPreconditionChecker.check(request, userProfile).fold(
             {
@@ -110,7 +112,7 @@ class OpenAiPreconditionCheckerImplTest {
         val request = createErrorAssistanceRequest(sessionId = testSessionId, projectId = testProjectId)
         every { projectService.getProjectById(testProjectId) } returns project
         every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
-        every { openAiAccessService.hasTipTokens(userId) } returns true
+        every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns true
         openAiPreconditionChecker.check(request, userProfile).fold(
             {
@@ -129,7 +131,7 @@ class OpenAiPreconditionCheckerImplTest {
         val request = createProceedAssistanceRequest(sessionId = testSessionId, projectId = testProjectId)
         every { projectService.getProjectById(testProjectId) } returns project
         every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
-        every { openAiAccessService.hasTipTokens(userId) } returns true
+        every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns true
         openAiPreconditionChecker.check(request, userProfile).fold({ fail() }, { })
     }
@@ -140,7 +142,7 @@ class OpenAiPreconditionCheckerImplTest {
         val request = createQuestionAssistanceRequest(sessionId = testSessionId, projectId = testProjectId)
         every { projectService.getProjectById(testProjectId) } returns project
         every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
-        every { openAiAccessService.hasTipTokens(userId) } returns true
+        every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns false
         openAiPreconditionChecker.check(request, userProfile).fold({ fail() }, { })
     }
@@ -151,7 +153,7 @@ class OpenAiPreconditionCheckerImplTest {
         val request = createErrorAssistanceRequest(sessionId = testSessionId, projectId = testProjectId)
         every { projectService.getProjectById(testProjectId) } returns project
         every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
-        every { openAiAccessService.hasTipTokens(userId) } returns true
+        every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns false
         openAiPreconditionChecker.check(request, userProfile).fold({ fail() }, { })
     }
@@ -162,7 +164,7 @@ class OpenAiPreconditionCheckerImplTest {
         val request = createProceedAssistanceRequest(sessionId = testSessionId, projectId = testProjectId)
         every { projectService.getProjectById(testProjectId) } returns project
         every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
-        every { openAiAccessService.hasTipTokens(userId) } returns true
+        every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns false
         openAiPreconditionChecker.check(request, userProfile).fold(
             {

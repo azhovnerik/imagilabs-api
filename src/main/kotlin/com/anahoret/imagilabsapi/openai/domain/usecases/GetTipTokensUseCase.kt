@@ -22,7 +22,7 @@ class GetTipTokensUseCaseImpl(
 ) : GetTipTokensUseCase {
 
     override fun get(userProfile: UserProfile): Either<OperationError, TipTokensResponse> {
-        val tipTokens = tipTokensService.getStudentTipTokens(userProfile.id)
+        val tipTokens = tipTokensService.getTipTokens(userProfile)
             ?: return NotFoundError("STUDENT_NOT_FOUND").left()
         val refreshInMin = minutesUntilNextRun()
         return TipTokensResponse(tipTokens, refreshInMin).right()

@@ -10,8 +10,12 @@ import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 import com.anahoret.imagilabsapi.users.UserType
-import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.*
 
@@ -63,7 +67,7 @@ class ProjectClassroomShareEntityRepositoryTest {
 
         private fun setupTeacher() {
             eddardId = teacherProfileEntityRepository.save(
-                TeacherProfileEntity("teacher@mail.com", "", "Eddard", "Stark", "", "", "", "", true)
+                TeacherProfileEntity("teacher@mail.com", "", "Eddard", "Stark", "", "", "", "", true, 3)
             ).id!!
         }
 

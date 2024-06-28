@@ -9,7 +9,8 @@ import com.anahoret.imagilabsapi.spring.ImagiLabsDatabaseTest
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 import com.anahoret.imagilabsapi.users.UserType
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -90,7 +91,7 @@ class ProjectEntityRepositoryTest {
 
         private fun setupOwnerProjects() {
             val owner = teacherProfileEntityRepository.save(
-                TeacherProfileEntity("owner", "", "", "", "", "", "", "", true)
+                TeacherProfileEntity("owner", "", "", "", "", "", "", "", true, 3)
             )
             ownerId = owner.id!!
             val ownerProjects = projectEntityRepository.saveAll((1..5).map { index ->
@@ -101,7 +102,7 @@ class ProjectEntityRepositoryTest {
 
         private fun setupNonOwnerProjects() {
             val nonOwner = teacherProfileEntityRepository.save(
-                TeacherProfileEntity("nonowner", "", "", "", "", "", "", "", true)
+                TeacherProfileEntity("nonowner", "", "", "", "", "", "", "", true, 3)
             )
             nonOwnerId = nonOwner.id!!
             val nonOwnerProjects = projectEntityRepository.saveAll((1..3).map { index ->

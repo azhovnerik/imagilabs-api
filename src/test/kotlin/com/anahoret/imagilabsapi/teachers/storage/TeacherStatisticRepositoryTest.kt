@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.teachers.storage
 
+import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
 import com.anahoret.imagilabsapi.common.testClassroom
@@ -15,14 +16,12 @@ import com.anahoret.imagilabsapi.spring.ImagiLabsDatabaseTest
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
 import com.anahoret.imagilabsapi.users.UserType
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.*
-import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 
 @ImagiLabsDatabaseTest
 @DisplayName("Teacher statistic repository")
@@ -78,7 +77,8 @@ class TeacherStatisticRepositoryTest {
                 howDidYouHearAboutUs = "",
                 howDidYouHearAboutUsOther = null,
                 marketingEmailSubscribed = true,
-                emailVerified = true
+                emailVerified = true,
+                tipTokens = 3
             )
         ).id!!
     }
@@ -107,7 +107,8 @@ class TeacherStatisticRepositoryTest {
                 howDidYouHearAboutUs = "",
                 howDidYouHearAboutUsOther = null,
                 marketingEmailSubscribed = true,
-                emailVerified = true
+                emailVerified = true,
+                tipTokens = 3
             )
         ).id!!
 

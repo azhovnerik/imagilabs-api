@@ -45,7 +45,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImpl(
             aiResponse = aiResponse,
             request = request
         )
-        tipTokensService.withdrawOneTipToken(userProfile.id)
+        tipTokensService.withdrawOneTipToken(userProfile)
         return AssistanceResponse(openAiAssistance.id, aiResponse)
     }
 }

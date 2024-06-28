@@ -5,13 +5,15 @@ import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessServiceImpl
 import com.anahoret.imagilabsapi.openai.domain.TipTokensService
 import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
+import com.anahoret.imagilabsapi.users.UserType
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
 @DisplayName("Open AI access service")
 class OpenAiAccessServiceImplTest {
@@ -19,12 +21,12 @@ class OpenAiAccessServiceImplTest {
     private val projectAccessService = mockk<ProjectAccessService>()
     private val tipTokensService = mockk<TipTokensService>()
     private val aiAccessService = OpenAiAccessServiceImpl(projectAccessService, tipTokensService)
+    private val userProfile = mockk<UserProfile>()
 
     @Nested
     @DisplayName("When can get assistance for project")
     inner class CanGetAssistanceForProject {
 
-        private val userProfile = mockk<UserProfile>()
         private val project = mockk<Project>()
 
         @Test
@@ -45,23 +47,27 @@ class OpenAiAccessServiceImplTest {
     inner class HasTipTokens {
 
         private val userId = UUID.randomUUID()
+        private val userProfile = mockk<UserProfile> {
+            every { id } returns userId
+            every { userType } returns UserType.STUDENT
+        }
 
         @Test
         fun `should return false when student not found`() {
-            every { tipTokensService.hasTipTokens(userId) } returns null
-            assertFalse(aiAccessService.hasTipTokens(userId))
+            every { tipTokensService.hasTipTokens(userProfile) } returns null
+            assertFalse(aiAccessService.hasTipTokens(userProfile))
         }
 
         @Test
         fun `should return false when student has not tip tokens`() {
-            every { tipTokensService.hasTipTokens(userId) } returns false
-            assertFalse(aiAccessService.hasTipTokens(userId))
+            every { tipTokensService.hasTipTokens(userProfile) } returns false
+            assertFalse(aiAccessService.hasTipTokens(userProfile))
         }
 
         @Test
         fun `should return true when student has tip tokens`() {
-            every { tipTokensService.hasTipTokens(userId) } returns true
-            assertTrue(aiAccessService.hasTipTokens(userId))
+            every { tipTokensService.hasTipTokens(userProfile) } returns true
+            assertTrue(aiAccessService.hasTipTokens(userProfile))
         }
     }
 }

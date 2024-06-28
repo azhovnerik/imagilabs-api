@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.openai.domain.usecases
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.openai.domain.TipTokensService
+import com.anahoret.imagilabsapi.users.UserType
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.*
@@ -19,11 +20,12 @@ class GetTipTokensUseCaseImplTest {
     private val studentId = UUID.randomUUID()
     private val userProfile = mockk<UserProfile> {
         every { id } returns studentId
+        every { userType } returns UserType.STUDENT
     }
 
     @Test
     fun `should return error when student not found`() {
-        every { tipTokensService.getStudentTipTokens(studentId) } returns null
+        every { tipTokensService.getTipTokens(userProfile) } returns null
         getTipTokensUseCase.get(userProfile).fold(
             {
                 assertAll(
@@ -36,7 +38,7 @@ class GetTipTokensUseCaseImplTest {
 
     @Test
     fun `should return tip tokens data`() {
-        every { tipTokensService.getStudentTipTokens(studentId) } returns 3
+        every { tipTokensService.getTipTokens(userProfile) } returns 3
         getTipTokensUseCase.get(userProfile).fold({ fail() }, { assertEquals(3, it.leftTipTokens) })
     }
 }
