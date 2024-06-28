@@ -1,7 +1,5 @@
 ALTER TABLE open_ai_assistance
-    DROP CONSTRAINT open_ai_assistance_user_id_fkey;
-
-ALTER TABLE open_ai_assistance
+    DROP CONSTRAINT open_ai_assistance_user_id_fkey,
     ADD COLUMN user_type TEXT;
 
 UPDATE open_ai_assistance oai
