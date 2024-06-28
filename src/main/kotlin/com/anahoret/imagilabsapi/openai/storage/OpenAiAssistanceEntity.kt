@@ -1,10 +1,9 @@
 package com.anahoret.imagilabsapi.openai.storage
 
 import com.anahoret.imagilabsapi.common.storage.BaseEntity
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Table
-import java.util.UUID
+import com.anahoret.imagilabsapi.users.UserType
+import jakarta.persistence.*
+import java.util.*
 
 @Entity
 @Table(name = "open_ai_assistance")
@@ -14,6 +13,10 @@ class OpenAiAssistanceEntity(
 
     @Column(name = "user_id")
     var userId: UUID,
+
+    @Column(name = "user_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    var userType: UserType,
 
     @Column(name = "project_id")
     var projectId: UUID,

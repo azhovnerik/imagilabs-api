@@ -41,7 +41,7 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImpl(
     ): AssistanceResponse {
         val allAssistance = openAiAssistanceService.getAllBySessionId(request.sessionId)
         val aiResponse = openAiService.proceedAssistanceOnError(request.input, allAssistance)
-        val openAiAssistance = openAiAssistanceService.save(userProfile.id, request.input, aiResponse, request)
+        val openAiAssistance = openAiAssistanceService.save(userProfile, request.input, aiResponse, request)
         tipTokensService.withdrawOneTipToken(userProfile)
         return AssistanceResponse(openAiAssistance.id, aiResponse)
     }

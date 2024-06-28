@@ -70,12 +70,12 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
-                userId,
+                userProfile,
                 "I am receiving this error: Error message",
                 "Your code is incorrect!",
                 request
             )
-        } returns OpenAiAssistance(assistanceId, userId)
+        } returns OpenAiAssistance(assistanceId, userId, UserType.STUDENT)
         every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit
         getOpenAiAssistanceOnErrorUseCase.getAssistance(request, userProfile).fold(
             { fail() }, { verify { openAiService.startAssistance("User code", secondDirectiveWithError) } }
@@ -92,12 +92,12 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
-                userId,
+                userProfile,
                 "I am receiving this error: Error message",
                 "Your code is incorrect!",
                 request
             )
-        } returns OpenAiAssistance(assistanceId, userId)
+        } returns OpenAiAssistance(assistanceId, userId, UserType.STUDENT)
         every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit
         getOpenAiAssistanceOnErrorUseCase.getAssistance(request, userProfile).fold(
             { fail() }, {
@@ -119,12 +119,12 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
-                userId,
+                userProfile,
                 "I am receiving this error: Error message",
                 "Your code is incorrect!",
                 request
             )
-        } returns OpenAiAssistance(assistanceId, userId)
+        } returns OpenAiAssistance(assistanceId, userId, UserType.STUDENT)
         every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit
         getOpenAiAssistanceOnErrorUseCase.getAssistance(request, userProfile)
             .fold({ fail() }, { verify { tipTokensService.withdrawOneTipToken(userProfile) } })
