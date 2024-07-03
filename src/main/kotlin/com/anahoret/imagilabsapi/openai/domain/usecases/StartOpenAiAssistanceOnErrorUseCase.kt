@@ -36,7 +36,8 @@ class StartOpenAiAssistanceOnErrorUseCaseImpl(
         request: ErrorAssistanceRequest,
         userProfile: UserProfile
     ): AssistanceResponse {
-        val userQuestion = "I am receiving this error: ${request.errorMessage}"
+        val userQuestion =
+            "I am receiving this error: ${request.errorMessage} ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
         val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} $userQuestion"
         val aiResponse = openAiService.startAssistance(request.userCode, secondDirectiveWithError)
         val openAiAssistance = openAiAssistanceService.save(userProfile, userQuestion, aiResponse, request)
