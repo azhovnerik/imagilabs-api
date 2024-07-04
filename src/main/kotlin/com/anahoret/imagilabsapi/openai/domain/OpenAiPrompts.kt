@@ -126,11 +126,14 @@ class OpenAiPrompts {
         """
         const val ERROR_FIRST_ANSWER_DIRECTIVE = """     
             Help me fix the error in my code in two steps.
-            First, explain the error in my code, why it occurs, and give me a hint for how to fix it.
+            First, explain the error in my code, why it occurs, and give me a hint for how to fix it.        
             Second, give me the corrected code.
-            Format your response so that it has the following headers:
+            
+            Response format string that has following headers:
             1. Explanation and Hint (contains error explanation and hint for how to fix it)
-            2. Correct Code (only contains code that fixes the error).""${'"'}
+            2. Correct Code (only contains code that fixes the error).
+            
+            Respond according to provided schema
         """
     }
 }
