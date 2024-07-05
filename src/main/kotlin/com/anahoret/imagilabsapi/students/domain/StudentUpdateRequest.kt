@@ -1,3 +1,3 @@
 package com.anahoret.imagilabsapi.students.domain
 
-class StudentUpdateRequest(val name: String, val username: String)
+class StudentUpdateRequest(val name: String, val username: String, val aiChatOnboarding: Boolean)

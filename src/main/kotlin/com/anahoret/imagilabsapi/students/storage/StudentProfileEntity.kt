@@ -22,5 +22,8 @@ class StudentProfileEntity(
     var classroomId: UUID,
 
     @Column(name = "tip_tokens")
-    var tipTokens: Int
+    var tipTokens: Int,
+
+    @Column(name = "ai_chat_onboarding", nullable = false)
+    var aiChatOnboarding: Boolean = false,
 ) : BaseEntity()
