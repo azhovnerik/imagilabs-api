@@ -129,11 +129,14 @@ class OpenAiPrompts {
             First, explain the error in my code, why it occurs, and give me a hint for how to fix it.        
             Second, give me the corrected code.
             
-            Response format string that has following headers:
-            1. Explanation and Hint (contains error explanation and hint for how to fix it)
-            2. Correct Code (only contains code that fixes the error).
+            Respond according to the schema:
+            {
+            "ExplanationAndHint": "Error explanation and hint for how to fix it",
+            "CorrectCode": "Only the code that fixes the error"
+            }
             
-            Respond according to provided schema
+            Ensure that the response strictly follows this structure
+            Respond in a JSON format
         """
     }
 }
