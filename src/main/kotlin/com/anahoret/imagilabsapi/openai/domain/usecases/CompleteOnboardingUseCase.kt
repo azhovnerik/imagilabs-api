@@ -1,20 +1,16 @@
 package com.anahoret.imagilabsapi.openai.domain.usecases
 
 import arrow.core.Either
-import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
-import com.anahoret.imagilabsapi.common.domain.validation.ValidationErrors
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.students.domain.StudentUpdateRequest
-import com.anahoret.imagilabsapi.students.domain.StudentUpdateRequestValidatorImpl
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
-import com.anahoret.imagilabsapi.teachers.domain.TeacherUpdateRequest
 import org.springframework.stereotype.Service
 
 interface CompleteOnboardingUseCaseUseCase {
