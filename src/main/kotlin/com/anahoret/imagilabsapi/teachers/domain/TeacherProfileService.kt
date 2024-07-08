@@ -27,6 +27,7 @@ interface TeacherProfileService {
     fun setPassword(email: String, newPassword: String)
     fun getTeachersWithExpiredSubscriptionBetween(leftRange: Long, rightRnage: Long): List<TeacherProfile>
     fun delete(teacherId: UUID)
+    fun completeChatOnboarding(teacherId: UUID): TeacherProfile?
 }
 
 @Service
@@ -162,5 +163,12 @@ class TeacherProfileServiceImpl(
 
     override fun delete(teacherId: UUID) {
         teacherProfileEntityRepository.deleteById(teacherId)
+    }
+
+    override fun completeChatOnboarding(teacherId: UUID): TeacherProfile? {
+        return teacherProfileEntityRepository.findByIdOrNull(teacherId)?.let {
+            it.aiChatOnboardingCompleted = true
+            teacherProfileEntityRepository.save(it)
+        }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it)) }
     }
 }

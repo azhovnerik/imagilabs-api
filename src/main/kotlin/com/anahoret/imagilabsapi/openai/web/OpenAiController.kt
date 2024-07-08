@@ -25,7 +25,8 @@ class OpenAiController(
     private val startOpenAiAssistanceOnErrorUseCase: StartOpenAiAssistanceOnErrorUseCase,
     private val proceedOpenAiAssistanceOnErrorUseCase: ProceedOpenAiAssistanceOnErrorUseCase,
     private val getTipTokensUseCase: GetTipTokensUseCase,
-    private val spendTipTokensUseCase: SpendTipTokensUseCase
+    private val spendTipTokensUseCase: SpendTipTokensUseCase,
+    private val completeOnboardingUseCase: CompleteOnboardingUseCase
 ) {
 
     companion object {
@@ -34,6 +35,7 @@ class OpenAiController(
         const val ON_ERROR_PROCEED_PATH = "/api/open-ai/assistance/on-error/proceed"
         const val FEEDBACK_PATH = "/api/open-ai/assistance/feedback/{assistanceId}"
         const val TIP_TOKENS_PATH = "/api/open-ai/tip-tokens"
+        const val ONBOARDING = "/api/open-ai/onboarding"
     }
 
     @PostMapping(ON_SUCCESS_PATH)
@@ -97,4 +99,11 @@ class OpenAiController(
         }
     }
 
+    @PatchMapping(ONBOARDING)
+    fun completeOnboarding(@AuthenticationPrincipal userProfile: UserProfile): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = completeOnboardingUseCase.completeOnboarding(userProfile)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
+        }
+    }
 }

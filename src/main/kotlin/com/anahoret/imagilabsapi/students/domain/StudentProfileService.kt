@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 interface StudentProfileService {
@@ -38,6 +37,7 @@ interface StudentProfileService {
     fun listByClassroom(classroomId: UUID): List<StudentProfile>
     fun listByClassroom(classroomId: UUID, searchQuery: String?, sort: Sort): List<StudentProfile>
     fun resetPassword(studentId: UUID): StudentCredentials?
+    fun completeChatOnboarding(studentId: UUID): StudentProfile?
 }
 
 @Service
@@ -154,6 +154,13 @@ class StudentProfileServiceImpl(
             it.password = createStudentPassword()
             studentProfileEntityRepository.save(it)
         }?.let(StudentCredentials.Companion::fromEntity)
+    }
+
+    override fun completeChatOnboarding(studentId: UUID): StudentProfile? {
+        return studentProfileEntityRepository.findByIdOrNull(studentId)?.let {
+            it.aiChatOnboardingCompleted = true
+            studentProfileEntityRepository.save(it)
+        }?.let(StudentProfile.Companion::fromEntity)
     }
 
     private fun doListByClassroom(classroomId: UUID, sort: Sort): List<StudentProfile> {
