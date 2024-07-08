@@ -26,7 +26,7 @@ class OpenAiController(
     private val proceedOpenAiAssistanceOnErrorUseCase: ProceedOpenAiAssistanceOnErrorUseCase,
     private val getTipTokensUseCase: GetTipTokensUseCase,
     private val spendTipTokensUseCase: SpendTipTokensUseCase,
-    private val completeOnboardingUseCaseUseCase: CompleteOnboardingUseCaseUseCase
+    private val completeOnboardingUseCase: CompleteOnboardingUseCase
 ) {
 
     companion object {
@@ -99,9 +99,9 @@ class OpenAiController(
         }
     }
 
-    @PostMapping(ONBOARDING)
+    @PatchMapping(ONBOARDING)
     fun completeOnboarding(@AuthenticationPrincipal userProfile: UserProfile): ResponseEntity<ResponseDto<Void>> {
-        return when (val result = completeOnboardingUseCaseUseCase.completeOnboarding(userProfile)) {
+        return when (val result = completeOnboardingUseCase.completeOnboarding(userProfile)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
         }

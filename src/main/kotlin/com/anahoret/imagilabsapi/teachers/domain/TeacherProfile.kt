@@ -18,7 +18,7 @@ class TeacherProfile(
     val emailVerified: Boolean,
     val marketingEmailSubscribed: Boolean,
     val subscription: TeacherSubscription,
-    val aiChatOnboarding: Boolean
+    val aiChatOnboardingCompleted: Boolean
 ) : UserProfile {
 
     override val userType = UserType.TEACHER
@@ -39,7 +39,7 @@ class TeacherProfile(
                     emailVerified,
                     marketingEmailSubscribed,
                     subscription,
-                    aiChatOnboarding
+                    aiChatOnboardingCompleted
                 )
             }
         }

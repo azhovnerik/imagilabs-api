@@ -13,7 +13,7 @@ import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import org.springframework.stereotype.Service
 
-interface CompleteOnboardingUseCaseUseCase {
+interface CompleteOnboardingUseCase {
 
     fun completeOnboarding(userProfile: UserProfile): Either<OperationError, Unit>
 }
@@ -22,27 +22,18 @@ interface CompleteOnboardingUseCaseUseCase {
 class CompleteOnboardingUseCaseUseCaseImpl(
     private val studentProfileService: StudentProfileService,
     private val teacherProfileService: TeacherProfileService,
-) : CompleteOnboardingUseCaseUseCase {
+) : CompleteOnboardingUseCase {
 
     override fun completeOnboarding(userProfile: UserProfile): Either<OperationError, Unit> {
         when (userProfile) {
-            is StudentProfile -> {
-                studentProfileService.getStudentById(userProfile.id)
-                    ?: return NotFoundError("STUDENT_NOT_FOUND").left()
-                val studentProfile = studentProfileService.getStudentById(userProfile.id)
-                    ?: return NotFoundError("STUDENT_NOT_FOUND").left()
-                val studentUpdateRequest = StudentUpdateRequest(studentProfile.name, studentProfile.username, true)
-                studentProfileService.update(
-                    userProfile.id,
-                    studentUpdateRequest
+            is StudentProfile ->
+                studentProfileService.completeChatOnboarding(
+                    userProfile.id
                 )?.right() ?: NotFoundError("STUDENT_NOT_FOUND").left()
-            }
 
-            is TeacherProfile -> {
-                teacherProfileService.getTeacherById(userProfile.id)
-                    ?: return NotFoundError("TEACHER_NOT_FOUND").left()
-                teacherProfileService.update(userProfile.id, true)?.right() ?: NotFoundError("TEACHER_NOT_FOUND").left()
-            }
+            is TeacherProfile ->
+                teacherProfileService.completeChatOnboarding(userProfile.id)?.right()
+                    ?: NotFoundError("TEACHER_NOT_FOUND").left()
 
             else -> {
                 return NotFoundError("USER_NOT_FOUND").left()

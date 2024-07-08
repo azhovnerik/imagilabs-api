@@ -58,6 +58,6 @@ class TeacherProfileEntity(
     @Column(name = "subscription_canceled", nullable = false)
     override var subscriptionCanceled: Boolean = false,
 
-    @Column(name = "ai_chat_onboarding", nullable = false)
-    var aiChatOnboarding: Boolean = false
+    @Column(name = "ai_chat_onboarding_completed", nullable = false)
+    var aiChatOnboardingCompleted: Boolean = false
 ) : BaseEntity(), TeacherSubscriptionData
