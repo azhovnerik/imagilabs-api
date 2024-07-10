@@ -13,13 +13,13 @@ import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.chat.prompt.SystemPromptTemplate
 import org.springframework.ai.openai.OpenAiChatOptions
-import org.springframework.ai.openai.api.OpenAiApi
 import org.springframework.stereotype.Service
 
 interface OpenAiService {
     fun startAssistance(
         userCode: String,
-        secondDirective: String
+        secondDirective: String,
+        chatOptions: OpenAiChatOptions = OpenAiChatOptions()
     ): String
 
     fun proceedAssistanceOnError(
@@ -35,10 +35,9 @@ class OpenAiServiceImpl(
 
     override fun startAssistance(
         userCode: String,
-        secondDirective: String
+        secondDirective: String,
+        chatOptions: OpenAiChatOptions
     ): String {
-        val chatOptions = OpenAiChatOptions()
-            .apply { responseFormat = OpenAiApi.ChatCompletionRequest.ResponseFormat("json_object") }
         val prompt = Prompt(getInitialMessages(userCode, secondDirective), chatOptions)
         return chatClient.call(prompt).results[0].output.content
     }
