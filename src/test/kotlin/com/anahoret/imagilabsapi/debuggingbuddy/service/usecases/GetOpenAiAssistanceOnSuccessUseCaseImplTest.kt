@@ -40,9 +40,8 @@ class GetOpenAiAssistanceOnSuccessUseCaseImplTest {
         every { id } returns userId
         every { userType } returns UserType.STUDENT
     }
-    private val projectId = UUID.randomUUID()
     private val sessionId = UUID.randomUUID()
-    private val request = QuestionAssistanceRequest(sessionId, projectId, "User code", "What is 'm' in my code?")
+    private val request = QuestionAssistanceRequest(sessionId, "User code", "What is 'm' in my code?")
 
     @Test
     fun `should return error when AI request is invalid`() {

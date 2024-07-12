@@ -13,6 +13,8 @@ import io.mockk.verify
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.springframework.ai.openai.OpenAiChatOptions
+import org.springframework.ai.openai.api.OpenAiApi
 import java.util.*
 
 @DisplayName("Start open AI assistance on error use case")
@@ -37,9 +39,10 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         every { id } returns userId
         every { userType } returns UserType.STUDENT
     }
-    private val projectId = UUID.randomUUID()
     private val sessionId = UUID.randomUUID()
-    private val request = ErrorAssistanceRequest(sessionId, projectId, "User code", "Error message")
+    private val request = ErrorAssistanceRequest(sessionId, "User code", "Error message")
+    private val chatOptions: OpenAiChatOptions = OpenAiChatOptions()
+        .apply { responseFormat = OpenAiApi.ChatCompletionRequest.ResponseFormat("json_object") }
 
     @Test
     fun `should return error when AI request is invalid`() {
@@ -63,37 +66,53 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
     @Test
     fun `should generate second directive with error`() {
         val assistanceId = UUID.randomUUID()
-        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} I am receiving this error: Error message"
+        val userQuestion =
+            "I am receiving this error: Error message ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
+        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} $userQuestion"
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
-        every { openAiService.startAssistance("User code", secondDirectiveWithError) } returns "Your code is incorrect!"
+        every {
+            openAiService.startAssistance(
+                "User code",
+                secondDirectiveWithError,
+                chatOptions
+            )
+        } returns "Your code is incorrect!"
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
                 userProfile,
-                "I am receiving this error: Error message",
+                userQuestion,
                 "Your code is incorrect!",
                 request
             )
         } returns OpenAiAssistance(assistanceId, userId, UserType.STUDENT)
         every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit
         getOpenAiAssistanceOnErrorUseCase.getAssistance(request, userProfile).fold(
-            { fail() }, { verify { openAiService.startAssistance("User code", secondDirectiveWithError) } }
+            { fail() }, { verify { openAiService.startAssistance("User code", secondDirectiveWithError, chatOptions) } }
         )
     }
 
     @Test
     fun `should return content`() {
         val assistanceId = UUID.randomUUID()
-        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} I am receiving this error: Error message"
+        val userQuestion =
+            "I am receiving this error: Error message ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
+        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} $userQuestion"
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
-        every { openAiService.startAssistance("User code", secondDirectiveWithError) } returns "Your code is incorrect!"
+        every {
+            openAiService.startAssistance(
+                "User code",
+                secondDirectiveWithError,
+                chatOptions
+            )
+        } returns "Your code is incorrect!"
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
                 userProfile,
-                "I am receiving this error: Error message",
+                userQuestion,
                 "Your code is incorrect!",
                 request
             )
@@ -112,15 +131,23 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
     @Test
     fun `should withdraw tip token`() {
         val assistanceId = UUID.randomUUID()
-        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} I am receiving this error: Error message"
+        val userQuestion =
+            "I am receiving this error: Error message ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
+        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} $userQuestion"
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
-        every { openAiService.startAssistance("User code", secondDirectiveWithError) } returns "Your code is incorrect!"
+        every {
+            openAiService.startAssistance(
+                "User code",
+                secondDirectiveWithError,
+                chatOptions
+            )
+        } returns "Your code is incorrect!"
         every { openAiAssistanceService.existsBySessionId(sessionId) } returns false
         every {
             openAiAssistanceService.save(
                 userProfile,
-                "I am receiving this error: Error message",
+                userQuestion,
                 "Your code is incorrect!",
                 request
             )

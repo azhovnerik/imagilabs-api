@@ -8,20 +8,18 @@ import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
 interface OpenAiAccessService {
-    fun canGetAssistanceForProject(userProfile: UserProfile, project: Project): Boolean
+    fun canGetAssistanceForProject(userProfile: UserProfile): Boolean
     fun hasTipTokens(userProfile: UserProfile): Boolean
 }
 
 @Service
 class OpenAiAccessServiceImpl(
-    private val projectAccessService: ProjectAccessService,
     private val tipTokensService: TipTokensService,
     private val environmentPermissionService: EnvironmentPermissionService
 ) : OpenAiAccessService {
 
-    override fun canGetAssistanceForProject(userProfile: UserProfile, project: Project): Boolean {
-        return environmentPermissionService.canGetAssistanceForProject(userProfile) &&
-                projectAccessService.isProjectOwner(userProfile, project)
+    override fun canGetAssistanceForProject(userProfile: UserProfile): Boolean {
+        return environmentPermissionService.canGetAssistanceForProject(userProfile)
     }
 
     override fun hasTipTokens(userProfile: UserProfile): Boolean {
