@@ -35,7 +35,7 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImplTest {
         )
 
     private val userProfile = mockk<UserProfile>()
-    private val request = ProceedAssistanceRequest(UUID.randomUUID(), UUID.randomUUID(), "Input")
+    private val request = ProceedAssistanceRequest(UUID.randomUUID(), "Input")
 
     @Test
     fun `should return error when request isn't valid`() {

@@ -19,15 +19,12 @@ interface OpenAiPreconditionChecker {
 
 @Service
 class OpenAiPreconditionCheckerImpl(
-    private val projectService: ProjectService,
     private val openAiAccessService: OpenAiAccessService,
     private val openAiAssistanceService: OpenAiAssistanceService
 ) : OpenAiPreconditionChecker {
 
     override fun check(request: AssistanceRequest, userProfile: UserProfile): Either<OperationError, Unit> {
-        val project = projectService.getProjectById(request.projectId)
-            ?: return NotFoundError("PROJECT_NOT_FOUND").left()
-        if (!openAiAccessService.canGetAssistanceForProject(userProfile, project)) {
+        if (!openAiAccessService.canGetAssistanceForProject(userProfile)) {
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
         }
         if (!openAiAccessService.hasTipTokens(userProfile)) return AccessDeniedError("NO_TIP_TOKENS_LEFT").left()

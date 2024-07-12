@@ -8,27 +8,24 @@ import java.util.UUID
 object OpenAiRequestGenerator {
     fun createErrorAssistanceRequest(
         sessionId: UUID = UUID.randomUUID(),
-        projectId: UUID = UUID.randomUUID(),
         userCode: String = "User code",
         errorMessage: String = "Error"
     ): ErrorAssistanceRequest {
-        return ErrorAssistanceRequest(sessionId, projectId, userCode, errorMessage)
+        return ErrorAssistanceRequest(sessionId, userCode, errorMessage)
     }
 
     fun createQuestionAssistanceRequest(
         sessionId: UUID = UUID.randomUUID(),
-        projectId: UUID = UUID.randomUUID(),
         userCode: String = "User code",
         userQuestion: String = "User question"
     ): QuestionAssistanceRequest {
-        return QuestionAssistanceRequest(sessionId, projectId, userCode, userQuestion)
+        return QuestionAssistanceRequest(sessionId, userCode, userQuestion)
     }
 
     fun createProceedAssistanceRequest(
         sessionId: UUID = UUID.randomUUID(),
-        projectId: UUID = UUID.randomUUID(),
         userInput: String = "User input"
     ): ProceedAssistanceRequest {
-        return ProceedAssistanceRequest(sessionId, projectId, userInput)
+        return ProceedAssistanceRequest(sessionId, userInput)
     }
 }

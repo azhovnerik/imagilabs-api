@@ -18,9 +18,6 @@ class OpenAiAssistanceEntity(
     @Enumerated(EnumType.STRING)
     var userType: UserType,
 
-    @Column(name = "project_id")
-    var projectId: UUID,
-
     @Column(name = "user_question")
     var userQuestion: String,
 

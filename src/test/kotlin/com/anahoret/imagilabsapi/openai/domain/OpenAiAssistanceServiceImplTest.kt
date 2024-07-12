@@ -36,7 +36,7 @@ class OpenAiAssistanceServiceImplTest {
         @Test
         fun `should save AI assistance data`() {
             val request =
-                QuestionAssistanceRequest(UUID.randomUUID(), projectId, "User code", "What is 'm' in my code?")
+                QuestionAssistanceRequest(UUID.randomUUID(), "User code", "What is 'm' in my code?")
             val assistanceId = UUID.randomUUID()
             val slot = slot<OpenAiAssistanceEntity>()
             every { openAiAssistanceRepository.save(capture(slot)) } answers {

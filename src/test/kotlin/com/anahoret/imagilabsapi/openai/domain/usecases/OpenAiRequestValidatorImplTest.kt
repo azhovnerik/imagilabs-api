@@ -21,13 +21,12 @@ class OpenAiRequestValidatorImplTest {
     private val user = mockk<UserProfile> {
         every { id } returns userId
     }
-    private val projectId = UUID.randomUUID()
     private val sessionId = UUID.randomUUID()
 
     @ParameterizedTest
     @ValueSource(strings = ["", "  "])
     fun `should return error when user question is blank`(question: String) {
-        val request = QuestionAssistanceRequest(sessionId, projectId, "User code", question)
+        val request = QuestionAssistanceRequest(sessionId, "User code", question)
         openAiRequestValidator.validate(request, user).fold(
             {
                 assertAll(
@@ -42,7 +41,7 @@ class OpenAiRequestValidatorImplTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "  "])
     fun `should return error when user error is blank`(errorMessage: String) {
-        val request = ErrorAssistanceRequest(sessionId, projectId, "User code", errorMessage)
+        val request = ErrorAssistanceRequest(sessionId, "User code", errorMessage)
         openAiRequestValidator.validate(request, user).fold(
             {
                 assertAll(
@@ -58,7 +57,7 @@ class OpenAiRequestValidatorImplTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "  "])
     fun `should return error when user input is blank`(input: String) {
-        val request = ProceedAssistanceRequest(sessionId, projectId, input)
+        val request = ProceedAssistanceRequest(sessionId, input)
         openAiRequestValidator.validate(request, user).fold(
             {
                 assertAll(
@@ -74,7 +73,7 @@ class OpenAiRequestValidatorImplTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "  "])
     fun `should return error when user code is blank and request is QuestionAssistanceRequest`(code: String) {
-        val request = QuestionAssistanceRequest(sessionId, projectId, code, "What is 'm' in my code?")
+        val request = QuestionAssistanceRequest(sessionId, code, "What is 'm' in my code?")
         openAiRequestValidator.validate(request, user).fold(
             {
                 assertAll(
@@ -89,7 +88,7 @@ class OpenAiRequestValidatorImplTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "  "])
     fun `should return error when user code is blank and request is ErrorAssistanceRequest`(code: String) {
-        val request = ErrorAssistanceRequest(sessionId, projectId, code, "Error message")
+        val request = ErrorAssistanceRequest(sessionId, code, "Error message")
         openAiRequestValidator.validate(request, user).fold(
             {
                 assertAll(
@@ -104,7 +103,7 @@ class OpenAiRequestValidatorImplTest {
     @Test
     fun `should return error when user question length is greater than 300 characters and request is QuestionAssistanceRequest`() {
         val questionLongerThan300Chars = RandomStringUtils.random(301)
-        val request = QuestionAssistanceRequest(sessionId, projectId, "code", questionLongerThan300Chars)
+        val request = QuestionAssistanceRequest(sessionId, "code", questionLongerThan300Chars)
         openAiRequestValidator.validate(request, user).fold(
             {
                 assertAll(
@@ -119,21 +118,21 @@ class OpenAiRequestValidatorImplTest {
     @Test
     fun `should return Unit when user question length is 300 characters and request is QuestionAssistanceRequest`() {
         val questionWithLength300Chars = RandomStringUtils.random(300)
-        val request = QuestionAssistanceRequest(sessionId, projectId, "code", questionWithLength300Chars)
+        val request = QuestionAssistanceRequest(sessionId, "code", questionWithLength300Chars)
         openAiRequestValidator.validate(request, user).fold({ fail() }, { assertEquals(Unit, it) })
     }
 
     @Test
     fun `should return Unit when user input is less than 300 and request is QuestionAssistanceRequest`() {
         val inputLessThan300Chars = RandomStringUtils.random(5)
-        val request = QuestionAssistanceRequest(sessionId, projectId, "code", inputLessThan300Chars)
+        val request = QuestionAssistanceRequest(sessionId, "code", inputLessThan300Chars)
         openAiRequestValidator.validate(request, user).fold({ fail() }, { assertEquals(Unit, it) })
     }
 
     @Test
     fun `should return error when user input length is longer than 300 characters and request is ProceedAssistanceRequest`() {
         val inputLongerThan300Chars = RandomStringUtils.random(301)
-        val request = ProceedAssistanceRequest(sessionId, projectId, inputLongerThan300Chars)
+        val request = ProceedAssistanceRequest(sessionId, inputLongerThan300Chars)
         openAiRequestValidator.validate(request, user).fold(
             {
                 assertAll(
@@ -148,14 +147,14 @@ class OpenAiRequestValidatorImplTest {
     @Test
     fun `should return Unit when user input length is  300 characters and request is ProceedAssistanceRequest`() {
         val inputWithLength300Chars = RandomStringUtils.random(300)
-        val request = ProceedAssistanceRequest(sessionId, projectId, inputWithLength300Chars)
+        val request = ProceedAssistanceRequest(sessionId, inputWithLength300Chars)
         openAiRequestValidator.validate(request, user).fold({ fail() }, { assertEquals(Unit, it) })
     }
 
     @Test
     fun `should return Unit when user input is less than 300 and request is ProceedAssistanceRequest`() {
         val inputLessThan300Chars = RandomStringUtils.random(5)
-        val request = ProceedAssistanceRequest(sessionId, projectId, inputLessThan300Chars)
+        val request = ProceedAssistanceRequest(sessionId, inputLessThan300Chars)
         openAiRequestValidator.validate(request, user).fold({ fail() }, { assertEquals(Unit, it) })
     }
 }

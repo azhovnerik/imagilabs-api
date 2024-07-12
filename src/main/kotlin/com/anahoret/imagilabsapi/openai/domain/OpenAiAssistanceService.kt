@@ -38,7 +38,6 @@ class OpenAiAssistanceServiceImpl(
             OpenAiAssistanceEntity(
                 sessionId = request.sessionId,
                 userId = userProfile.id,
-                projectId = request.projectId,
                 userQuestion = userQuestion,
                 aiResponse = aiResponse,
                 userCode = request.userCode,

@@ -26,12 +26,11 @@ class OpenAiPreconditionCheckerImplTest {
     private val openAiAccessService = mockk<OpenAiAccessService>()
     private val openAiAssistanceService = mockk<OpenAiAssistanceService>()
     private val openAiPreconditionChecker =
-        OpenAiPreconditionCheckerImpl(projectService, openAiAccessService, openAiAssistanceService)
+        OpenAiPreconditionCheckerImpl(openAiAccessService, openAiAssistanceService)
 
     private val testProjectId = UUID.randomUUID()
     private val testSessionId = UUID.randomUUID()
     private val request = mockk<AssistanceRequest> {
-        every { projectId } returns testProjectId
         every { sessionId } returns testSessionId
     }
     private val userId = UUID.randomUUID()
@@ -41,24 +40,10 @@ class OpenAiPreconditionCheckerImplTest {
     }
 
     @Test
-    fun `should return error when project not found`() {
-        every { projectService.getProjectById(testProjectId) } returns null
-        openAiPreconditionChecker.check(request, userProfile).fold(
-            {
-                assertAll(
-                    { assertTrue(it is NotFoundError) },
-                    { assertEquals("PROJECT_NOT_FOUND", (it as NotFoundError).message) }
-                )
-            },
-            { fail() }
-        )
-    }
-
-    @Test
     fun `should return error when user has no access to project`() {
         val project = mockk<Project>()
         every { projectService.getProjectById(testProjectId) } returns project
-        every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns false
+        every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns false
         openAiPreconditionChecker.check(request, userProfile).fold(
             {
                 assertAll(
@@ -74,7 +59,7 @@ class OpenAiPreconditionCheckerImplTest {
     fun `should return error when user has no access to get assistance`() {
         val project = mockk<Project>()
         every { projectService.getProjectById(testProjectId) } returns project
-        every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
+        every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns true
         every { openAiAccessService.hasTipTokens(userProfile) } returns false
         openAiPreconditionChecker.check(request, userProfile).fold(
             {
@@ -90,9 +75,9 @@ class OpenAiPreconditionCheckerImplTest {
     @Test
     fun `should return error when session id already exists for QuestionAssistanceRequest`() {
         val project = mockk<Project>()
-        val request = createQuestionAssistanceRequest(sessionId = testSessionId, projectId = testProjectId)
+        val request = createQuestionAssistanceRequest(sessionId = testSessionId)
         every { projectService.getProjectById(testProjectId) } returns project
-        every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
+        every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns true
         every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns true
         openAiPreconditionChecker.check(request, userProfile).fold(
@@ -109,9 +94,9 @@ class OpenAiPreconditionCheckerImplTest {
     @Test
     fun `should return error when session id already exists for ErrorAssistanceRequest`() {
         val project = mockk<Project>()
-        val request = createErrorAssistanceRequest(sessionId = testSessionId, projectId = testProjectId)
+        val request = createErrorAssistanceRequest(sessionId = testSessionId)
         every { projectService.getProjectById(testProjectId) } returns project
-        every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
+        every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns true
         every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns true
         openAiPreconditionChecker.check(request, userProfile).fold(
@@ -128,9 +113,9 @@ class OpenAiPreconditionCheckerImplTest {
     @Test
     fun `should not return error when session id already exists for ErrorAssistanceRequest`() {
         val project = mockk<Project>()
-        val request = createProceedAssistanceRequest(sessionId = testSessionId, projectId = testProjectId)
+        val request = createProceedAssistanceRequest(sessionId = testSessionId)
         every { projectService.getProjectById(testProjectId) } returns project
-        every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
+        every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns true
         every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns true
         openAiPreconditionChecker.check(request, userProfile).fold({ fail() }, { })
@@ -139,9 +124,9 @@ class OpenAiPreconditionCheckerImplTest {
     @Test
     fun `shouldn't return error when session id not exists for QuestionAssistanceRequest`() {
         val project = mockk<Project>()
-        val request = createQuestionAssistanceRequest(sessionId = testSessionId, projectId = testProjectId)
+        val request = createQuestionAssistanceRequest(sessionId = testSessionId)
         every { projectService.getProjectById(testProjectId) } returns project
-        every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
+        every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns true
         every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns false
         openAiPreconditionChecker.check(request, userProfile).fold({ fail() }, { })
@@ -150,9 +135,9 @@ class OpenAiPreconditionCheckerImplTest {
     @Test
     fun `shouldn't return error when session id not exists for ErrorAssistanceRequest`() {
         val project = mockk<Project>()
-        val request = createErrorAssistanceRequest(sessionId = testSessionId, projectId = testProjectId)
+        val request = createErrorAssistanceRequest(sessionId = testSessionId)
         every { projectService.getProjectById(testProjectId) } returns project
-        every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
+        every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns true
         every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns false
         openAiPreconditionChecker.check(request, userProfile).fold({ fail() }, { })
@@ -161,9 +146,9 @@ class OpenAiPreconditionCheckerImplTest {
     @Test
     fun `should return error when session id not exists for ProceedAssistanceRequest`() {
         val project = mockk<Project>()
-        val request = createProceedAssistanceRequest(sessionId = testSessionId, projectId = testProjectId)
+        val request = createProceedAssistanceRequest(sessionId = testSessionId)
         every { projectService.getProjectById(testProjectId) } returns project
-        every { openAiAccessService.canGetAssistanceForProject(userProfile, project) } returns true
+        every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns true
         every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns false
         openAiPreconditionChecker.check(request, userProfile).fold(
