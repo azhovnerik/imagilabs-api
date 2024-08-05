@@ -1,6 +1,5 @@
 package com.anahoret.imagilabsapi.openai.domain
 
-import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.FIRST_DIRECTIVE
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.LIBRARY
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.SYSTEM_PROMPT
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.USER_PROMPT
@@ -48,7 +47,7 @@ class OpenAiServiceImpl(
     ): String {
         val initialMessage = getInitialMessages(
             userCode = content.first().userCode,
-            secondDirective = "${OpenAiPrompts.SECOND_DIRECTIVE} $content.first().userQuestion"
+            secondDirective = content.first().userQuestion
         ) + AssistantMessage(content.first().aiResponse)
         val latestMessages = content.drop(1)
             .flatMap { listOf(UserMessage(it.userQuestion), AssistantMessage(it.aiResponse)) }
@@ -61,7 +60,6 @@ class OpenAiServiceImpl(
         val userMessage = SystemPromptTemplate(USER_PROMPT)
             .createMessage(
                 mapOf<String, Any>(
-                    "first_directive" to FIRST_DIRECTIVE,
                     "user_code" to userCode,
                     "LIBRARY" to LIBRARY,
                     "second_directive" to secondDirective
