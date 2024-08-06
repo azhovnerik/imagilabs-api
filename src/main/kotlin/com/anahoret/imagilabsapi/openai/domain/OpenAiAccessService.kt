@@ -44,6 +44,21 @@ class EnvironmentPermissionServiceStaging : EnvironmentPermissionService {
 class EnvironmentPermissionServiceProduction : EnvironmentPermissionService {
     override fun canGetAssistanceForProject(userProfile: UserProfile): Boolean {
         return userProfile is TeacherProfile &&
-                (userProfile.email.endsWith("@imagilabs.com") || userProfile.email.endsWith("@anadeainc.com"))
+                (userProfile.email.endsWith("@imagilabs.com") || userProfile.email.endsWith("@anadeainc.com") || userProfile.email in specificEmails)
+    }
+
+    companion object {
+        private val specificEmails = setOf(
+            "turnerw@whitehouseisd.org",
+            "kelpowers@gmail.com",
+            "brianne@codeyourdreams.org",
+            "sfortino@tchs.org",
+            "margretasgerdur@gmail.com",
+            "zeisj@fcpsk12.net",
+            "tess.sandbox@gmail.com",
+            "pam@devcon.ph",
+            "christopher.combs@evsck12.com",
+            "jrandy.macdonald@gmail.com"
+        )
     }
 }
