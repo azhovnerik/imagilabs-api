@@ -8,6 +8,7 @@ import com.anahoret.imagilabsapi.openai.domain.AssistanceResponse
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
 import com.anahoret.imagilabsapi.openai.domain.OpenAiService
 import com.anahoret.imagilabsapi.openai.domain.TipTokensService
+import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceContent
 import org.springframework.stereotype.Service
 
 interface ProceedOpenAiAssistanceOnErrorUseCase {
