@@ -6,7 +6,6 @@ import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.openai.domain.AssistanceResponse
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
-import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.SECOND_DIRECTIVE
 import com.anahoret.imagilabsapi.openai.domain.OpenAiService
 import com.anahoret.imagilabsapi.openai.domain.TipTokensService
 import org.springframework.stereotype.Service
@@ -41,8 +40,7 @@ class GetOpenAiAssistanceOnSuccessUseCaseImpl(
         userProfile: UserProfile
     ): AssistanceResponse {
         val userQuestion = "My question is: ${request.userQuestion}"
-        val secondDirectiveWithQuestion = "$userQuestion $SECOND_DIRECTIVE"
-        val aiResponse = openAiService.startAssistance(request.userCode, secondDirectiveWithQuestion)
+        val aiResponse = openAiService.startAssistance(request.userCode, userQuestion)
         val openAiAssistance = openAiAssistanceService.save(userProfile, userQuestion, aiResponse, request)
         tipTokensService.withdrawOneTipToken(userProfile)
         return AssistanceResponse(openAiAssistance.id, aiResponse)
