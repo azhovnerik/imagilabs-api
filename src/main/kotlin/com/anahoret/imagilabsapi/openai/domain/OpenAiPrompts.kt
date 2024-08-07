@@ -132,6 +132,8 @@ class OpenAiPrompts {
             
             Ensure that the response strictly follows this structure
             Respond in a JSON format
+            
+            For all subsequent messages, respond with standard error-fixing guidance or code improvements without adhering to the JSON schema.
         """
     }
 }
