@@ -59,6 +59,27 @@ class EnvironmentPermissionServiceProduction : EnvironmentPermissionService {
             "pam@devcon.ph",
             "christopher.combs@evsck12.com",
             "jrandy.macdonald@gmail.com"
+            "pbesthoff@spsd.us",
+            "rchew@burlington-nj.net",
+            "kkeefe@wboe.net",
+            "bellavca@winslow-schools.com",
+            "dhack@watchungschools.us",
+            "megan_schutz@nplainfield.org",
+            "kkefalas@lindenps.org",
+            "jemmolo@cwcboe.org",
+            "kacevedo@spsd.us",
+            "blairbuscareno@parkridge.k12.nj.us",
+            "mlandolfi@watchungschools.us",
+            "jhenry@chclc.org",
+            "laura.sudak@boontonschools.org",
+            "lcardace@gmail.com",
+            "srothrock@minehillcas.org",
+            "ksturdivant@camden.k12.nj.us",
+            "jhrljo@gmail.com",
+            "esteidle@chclc.org",
+            "sbolognese@spsd.us",
+            "ffazal@yahoo.com",
+            "jwoods@chclc.org"
         )
     }
 }
