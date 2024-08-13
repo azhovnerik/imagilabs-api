@@ -58,7 +58,7 @@ class EnvironmentPermissionServiceProduction : EnvironmentPermissionService {
             "tess.sandbox@gmail.com",
             "pam@devcon.ph",
             "christopher.combs@evsck12.com",
-            "jrandy.macdonald@gmail.com"
+            "jrandy.macdonald@gmail.com",
             "pbesthoff@spsd.us",
             "rchew@burlington-nj.net",
             "kkeefe@wboe.net",
