@@ -68,7 +68,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         val userQuestion =
             "I am receiving this error: Error message ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
-        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} $userQuestion"
+        val secondDirectiveWithError = userQuestion
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
         every {
@@ -98,7 +98,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         val userQuestion =
             "I am receiving this error: Error message ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
-        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} $userQuestion"
+        val secondDirectiveWithError = userQuestion
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
         every {
@@ -133,7 +133,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         val userQuestion =
             "I am receiving this error: Error message ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
-        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} $userQuestion"
+        val secondDirectiveWithError = userQuestion
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
         every {
