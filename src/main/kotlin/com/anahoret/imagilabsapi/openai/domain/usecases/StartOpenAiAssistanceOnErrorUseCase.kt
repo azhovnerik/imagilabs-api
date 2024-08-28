@@ -39,10 +39,12 @@ class StartOpenAiAssistanceOnErrorUseCaseImpl(
         userProfile: UserProfile
     ): AssistanceResponse {
         val userQuestion =
-            "I am receiving this error: ${request.errorMessage} ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
+            OpenAiPrompts.ERROR_FIRST_DIRECTIVE
+                .replace("{error_message}", request.errorMessage)
+                .replace("{user_code}", request.userCode)
         val chatOptions: OpenAiChatOptions = OpenAiChatOptions()
             .apply { responseFormat = OpenAiApi.ChatCompletionRequest.ResponseFormat("json_object") }
-        val aiResponse = openAiService.startAssistance(request.userCode, userQuestion, chatOptions)
+        val aiResponse = openAiService.startAssistance(userQuestion, chatOptions)
         val openAiAssistance = openAiAssistanceService.save(userProfile, userQuestion, aiResponse, request)
         tipTokensService.withdrawOneTipToken(userProfile)
         return AssistanceResponse(openAiAssistance.id, aiResponse)
