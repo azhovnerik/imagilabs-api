@@ -1,7 +1,6 @@
 package com.anahoret.imagilabsapi.teachers.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
-import com.anahoret.imagilabsapi.openai.domain.OpenAiUser
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.users.UserType
@@ -18,9 +17,8 @@ class TeacherProfile(
     val createdAt: Long,
     val emailVerified: Boolean,
     val marketingEmailSubscribed: Boolean,
-    val subscription: TeacherSubscription,
-    override val aiChatOnboardingCompleted: Boolean
-) : UserProfile, OpenAiUser {
+    val subscription: TeacherSubscription
+) : UserProfile {
 
     override val userType = UserType.TEACHER
     override val fullName = "$firstName $lastName"
@@ -39,8 +37,7 @@ class TeacherProfile(
                     createdAt ?: 0,
                     emailVerified,
                     marketingEmailSubscribed,
-                    subscription,
-                    aiChatOnboardingCompleted
+                    subscription
                 )
             }
         }

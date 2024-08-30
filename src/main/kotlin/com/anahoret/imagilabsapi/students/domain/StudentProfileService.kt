@@ -38,6 +38,7 @@ interface StudentProfileService {
     fun listByClassroom(classroomId: UUID, searchQuery: String?, sort: Sort): List<StudentProfile>
     fun resetPassword(studentId: UUID): StudentCredentials?
     fun completeChatOnboarding(studentId: UUID): StudentProfile?
+    fun isAiChatOnboardingCompleted(studentId: UUID): Boolean
 }
 
 @Service
@@ -186,5 +187,9 @@ class StudentProfileServiceImpl(
         }
 
         throw RuntimeException("EXCEEDED_NUMBER_OF_ATTEMPTS_TO_GENERATE_UNIQUE_USERNAME_FOR_STUDENT")
+    }
+
+    override fun isAiChatOnboardingCompleted(studentId: UUID): Boolean {
+        return studentProfileEntityRepository.isAiChatOnboardingCompleted(studentId)
     }
 }

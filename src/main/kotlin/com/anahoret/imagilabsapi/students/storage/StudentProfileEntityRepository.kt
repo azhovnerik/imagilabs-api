@@ -31,4 +31,7 @@ interface StudentProfileEntityRepository : CrudRepository<StudentProfileEntity, 
     fun findByCredentials(username: String, password: String, classroomAccessCode: String): StudentProfileEntity?
     fun deleteByIdIn(studentIds: Collection<UUID>)
     fun countByClassroomId(classroomId: UUID): Long
+
+    @Query("SELECT COALESCE(s.aiChatOnboardingCompleted, FALSE) FROM StudentProfileEntity s WHERE s.id = :studentId")
+    fun isAiChatOnboardingCompleted(studentId: UUID): Boolean
 }
