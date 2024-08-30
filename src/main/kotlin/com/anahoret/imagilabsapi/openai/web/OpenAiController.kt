@@ -37,11 +37,11 @@ class OpenAiController(
         const val ON_ERROR_PROCEED_PATH = "/api/open-ai/assistance/on-error/proceed"
         const val FEEDBACK_PATH = "/api/open-ai/assistance/feedback/{assistanceId}"
         const val TIP_TOKENS_PATH = "/api/open-ai/tip-tokens"
-        const val ONBOARDING = "/api/open-ai/onboarding"
-        const val CONFIG = "/api/open-ai/assistance/config"
+        const val ONBOARDING_PATH = "/api/open-ai/onboarding"
+        const val CONFIG_PATH = "/api/open-ai/assistance/config"
     }
 
-    @GetMapping(CONFIG)
+    @GetMapping(CONFIG_PATH)
     fun getConfig(@AuthenticationPrincipal userProfile: UserProfile): ResponseEntity<ResponseDto<OpenAiConfig>> {
         val aiConfig = getOpenAiConfigUseCase.get(userProfile)
         return ResponseEntity.ok(SuccessResponseDto(aiConfig))
@@ -108,7 +108,7 @@ class OpenAiController(
         }
     }
 
-    @PatchMapping(ONBOARDING)
+    @PatchMapping(ONBOARDING_PATH)
     fun completeOnboarding(@AuthenticationPrincipal userProfile: UserProfile): ResponseEntity<ResponseDto<Void>> {
         return when (val result = completeOnboardingUseCase.completeOnboarding(userProfile)) {
             is Either.Left -> mapErrors(result.value)
