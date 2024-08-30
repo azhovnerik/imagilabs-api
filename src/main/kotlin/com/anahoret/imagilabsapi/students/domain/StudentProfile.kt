@@ -1,18 +1,20 @@
 package com.anahoret.imagilabsapi.students.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.openai.domain.OpenAiUser
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import com.anahoret.imagilabsapi.users.UserType
 import java.util.*
 
+@Suppress("unused")
 class StudentProfile(
     override val id: UUID,
     val name: String,
     val username: String,
     val createdAt: Long,
     val classroomId: UUID,
-    val aiChatOnboardingCompleted: Boolean
-) : UserProfile {
+    override val aiChatOnboardingCompleted: Boolean
+) : UserProfile, OpenAiUser {
 
     override val userType = UserType.STUDENT
     override val fullName = name

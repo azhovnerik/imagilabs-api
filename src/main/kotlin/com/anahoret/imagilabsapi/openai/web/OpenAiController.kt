@@ -8,6 +8,7 @@ import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.openai.domain.AssistanceResponse
 import com.anahoret.imagilabsapi.openai.domain.LeaveFeedbackRequest
+import com.anahoret.imagilabsapi.openai.domain.OpenAiConfig
 import com.anahoret.imagilabsapi.openai.domain.TipTokensResponse
 import com.anahoret.imagilabsapi.openai.domain.usecases.*
 import com.anahoret.imagilabsapi.security.UserRole
@@ -26,7 +27,8 @@ class OpenAiController(
     private val proceedOpenAiAssistanceOnErrorUseCase: ProceedOpenAiAssistanceOnErrorUseCase,
     private val getTipTokensUseCase: GetTipTokensUseCase,
     private val spendTipTokensUseCase: SpendTipTokensUseCase,
-    private val completeOnboardingUseCase: CompleteOnboardingUseCase
+    private val completeOnboardingUseCase: CompleteOnboardingUseCase,
+    private val getOpenAiConfigUseCase: GetOpenAiConfigUseCase
 ) {
 
     companion object {
@@ -36,6 +38,13 @@ class OpenAiController(
         const val FEEDBACK_PATH = "/api/open-ai/assistance/feedback/{assistanceId}"
         const val TIP_TOKENS_PATH = "/api/open-ai/tip-tokens"
         const val ONBOARDING = "/api/open-ai/onboarding"
+        const val CONFIG = "/api/open-ai/assistance/config"
+    }
+
+    @GetMapping(CONFIG)
+    fun getConfig(@AuthenticationPrincipal userProfile: UserProfile): ResponseEntity<ResponseDto<OpenAiConfig>> {
+        val aiConfig = getOpenAiConfigUseCase.get(userProfile)
+        return ResponseEntity.ok(SuccessResponseDto(aiConfig))
     }
 
     @PostMapping(ON_SUCCESS_PATH)
