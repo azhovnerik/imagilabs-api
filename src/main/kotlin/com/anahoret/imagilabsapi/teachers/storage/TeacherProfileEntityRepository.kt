@@ -3,7 +3,6 @@ package com.anahoret.imagilabsapi.teachers.storage
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.PagingAndSortingRepository
 import java.util.*
 
 interface TeacherProfileEntityRepository : JpaRepository<TeacherProfileEntity, UUID> {
@@ -23,4 +22,7 @@ interface TeacherProfileEntityRepository : JpaRepository<TeacherProfileEntity, U
     fun findAllByIdNotIn(exclude: List<UUID>, sort: Sort): List<TeacherProfileEntity>
 
     fun findAllBySubscriptionStartIsNotNullAndSubscriptionEndBetween(leftRange: Long, rightRange: Long): List<TeacherProfileEntity>
+
+    @Query("SELECT COALESCE(t.aiChatOnboardingCompleted, FALSE) FROM TeacherProfileEntity t WHERE t.id = :teacherId")
+    fun isAiChatOnboardingCompleted(teacherId: UUID): Boolean
 }

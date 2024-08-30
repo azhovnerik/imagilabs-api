@@ -3,6 +3,10 @@ package com.anahoret.imagilabsapi.openai.domain
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.SYSTEM_PROMPT
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.USER_PROMPT
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceContent
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
+import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import org.springframework.ai.chat.ChatClient
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
@@ -24,11 +28,16 @@ interface OpenAiService {
         input: String,
         content: List<OpenAiAssistanceContent>
     ): String
+
+    fun isAiChatOnboardingCompleted(teacherProfile: TeacherProfile): Boolean
+    fun isAiChatOnboardingCompleted(studentProfile: StudentProfile): Boolean
 }
 
 @Service
 class OpenAiServiceImpl(
-    private val chatClient: ChatClient
+    private val chatClient: ChatClient,
+    private val studentProfileService: StudentProfileService,
+    private val teacherProfileService: TeacherProfileService
 ) : OpenAiService {
 
     override fun startAssistance(
@@ -52,6 +61,14 @@ class OpenAiServiceImpl(
             .flatMap { listOf(UserMessage(it.userQuestion), AssistantMessage(it.aiResponse)) }
         val messages = initialMessage + latestMessages + UserMessage(input)
         return chatClient.call(Prompt(messages)).results[0].output.content
+    }
+
+    override fun isAiChatOnboardingCompleted(teacherProfile: TeacherProfile): Boolean {
+        return teacherProfileService.isAiChatOnboardingCompleted(teacherProfile.id)
+    }
+
+    override fun isAiChatOnboardingCompleted(studentProfile: StudentProfile): Boolean {
+        return studentProfileService.isAiChatOnboardingCompleted(studentProfile.id)
     }
 
     private fun getInitialMessages(userCode: String, userInput: String): List<Message> {

@@ -28,6 +28,7 @@ interface TeacherProfileService {
     fun getTeachersWithExpiredSubscriptionBetween(leftRange: Long, rightRnage: Long): List<TeacherProfile>
     fun delete(teacherId: UUID)
     fun completeChatOnboarding(teacherId: UUID): TeacherProfile?
+    fun isAiChatOnboardingCompleted(teacherId: UUID): Boolean
 }
 
 @Service
@@ -170,5 +171,9 @@ class TeacherProfileServiceImpl(
             it.aiChatOnboardingCompleted = true
             teacherProfileEntityRepository.save(it)
         }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it)) }
+    }
+
+    override fun isAiChatOnboardingCompleted(teacherId: UUID): Boolean {
+        return teacherProfileEntityRepository.isAiChatOnboardingCompleted(teacherId)
     }
 }
