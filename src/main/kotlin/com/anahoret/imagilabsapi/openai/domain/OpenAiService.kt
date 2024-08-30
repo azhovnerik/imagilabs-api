@@ -38,7 +38,6 @@ class OpenAiServiceImpl(
         chatOptions: OpenAiChatOptions
     ): String {
         val prompt = Prompt(getInitialMessages(userDirective), chatOptions)
-//        println(prompt)
         return chatClient.call(prompt).results[0].output.content
     }
 
@@ -53,7 +52,6 @@ class OpenAiServiceImpl(
             .flatMap { listOf(UserMessage(it.userQuestion), AssistantMessage(it.aiResponse)) }
         val messages = initialMessage + latestMessages + UserMessage(input)
         val prompt = Prompt(messages)
-//        println(prompt)
         return chatClient.call(prompt).results[0].output.content
     }
 
