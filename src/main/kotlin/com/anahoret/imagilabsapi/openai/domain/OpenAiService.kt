@@ -4,6 +4,7 @@ import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.EX1_ASSIS
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.EX1_USER_MESSAGE
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.EX2_ASSISTANT_MESSAGE
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.EX2_USER_MESSAGE
+import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.NEW_PROJECT_DIRECTIVE
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.SYSTEM_PROMPT
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceContent
 import org.springframework.ai.chat.ChatClient
@@ -37,6 +38,7 @@ class OpenAiServiceImpl(
         chatOptions: OpenAiChatOptions
     ): String {
         val prompt = Prompt(getInitialMessages(userDirective), chatOptions)
+//        println(prompt)
         return chatClient.call(prompt).results[0].output.content
     }
 
@@ -50,7 +52,9 @@ class OpenAiServiceImpl(
         val latestMessages = content.drop(1)
             .flatMap { listOf(UserMessage(it.userQuestion), AssistantMessage(it.aiResponse)) }
         val messages = initialMessage + latestMessages + UserMessage(input)
-        return chatClient.call(Prompt(messages)).results[0].output.content
+        val prompt = Prompt(messages)
+//        println(prompt)
+        return chatClient.call(prompt).results[0].output.content
     }
 
     private fun getInitialMessages(userInput: String): List<Message> {
@@ -59,7 +63,7 @@ class OpenAiServiceImpl(
         val assistantMessageExample1 = AssistantMessage(EX1_ASSISTANT_MESSAGE)
         val userMessageExample2 = UserMessage(EX2_USER_MESSAGE)
         val assistantMessageExample2 = AssistantMessage(EX2_ASSISTANT_MESSAGE)
-        val userMessage = UserMessage(userInput)
+        val userMessage = UserMessage(NEW_PROJECT_DIRECTIVE + userInput)
         return listOf(systemMessage, userMessageExample1, assistantMessageExample1,
             userMessageExample2, assistantMessageExample2, userMessage)
     }

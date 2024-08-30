@@ -37,7 +37,7 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImpl(
         request: ProceedAssistanceRequest,
         userProfile: UserProfile
     ): AssistanceResponse {
-        val userQuestion = OpenAiPrompts.QUESTION_DIRECTIVE
+        val userQuestion = OpenAiPrompts.ERROR_QUESTION_DIRECTIVE
             .replace("{user_input}", request.input)
             .replace("{user_code}", request.userCode)
         val allAssistance = openAiAssistanceService.getAllBySessionId(request.sessionId)
