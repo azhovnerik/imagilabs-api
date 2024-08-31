@@ -1,11 +1,12 @@
 package com.anahoret.imagilabsapi.openai.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
-import com.anahoret.imagilabsapi.projects.domain.Project
-import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
+import java.time.Clock
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 interface OpenAiAccessService {
     fun canGetAssistanceForProject(userProfile: UserProfile): Boolean
@@ -41,10 +42,22 @@ class EnvironmentPermissionServiceStaging : EnvironmentPermissionService {
 
 @Profile("prod")
 @Service
-class EnvironmentPermissionServiceProduction : EnvironmentPermissionService {
+class EnvironmentPermissionServiceProduction(
+    private val clock: Clock
+) : EnvironmentPermissionService {
+    private val availableToAllDate = ZonedDateTime.of(2024, 9, 16, 0, 0, 0, 0, ZoneId.of("UTC-7"))
+        .toInstant().toEpochMilli()
+
     override fun canGetAssistanceForProject(userProfile: UserProfile): Boolean {
-        return userProfile is TeacherProfile &&
-                (userProfile.email.endsWith("@imagilabs.com") || userProfile.email.endsWith("@anadeainc.com") || userProfile.email in specificEmails)
+        val now = clock.millis()
+        return now >= availableToAllDate ||
+                userProfile is TeacherProfile && emailIsInWhitelist(userProfile)
+    }
+
+    private fun emailIsInWhitelist(teacherProfile: TeacherProfile): Boolean {
+        return teacherProfile.email.endsWith("@imagilabs.com") ||
+                teacherProfile.email.endsWith("@anadeainc.com") ||
+                teacherProfile.email in specificEmails
     }
 
     companion object {
