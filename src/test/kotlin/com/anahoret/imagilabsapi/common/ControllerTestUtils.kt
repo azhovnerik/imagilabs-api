@@ -32,7 +32,6 @@ fun testTeacher(): TeacherProfile {
         emailVerified = true,
         marketingEmailSubscribed = false,
         subscription = TeacherSubscription(null, null, STANDARD, false),
-        aiChatOnboardingCompleted = false,
     )
 }
 
@@ -47,7 +46,6 @@ fun testStudent(classroomId: UUID = UUID.randomUUID()): StudentProfile {
         "mrtinos",
         createdAt = 0L,
         classroomId,
-        aiChatOnboardingCompleted = false,
     )
 }
 
