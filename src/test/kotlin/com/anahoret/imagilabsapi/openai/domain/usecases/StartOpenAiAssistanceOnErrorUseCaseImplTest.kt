@@ -66,14 +66,30 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
     @Test
     fun `should generate second directive with error`() {
         val assistanceId = UUID.randomUUID()
-        val userQuestion =
-            "I am receiving this error: Error message ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
+        val userDirective = """My code is:
+            |User code
+            |
+            |I am receiving this error message: Error message
+            |
+            |Help me fix the error in my code in two steps.
+            |First, explain the error, why it occurs, and give me a hint for how to fix it.        
+            |Second, give me the corrected code.
+            |
+            |Respond according to the schema:
+            |{
+            |"ExplanationAndHint": "Error explanation and hint for how to fix it",
+            |"CorrectCode": "Only the code that fixes the error"
+            |}
+            |
+            |Ensure that the response strictly follows this structure
+            |Respond in a JSON format
+            |
+            |For all subsequent messages, respond with standard error-fixing guidance or code improvements without adhering to the JSON schema.""".trimMargin()
         every {
             openAiService.startAssistance(
-                "User code",
-                userQuestion,
+                userDirective,
                 chatOptions
             )
         } returns "Your code is incorrect!"
@@ -81,28 +97,44 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         every {
             openAiAssistanceService.save(
                 userProfile,
-                userQuestion,
+                userDirective,
                 "Your code is incorrect!",
                 request
             )
         } returns OpenAiAssistance(assistanceId, userId, UserType.STUDENT)
         every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit
         getOpenAiAssistanceOnErrorUseCase.getAssistance(request, userProfile).fold(
-            { fail() }, { verify { openAiService.startAssistance("User code", userQuestion, chatOptions) } }
+            { fail() }, { verify { openAiService.startAssistance(userDirective, chatOptions) } }
         )
     }
 
     @Test
     fun `should return content`() {
         val assistanceId = UUID.randomUUID()
-        val userQuestion =
-            "I am receiving this error: Error message ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
+        val userDirective = """My code is:
+            |User code
+            |
+            |I am receiving this error message: Error message
+            |
+            |Help me fix the error in my code in two steps.
+            |First, explain the error, why it occurs, and give me a hint for how to fix it.        
+            |Second, give me the corrected code.
+            |
+            |Respond according to the schema:
+            |{
+            |"ExplanationAndHint": "Error explanation and hint for how to fix it",
+            |"CorrectCode": "Only the code that fixes the error"
+            |}
+            |
+            |Ensure that the response strictly follows this structure
+            |Respond in a JSON format
+            |
+            |For all subsequent messages, respond with standard error-fixing guidance or code improvements without adhering to the JSON schema.""".trimMargin()
         every {
             openAiService.startAssistance(
-                "User code",
-                userQuestion,
+                userDirective,
                 chatOptions
             )
         } returns "Your code is incorrect!"
@@ -110,7 +142,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         every {
             openAiAssistanceService.save(
                 userProfile,
-                userQuestion,
+                userDirective,
                 "Your code is incorrect!",
                 request
             )
@@ -129,14 +161,30 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
     @Test
     fun `should withdraw tip token`() {
         val assistanceId = UUID.randomUUID()
-        val userQuestion =
-            "I am receiving this error: Error message ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
+        val userDirective = """My code is:
+            |User code
+            |
+            |I am receiving this error message: Error message
+            |
+            |Help me fix the error in my code in two steps.
+            |First, explain the error, why it occurs, and give me a hint for how to fix it.        
+            |Second, give me the corrected code.
+            |
+            |Respond according to the schema:
+            |{
+            |"ExplanationAndHint": "Error explanation and hint for how to fix it",
+            |"CorrectCode": "Only the code that fixes the error"
+            |}
+            |
+            |Ensure that the response strictly follows this structure
+            |Respond in a JSON format
+            |
+            |For all subsequent messages, respond with standard error-fixing guidance or code improvements without adhering to the JSON schema.""".trimMargin()
         every {
             openAiService.startAssistance(
-                "User code",
-                userQuestion,
+                userDirective,
                 chatOptions
             )
         } returns "Your code is incorrect!"
@@ -144,7 +192,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         every {
             openAiAssistanceService.save(
                 userProfile,
-                userQuestion,
+                userDirective,
                 "Your code is incorrect!",
                 request
             )
