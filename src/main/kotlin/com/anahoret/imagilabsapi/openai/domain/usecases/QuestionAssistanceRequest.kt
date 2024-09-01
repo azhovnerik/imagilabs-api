@@ -21,5 +21,6 @@ class ErrorAssistanceRequest(
 
 class ProceedAssistanceRequest(
     override val sessionId: UUID,
+    override val userCode: String,
     val input: String
-) : AssistanceRequest(sessionId, "")
+) : AssistanceRequest(sessionId, userCode)

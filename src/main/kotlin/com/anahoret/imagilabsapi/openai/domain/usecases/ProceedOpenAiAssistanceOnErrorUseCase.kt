@@ -4,11 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
-import com.anahoret.imagilabsapi.openai.domain.AssistanceResponse
-import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
-import com.anahoret.imagilabsapi.openai.domain.OpenAiService
-import com.anahoret.imagilabsapi.openai.domain.TipTokensService
-import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceContent
+import com.anahoret.imagilabsapi.openai.domain.*
 import org.springframework.stereotype.Service
 
 interface ProceedOpenAiAssistanceOnErrorUseCase {
@@ -40,9 +36,10 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImpl(
         request: ProceedAssistanceRequest,
         userProfile: UserProfile
     ): AssistanceResponse {
+        val userQuestion = OpenAiPrompts.errorQuestionDirective(request.userCode, request.input)
         val allAssistance = openAiAssistanceService.getAllBySessionId(request.sessionId)
-        val aiResponse = openAiService.proceedAssistanceOnError(request.input, allAssistance)
-        val openAiAssistance = openAiAssistanceService.save(userProfile, request.input, aiResponse, request)
+        val aiResponse = openAiService.proceedAssistanceOnError(userQuestion, allAssistance)
+        val openAiAssistance = openAiAssistanceService.save(userProfile, userQuestion, aiResponse, request)
         tipTokensService.withdrawOneTipToken(userProfile)
         return AssistanceResponse(openAiAssistance.id, aiResponse)
     }
