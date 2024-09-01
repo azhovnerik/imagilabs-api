@@ -29,7 +29,7 @@ class TeacherProfileEntityRepositoryTest {
 
     private fun setupTeacher() {
         teacherProfileEntity = teacherProfileEntityRepository.save(
-            TeacherProfileEntity("teacher1@mail.com", "", "Teacher", "Edu", "Sweden", "imagi", "other", "", true, 3)
+            TeacherProfileEntity("teacher1@mail.com", "", "Teacher", "Edu", "Sweden", "imagi", "other", "", true, 3, 0)
         )
         teacherId = teacherProfileEntity.id!!
     }

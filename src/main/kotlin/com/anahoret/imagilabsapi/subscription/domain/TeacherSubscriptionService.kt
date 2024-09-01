@@ -36,10 +36,10 @@ class TeacherSubscriptionServiceImpl(
     override fun buildSubscriptionDto(teacherSubscriptionData: TeacherSubscriptionData): TeacherSubscription {
         with(teacherSubscriptionData) {
             val now = clock.instant().toEpochMilli()
-            return if (subscriptionStart == null || subscriptionEnd == null || now > subscriptionEnd!! || now < subscriptionStart!!) {
-                TeacherSubscription(subscriptionStart, subscriptionEnd, TeacherSubscriptionPlan.STANDARD, subscriptionCanceled)
-            } else {
+            return if (hasProSubscription(now)) {
                 TeacherSubscription(subscriptionStart, subscriptionEnd, TeacherSubscriptionPlan.PRO, subscriptionCanceled)
+            } else {
+                TeacherSubscription(subscriptionStart, subscriptionEnd, TeacherSubscriptionPlan.STANDARD, subscriptionCanceled)
             }
         }
     }

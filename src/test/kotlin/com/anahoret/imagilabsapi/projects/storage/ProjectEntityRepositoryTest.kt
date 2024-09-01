@@ -91,7 +91,7 @@ class ProjectEntityRepositoryTest {
 
         private fun setupOwnerProjects() {
             val owner = teacherProfileEntityRepository.save(
-                TeacherProfileEntity("owner", "", "", "", "", "", "", "", true, 3)
+                TeacherProfileEntity("owner", "", "", "", "", "", "", "", true, 3, 0)
             )
             ownerId = owner.id!!
             val ownerProjects = projectEntityRepository.saveAll((1..5).map { index ->
@@ -102,7 +102,7 @@ class ProjectEntityRepositoryTest {
 
         private fun setupNonOwnerProjects() {
             val nonOwner = teacherProfileEntityRepository.save(
-                TeacherProfileEntity("nonowner", "", "", "", "", "", "", "", true, 3)
+                TeacherProfileEntity("nonowner", "", "", "", "", "", "", "", true, 3, 0)
             )
             nonOwnerId = nonOwner.id!!
             val nonOwnerProjects = projectEntityRepository.saveAll((1..3).map { index ->

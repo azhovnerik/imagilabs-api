@@ -78,7 +78,8 @@ class TeacherStatisticRepositoryTest {
                 howDidYouHearAboutUsOther = null,
                 marketingEmailSubscribed = true,
                 emailVerified = true,
-                tipTokens = 3
+                tipTokens = 3,
+                tipTokensReplenishedAt = 0
             )
         ).id!!
     }
@@ -108,7 +109,8 @@ class TeacherStatisticRepositoryTest {
                 howDidYouHearAboutUsOther = null,
                 marketingEmailSubscribed = true,
                 emailVerified = true,
-                tipTokens = 3
+                tipTokens = 3,
+                tipTokensReplenishedAt = 0
             )
         ).id!!
 
@@ -131,14 +133,16 @@ class TeacherStatisticRepositoryTest {
                     username = "student 1",
                     password = "",
                     classroomId = classroomId,
-                    tipTokens = 1
+                    tipTokens = 1,
+                    tipTokensReplenishedAt = 0
                 ),
                 StudentProfileEntity(
                     name = testStudent.name,
                     username = "student 2",
                     password = "",
                     classroomId = classroomId,
-                    tipTokens = 1
+                    tipTokens = 1,
+                    tipTokensReplenishedAt = 0
                 )
             )
         ).map { it.id!! }
