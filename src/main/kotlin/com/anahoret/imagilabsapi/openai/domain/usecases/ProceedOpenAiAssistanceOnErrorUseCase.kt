@@ -5,7 +5,6 @@ import arrow.core.flatMap
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.openai.domain.*
-import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceContent
 import org.springframework.stereotype.Service
 
 interface ProceedOpenAiAssistanceOnErrorUseCase {
@@ -37,9 +36,7 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImpl(
         request: ProceedAssistanceRequest,
         userProfile: UserProfile
     ): AssistanceResponse {
-        val userQuestion = OpenAiPrompts.ERROR_QUESTION_DIRECTIVE
-            .replace("{user_input}", request.input)
-            .replace("{user_code}", request.userCode)
+        val userQuestion = OpenAiPrompts.errorQuestionDirective(request.userCode, request.input)
         val allAssistance = openAiAssistanceService.getAllBySessionId(request.sessionId)
         val aiResponse = openAiService.proceedAssistanceOnError(userQuestion, allAssistance)
         val openAiAssistance = openAiAssistanceService.save(userProfile, userQuestion, aiResponse, request)

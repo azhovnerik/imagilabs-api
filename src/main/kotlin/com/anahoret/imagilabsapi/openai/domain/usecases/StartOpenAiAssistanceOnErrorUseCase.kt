@@ -39,9 +39,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImpl(
         userProfile: UserProfile
     ): AssistanceResponse {
         val userQuestion =
-            OpenAiPrompts.ERROR_FIRST_DIRECTIVE
-                .replace("{error_message}", request.errorMessage)
-                .replace("{user_code}", request.userCode)
+            OpenAiPrompts.errorFirstDirective(request.userCode, request.errorMessage)
         val chatOptions: OpenAiChatOptions = OpenAiChatOptions()
             .apply { responseFormat = OpenAiApi.ChatCompletionRequest.ResponseFormat("json_object") }
         val aiResponse = openAiService.startAssistance(userQuestion, chatOptions)
