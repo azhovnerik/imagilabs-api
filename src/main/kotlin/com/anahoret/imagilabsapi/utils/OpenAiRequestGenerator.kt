@@ -24,8 +24,9 @@ object OpenAiRequestGenerator {
 
     fun createProceedAssistanceRequest(
         sessionId: UUID = UUID.randomUUID(),
+        userCode: String = "User code",
         userInput: String = "User input"
     ): ProceedAssistanceRequest {
-        return ProceedAssistanceRequest(sessionId, userInput)
+        return ProceedAssistanceRequest(sessionId, userCode, userInput)
     }
 }

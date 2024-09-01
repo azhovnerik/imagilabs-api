@@ -57,7 +57,7 @@ class OpenAiRequestValidatorImplTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "  "])
     fun `should return error when user input is blank`(input: String) {
-        val request = ProceedAssistanceRequest(sessionId, input)
+        val request = ProceedAssistanceRequest(sessionId, "", input)
         openAiRequestValidator.validate(request, user).fold(
             {
                 assertAll(
@@ -132,7 +132,7 @@ class OpenAiRequestValidatorImplTest {
     @Test
     fun `should return error when user input length is longer than 300 characters and request is ProceedAssistanceRequest`() {
         val inputLongerThan300Chars = RandomStringUtils.random(301)
-        val request = ProceedAssistanceRequest(sessionId, inputLongerThan300Chars)
+        val request = ProceedAssistanceRequest(sessionId, "", inputLongerThan300Chars)
         openAiRequestValidator.validate(request, user).fold(
             {
                 assertAll(
@@ -147,14 +147,14 @@ class OpenAiRequestValidatorImplTest {
     @Test
     fun `should return Unit when user input length is  300 characters and request is ProceedAssistanceRequest`() {
         val inputWithLength300Chars = RandomStringUtils.random(300)
-        val request = ProceedAssistanceRequest(sessionId, inputWithLength300Chars)
+        val request = ProceedAssistanceRequest(sessionId, "", inputWithLength300Chars)
         openAiRequestValidator.validate(request, user).fold({ fail() }, { assertEquals(Unit, it) })
     }
 
     @Test
     fun `should return Unit when user input is less than 300 and request is ProceedAssistanceRequest`() {
         val inputLessThan300Chars = RandomStringUtils.random(5)
-        val request = ProceedAssistanceRequest(sessionId, inputLessThan300Chars)
+        val request = ProceedAssistanceRequest(sessionId, "", inputLessThan300Chars)
         openAiRequestValidator.validate(request, user).fold({ fail() }, { assertEquals(Unit, it) })
     }
 }
