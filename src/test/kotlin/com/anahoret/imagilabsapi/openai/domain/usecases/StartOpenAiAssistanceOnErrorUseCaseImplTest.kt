@@ -68,13 +68,12 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         val userQuestion =
             "I am receiving this error: Error message ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
-        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} $userQuestion"
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
         every {
             openAiService.startAssistance(
                 "User code",
-                secondDirectiveWithError,
+                userQuestion,
                 chatOptions
             )
         } returns "Your code is incorrect!"
@@ -89,7 +88,7 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         } returns OpenAiAssistance(assistanceId, userId, UserType.STUDENT)
         every { tipTokensService.withdrawOneTipToken(userProfile) } returns Unit
         getOpenAiAssistanceOnErrorUseCase.getAssistance(request, userProfile).fold(
-            { fail() }, { verify { openAiService.startAssistance("User code", secondDirectiveWithError, chatOptions) } }
+            { fail() }, { verify { openAiService.startAssistance("User code", userQuestion, chatOptions) } }
         )
     }
 
@@ -98,13 +97,12 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         val userQuestion =
             "I am receiving this error: Error message ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
-        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} $userQuestion"
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
         every {
             openAiService.startAssistance(
                 "User code",
-                secondDirectiveWithError,
+                userQuestion,
                 chatOptions
             )
         } returns "Your code is incorrect!"
@@ -133,13 +131,12 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         val userQuestion =
             "I am receiving this error: Error message ${OpenAiPrompts.ERROR_FIRST_ANSWER_DIRECTIVE}"
-        val secondDirectiveWithError = "${OpenAiPrompts.SECOND_DIRECTIVE} $userQuestion"
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
         every {
             openAiService.startAssistance(
                 "User code",
-                secondDirectiveWithError,
+                userQuestion,
                 chatOptions
             )
         } returns "Your code is incorrect!"

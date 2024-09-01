@@ -7,6 +7,10 @@ import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.EX2_USER_
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.NEW_PROJECT_DIRECTIVE
 import com.anahoret.imagilabsapi.openai.domain.OpenAiPrompts.Companion.SYSTEM_PROMPT
 import com.anahoret.imagilabsapi.openai.storage.OpenAiAssistanceContent
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
+import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import org.springframework.ai.chat.ChatClient
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
@@ -26,11 +30,16 @@ interface OpenAiService {
         input: String,
         content: List<OpenAiAssistanceContent>
     ): String
+
+    fun isAiChatOnboardingCompleted(teacherProfile: TeacherProfile): Boolean
+    fun isAiChatOnboardingCompleted(studentProfile: StudentProfile): Boolean
 }
 
 @Service
 class OpenAiServiceImpl(
-    private val chatClient: ChatClient
+    private val chatClient: ChatClient,
+    private val studentProfileService: StudentProfileService,
+    private val teacherProfileService: TeacherProfileService
 ) : OpenAiService {
 
     override fun startAssistance(
@@ -53,6 +62,14 @@ class OpenAiServiceImpl(
         val messages = initialMessage + latestMessages + UserMessage(input)
         val prompt = Prompt(messages)
         return chatClient.call(prompt).results[0].output.content
+    }
+
+    override fun isAiChatOnboardingCompleted(teacherProfile: TeacherProfile): Boolean {
+        return teacherProfileService.isAiChatOnboardingCompleted(teacherProfile.id)
+    }
+
+    override fun isAiChatOnboardingCompleted(studentProfile: StudentProfile): Boolean {
+        return studentProfileService.isAiChatOnboardingCompleted(studentProfile.id)
     }
 
     private fun getInitialMessages(userInput: String): List<Message> {
