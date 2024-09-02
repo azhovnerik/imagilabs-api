@@ -37,7 +37,6 @@ class GetOpenAiAssistanceOnSuccessUseCaseImpl(
         userProfile: UserProfile
     ): AssistanceResponse {
         val userQuestion = OpenAiPrompts.questionDirective(request.userCode, request.userQuestion)
-        println("#$userQuestion#")
         val aiResponse = openAiService.startAssistance(userQuestion)
         val openAiAssistance = openAiAssistanceService.save(userProfile, userQuestion, aiResponse, request)
         tipTokensService.withdrawOneTipToken(userProfile)
