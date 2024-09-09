@@ -5,7 +5,10 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
-import com.anahoret.imagilabsapi.openai.domain.*
+import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistance
+import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
+import com.anahoret.imagilabsapi.openai.domain.OpenAiService
+import com.anahoret.imagilabsapi.openai.domain.TipTokensService
 import com.anahoret.imagilabsapi.users.UserType
 import io.mockk.every
 import io.mockk.mockk
@@ -68,7 +71,9 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
-        val userDirective = """My code is:
+        val userDirective = """
+            |
+            |My code is:
             |User code
             |
             |I am receiving this error message: Error message
@@ -86,7 +91,8 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
             |Ensure that the response strictly follows this structure
             |Respond in a JSON format
             |
-            |For all subsequent messages, respond with standard error-fixing guidance or code improvements without adhering to the JSON schema.""".trimMargin()
+            |For all subsequent messages, respond with standard error-fixing guidance or code improvements without adhering to the JSON schema.
+            |""".trimMargin()
         every {
             openAiService.startAssistance(
                 userDirective,
@@ -113,7 +119,9 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
-        val userDirective = """My code is:
+        val userDirective = """
+            |
+            |My code is:
             |User code
             |
             |I am receiving this error message: Error message
@@ -131,7 +139,8 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
             |Ensure that the response strictly follows this structure
             |Respond in a JSON format
             |
-            |For all subsequent messages, respond with standard error-fixing guidance or code improvements without adhering to the JSON schema.""".trimMargin()
+            |For all subsequent messages, respond with standard error-fixing guidance or code improvements without adhering to the JSON schema.
+            |""".trimMargin()
         every {
             openAiService.startAssistance(
                 userDirective,
@@ -163,7 +172,9 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
         val assistanceId = UUID.randomUUID()
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns Unit.right()
-        val userDirective = """My code is:
+        val userDirective = """
+            |
+            |My code is:
             |User code
             |
             |I am receiving this error message: Error message
@@ -181,7 +192,8 @@ class StartOpenAiAssistanceOnErrorUseCaseImplTest {
             |Ensure that the response strictly follows this structure
             |Respond in a JSON format
             |
-            |For all subsequent messages, respond with standard error-fixing guidance or code improvements without adhering to the JSON schema.""".trimMargin()
+            |For all subsequent messages, respond with standard error-fixing guidance or code improvements without adhering to the JSON schema.
+            |""".trimMargin()
         every {
             openAiService.startAssistance(
                 userDirective,
