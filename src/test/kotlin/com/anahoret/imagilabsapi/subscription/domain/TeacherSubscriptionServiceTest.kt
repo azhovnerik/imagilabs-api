@@ -27,7 +27,9 @@ class TeacherSubscriptionServiceTest {
         classroomService
     )
 
-    private val teacherProfileEntity = mockk<TeacherSubscriptionData>()
+
+    abstract class AbstractTeacherSubscriptionData : TeacherSubscriptionData
+    private val teacherProfileEntity = mockk<AbstractTeacherSubscriptionData>()
 
     @DisplayName("when build subscription DTO")
     @Nested
@@ -35,10 +37,12 @@ class TeacherSubscriptionServiceTest {
 
         @Test
         fun `should return standard plan if start date is null`() {
-            every { clock.instant() } returns Instant.ofEpochMilli(0)
+            val now = Instant.ofEpochMilli(0)
+            every { clock.instant() } returns now
             every { teacherProfileEntity.subscriptionStart } returns null
             every { teacherProfileEntity.subscriptionEnd } returns 100
             every { teacherProfileEntity.subscriptionCanceled } returns false
+            every { teacherProfileEntity.hasProSubscription(now.toEpochMilli()) } answers { callOriginal() }
 
             val result = teacherSubscriptionService.buildSubscriptionDto(teacherProfileEntity)
             assertEquals(TeacherSubscriptionPlan.STANDARD, result.plan)
@@ -46,10 +50,12 @@ class TeacherSubscriptionServiceTest {
 
         @Test
         fun `should return standard plan if end date is null`() {
-            every { clock.instant() } returns Instant.ofEpochMilli(0)
+            val now = Instant.ofEpochMilli(0)
+            every { clock.instant() } returns now
             every { teacherProfileEntity.subscriptionStart } returns 100
             every { teacherProfileEntity.subscriptionEnd } returns null
             every { teacherProfileEntity.subscriptionCanceled } returns false
+            every { teacherProfileEntity.hasProSubscription(now.toEpochMilli()) } answers { callOriginal() }
 
             val result = teacherSubscriptionService.buildSubscriptionDto(teacherProfileEntity)
             assertEquals(TeacherSubscriptionPlan.STANDARD, result.plan)
@@ -57,10 +63,12 @@ class TeacherSubscriptionServiceTest {
 
         @Test
         fun `should return standard plan if current time is before start time`() {
-            every { clock.instant() } returns Instant.ofEpochMilli(0)
+            val now = Instant.ofEpochMilli(0)
+            every { clock.instant() } returns now
             every { teacherProfileEntity.subscriptionStart } returns 100
             every { teacherProfileEntity.subscriptionEnd } returns 200
             every { teacherProfileEntity.subscriptionCanceled } returns false
+            every { teacherProfileEntity.hasProSubscription(now.toEpochMilli()) } answers { callOriginal() }
 
             val result = teacherSubscriptionService.buildSubscriptionDto(teacherProfileEntity)
             assertEquals(TeacherSubscriptionPlan.STANDARD, result.plan)
@@ -68,10 +76,12 @@ class TeacherSubscriptionServiceTest {
 
         @Test
         fun `should return standard plan if current time is after end time`() {
-            every { clock.instant() } returns Instant.ofEpochMilli(300)
+            val now = Instant.ofEpochMilli(300)
+            every { clock.instant() } returns now
             every { teacherProfileEntity.subscriptionStart } returns 100
             every { teacherProfileEntity.subscriptionEnd } returns 200
             every { teacherProfileEntity.subscriptionCanceled } returns false
+            every { teacherProfileEntity.hasProSubscription(now.toEpochMilli()) } answers { callOriginal() }
 
             val result = teacherSubscriptionService.buildSubscriptionDto(teacherProfileEntity)
             assertEquals(TeacherSubscriptionPlan.STANDARD, result.plan)
@@ -79,10 +89,12 @@ class TeacherSubscriptionServiceTest {
 
         @Test
         fun `should return pro plan if current time is between start and end`() {
-            every { clock.instant() } returns Instant.ofEpochMilli(150)
+            val now = Instant.ofEpochMilli(150)
+            every { clock.instant() } returns now
             every { teacherProfileEntity.subscriptionStart } returns 100
             every { teacherProfileEntity.subscriptionEnd } returns 200
             every { teacherProfileEntity.subscriptionCanceled } returns false
+            every { teacherProfileEntity.hasProSubscription(150) } answers { callOriginal() }
 
             val result = teacherSubscriptionService.buildSubscriptionDto(teacherProfileEntity)
             assertEquals(TeacherSubscriptionPlan.PRO, result.plan)

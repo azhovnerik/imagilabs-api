@@ -24,6 +24,9 @@ class StudentProfileEntity(
     @Column(name = "tip_tokens")
     var tipTokens: Int,
 
+    @Column(name = "tip_tokens_replenished_at")
+    var tipTokensReplenishedAt: Long,
+
     @Column(name = "ai_chat_onboarding_completed", nullable = false)
     var aiChatOnboardingCompleted: Boolean = false,
 ) : BaseEntity()

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.time.Clock
 import java.util.*
 
 interface StudentProfileService {
@@ -45,6 +46,7 @@ interface StudentProfileService {
 class StudentProfileServiceImpl(
     private val studentProfileEntityRepository: StudentProfileEntityRepository,
     private val classroomEntityRepository: ClassroomEntityRepository,
+    private val clock: Clock,
     @Value("\${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : StudentProfileService {
 
@@ -65,7 +67,7 @@ class StudentProfileServiceImpl(
             val username = createUniqueStudentUsername(it.name, existingUserNames)
             existingUserNames.add(username)
             val password = createStudentPassword()
-            StudentProfileEntity(it.name, username, password, classroomId, tipTokens)
+            StudentProfileEntity(it.name, username, password, classroomId, tipTokens, tipTokensReplenishedAt = clock.millis())
         }.let(studentProfileEntityRepository::saveAll)
             .map(StudentProfile.Companion::fromEntity)
     }

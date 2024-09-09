@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import java.time.Clock
 import java.util.*
 
 interface TeacherProfileService {
@@ -36,6 +37,7 @@ class TeacherProfileServiceImpl(
     private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
     private val passwordEncoder: PasswordEncoder,
     private val teacherSubscriptionService: TeacherSubscriptionService,
+    private val clock: Clock,
     @Value("\${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : TeacherProfileService {
 
@@ -52,7 +54,8 @@ class TeacherProfileServiceImpl(
                     howDidYouHearAboutUs,
                     howDidYouHearAboutUsOther,
                     marketingEmailSubscribed,
-                    tipTokens
+                    tipTokens,
+                    tipTokensReplenishedAt = clock.millis()
                 )
             ).let {
                 val subscription =

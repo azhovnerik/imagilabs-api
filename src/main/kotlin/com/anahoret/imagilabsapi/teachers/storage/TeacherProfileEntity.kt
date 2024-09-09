@@ -40,6 +40,9 @@ class TeacherProfileEntity(
     @Column(name = "tip_tokens")
     var tipTokens: Int,
 
+    @Column(name = "tip_tokens_replenished_at")
+    var tipTokensReplenishedAt: Long,
+
     @Column(name = "email_verification_code")
     var emailVerificationCode: String? = null,
 

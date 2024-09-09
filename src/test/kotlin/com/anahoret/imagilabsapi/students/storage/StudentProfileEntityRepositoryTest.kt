@@ -42,7 +42,7 @@ class StudentProfileEntityRepositoryTest {
 
     private fun setupTeacher() {
         teacherId = teacherProfileEntityRepository.save(
-            TeacherProfileEntity("teacher5@mail.com", "", "Eddard", "Stark", "", "", "", "", true, 3)
+            TeacherProfileEntity("teacher5@mail.com", "", "Eddard", "Stark", "", "", "", "", true, 3, 0)
         ).id!!
     }
 
@@ -53,8 +53,8 @@ class StudentProfileEntityRepositoryTest {
 
     private fun setupStudents() {
         val classroomStudents = listOf(
-            StudentProfileEntity("Rob Stark", "rstark", "rstark", classroomId, 2),
-            StudentProfileEntity("Sansa Stark", "sstark", "sstark", classroomId, 2),
+            StudentProfileEntity("Rob Stark", "rstark", "rstark", classroomId, 2, 0),
+            StudentProfileEntity("Sansa Stark", "sstark", "sstark", classroomId, 2, 0),
         ).let(studentProfileEntityRepository::saveAll)
         sansaId = classroomStudents.find { it.username == "sstark" }?.id!!
         brandonId = classroomStudents.find { it.username == "rstark" }?.id!!
