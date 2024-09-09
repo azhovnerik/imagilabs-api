@@ -1,9 +1,9 @@
 package com.anahoret.imagilabsapi.openai.domain.usecases
 
+import arrow.core.handleError
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
-import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessService
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
 import com.anahoret.imagilabsapi.projects.domain.Project
@@ -73,41 +73,25 @@ class OpenAiPreconditionCheckerImplTest {
     }
 
     @Test
-    fun `should return error when session id already exists for QuestionAssistanceRequest`() {
+    fun `should return success when session id already exists for QuestionAssistanceRequest`() {
         val project = mockk<Project>()
         val request = createQuestionAssistanceRequest(sessionId = testSessionId)
         every { projectService.getProjectById(testProjectId) } returns project
         every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns true
         every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns true
-        openAiPreconditionChecker.check(request, userProfile).fold(
-            {
-                assertAll(
-                    { assertTrue(it is ValidationError) },
-                    { assertEquals("SESSION_ID_ALREADY_EXISTS", (it as ValidationError).message) }
-                )
-            },
-            { fail() }
-        )
+        openAiPreconditionChecker.check(request, userProfile).handleError { fail() }
     }
 
     @Test
-    fun `should return error when session id already exists for ErrorAssistanceRequest`() {
+    fun `should return success when session id already exists for ErrorAssistanceRequest`() {
         val project = mockk<Project>()
         val request = createErrorAssistanceRequest(sessionId = testSessionId)
         every { projectService.getProjectById(testProjectId) } returns project
         every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns true
         every { openAiAccessService.hasTipTokens(userProfile) } returns true
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns true
-        openAiPreconditionChecker.check(request, userProfile).fold(
-            {
-                assertAll(
-                    { assertTrue(it is ValidationError) },
-                    { assertEquals("SESSION_ID_ALREADY_EXISTS", (it as ValidationError).message) }
-                )
-            },
-            { fail() }
-        )
+        openAiPreconditionChecker.check(request, userProfile).handleError { fail() }
     }
 
     @Test
