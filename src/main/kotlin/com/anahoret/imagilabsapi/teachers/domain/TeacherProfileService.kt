@@ -30,6 +30,8 @@ interface TeacherProfileService {
     fun delete(teacherId: UUID)
     fun completeChatOnboarding(teacherId: UUID): TeacherProfile?
     fun isAiChatOnboardingCompleted(teacherId: UUID): Boolean
+    fun setIntroSeen(teacherId: UUID): TeacherProfile?
+    fun isAiChatIntroSeen(teacherId: UUID): Boolean
 }
 
 @Service
@@ -176,7 +178,18 @@ class TeacherProfileServiceImpl(
         }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it)) }
     }
 
+    override fun setIntroSeen(teacherId: UUID): TeacherProfile? {
+        return teacherProfileEntityRepository.findByIdOrNull(teacherId)?.let {
+            it.aiChatIntroSeen = true
+            teacherProfileEntityRepository.save(it)
+        }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it)) }
+    }
+
     override fun isAiChatOnboardingCompleted(teacherId: UUID): Boolean {
         return teacherProfileEntityRepository.isAiChatOnboardingCompleted(teacherId)
+    }
+
+    override fun isAiChatIntroSeen(teacherId: UUID): Boolean {
+        return teacherProfileEntityRepository.isAiChatIntroSeen(teacherId)
     }
 }

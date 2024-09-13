@@ -12,6 +12,7 @@ import com.anahoret.imagilabsapi.openai.domain.OpenAiConfig
 import com.anahoret.imagilabsapi.openai.domain.TipTokensResponse
 import com.anahoret.imagilabsapi.openai.domain.usecases.*
 import com.anahoret.imagilabsapi.security.UserRole
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -28,7 +29,8 @@ class OpenAiController(
     private val getTipTokensUseCase: GetTipTokensUseCase,
     private val spendTipTokensUseCase: SpendTipTokensUseCase,
     private val completeOnboardingUseCase: CompleteOnboardingUseCase,
-    private val getOpenAiConfigUseCase: GetOpenAiConfigUseCase
+    private val getOpenAiConfigUseCase: GetOpenAiConfigUseCase,
+    private val introSeenUseCase: IntroSeenUseCase
 ) {
 
     companion object {
@@ -38,6 +40,7 @@ class OpenAiController(
         const val FEEDBACK_PATH = "/api/open-ai/assistance/feedback/{assistanceId}"
         const val TIP_TOKENS_PATH = "/api/open-ai/tip-tokens"
         const val ONBOARDING_PATH = "/api/open-ai/onboarding"
+        const val INTRO_PATH = "/api/open-ai/intro"
         const val CONFIG_PATH = "/api/open-ai/assistance/config"
     }
 
@@ -111,6 +114,15 @@ class OpenAiController(
     @PatchMapping(ONBOARDING_PATH)
     fun completeOnboarding(@AuthenticationPrincipal userProfile: UserProfile): ResponseEntity<ResponseDto<Void>> {
         return when (val result = completeOnboardingUseCase.completeOnboarding(userProfile)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
+        }
+    }
+
+    @PatchMapping(INTRO_PATH)
+    @Secured(UserRole.teacher)
+    fun introSeen(@AuthenticationPrincipal teacherProfile: TeacherProfile): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = introSeenUseCase.setIntroSeen(teacherProfile)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(EmptySuccessResponseDto)
         }

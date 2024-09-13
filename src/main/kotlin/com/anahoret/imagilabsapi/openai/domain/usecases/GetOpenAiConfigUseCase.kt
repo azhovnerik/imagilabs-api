@@ -23,7 +23,11 @@ class GetOpenAiConfigUseCaseImpl(
             is StudentProfile -> openAiService.isAiChatOnboardingCompleted(userProfile)
             else -> false
         }
+        val aiChatIntroSeen = when (userProfile) {
+            is TeacherProfile -> openAiService.isAiChatIntroSeen(userProfile)
+            else -> false
+        }
         val aiChatAvailable = openAiAccessService.canGetAssistanceForProject(userProfile)
-        return OpenAiConfig(aiChatOnboardingCompleted, aiChatAvailable)
+        return OpenAiConfig(aiChatOnboardingCompleted, aiChatAvailable, aiChatIntroSeen)
     }
 }
