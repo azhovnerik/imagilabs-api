@@ -8,7 +8,6 @@ import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
-import com.anahoret.imagilabsapi.students.domain.StudentUpdateRequest
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import org.springframework.stereotype.Service
@@ -19,7 +18,7 @@ interface CompleteOnboardingUseCase {
 }
 
 @Service
-class CompleteOnboardingUseCaseUseCaseImpl(
+class CompleteOnboardingUseCaseImpl(
     private val studentProfileService: StudentProfileService,
     private val teacherProfileService: TeacherProfileService,
 ) : CompleteOnboardingUseCase {

@@ -33,6 +33,7 @@ interface OpenAiService {
 
     fun isAiChatOnboardingCompleted(teacherProfile: TeacherProfile): Boolean
     fun isAiChatOnboardingCompleted(studentProfile: StudentProfile): Boolean
+    fun isAiChatIntroSeen(teacherProfile: TeacherProfile): Boolean
 }
 
 @Service
@@ -66,6 +67,10 @@ class OpenAiServiceImpl(
 
     override fun isAiChatOnboardingCompleted(teacherProfile: TeacherProfile): Boolean {
         return teacherProfileService.isAiChatOnboardingCompleted(teacherProfile.id)
+    }
+
+    override fun isAiChatIntroSeen(teacherProfile: TeacherProfile): Boolean {
+        return teacherProfileService.isAiChatIntroSeen(teacherProfile.id)
     }
 
     override fun isAiChatOnboardingCompleted(studentProfile: StudentProfile): Boolean {

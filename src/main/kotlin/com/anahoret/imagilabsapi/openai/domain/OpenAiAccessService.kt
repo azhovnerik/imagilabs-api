@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.openai.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessService.Companion.availableToAllDate
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
@@ -9,6 +10,11 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 
 interface OpenAiAccessService {
+    companion object {
+        val availableToAllDate = ZonedDateTime.of(2024, 9, 16, 0, 0, 0, 0, ZoneId.of("UTC-7"))
+            .toInstant().toEpochMilli()
+    }
+
     fun canGetAssistanceForProject(userProfile: UserProfile): Boolean
     fun hasTipTokens(userProfile: UserProfile): Boolean
 }
@@ -45,8 +51,6 @@ class EnvironmentPermissionServiceStaging : EnvironmentPermissionService {
 class EnvironmentPermissionServiceProduction(
     private val clock: Clock
 ) : EnvironmentPermissionService {
-    private val availableToAllDate = ZonedDateTime.of(2024, 9, 16, 0, 0, 0, 0, ZoneId.of("UTC-7"))
-        .toInstant().toEpochMilli()
 
     override fun canGetAssistanceForProject(userProfile: UserProfile): Boolean {
         val now = clock.millis()
