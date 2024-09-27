@@ -31,6 +31,8 @@ class GetTipTokensUseCaseImpl(
     private fun minutesUntilNextRun(): Long {
         val currentTime = getCurrentTime()
         val nextRunTime = currentTime.plusHours(1).truncatedTo(ChronoUnit.HOURS)
-        return ChronoUnit.MINUTES.between(currentTime, nextRunTime)
+
+        val minutes = ChronoUnit.MINUTES.between(currentTime, nextRunTime)
+        return if (currentTime.second > 0) minutes + 1 else minutes
     }
 }
