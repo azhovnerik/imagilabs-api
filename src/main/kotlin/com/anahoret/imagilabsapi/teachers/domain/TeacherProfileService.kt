@@ -32,6 +32,7 @@ interface TeacherProfileService {
     fun isAiChatOnboardingCompleted(teacherId: UUID): Boolean
     fun setIntroSeen(teacherId: UUID): TeacherProfile?
     fun isAiChatIntroSeen(teacherId: UUID): Boolean
+    fun getTeacherByStudent(studentId: UUID): TeacherProfile?
 }
 
 @Service
@@ -191,5 +192,11 @@ class TeacherProfileServiceImpl(
 
     override fun isAiChatIntroSeen(teacherId: UUID): Boolean {
         return teacherProfileEntityRepository.isAiChatIntroSeen(teacherId)
+    }
+
+    override fun getTeacherByStudent(studentId: UUID): TeacherProfile? {
+        val teacherProfileEntity = teacherProfileEntityRepository.findByStudentId(studentId)
+        val subscription = teacherSubscriptionService.buildSubscriptionDto(teacherProfileEntity)
+        return TeacherProfile.fromEntity(teacherProfileEntity, subscription)
     }
 }
