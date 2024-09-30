@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.teachers.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionData
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.users.UserType
 import java.util.*
@@ -18,7 +19,7 @@ class TeacherProfile(
     val emailVerified: Boolean,
     val marketingEmailSubscribed: Boolean,
     val subscription: TeacherSubscription
-) : UserProfile {
+) : UserProfile, TeacherSubscriptionData by subscription {
 
     override val userType = UserType.TEACHER
     override val fullName = "$firstName $lastName"

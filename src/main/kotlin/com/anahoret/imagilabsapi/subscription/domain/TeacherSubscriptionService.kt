@@ -15,6 +15,7 @@ interface TeacherSubscriptionService {
     fun canCreateClassroom(teacherProfile: TeacherProfile): Boolean
     fun studentLimitPerClassExceeded(teacherProfile: TeacherProfile, studentCountInClassroom: Long): Boolean
     fun getSubscriptionDto(teacherId: UUID): TeacherSubscription?
+    fun hasProSubscription(teacherId: UUID): Boolean
 }
 
 @Service
@@ -70,5 +71,10 @@ class TeacherSubscriptionServiceImpl(
                 it.subscriptionCanceled = true
                 teacherProfileEntityRepository.save(it)
             }
+    }
+
+    override fun hasProSubscription(teacherId: UUID): Boolean {
+        return teacherProfileEntityRepository.findByIdOrNull(teacherId)
+            ?.hasProSubscription(clock.millis()) ?: false
     }
 }

@@ -26,6 +26,9 @@ interface TeacherProfileEntityRepository : JpaRepository<TeacherProfileEntity, U
     @Query("SELECT COALESCE(t.aiChatOnboardingCompleted, FALSE) FROM TeacherProfileEntity t WHERE t.id = :teacherId")
     fun isAiChatOnboardingCompleted(teacherId: UUID): Boolean
 
+    @Query("SELECT t FROM StudentProfileEntity s JOIN ClassroomEntity c ON s.classroomId = c.id JOIN TeacherProfileEntity t ON c.teacherId = t.id")
+    fun findByStudentId(studentId: UUID): TeacherProfileEntity
+
     @Query("SELECT COALESCE(t.aiChatIntroSeen, FALSE) FROM TeacherProfileEntity t WHERE t.id = :teacherId")
     fun isAiChatIntroSeen(teacherId: UUID): Boolean
 }
