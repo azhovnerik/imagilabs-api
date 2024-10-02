@@ -55,12 +55,18 @@ class OpenAiServiceImpl(
         input: String,
         content: List<OpenAiAssistanceContent>
     ): String {
-        val initialMessage = getInitialMessages(
-            userInput = content.first().userQuestion
-        ) + AssistantMessage(content.first().aiResponse)
-        val latestMessages = content.drop(1)
-            .flatMap { listOf(UserMessage(it.userQuestion), AssistantMessage(it.aiResponse)) }
-        val messages = initialMessage + latestMessages + UserMessage(input)
+        val messages = mutableListOf<Message>()
+        if (content.isNotEmpty()) {
+            val firstContent = content.first()
+            val initialMessage = getInitialMessages(
+                userInput = firstContent.userQuestion
+            ) + AssistantMessage(firstContent.aiResponse)
+            val latestMessages = content.drop(1)
+                .flatMap { listOf(UserMessage(it.userQuestion), AssistantMessage(it.aiResponse)) }
+            messages.addAll(initialMessage)
+            messages.addAll(latestMessages)
+        }
+        messages.add(UserMessage(input))
         val prompt = Prompt(messages)
         return chatClient.call(prompt).results[0].output.content
     }
