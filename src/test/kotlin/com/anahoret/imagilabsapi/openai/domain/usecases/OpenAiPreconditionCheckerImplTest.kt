@@ -126,23 +126,4 @@ class OpenAiPreconditionCheckerImplTest {
         every { openAiAssistanceService.existsBySessionId(testSessionId) } returns false
         openAiPreconditionChecker.check(request, userProfile).fold({ fail() }, { })
     }
-
-    @Test
-    fun `should return error when session id not exists for ProceedAssistanceRequest`() {
-        val project = mockk<Project>()
-        val request = createProceedAssistanceRequest(sessionId = testSessionId)
-        every { projectService.getProjectById(testProjectId) } returns project
-        every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns true
-        every { openAiAccessService.hasTipTokens(userProfile) } returns true
-        every { openAiAssistanceService.existsBySessionId(testSessionId) } returns false
-        openAiPreconditionChecker.check(request, userProfile).fold(
-            {
-                assertAll(
-                    { assertTrue(it is NotFoundError) },
-                    { assertEquals("SESSION_ID_NOT_FOUND", (it as NotFoundError).message) }
-                )
-            },
-            { fail() }
-        )
-    }
 }

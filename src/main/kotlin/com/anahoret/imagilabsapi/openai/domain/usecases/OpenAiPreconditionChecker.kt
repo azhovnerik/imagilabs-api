@@ -18,7 +18,6 @@ interface OpenAiPreconditionChecker {
 @Service
 class OpenAiPreconditionCheckerImpl(
     private val openAiAccessService: OpenAiAccessService,
-    private val openAiAssistanceService: OpenAiAssistanceService
 ) : OpenAiPreconditionChecker {
 
     override fun check(request: AssistanceRequest, userProfile: UserProfile): Either<OperationError, Unit> {
@@ -26,9 +25,6 @@ class OpenAiPreconditionCheckerImpl(
             return AccessDeniedError("ACCESS_TO_PROJECT_DENIED").left()
         }
         if (!openAiAccessService.hasTipTokens(userProfile)) return AccessDeniedError("NO_TIP_TOKENS_LEFT").left()
-        if (request is ProceedAssistanceRequest && !openAiAssistanceService.existsBySessionId(request.sessionId)) {
-            return NotFoundError("SESSION_ID_NOT_FOUND").left()
-        }
         return Unit.right()
     }
 }
