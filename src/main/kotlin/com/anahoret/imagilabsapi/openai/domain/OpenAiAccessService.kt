@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.openai.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessService.Companion.availableToQA
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessService.Companion.availableToSubscribers
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
@@ -14,6 +15,8 @@ import java.time.ZonedDateTime
 interface OpenAiAccessService {
     companion object {
         val availableToSubscribers = ZonedDateTime.of(2024, 10, 19, 0, 0, 0, 0, ZoneId.of("UTC-7"))
+            .toInstant().toEpochMilli()
+        val availableToQA = ZonedDateTime.of(2024, 10, 1, 0, 0, 0, 0, ZoneId.of("UTC-7"))
             .toInstant().toEpochMilli()
     }
 
@@ -42,9 +45,19 @@ interface EnvironmentPermissionService {
 
 @Profile("stage", "default")
 @Service
-class EnvironmentPermissionServiceStaging : EnvironmentPermissionService {
+class EnvironmentPermissionServiceStaging(
+    private val teacherProfileService: TeacherProfileService,
+    private val clock: Clock
+) : EnvironmentPermissionService {
     override fun canGetAssistanceForProject(userProfile: UserProfile): Boolean {
-        return true
+        val now = clock.millis()
+        return now < availableToQA || when (userProfile) {
+            is TeacherProfile -> true
+            is StudentProfile -> teacherProfileService.getTeacherByStudent(userProfile.id)?.hasProSubscription(now)
+                ?: false
+
+            else -> false
+        }
     }
 }
 
