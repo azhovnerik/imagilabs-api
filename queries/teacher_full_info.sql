@@ -1,147 +1,302 @@
-WITH student_draft_projects AS (
-    SELECT owner_id,
-        sps.name AS name,
-        sps.username AS username,
-        sps.classroom_id AS classroom_id,
-        COUNT(DISTINCT pr.id) AS number_of_draft_projects
-    FROM projects AS pr
-        LEFT JOIN student_profiles AS sps ON pr.owner_id = sps.id
-    WHERE pr.id NOT IN (
-            SELECT DISTINCT project_id
-            FROM project_classroom_share
-        )
-        AND owner_user_type = 'STUDENT'
-    GROUP BY owner_id,
-        sps.name,
-        sps.username,
-        sps.classroom_id
-),
-student_shared_projects AS (
-    SELECT owner_id,
-        sps.name AS name,
-        sps.username AS username,
-        sps.classroom_id AS classroom_id,
-        COUNT(DISTINCT pcs.project_id) AS number_of_shared_projects
-    FROM projects AS pr
-        LEFT JOIN project_classroom_share AS pcs ON pr.id = pcs.project_id
-        LEFT JOIN student_profiles AS sps ON pr.owner_id = sps.id
-    WHERE owner_user_type = 'STUDENT'
-    GROUP BY owner_id,
-        sps.name,
-        sps.username,
-        sps.classroom_id
-),
-student_projects AS (
-    SELECT COALESCE(
-            student_draft_projects.owner_id,
-            student_shared_projects.owner_id
-        ) AS student_id,
-        COALESCE(
-            student_draft_projects.name,
-            student_shared_projects.name
-        ) AS name,
-        COALESCE(
-            student_draft_projects.username,
-            student_shared_projects.username
-        ) AS username,
-        COALESCE(
-            student_draft_projects.classroom_id,
-            student_shared_projects.classroom_id
-        ) AS classroom_id,
-        number_of_draft_projects,
-        number_of_shared_projects
-    FROM student_draft_projects
-        FULL OUTER JOIN student_shared_projects ON student_draft_projects.owner_id = student_shared_projects.owner_id
-),
-classroom_info AS (
-    SELECT cl.id AS classroom_id,
-        cl.created_at AS creation_date,
-        cl.teacher_id AS teacher_id,
-        COUNT(DISTINCT student_profiles.id) AS number_of_students,
-        COALESCE(
-            SUM(student_projects.number_of_draft_projects),
-            0
-        ) AS number_of_draft_projects,
-        COALESCE(
-            SUM(student_projects.number_of_shared_projects),
-            0
-        ) AS number_of_shared_projects
-    FROM student_profiles
-        RIGHT JOIN classrooms AS cl ON student_profiles.classroom_id = cl.id
-        LEFT JOIN student_projects ON student_profiles.id = student_projects.student_id
-    GROUP BY cl.id
-),
-teacher_profile AS (
-    SELECT tps.id AS teacher_id,
-        tps.email AS email,
-        tps.created_at AS creation_date,
-        COUNT(DISTINCT cr.id) AS number_of_classes
-    FROM teacher_profiles AS tps
-        LEFT JOIN classrooms AS cr ON tps.id = cr.teacher_id
-    GROUP BY tps.id,
-        tps.email
-),
-draft_projects AS (
-    SELECT owner_id,
-        tps.email AS email,
-        tps.created_at AS creation_date,
-        COUNT(DISTINCT pr.id) AS number_of_draft_projects
-    FROM projects AS pr
-        LEFT JOIN teacher_profiles AS tps ON pr.owner_id = tps.id
-    WHERE pr.id NOT IN (
-            SELECT DISTINCT project_id
-            FROM project_classroom_share
-        )
-        AND pr.name NOT IN ('Example 1 [beginner]', 'Example 2 [beginner]', 'Example 3 [intermediate]', 'Example 4 [intermediate]', 'Example 5 [advanced]')
-        AND owner_user_type = 'TEACHER'
-    GROUP BY owner_id,
-        tps.email,
-        tps.created_at
-),
-shared_projects AS (
-    SELECT owner_id,
-        tps.email AS email,
-        tps.created_at AS creation_date,
-        COUNT(DISTINCT pcs.project_id) AS number_of_shared_projects
-    FROM projects AS pr
-        LEFT JOIN project_classroom_share AS pcs ON pr.id = pcs.project_id
-        LEFT JOIN teacher_profiles AS tps ON pr.owner_id = tps.id
-    WHERE owner_user_type = 'TEACHER'
-    GROUP BY owner_id,
-        tps.email,
-        tps.created_at
-),
-teacher_projects AS (
-    SELECT COALESCE(
-            draft_projects.owner_id,
-            shared_projects.owner_id
-        ) AS teacher_id,
-        COALESCE(draft_projects.email, shared_projects.email) AS email,
-        COALESCE(
-            draft_projects.creation_date,
-            shared_projects.creation_date
-        ) AS creation_date,
-        number_of_draft_projects,
-        number_of_shared_projects
-    FROM draft_projects
-        FULL OUTER JOIN shared_projects ON draft_projects.owner_id = shared_projects.owner_id
-)
-SELECT teacher_profiles.id AS teacher_id,
-    teacher_profiles.email AS email,
-    teacher_profiles.created_at AS creation_date,
-    teacher_profiles.email_verified AS email_verified,
-    teacher_profile.number_of_classes AS number_of_classes,
-    COALESCE(teacher_projects.number_of_draft_projects, 0) AS number_of_draft_projects,
-    COALESCE(teacher_projects.number_of_shared_projects, 0) AS number_of_shared_projects,
-    COALESCE(SUM(classroom_info.number_of_students), 0) AS number_of_students,
-    COALESCE(SUM(classroom_info.number_of_draft_projects), 0) AS number_of_student_draft_projects,
-    COALESCE(SUM(classroom_info.number_of_shared_projects), 0) AS number_of_student_shared_projects
-FROM teacher_profiles
-    LEFT JOIN teacher_projects ON teacher_profiles.id = teacher_projects.teacher_id
-    LEFT JOIN teacher_profile ON teacher_profiles.id = teacher_profile.teacher_id
-    LEFT JOIN classroom_info ON teacher_profiles.id = classroom_info.teacher_id
-GROUP BY teacher_profiles.id,
-    teacher_profile.number_of_classes,
-    teacher_projects.number_of_draft_projects,
-    teacher_projects.number_of_shared_projects
-ORDER BY creation_date ASC
+WITH
+	STUDENT_DRAFT_PROJECTS AS (
+		SELECT
+			PR.OWNER_ID,
+			SPS.NAME,
+			SPS.USERNAME,
+			SPS.CLASSROOM_ID,
+			COUNT(DISTINCT PR.ID) AS NUMBER_OF_DRAFT_PROJECTS_ALL_TIME,
+			COUNT(
+				DISTINCT CASE
+					WHEN TO_CHAR(TO_TIMESTAMP(PR.CREATED_AT / 1000), 'YYYY-MM-DD') >= '2024-06-01' THEN PR.ID
+				END
+			) AS NUMBER_OF_DRAFT_PROJECTS_CURRENT,
+			COUNT(
+				DISTINCT CASE
+					WHEN TO_CHAR(TO_TIMESTAMP(PR.CREATED_AT / 1000), 'YYYY-MM-DD') BETWEEN '2023-06-01' AND '2024-05-31'  THEN PR.ID
+				END
+			) AS NUMBER_OF_DRAFT_PROJECTS_PREV
+		FROM
+			PROJECTS PR
+			LEFT JOIN STUDENT_PROFILES SPS ON PR.OWNER_ID = SPS.ID
+		WHERE
+			PR.ID NOT IN (
+				SELECT DISTINCT
+					PROJECT_ID
+				FROM
+					PROJECT_CLASSROOM_SHARE
+			)
+			AND OWNER_USER_TYPE = 'STUDENT'
+		GROUP BY
+			PR.OWNER_ID,
+			SPS.NAME,
+			SPS.USERNAME,
+			SPS.CLASSROOM_ID
+	),
+	STUDENT_SHARED_PROJECTS AS (
+		SELECT
+			PR.OWNER_ID,
+			SPS.NAME,
+			SPS.USERNAME,
+			SPS.CLASSROOM_ID,
+			COUNT(DISTINCT PR.ID) AS NUMBER_OF_SHARED_PROJECTS_ALL_TIME,
+			COUNT(
+				DISTINCT CASE
+					WHEN TO_CHAR(TO_TIMESTAMP(PR.CREATED_AT / 1000), 'YYYY-MM-DD') >= '2024-06-01' THEN PR.ID
+				END
+			) AS NUMBER_OF_SHARED_PROJECTS_CURRENT,
+			COUNT(
+				DISTINCT CASE
+					WHEN TO_CHAR(TO_TIMESTAMP(PR.CREATED_AT / 1000), 'YYYY-MM-DD') BETWEEN '2023-06-01' AND '2024-05-31'  THEN PR.ID
+				END
+			) AS NUMBER_OF_SHARED_PROJECTS_PREV
+		FROM
+			PROJECTS PR
+			INNER JOIN PROJECT_CLASSROOM_SHARE PCS ON PR.ID = PCS.PROJECT_ID
+			LEFT JOIN STUDENT_PROFILES SPS ON PR.OWNER_ID = SPS.ID
+		WHERE
+			OWNER_USER_TYPE = 'STUDENT'
+		GROUP BY
+			PR.OWNER_ID,
+			SPS.NAME,
+			SPS.USERNAME,
+			SPS.CLASSROOM_ID
+	),
+	STUDENT_PROJECTS AS (
+		SELECT
+			COALESCE(SD.OWNER_ID, SS.OWNER_ID) AS STUDENT_ID,
+			COALESCE(SD.NAME, SS.NAME) AS NAME,
+			COALESCE(SD.USERNAME, SS.USERNAME) AS USERNAME,
+			COALESCE(SD.CLASSROOM_ID, SS.CLASSROOM_ID) AS CLASSROOM_ID,
+			SD.NUMBER_OF_DRAFT_PROJECTS_ALL_TIME,
+			SD.NUMBER_OF_DRAFT_PROJECTS_CURRENT,
+			SD.NUMBER_OF_DRAFT_PROJECTS_PREV,
+			SS.NUMBER_OF_SHARED_PROJECTS_ALL_TIME,
+			SS.NUMBER_OF_SHARED_PROJECTS_CURRENT,
+			SS.NUMBER_OF_SHARED_PROJECTS_PREV
+		FROM
+			STUDENT_DRAFT_PROJECTS SD
+			FULL OUTER JOIN STUDENT_SHARED_PROJECTS SS ON SD.OWNER_ID = SS.OWNER_ID
+	),
+	CLASSROOM_INFO AS (
+		SELECT
+			CL.ID AS CLASSROOM_ID,
+			CL.CREATED_AT,
+			CL.TEACHER_ID,
+			COUNT(DISTINCT STUDENT_PROFILES.ID) AS NUMBER_OF_STUDENTS_ALL_TIME,
+			COUNT(
+				DISTINCT CASE
+					WHEN TO_CHAR(
+						TO_TIMESTAMP(STUDENT_PROFILES.CREATED_AT / 1000),
+						'YYYY-MM-DD'
+					) >= '2024-06-01' THEN STUDENT_PROFILES.ID
+				END
+			) AS NUMBER_OF_STUDENTS_CURRENT,
+			COUNT(
+				DISTINCT CASE
+					WHEN TO_CHAR(
+						TO_TIMESTAMP(STUDENT_PROFILES.CREATED_AT / 1000),
+						'YYYY-MM-DD'
+					) BETWEEN '2023-06-01' AND '2024-05-31'  THEN STUDENT_PROFILES.ID
+				END
+			) AS NUMBER_OF_STUDENTS_PREV,
+			COALESCE(
+				SUM(
+					STUDENT_PROJECTS.NUMBER_OF_DRAFT_PROJECTS_ALL_TIME
+				),
+				0
+			) AS NUMBER_OF_STUDENT_DRAFT_PROJECTS_ALL_TIME,
+			COALESCE(
+				SUM(STUDENT_PROJECTS.NUMBER_OF_DRAFT_PROJECTS_CURRENT),
+				0
+			) AS NUMBER_OF_STUDENT_DRAFT_PROJECTS_CURRENT,
+			COALESCE(
+				SUM(STUDENT_PROJECTS.NUMBER_OF_DRAFT_PROJECTS_PREV),
+				0
+			) AS NUMBER_OF_STUDENT_DRAFT_PROJECTS_PREV,
+			COALESCE(
+				SUM(
+					STUDENT_PROJECTS.NUMBER_OF_SHARED_PROJECTS_ALL_TIME
+				),
+				0
+			) AS NUMBER_OF_STUDENT_SHARED_PROJECTS_ALL_TIME,
+			COALESCE(
+				SUM(
+					STUDENT_PROJECTS.NUMBER_OF_SHARED_PROJECTS_CURRENT
+				),
+				0
+			) AS NUMBER_OF_STUDENT_SHARED_PROJECTS_CURRENT,
+			COALESCE(
+				SUM(STUDENT_PROJECTS.NUMBER_OF_SHARED_PROJECTS_PREV),
+				0
+			) AS NUMBER_OF_STUDENT_SHARED_PROJECTS_PREV
+		FROM
+			STUDENT_PROFILES
+			RIGHT JOIN CLASSROOMS CL ON STUDENT_PROFILES.CLASSROOM_ID = CL.ID
+			LEFT JOIN STUDENT_PROJECTS ON STUDENT_PROFILES.ID = STUDENT_PROJECTS.STUDENT_ID
+		GROUP BY
+			CL.ID,
+			CL.CREATED_AT,
+			CL.TEACHER_ID
+	),
+	TEACHER_PROFILE AS (
+		SELECT
+			TPS.ID AS TEACHER_ID,
+			TPS.EMAIL,
+			TPS.CREATED_AT,
+			COUNT(DISTINCT CR.ID) AS NUMBER_OF_CLASSES_ALL_TIME,
+			COUNT(
+				DISTINCT CASE
+					WHEN TO_CHAR(TO_TIMESTAMP(CR.CREATED_AT / 1000), 'YYYY-MM-DD') >= '2024-06-01' THEN CR.ID
+				END
+			) AS NUMBER_OF_CLASSES_CURRENT,
+			COUNT(
+				DISTINCT CASE
+					WHEN TO_CHAR(TO_TIMESTAMP(CR.CREATED_AT / 1000), 'YYYY-MM-DD') BETWEEN '2023-06-01' AND '2024-05-31'  THEN CR.ID
+				END
+			) AS NUMBER_OF_CLASSES_PREV
+		FROM
+			TEACHER_PROFILES TPS
+			LEFT JOIN CLASSROOMS CR ON TPS.ID = CR.TEACHER_ID
+		GROUP BY
+			TPS.ID,
+			TPS.EMAIL,
+			TPS.CREATED_AT
+	),
+	DRAFT_PROJECTS AS (
+		SELECT
+			PR.OWNER_ID,
+			TPS.EMAIL,
+			TPS.CREATED_AT,
+			COUNT(DISTINCT PR.ID) AS NUMBER_OF_DRAFT_PROJECTS_ALL_TIME,
+			COUNT(
+				DISTINCT CASE
+					WHEN TO_CHAR(TO_TIMESTAMP(PR.CREATED_AT / 1000), 'YYYY-MM-DD') >= '2024-06-01' THEN PR.ID
+				END
+			) AS NUMBER_OF_DRAFT_PROJECTS_CURRENT,
+			COUNT(
+				DISTINCT CASE
+					WHEN TO_CHAR(TO_TIMESTAMP(PR.CREATED_AT / 1000), 'YYYY-MM-DD') BETWEEN '2023-06-01' AND '2024-05-31'  THEN PR.ID
+				END
+			) AS NUMBER_OF_DRAFT_PROJECTS_PREV
+		FROM
+			PROJECTS PR
+			LEFT JOIN TEACHER_PROFILES TPS ON PR.OWNER_ID = TPS.ID
+		WHERE
+			PR.ID NOT IN (
+				SELECT DISTINCT
+					PROJECT_ID
+				FROM
+					PROJECT_CLASSROOM_SHARE
+			)
+			AND PR.NAME NOT IN (
+				'Example 1 [beginner]',
+				'Example 2 [beginner]',
+				'Example 3 [intermediate]',
+				'Example 4 [intermediate]',
+				'Example 5 [advanced]'
+			)
+			AND OWNER_USER_TYPE = 'TEACHER'
+		GROUP BY
+			PR.OWNER_ID,
+			TPS.EMAIL,
+			TPS.CREATED_AT
+	),
+	SHARED_PROJECTS AS (
+		SELECT
+			PR.OWNER_ID,
+			TPS.EMAIL,
+			TPS.CREATED_AT,
+			COUNT(DISTINCT PR.ID) AS NUMBER_OF_SHARED_PROJECTS_ALL_TIME,
+			COUNT(
+				DISTINCT CASE
+					WHEN TO_CHAR(TO_TIMESTAMP(PR.CREATED_AT / 1000), 'YYYY-MM-DD') >= '2024-06-01' THEN PR.ID
+				END
+			) AS NUMBER_OF_SHARED_PROJECTS_CURRENT,
+			COUNT(
+				DISTINCT CASE
+					WHEN TO_CHAR(TO_TIMESTAMP(PR.CREATED_AT / 1000), 'YYYY-MM-DD') BETWEEN '2023-06-01' AND '2024-05-31'  THEN PR.ID
+				END
+			) AS NUMBER_OF_SHARED_PROJECTS_PREV
+		FROM
+			PROJECTS PR
+			INNER JOIN PROJECT_CLASSROOM_SHARE PCS ON PR.ID = PCS.PROJECT_ID
+			LEFT JOIN TEACHER_PROFILES TPS ON PR.OWNER_ID = TPS.ID
+		WHERE
+			OWNER_USER_TYPE = 'TEACHER'
+		GROUP BY
+			PR.OWNER_ID,
+			TPS.EMAIL,
+			TPS.CREATED_AT
+	),
+	TEACHER_PROJECTS AS (
+		SELECT
+			COALESCE(DP.OWNER_ID, SP.OWNER_ID) AS TEACHER_ID,
+			COALESCE(DP.EMAIL, SP.EMAIL) AS EMAIL,
+			COALESCE(DP.CREATED_AT, SP.CREATED_AT) AS CREATION_DATE,
+			DP.NUMBER_OF_DRAFT_PROJECTS_ALL_TIME,
+			DP.NUMBER_OF_DRAFT_PROJECTS_CURRENT,
+			DP.NUMBER_OF_DRAFT_PROJECTS_PREV,
+			SP.NUMBER_OF_SHARED_PROJECTS_ALL_TIME,
+			SP.NUMBER_OF_SHARED_PROJECTS_CURRENT,
+			SP.NUMBER_OF_SHARED_PROJECTS_PREV
+		FROM
+			DRAFT_PROJECTS DP
+			FULL OUTER JOIN SHARED_PROJECTS SP ON DP.OWNER_ID = SP.OWNER_ID
+	)
+SELECT
+	TP.ID AS TEACHER_ID,
+	TP.EMAIL,
+	TP.CREATED_AT,
+	TP.EMAIL_VERIFIED,
+	TPROF.NUMBER_OF_CLASSES_ALL_TIME,
+	COALESCE(TPROJ.NUMBER_OF_DRAFT_PROJECTS_ALL_TIME, 0) AS NUMBER_OF_DRAFT_PROJECTS_ALL_TIME,
+	COALESCE(TPROJ.NUMBER_OF_SHARED_PROJECTS_ALL_TIME, 0) AS NUMBER_OF_SHARED_PROJECTS_ALL_TIME,
+	COALESCE(SUM(CI.NUMBER_OF_STUDENTS_ALL_TIME), 0) AS NUMBER_OF_STUDENTS_ALL_TIME,
+	COALESCE(
+		SUM(CI.NUMBER_OF_STUDENT_DRAFT_PROJECTS_ALL_TIME),
+		0
+	) AS NUMBER_OF_STUDENT_DRAFT_PROJECTS_ALL_TIME,
+	COALESCE(
+		SUM(CI.NUMBER_OF_STUDENT_SHARED_PROJECTS_ALL_TIME),
+		0
+	) AS NUMBER_OF_STUDENT_SHARED_PROJECTS_ALL_TIME,
+	TPROF.NUMBER_OF_CLASSES_CURRENT,
+	COALESCE(TPROJ.NUMBER_OF_DRAFT_PROJECTS_CURRENT, 0) AS NUMBER_OF_DRAFT_PROJECTS_CURRENT,
+	COALESCE(TPROJ.NUMBER_OF_SHARED_PROJECTS_CURRENT, 0) AS NUMBER_OF_SHARED_PROJECTS_CURRENT,
+	COALESCE(SUM(CI.NUMBER_OF_STUDENTS_CURRENT), 0) AS NUMBER_OF_STUDENTS_CURRENT,
+	COALESCE(
+		SUM(CI.NUMBER_OF_STUDENT_DRAFT_PROJECTS_CURRENT),
+		0
+	) AS NUMBER_OF_STUDENT_DRAFT_PROJECTS_CURRENT,
+	COALESCE(
+		SUM(CI.NUMBER_OF_STUDENT_SHARED_PROJECTS_CURRENT),
+		0
+	) AS NUMBER_OF_STUDENT_SHARED_PROJECTS_CURRENT,
+	TPROF.NUMBER_OF_CLASSES_PREV,
+	COALESCE(TPROJ.NUMBER_OF_DRAFT_PROJECTS_PREV, 0) AS NUMBER_OF_DRAFT_PROJECTS_PREV,
+	COALESCE(TPROJ.NUMBER_OF_SHARED_PROJECTS_PREV, 0) AS NUMBER_OF_SHARED_PROJECTS_PREV,
+	COALESCE(SUM(CI.NUMBER_OF_STUDENTS_PREV), 0) AS NUMBER_OF_STUDENTS_PREV,
+	COALESCE(SUM(CI.NUMBER_OF_STUDENT_DRAFT_PROJECTS_PREV), 0) AS NUMBER_OF_STUDENT_DRAFT_PROJECTS_PREV,
+	COALESCE(SUM(CI.NUMBER_OF_STUDENT_SHARED_PROJECTS_PREV), 0) AS NUMBER_OF_STUDENT_SHARED_PROJECTS_PREV
+FROM
+	TEACHER_PROFILES TP
+	LEFT JOIN TEACHER_PROJECTS TPROJ ON TP.ID = TPROJ.TEACHER_ID
+	LEFT JOIN TEACHER_PROFILE TPROF ON TP.ID = TPROF.TEACHER_ID
+	LEFT JOIN CLASSROOM_INFO CI ON TP.ID = CI.TEACHER_ID
+GROUP BY
+	TP.ID,
+	TPROF.NUMBER_OF_CLASSES_ALL_TIME,
+	TPROF.NUMBER_OF_CLASSES_CURRENT,
+	TPROF.NUMBER_OF_CLASSES_PREV,
+	TPROJ.NUMBER_OF_DRAFT_PROJECTS_ALL_TIME,
+	TPROJ.NUMBER_OF_DRAFT_PROJECTS_CURRENT,
+	TPROJ.NUMBER_OF_DRAFT_PROJECTS_PREV,
+	TPROJ.NUMBER_OF_SHARED_PROJECTS_ALL_TIME,
+	TPROJ.NUMBER_OF_SHARED_PROJECTS_CURRENT,
+	TPROJ.NUMBER_OF_SHARED_PROJECTS_PREV,
+	TP.EMAIL,
+	TP.CREATED_AT,
+	TP.EMAIL_VERIFIED
+ORDER BY
+	TP.CREATED_AT ASC
