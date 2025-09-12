@@ -25,7 +25,7 @@ class OpenAiAssistanceServiceImplTest {
     inner class Save {
 
         private val userId = UUID.randomUUID()
-        private val userProfile = mockk<UserProfile>() {
+        private val userProfile = mockk<UserProfile> {
             every { id } returns userId
             every { userType } returns UserType.STUDENT
         }
