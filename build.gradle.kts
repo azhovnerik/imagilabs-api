@@ -2,7 +2,7 @@ import com.anahoret.gradle.plugin.metrics.CodeMetricsPlugin
 import com.anahoret.gradle.plugin.metrics.CodeMetricsPluginExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val arrowKtVersion = "1.1.5"
+val arrowKtVersion = "2.1.2"
 val cucumberVersion = "7.12.0"
 val googleAuthVersion = "1.16.0"
 val googleSheetsApiVersion = "v4-rev612-1.25.0"

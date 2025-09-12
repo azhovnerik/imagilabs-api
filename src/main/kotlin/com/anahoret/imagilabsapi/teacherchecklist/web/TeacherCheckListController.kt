@@ -1,7 +1,6 @@
 package com.anahoret.imagilabsapi.teacherchecklist.web
 
 import arrow.core.Either
-import arrow.core.continuations.result
 import com.anahoret.imagilabsapi.common.web.EmptySuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
