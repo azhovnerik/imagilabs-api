@@ -1,11 +1,8 @@
 package com.anahoret.imagilabsapi.openai.domain.usecases
 
-import arrow.core.handleError
-import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessService
-import com.anahoret.imagilabsapi.openai.domain.OpenAiAssistanceService
 import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.users.UserType
@@ -76,7 +73,7 @@ class OpenAiPreconditionCheckerImplTest {
         every { projectService.getProjectById(testProjectId) } returns project
         every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns true
         every { openAiAccessService.hasTipTokens(userProfile) } returns true
-        openAiPreconditionChecker.check(request, userProfile).handleError { fail() }
+        openAiPreconditionChecker.check(request, userProfile).onLeft { fail() }
     }
 
     @Test
@@ -86,7 +83,7 @@ class OpenAiPreconditionCheckerImplTest {
         every { projectService.getProjectById(testProjectId) } returns project
         every { openAiAccessService.canGetAssistanceForProject(userProfile) } returns true
         every { openAiAccessService.hasTipTokens(userProfile) } returns true
-        openAiPreconditionChecker.check(request, userProfile).handleError { fail() }
+        openAiPreconditionChecker.check(request, userProfile).onLeft { fail() }
     }
 
     @Test
