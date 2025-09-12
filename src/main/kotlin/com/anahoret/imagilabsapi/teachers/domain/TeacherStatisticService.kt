@@ -3,7 +3,7 @@ package com.anahoret.imagilabsapi.teachers.domain
 import com.anahoret.imagilabsapi.teachers.storage.TeacherStatistic
 import com.anahoret.imagilabsapi.teachers.storage.TeacherStatisticRepository
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 interface TeacherStatisticService {
 

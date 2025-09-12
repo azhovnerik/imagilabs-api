@@ -10,14 +10,11 @@ import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
-import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
-import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.users.UserType
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mockk.mockk
 import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,7 +23,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
-import java.util.*
 
 @ExtendWith(SpringExtension::class)
 @ImagiLabsTestPropertySource

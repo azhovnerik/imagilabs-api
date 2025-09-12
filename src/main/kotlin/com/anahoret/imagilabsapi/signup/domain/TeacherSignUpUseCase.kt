@@ -3,11 +3,11 @@ package com.anahoret.imagilabsapi.signup.domain
 import arrow.core.Either
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.projects.domain.usecases.ProjectSamplesCreateUseCase
+import com.anahoret.imagilabsapi.teacherchecklist.domain.CreateTeacherCheckListUseCase
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherSignupRequest
 import com.anahoret.imagilabsapi.teachers.export.googlesheets.domain.GoogleSheetsTeachersExportUseCase
-import com.anahoret.imagilabsapi.teacherchecklist.domain.CreateTeacherCheckListUseCase
 import org.springframework.stereotype.Service
 
 interface TeacherSignUpUseCase {

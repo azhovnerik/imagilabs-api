@@ -2,8 +2,8 @@ package com.anahoret.imagilabsapi.projects.storage
 
 import com.anahoret.imagilabsapi.common.storage.BaseEntity
 import com.anahoret.imagilabsapi.users.UserType
-import java.util.*
 import jakarta.persistence.*
+import java.util.*
 
 @Entity
 @Table(name = "projects")

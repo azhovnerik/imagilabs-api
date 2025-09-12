@@ -1,9 +1,9 @@
 package com.anahoret.imagilabsapi.projectclassroomshare.storage
 
+import jakarta.persistence.*
 import org.hibernate.Hibernate
 import java.io.Serializable
 import java.util.*
-import jakarta.persistence.*
 
 @Entity
 @Table(name = "project_classroom_share")

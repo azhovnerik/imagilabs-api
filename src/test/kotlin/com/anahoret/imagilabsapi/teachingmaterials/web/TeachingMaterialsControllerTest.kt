@@ -7,9 +7,12 @@ import com.anahoret.imagilabsapi.common.ControllerTest
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.testTeacher
-import com.anahoret.imagilabsapi.teachingmaterials.domain.*
+import com.anahoret.imagilabsapi.teachingmaterials.domain.ClassroomTeachingMaterialsGetUseCase
+import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterial
 import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterialCategory.TEACHING_SLIDES
 import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterialCategory.WORKSHEETS
+import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterials
+import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterialsGetUseCase
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify

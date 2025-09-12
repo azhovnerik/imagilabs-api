@@ -16,7 +16,6 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import org.json.JSONObject
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -25,8 +24,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.util.*
 
@@ -218,7 +218,7 @@ class TeacherSubscriptionControllerTest {
 
             verify { cancelTeacherSubscriptionUseCase.cancel(teacherId, teacherProfile) }
         }
-        
+
     }
 
     @ExtendWith(SpringExtension::class)

@@ -5,7 +5,7 @@ import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 interface UpdateTeacherCheckListStepUseCase {
 

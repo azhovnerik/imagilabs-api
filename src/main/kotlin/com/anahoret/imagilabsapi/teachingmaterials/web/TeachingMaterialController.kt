@@ -7,8 +7,8 @@ import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
-import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterials
 import com.anahoret.imagilabsapi.teachingmaterials.domain.ClassroomTeachingMaterialsGetUseCase
+import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterials
 import com.anahoret.imagilabsapi.teachingmaterials.domain.TeachingMaterialsGetUseCase
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured

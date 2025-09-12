@@ -3,7 +3,7 @@ package com.anahoret.imagilabsapi.utils
 import com.anahoret.imagilabsapi.openai.domain.usecases.ErrorAssistanceRequest
 import com.anahoret.imagilabsapi.openai.domain.usecases.ProceedAssistanceRequest
 import com.anahoret.imagilabsapi.openai.domain.usecases.QuestionAssistanceRequest
-import java.util.UUID
+import java.util.*
 
 object OpenAiRequestGenerator {
     fun createErrorAssistanceRequest(

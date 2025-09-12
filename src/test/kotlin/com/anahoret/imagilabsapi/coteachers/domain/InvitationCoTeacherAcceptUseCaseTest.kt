@@ -4,7 +4,6 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.testClassroom
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.teacherchecklist.domain.CompleteTeacherCheckListStepUseCase
-import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import io.mockk.every

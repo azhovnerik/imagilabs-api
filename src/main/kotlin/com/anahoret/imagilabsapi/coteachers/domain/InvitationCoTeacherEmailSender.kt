@@ -4,7 +4,6 @@ import com.anahoret.imagilabsapi.common.config.DomainProperties
 import com.anahoret.imagilabsapi.email.EmailProperties
 import com.anahoret.imagilabsapi.email.EmailService
 import org.springframework.stereotype.Service
-import java.util.*
 
 interface InvitationCoTeacherEmailSender {
 

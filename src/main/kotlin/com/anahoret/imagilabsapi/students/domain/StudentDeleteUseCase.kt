@@ -9,9 +9,9 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.*
-import jakarta.transaction.Transactional
 
 interface StudentDeleteUseCase {
 

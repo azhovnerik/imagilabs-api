@@ -9,7 +9,7 @@ import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkSe
 import io.mockk.every
 import io.mockk.mockk
 import org.apache.commons.lang3.RandomStringUtils
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

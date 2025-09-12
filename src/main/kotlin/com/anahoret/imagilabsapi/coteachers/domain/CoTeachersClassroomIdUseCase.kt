@@ -7,7 +7,7 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 interface CoTeachersClassroomIdUseCase {
 
