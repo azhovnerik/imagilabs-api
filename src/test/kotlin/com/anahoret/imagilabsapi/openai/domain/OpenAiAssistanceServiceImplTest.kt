@@ -29,7 +29,6 @@ class OpenAiAssistanceServiceImplTest {
             every { id } returns userId
             every { userType } returns UserType.STUDENT
         }
-        private val projectId = UUID.randomUUID()
         private val userQuestion = "What is the latest version of Python?"
         private val aiResponse = "The latest version of Python is 3.12.2"
 

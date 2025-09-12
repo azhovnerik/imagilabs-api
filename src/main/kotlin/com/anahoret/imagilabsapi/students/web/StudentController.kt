@@ -21,7 +21,7 @@ class StudentController(
     private val studentResetPasswordUseCase: StudentResetPasswordUseCase
 ) {
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @DeleteMapping("/api/students/{studentId}")
     fun deleteStudent(
         @PathVariable studentId: UUID,
@@ -33,7 +33,7 @@ class StudentController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @PutMapping("/api/students/{studentId}")
     fun updateStudent(
         @PathVariable studentId: UUID,
@@ -46,7 +46,7 @@ class StudentController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @PatchMapping("/api/students/{studentId}/password")
     fun resetPassword(
         @PathVariable studentId: UUID,
@@ -58,7 +58,7 @@ class StudentController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @GetMapping("/api/students/{studentId}")
     fun getStudent(
         @PathVariable studentId: UUID,
@@ -70,7 +70,7 @@ class StudentController(
         }
     }
 
-    @Secured(UserRole.student)
+    @Secured(UserRole.STUDENT)
     @GetMapping("/api/student/profile/me")
     fun getProfile(@AuthenticationPrincipal studentProfile: StudentProfile): SuccessResponseDto<StudentProfile> {
         return SuccessResponseDto(studentProfile)

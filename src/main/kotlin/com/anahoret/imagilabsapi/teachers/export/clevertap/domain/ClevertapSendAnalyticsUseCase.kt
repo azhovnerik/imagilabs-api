@@ -3,9 +3,9 @@ package com.anahoret.imagilabsapi.teachers.export.clevertap.domain
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.CONGRATULATION_DIALOG_SHOWN
 import com.anahoret.imagilabsapi.teachers.export.clevertap.api.ClevertapAnalyticsApi
-import com.anahoret.imagilabsapi.teachers.export.clevertap.domain.ClevertapEvents.completeOnboardingStep
-import com.anahoret.imagilabsapi.teachers.export.clevertap.domain.ClevertapEvents.teacherSubscriptionExpired
-import com.anahoret.imagilabsapi.teachers.export.clevertap.domain.ClevertapTypes.event
+import com.anahoret.imagilabsapi.teachers.export.clevertap.domain.ClevertapEvents.COMPLETE_ONBOARDING_STEP
+import com.anahoret.imagilabsapi.teachers.export.clevertap.domain.ClevertapEvents.TEACHER_SUBSCRIPTION_EXPIRED
+import com.anahoret.imagilabsapi.teachers.export.clevertap.domain.ClevertapTypes.EVENT
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import java.util.*
@@ -24,7 +24,7 @@ class ClevertapSendAnalyticsUseCaseImpl(
 
     override fun sendTeachersExpiredSubscriptionEvent(teachersIds: List<UUID>) {
         teachersIds
-            .map { ClevertapRequest(identity = it.toString(), type = event, evtName = teacherSubscriptionExpired) }
+            .map { ClevertapRequest(identity = it.toString(), type = EVENT, evtName = TEACHER_SUBSCRIPTION_EXPIRED) }
             .let(clevertapAnalyticsApi::sendAnalytics)
     }
 
@@ -35,8 +35,8 @@ class ClevertapSendAnalyticsUseCaseImpl(
 
         val request = ClevertapRequest(
             identity = teacherId.toString(),
-            type = event,
-            evtName = completeOnboardingStep,
+            type = EVENT,
+            evtName = COMPLETE_ONBOARDING_STEP,
             evtData = mapOf("step" to step.clevertapName)
         )
         clevertapAnalyticsApi.sendAnalytics(listOf(request))

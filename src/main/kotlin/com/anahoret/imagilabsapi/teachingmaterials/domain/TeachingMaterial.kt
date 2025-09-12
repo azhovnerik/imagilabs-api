@@ -2,7 +2,7 @@ package com.anahoret.imagilabsapi.teachingmaterials.domain
 
 import java.util.*
 
-@Suppress("unused", "MemberVisibilityCanBePrivate")
+@Suppress("unused")
 class TeachingMaterial(
     val id: UUID,
     val index: Int,

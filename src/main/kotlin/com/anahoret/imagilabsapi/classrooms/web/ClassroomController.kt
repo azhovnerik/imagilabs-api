@@ -33,7 +33,7 @@ class ClassroomController(
     private val classroomGetTeachersUseCase: ClassroomGetTeachersUseCase
 ) {
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @PostMapping("/api/classrooms")
     fun createClassroom(
         @RequestBody classroomCreateRequest: ClassroomCreateRequest,
@@ -45,13 +45,13 @@ class ClassroomController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @GetMapping("/api/classrooms")
     fun listClassrooms(@AuthenticationPrincipal teacherProfile: TeacherProfile): ResponseDto<List<Classroom>> {
         return SuccessResponseDto(classroomGetListUseCase.getList(teacherProfile.id))
     }
 
-    @Secured(UserRole.teacher, UserRole.student)
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     @GetMapping("/api/classrooms/{classroomId}")
     fun getClassroomById(
         @PathVariable classroomId: UUID,
@@ -63,7 +63,7 @@ class ClassroomController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @GetMapping("/api/classrooms/{classroomId}/teachers")
     fun getClassroomTeachers(
         @PathVariable classroomId: UUID,
@@ -75,7 +75,7 @@ class ClassroomController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @PatchMapping("/api/classrooms/{classroomId}")
     fun updateClassroom(
         @PathVariable classroomId: UUID,
@@ -88,7 +88,7 @@ class ClassroomController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @DeleteMapping("/api/classrooms/{classroomId}")
     fun deleteClassroom(
         @PathVariable classroomId: UUID,
@@ -100,7 +100,7 @@ class ClassroomController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @GetMapping("/api/classrooms/{classroomId}/student-classroom-cards")
     fun listStudentsCredentialsCardsInClassroom(
         @PathVariable classroomId: UUID,
@@ -116,7 +116,7 @@ class ClassroomController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @PostMapping("/api/classrooms/{classroomId}/student-classroom-cards/download")
     fun downloadStudentsCredentialsCardsInClassroomByIds(
         @PathVariable classroomId: UUID,
@@ -134,7 +134,7 @@ class ClassroomController(
         }
     }
 
-    @Secured(UserRole.teacher, UserRole.student)
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     @PostMapping("/api/classrooms/{classroomId}/projects/search")
     fun listProjectsInClassroom(
         @PathVariable classroomId: UUID,

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.util.*
 
-@DisplayName("Spend tip tokens usecase")
+@DisplayName("Spend tip tokens use case")
 class SpendTipTokensUseCaseTest {
 
     private val tipTokensService = mockk<TipTokensService>()

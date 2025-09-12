@@ -6,7 +6,6 @@ import jakarta.persistence.*
 import java.util.*
 
 @Entity
-@Suppress("unused")
 @Table(name = "co_teachers")
 class CoTeacherEntity(
     @Column(name = "classroom_id", nullable = false)

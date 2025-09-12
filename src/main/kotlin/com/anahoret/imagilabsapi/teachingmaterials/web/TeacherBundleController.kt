@@ -21,7 +21,7 @@ class TeacherBundleController(
     private val teacherBundleDeleteUseCase: TeacherBundleDeleteUseCase
 ) {
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @PostMapping("/api/teachers/{teacherId}/bundles")
     fun addBundleToTeacher(
         @PathVariable teacherId: UUID,
@@ -33,7 +33,7 @@ class TeacherBundleController(
         }
     }
 
-    @Secured(UserRole.admin, UserRole.teacher)
+    @Secured(UserRole.ADMIN, UserRole.TEACHER)
     @GetMapping("/api/teachers/{teacherId}/bundles")
     fun getTeacherBundles(
         @PathVariable teacherId: UUID,
@@ -45,7 +45,7 @@ class TeacherBundleController(
         }
     }
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @DeleteMapping("/api/teachers/{teacherId}/bundles/{bundleId}")
     fun deleteTeacherBundle(
         @PathVariable teacherId: UUID,

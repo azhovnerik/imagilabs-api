@@ -29,7 +29,7 @@ class TweetsController(
         const val TWEETS_TEACHER_STATE_PATH = "/api/tweets/teacher/change-state"
     }
 
-    @Secured(UserRole.admin, UserRole.teacher)
+    @Secured(UserRole.ADMIN, UserRole.TEACHER)
     @GetMapping(TWEETS_PATH)
     fun getAllTweets(
         @AuthenticationPrincipal userProfile: UserProfile
@@ -40,7 +40,7 @@ class TweetsController(
         }
     }
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @PutMapping(TWEETS_PATH)
     fun updateTweets(
         @RequestBody request: UpdateTweetsRequest
@@ -49,7 +49,7 @@ class TweetsController(
         return ResponseEntity.ok(SuccessResponseDto(tweets))
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @PutMapping(TWEETS_TEACHER_STATE_PATH)
     fun changeTeacherTweetsState(
         @AuthenticationPrincipal teacherProfile: TeacherProfile,

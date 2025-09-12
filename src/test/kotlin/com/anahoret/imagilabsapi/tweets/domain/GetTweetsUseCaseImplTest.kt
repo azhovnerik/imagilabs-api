@@ -51,7 +51,7 @@ class GetTweetsUseCaseImplTest {
     fun `should return tweets with state for teacher`() {
         val testTeacher = testTeacher()
         val tweet = testTweet()
-        val teacherTweetsState = TeacherTweetsState(testTeacher.id, false, false)
+        val teacherTweetsState = TeacherTweetsState(testTeacher.id, isHidden = false, isSowedFeedbackDialog = false)
 
         every { tweetService.getTweets() } returns listOf(tweet)
         every { teacherTweetsStateService.getByTeacherId(testTeacher.id) } returns teacherTweetsState

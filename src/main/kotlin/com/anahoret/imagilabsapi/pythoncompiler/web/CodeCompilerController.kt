@@ -21,7 +21,7 @@ class CodeCompilerController(
     private val codeRunUseCase: CodeRunUseCase
 ) {
 
-    @Secured(UserRole.teacher, UserRole.student)
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     @PutMapping("/api/code-compiler/run-result")
     fun runCode(
         @RequestBody runCodeRequest: RunCodeRequest,

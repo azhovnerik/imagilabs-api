@@ -19,17 +19,17 @@ class AuthorityServiceImpl : AuthorityService {
 
     override fun getAuthorities(teacherProfile: TeacherProfile): Collection<GrantedAuthority> {
         return when {
-            teacherProfile.emailVerified -> listOf(SimpleGrantedAuthority(UserRole.teacher))
-            else -> listOf(SimpleGrantedAuthority(UserRole.teacherEmailNotVerified))
+            teacherProfile.emailVerified -> listOf(SimpleGrantedAuthority(UserRole.TEACHER))
+            else -> listOf(SimpleGrantedAuthority(UserRole.TEACHER_EMAIL_NOT_VERIFIED))
         }
     }
 
     override fun getAuthorities(studentProfile: StudentProfile): Collection<GrantedAuthority> {
-        return listOf(SimpleGrantedAuthority(UserRole.student))
+        return listOf(SimpleGrantedAuthority(UserRole.STUDENT))
     }
 
     override fun getAuthorities(adminProfile: AdminProfile): Collection<GrantedAuthority> {
-        return listOf(SimpleGrantedAuthority(UserRole.admin))
+        return listOf(SimpleGrantedAuthority(UserRole.ADMIN))
     }
 
 }

@@ -13,6 +13,7 @@ class ImagilabsApiApplicationTests {
     @MockitoBean
     lateinit var emailService: EmailService
 
+    @Suppress("EmptyMethod")
     @Test
     fun contextLoads() {
     }

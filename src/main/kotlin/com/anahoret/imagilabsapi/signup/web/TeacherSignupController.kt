@@ -39,7 +39,7 @@ class TeacherSignupController(
         }
     }
 
-    @Secured(UserRole.teacherEmailNotVerified)
+    @Secured(UserRole.TEACHER_EMAIL_NOT_VERIFIED)
     @PostMapping("/api/sign-up/teacher/email-verification")
     fun emailVerification(
         @RequestBody emailVerificationRequest: TeacherEmailVerificationRequest,
@@ -53,7 +53,7 @@ class TeacherSignupController(
         }
     }
 
-    @Secured(UserRole.teacherEmailNotVerified)
+    @Secured(UserRole.TEACHER_EMAIL_NOT_VERIFIED)
     @PostMapping("/api/sign-up/teacher/email-verification/resend-code")
     fun resendEmailVerification(
         @AuthenticationPrincipal teacherProfile: TeacherProfile

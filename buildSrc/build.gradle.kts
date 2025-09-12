@@ -1,4 +1,4 @@
-val jSoupVersion = "1.14.3"
+val jSoupVersion = "1.21.2"
 
 plugins {
     `kotlin-dsl`

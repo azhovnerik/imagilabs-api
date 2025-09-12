@@ -2,9 +2,9 @@ package com.anahoret.imagilabsapi.security
 
 object UserRole {
 
-    const val teacher: String = "ROLE_TEACHER"
-    const val teacherEmailNotVerified: String = "ROLE_TEACHER_EMAIL_NOT_VERIFIED"
-    const val student: String = "ROLE_STUDENT"
-    const val admin: String = "ROLE_ADMIN"
+    const val TEACHER: String = "ROLE_TEACHER"
+    const val TEACHER_EMAIL_NOT_VERIFIED: String = "ROLE_TEACHER_EMAIL_NOT_VERIFIED"
+    const val STUDENT: String = "ROLE_STUDENT"
+    const val ADMIN: String = "ROLE_ADMIN"
 
 }

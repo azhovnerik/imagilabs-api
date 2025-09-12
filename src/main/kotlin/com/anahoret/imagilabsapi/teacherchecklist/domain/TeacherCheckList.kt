@@ -3,7 +3,6 @@ package com.anahoret.imagilabsapi.teacherchecklist.domain
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStepEntity
 
-@Suppress("unused")
 class TeacherCheckList(
     val checkListSteps: List<CheckListStep>
 ) {
@@ -16,7 +15,6 @@ class TeacherCheckList(
     }
 }
 
-@Suppress("unused")
 class CheckListStep(
     val step: TeacherCheckListStep,
     val completed: Boolean

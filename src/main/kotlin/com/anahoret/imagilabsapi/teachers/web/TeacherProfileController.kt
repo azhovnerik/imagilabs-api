@@ -22,13 +22,13 @@ class TeacherProfileController(
     private val teacherGetStatisticUseCase: TeacherGetStatisticUseCase
 ) {
 
-    @Secured(UserRole.teacher, UserRole.teacherEmailNotVerified)
+    @Secured(UserRole.TEACHER, UserRole.TEACHER_EMAIL_NOT_VERIFIED)
     @GetMapping("/api/teacher/profile/me")
     fun getProfile(@AuthenticationPrincipal teacherProfile: TeacherProfile): SuccessResponseDto<TeacherProfile> {
         return SuccessResponseDto(teacherProfile)
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @GetMapping("/api/teacher/statistic")
     fun getStatistic(
         @AuthenticationPrincipal teacherProfile: TeacherProfile
@@ -39,7 +39,7 @@ class TeacherProfileController(
         }
     }
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @GetMapping("/api/teachers")
     fun getTeachers(
         @RequestParam(required = false) searchQuery: String?,
@@ -48,7 +48,7 @@ class TeacherProfileController(
         return SuccessResponseDto(teacherProfileService.listAllForAdmin(searchQuery, sort))
     }
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @GetMapping("/api/teachers/{teacherId}")
     fun getTeacherById(
         @PathVariable teacherId: UUID
@@ -59,7 +59,7 @@ class TeacherProfileController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @DeleteMapping("/api/teachers/{teacherId}")
     fun deleteTeacher(
         @PathVariable teacherId: UUID,

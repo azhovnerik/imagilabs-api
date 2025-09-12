@@ -24,7 +24,7 @@ class TeacherSubscriptionController(
     private val checkTeacherAccessProLessonsUseCase: CheckTeacherAccessProLessonsUseCase
 ) {
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @PutMapping("/api/teachers/{teacherId}/subscription")
     fun setSubscriptionPeriodForTeacher(
         @RequestBody setSubscriptionPeriodRequest: SetSubscriptionPeriodRequest,
@@ -36,7 +36,7 @@ class TeacherSubscriptionController(
         }
     }
 
-    @Secured(UserRole.admin, UserRole.teacher)
+    @Secured(UserRole.ADMIN, UserRole.TEACHER)
     @PutMapping("/api/teachers/{teacherId}/subscription/cancel")
     fun cancelTeacherSubscription(
         @PathVariable teacherId: UUID,
@@ -48,7 +48,7 @@ class TeacherSubscriptionController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @GetMapping("/api/teacher/subscription/access/pro-lessons")
     fun checkTeacherHasAccessToProLessons(
         @AuthenticationPrincipal teacherProfile: TeacherProfile

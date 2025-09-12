@@ -7,7 +7,7 @@ import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.users.UserType
 import java.util.*
 
-@Suppress("MemberVisibilityCanBePrivate", "unused")
+@Suppress("unused")
 class TeacherProfile(
     override val id: UUID,
     val firstName: String,

@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.authTests
+package com.anahoret.imagilabsapi.apiTests.auth
 
 import com.anahoret.imagilabsapi.auth.web.AuthenticationController
 import com.anahoret.imagilabsapi.auth.web.RequestAuthenticatorService

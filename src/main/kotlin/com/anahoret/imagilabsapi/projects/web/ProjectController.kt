@@ -28,7 +28,7 @@ class ProjectController(
     private val projectDeleteUseCase: ProjectDeleteUseCase,
 ) {
 
-    @Secured(UserRole.teacher, UserRole.student)
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     @PostMapping("/api/projects")
     fun createProject(
         @AuthenticationPrincipal userProfile: UserProfile
@@ -37,7 +37,7 @@ class ProjectController(
         return SuccessResponseDto(project)
     }
 
-    @Secured(UserRole.teacher, UserRole.student)
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     @PostMapping("/api/projects/search")
     fun listProjects(
         @RequestParam(required = false) classroomId: UUID?,
@@ -51,7 +51,7 @@ class ProjectController(
         }
     }
 
-    @Secured(UserRole.teacher, UserRole.student)
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     @PutMapping("/api/projects/{projectId}")
     fun updateProject(
         @RequestParam(required = false) classroomId: UUID?,
@@ -65,7 +65,7 @@ class ProjectController(
         }
     }
 
-    @Secured(UserRole.teacher, UserRole.student)
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     @GetMapping("/api/projects/{projectId}")
     fun getProject(
         @RequestParam(required = false) classroomId: UUID?,
@@ -78,7 +78,7 @@ class ProjectController(
         }
     }
 
-    @Secured(UserRole.teacher, UserRole.student)
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     @DeleteMapping("/api/projects/{projectId}")
     fun deleteProject(
         @RequestParam(required = false) classroomId: UUID?,

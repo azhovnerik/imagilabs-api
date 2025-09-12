@@ -6,5 +6,4 @@ import java.util.*
 interface TeacherTweetStateRepository: JpaRepository<TeacherTweetStateEntity, UUID> {
 
     fun findByTeacherId(teacherId: UUID): TeacherTweetStateEntity?
-    fun existsByTeacherId(teacherId: UUID): Boolean
 }

@@ -14,7 +14,6 @@ class IndexController {
         return SuccessResponseDto(IndexResponse(scheme, header))
     }
 
-    @Suppress("unused")
     class IndexResponse(scheme: String, host: String) {
 
         val message: String = "Welcome to ImagiLabs API"

@@ -39,7 +39,6 @@ class Classroom(
     }
 }
 
-@Suppress("unused")
 enum class TeacherRole {
     CO_TEACHER_PENDING, CO_TEACHER, OWNER
 }

@@ -24,7 +24,7 @@ class TeachingMaterialController(
     private val teachingMaterialsGetUseCase: TeachingMaterialsGetUseCase
 ) {
 
-    @Secured(UserRole.teacher, UserRole.student)
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     @GetMapping("/api/classrooms/{classroomId}/teaching-materials")
     fun classroomMaterials(
         @PathVariable classroomId: UUID,
@@ -36,7 +36,7 @@ class TeachingMaterialController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @GetMapping("/api/teaching-materials")
     fun teacherMaterials(
         @AuthenticationPrincipal teacherProfile: TeacherProfile

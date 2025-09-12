@@ -9,7 +9,7 @@ import java.time.Duration
 class JwtProperties @ConstructorBinding constructor(
     // Need to get JWT_SECRET from here instead of application.yml because of this issue
     // https://github.com/spring-projects/spring-boot/issues/8693
-    @Value("\${JWT_SECRET}") val secret: String,
+    @Value($$"${JWT_SECRET}") val secret: String,
     val ttlWeb: Duration,
     val ttlMobile: Duration
 ) {
