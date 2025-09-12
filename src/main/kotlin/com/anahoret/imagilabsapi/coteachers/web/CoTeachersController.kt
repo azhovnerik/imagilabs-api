@@ -26,7 +26,7 @@ class CoTeachersController(
     private val coTeacherLeaveUseCase: CoTeacherLeaveUseCase
 ) {
 
-    @Secured(UserRole.teacher, UserRole.student)
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     @GetMapping("/api/classrooms/{classroomId}/co-teachers")
     fun getAllCoTeachers(
         @PathVariable classroomId: UUID
@@ -37,7 +37,7 @@ class CoTeachersController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @PostMapping("/api/classrooms/{classroomId}/invite-teacher")
     fun inviteTeacher(
         @PathVariable classroomId: UUID,
@@ -50,7 +50,7 @@ class CoTeachersController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @PostMapping("/api/classrooms/{invitationId}/resend-invite")
     fun resentInvite(
         @PathVariable invitationId: UUID,
@@ -62,7 +62,7 @@ class CoTeachersController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     //TODO rename this end-point
     @PutMapping("/api/classrooms/{invitationId}/accept-invite")
     fun acceptInvitation(
@@ -75,7 +75,7 @@ class CoTeachersController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @DeleteMapping("/api/classrooms/{classroomId}/{coTeacherId}/remove")
     fun removeCoTeacher(
         @PathVariable classroomId: UUID,
@@ -88,7 +88,7 @@ class CoTeachersController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @DeleteMapping("/api/classrooms/{classroomId}/co-teacher/leave")
     fun leaveFromClassroom(
         @PathVariable classroomId: UUID,

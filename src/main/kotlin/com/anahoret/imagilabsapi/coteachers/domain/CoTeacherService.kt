@@ -1,6 +1,5 @@
 package com.anahoret.imagilabsapi.coteachers.domain
 
-import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole.CO_TEACHER
 import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole.CO_TEACHER_PENDING
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherEntity
@@ -49,7 +48,7 @@ class CoTeacherServiceImpl(
         coTeacherRepository.findByIdOrNull(coTeacherId)
             ?.let {
                 it.teacherId = teacherId
-                it.coTeacherStatus = TeacherRole.CO_TEACHER
+                it.coTeacherStatus = CO_TEACHER
                 coTeacherRepository.save(it)
             }
     }
@@ -57,7 +56,7 @@ class CoTeacherServiceImpl(
     override fun acceptInvitation(coTeacherId: UUID) {
         coTeacherRepository.findByIdOrNull(coTeacherId)
             ?.let {
-                it.coTeacherStatus = TeacherRole.CO_TEACHER
+                it.coTeacherStatus = CO_TEACHER
                 coTeacherRepository.save(it)
             }
     }

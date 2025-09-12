@@ -3,7 +3,6 @@ package com.anahoret.imagilabsapi.teachingmaterials.domain
 import com.anahoret.imagilabsapi.teachingmaterials.storage.BundleLessonEntity
 import java.util.*
 
-@Suppress("unused")
 class BundleLesson(
     val id: UUID,
     val bundleId: UUID,

@@ -1,6 +1,6 @@
 package com.anahoret.imagilabsapi.coteachers.domain
 
-import java.util.UUID
+import java.util.*
 
 class InvitationEmailPreferences(
     val fromName: String,

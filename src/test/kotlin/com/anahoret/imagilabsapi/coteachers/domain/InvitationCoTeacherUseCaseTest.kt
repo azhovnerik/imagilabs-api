@@ -4,7 +4,6 @@ import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.common.testTeacher
-import com.anahoret.imagilabsapi.coteachers.domain.*
 import com.anahoret.imagilabsapi.signup.domain.ImagiLabsEmailValidator
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import io.mockk.every
@@ -59,7 +58,7 @@ class InvitationCoTeacherUseCaseTest {
     fun `should return error when not owner try to invite co-teacher`() {
         val teacherEmail = "teacher@gmail.com"
         val classroomId = UUID.randomUUID()
-        val classroom = mockk<Classroom>() {
+        val classroom = mockk<Classroom> {
             every { teacherId } returns UUID.randomUUID()
         }
 

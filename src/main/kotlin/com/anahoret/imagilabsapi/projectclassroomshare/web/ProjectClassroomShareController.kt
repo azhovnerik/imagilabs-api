@@ -25,7 +25,7 @@ class ProjectClassroomShareController(
     private val projectClassroomUnshareUseCase: ProjectClassroomUnshareUseCase
 ) {
 
-    @Secured(UserRole.teacher, UserRole.student)
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     @PostMapping("/api/project-classroom-share")
     fun shareProjectInClassroom(
         @RequestBody projectClassroomShareChangeRequest: ProjectClassroomShareChangeRequest,
@@ -37,7 +37,7 @@ class ProjectClassroomShareController(
         }
     }
 
-    @Secured(UserRole.teacher, UserRole.student)
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     @DeleteMapping("/api/project-classroom-share")
     fun unshareProjectInClassroom(
         @RequestBody projectClassroomShareChangeRequest: ProjectClassroomShareChangeRequest,

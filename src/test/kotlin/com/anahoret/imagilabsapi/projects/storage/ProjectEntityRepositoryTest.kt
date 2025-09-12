@@ -175,7 +175,7 @@ class ProjectEntityRepositoryTest {
                 setOf(ownerClassroomId, ownerClassroomId2),
                 Pageable.unpaged()
             )
-            assertTrue(searchResult.isEmpty())
+            assertTrue(searchResult.isEmpty)
         }
 
         @Test
@@ -183,7 +183,7 @@ class ProjectEntityRepositoryTest {
             projectClassroomShareEntityRepository.deleteAllByProjectIdIn(ownerProjectIds)
             projectEntityRepository.deleteAllByOwnerId(ownerId)
             val searchResult = projectEntityRepository.search(ownerId, null, null, Pageable.unpaged())
-            assertTrue(searchResult.isEmpty())
+            assertTrue(searchResult.isEmpty)
         }
 
         @Test
@@ -191,7 +191,7 @@ class ProjectEntityRepositoryTest {
             projectClassroomShareEntityRepository.deleteAllByProjectIdIn(nonOwnerProjectIds)
             projectEntityRepository.deleteAllById(nonOwnerProjectIds)
             val searchResult = projectEntityRepository.search(nonOwnerId, null, null, Pageable.unpaged())
-            assertTrue(searchResult.isEmpty())
+            assertTrue(searchResult.isEmpty)
         }
     }
 }

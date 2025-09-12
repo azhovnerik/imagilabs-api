@@ -1,8 +1,8 @@
 package com.anahoret.imagilabsapi.common.web
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
-import jakarta.servlet.http.HttpServletRequest
 
 @RestController
 class IndexController {
@@ -14,7 +14,6 @@ class IndexController {
         return SuccessResponseDto(IndexResponse(scheme, header))
     }
 
-    @Suppress("unused")
     class IndexResponse(scheme: String, host: String) {
 
         val message: String = "Welcome to ImagiLabs API"

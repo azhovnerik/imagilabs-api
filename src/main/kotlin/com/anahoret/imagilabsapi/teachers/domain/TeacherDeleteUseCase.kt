@@ -44,7 +44,7 @@ class TeacherDeleteUseCaseImpl(
         return Unit.right()
     }
 
-    //following method will also delete students from the classrooms and their projects (shared and drafts)
+    //the following method will also delete students from the classrooms and their projects (shared and drafts)
     private fun deleteClassrooms(teacherProfile: TeacherProfile) {
         val teacherClassroomIds = classroomService.listByTeacher(teacherProfile.id)
             .map { it.id }

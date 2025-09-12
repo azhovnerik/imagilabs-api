@@ -26,7 +26,7 @@ interface TeacherProfileService {
     fun listAllForAdmin(searchQuery: String?, sort: Sort): List<TeacherProfileAdminView>
     fun listForAdmin(excludeIds: List<UUID>, sort: Sort): List<TeacherProfileAdminView>
     fun setPassword(email: String, newPassword: String)
-    fun getTeachersWithExpiredSubscriptionBetween(leftRange: Long, rightRnage: Long): List<TeacherProfile>
+    fun getTeachersWithExpiredSubscriptionBetween(leftRange: Long, rightRange: Long): List<TeacherProfile>
     fun delete(teacherId: UUID)
     fun completeChatOnboarding(teacherId: UUID): TeacherProfile?
     fun isAiChatOnboardingCompleted(teacherId: UUID): Boolean
@@ -41,7 +41,7 @@ class TeacherProfileServiceImpl(
     private val passwordEncoder: PasswordEncoder,
     private val teacherSubscriptionService: TeacherSubscriptionService,
     private val clock: Clock,
-    @Value("\${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
+    @Value($$"${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : TeacherProfileService {
 
     override fun createTeacher(request: TeacherSignupRequest): TeacherProfile {
@@ -158,9 +158,9 @@ class TeacherProfileServiceImpl(
             }
     }
 
-    override fun getTeachersWithExpiredSubscriptionBetween(leftRange: Long, rightRnage: Long): List<TeacherProfile> {
+    override fun getTeachersWithExpiredSubscriptionBetween(leftRange: Long, rightRange: Long): List<TeacherProfile> {
         return teacherProfileEntityRepository
-            .findAllBySubscriptionStartIsNotNullAndSubscriptionEndBetween(leftRange, rightRnage)
+            .findAllBySubscriptionStartIsNotNullAndSubscriptionEndBetween(leftRange, rightRange)
             .map {
                 val subscription =
                     teacherSubscriptionService.buildSubscriptionDto(it)

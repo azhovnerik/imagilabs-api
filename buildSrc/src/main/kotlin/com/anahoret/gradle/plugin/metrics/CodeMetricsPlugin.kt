@@ -25,9 +25,9 @@ abstract class CodeMetricsPluginExtension(project: Project) {
 
     abstract val projectId: Property<Int>
     val fileTypes: SetProperty<String> = project.objects.setProperty(String::class.java)
-        .convention(project.provider({ listOf("kt", "java") }))
+        .convention(project.provider { listOf("kt", "java") })
     val serverUrl: Property<String> = project.objects.property(String::class.java)
-        .convention(project.provider({ "https://api.metrics.anadea.co/api/metrics" }))
+        .convention(project.provider { "https://api.metrics.anadea.co/api/metrics" })
 }
 
 abstract class PublishMetricsTask : DefaultTask() {
@@ -81,12 +81,12 @@ class CodeMetricsPlugin : Plugin<Project> {
     private lateinit var codeMetricsPluginExtension: CodeMetricsPluginExtension
 
     override fun apply(project: Project) {
-        codeMetricsPluginExtension = project.extensions.create<CodeMetricsPluginExtension>(
+        codeMetricsPluginExtension = project.extensions.create(
             CodeMetricsPluginExtension.NAME, CodeMetricsPluginExtension::class.java
         )
 
         val jacocoTestReportTasks = project.getAllTasks(true)
-            .mapNotNull { it.value.find { it.name == "jacocoTestReport" } }
+            .mapNotNull { (_, tasks) -> tasks.find { it.name == "jacocoTestReport" } }
             .toTypedArray()
 
         project.tasks.register(
@@ -151,7 +151,7 @@ class MetricsCalculator(private val project: Project) {
     }
 
     private fun List<Map<String, Int>>.sumValues(): Map<String, Int> {
-        return fold(mutableMapOf<String, Int>()) { acc, linesMap ->
+        return fold(mutableMapOf()) { acc, linesMap ->
             linesMap.forEach { (sourceSetName, linesOfCode) ->
                 acc[sourceSetName] = (acc[sourceSetName] ?: 0) + linesOfCode
             }

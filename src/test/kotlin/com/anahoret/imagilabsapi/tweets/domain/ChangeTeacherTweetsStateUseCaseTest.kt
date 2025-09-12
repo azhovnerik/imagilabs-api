@@ -21,7 +21,7 @@ class ChangeTeacherTweetsStateUseCaseTest {
     fun `should change state and return tweets without creation`() {
         val testTeacher = testTeacher()
         val request = ChangeTeacherTweetsStateRequest(true)
-        val testTeacherTweetsState = TeacherTweetsState(testTeacher.id, true, true)
+        val testTeacherTweetsState = TeacherTweetsState(testTeacher.id, isHidden = true, isSowedFeedbackDialog = true)
         val testTweet = testTweet()
 
         every { tweetService.getTweets() } returns listOf(testTweet)
@@ -41,7 +41,7 @@ class ChangeTeacherTweetsStateUseCaseTest {
     fun `should change state and return tweets after creation`() {
         val testTeacher = testTeacher()
         val request = ChangeTeacherTweetsStateRequest(true)
-        val testTeacherTweetsState = TeacherTweetsState(testTeacher.id, true, true)
+        val testTeacherTweetsState = TeacherTweetsState(testTeacher.id, isHidden = true, isSowedFeedbackDialog = true)
         val testTweet = testTweet()
 
         every { teacherTweetsStateService.create(testTeacher.id) } returns testTeacherTweetsState

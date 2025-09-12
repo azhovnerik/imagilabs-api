@@ -1,6 +1,5 @@
 package com.anahoret.imagilabsapi.tweets.domain
 
-@Suppress("unused")
 class Tweets(
     val tweets: List<Tweet>,
     val teacherTweetSate: TeacherTweetsState?

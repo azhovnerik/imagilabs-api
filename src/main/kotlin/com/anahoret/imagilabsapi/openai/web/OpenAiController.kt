@@ -19,7 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
-@Secured(UserRole.teacher, UserRole.student)
+@Secured(UserRole.TEACHER, UserRole.STUDENT)
 @RestController
 class OpenAiController(
     private val getOpenAiResponseOnSuccess: GetOpenAiAssistanceOnSuccessUseCase,
@@ -120,7 +120,7 @@ class OpenAiController(
     }
 
     @PatchMapping(INTRO_PATH)
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     fun introSeen(@AuthenticationPrincipal teacherProfile: TeacherProfile): ResponseEntity<ResponseDto<Void>> {
         return when (val result = introSeenUseCase.setIntroSeen(teacherProfile)) {
             is Either.Left -> mapErrors(result.value)

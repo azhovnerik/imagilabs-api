@@ -5,7 +5,7 @@ import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
 import io.cucumber.spring.CucumberContextConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 
 @CucumberContextConfiguration
 @SpringBootTest
@@ -13,6 +13,6 @@ import org.springframework.boot.test.mock.mockito.MockBean
 @AutoConfigureMockMvc
 class CucumberSpringTest {
 
-    @MockBean
+    @MockitoBean
     lateinit var emailService: EmailService
 }

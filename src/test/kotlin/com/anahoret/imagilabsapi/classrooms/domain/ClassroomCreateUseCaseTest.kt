@@ -6,12 +6,13 @@ import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.students.domain.StudentCreateRequest
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
-import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teacherchecklist.domain.CompleteTeacherCheckListStepUseCase
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.util.*

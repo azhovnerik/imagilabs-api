@@ -6,7 +6,6 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 
-@Suppress("unused")
 @Entity
 @Table(name = "teacher_profiles")
 class TeacherProfileEntity(

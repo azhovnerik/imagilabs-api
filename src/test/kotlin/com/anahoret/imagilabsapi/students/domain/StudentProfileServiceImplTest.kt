@@ -1,9 +1,9 @@
 package com.anahoret.imagilabsapi.students.domain
 
 import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 

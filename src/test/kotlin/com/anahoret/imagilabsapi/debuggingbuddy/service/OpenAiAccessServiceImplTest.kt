@@ -4,7 +4,6 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.openai.domain.EnvironmentPermissionService
 import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessServiceImpl
 import com.anahoret.imagilabsapi.openai.domain.TipTokensService
-import com.anahoret.imagilabsapi.projects.domain.Project
 import com.anahoret.imagilabsapi.projects.domain.ProjectAccessService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.users.UserType

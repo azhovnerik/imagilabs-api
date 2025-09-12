@@ -1,7 +1,7 @@
 package com.anahoret.imagilabsapi.openai.storage
 
 import org.springframework.data.repository.CrudRepository
-import java.util.UUID
+import java.util.*
 
 interface OpenAiAssistanceRepository : CrudRepository<OpenAiAssistanceEntity, UUID> {
     fun existsBySessionId(sessionId: UUID): Boolean

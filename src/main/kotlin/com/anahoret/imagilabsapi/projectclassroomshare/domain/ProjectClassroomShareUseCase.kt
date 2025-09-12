@@ -1,7 +1,7 @@
 package com.anahoret.imagilabsapi.projectclassroomshare.domain
 
 import arrow.core.Either
-import arrow.core.filterOrElse
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
@@ -54,7 +54,10 @@ class ProjectClassroomShareUseCaseImpl(
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
         val result = codeRunUseCase.run(sharedBy, RunCodeRequest(project.sourceCode))
-            .filterOrElse({ it.output != null }) { ValidationError("PROJECT_COMPILATION_FAILED") }
+            .flatMap {
+                if (it.output != null) it.right()
+                else ValidationError("PROJECT_COMPILATION_FAILED").left()
+            }
         return when (result) {
             is Either.Left -> result
             is Either.Right -> {

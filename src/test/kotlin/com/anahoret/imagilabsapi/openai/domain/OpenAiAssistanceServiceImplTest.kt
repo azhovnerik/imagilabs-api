@@ -25,11 +25,10 @@ class OpenAiAssistanceServiceImplTest {
     inner class Save {
 
         private val userId = UUID.randomUUID()
-        private val userProfile = mockk<UserProfile>() {
+        private val userProfile = mockk<UserProfile> {
             every { id } returns userId
             every { userType } returns UserType.STUDENT
         }
-        private val projectId = UUID.randomUUID()
         private val userQuestion = "What is the latest version of Python?"
         private val aiResponse = "The latest version of Python is 3.12.2"
 

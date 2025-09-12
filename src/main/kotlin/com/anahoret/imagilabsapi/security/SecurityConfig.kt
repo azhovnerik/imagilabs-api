@@ -27,33 +27,32 @@ class SecurityConfig(
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            .csrf().disable()
-            .cors()
-            .and()
-            .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
-            .and()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeHttpRequests()
-            // Index
-            .requestMatchers(HttpMethod.GET, "/").permitAll()
+            .csrf { it.disable() }
+            .cors {}
+            .exceptionHandling { it.authenticationEntryPoint(unauthorizedHandler) }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .authorizeHttpRequests {
+                it
+                    // Index
+                    .requestMatchers(HttpMethod.GET, "/").permitAll()
 
-            // Auth
-            .requestMatchers(HttpMethod.POST, "/api/auth/teacher").permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/auth/student").permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/auth/teacher/forgot-password").permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/auth/teacher/reset-password").permitAll()
+                    // Auth
+                    .requestMatchers(HttpMethod.POST, "/api/auth/teacher").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/student").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/teacher/forgot-password").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/teacher/reset-password").permitAll()
 
-            // Sign up
-            .requestMatchers(HttpMethod.POST, "/api/sign-up/teacher").permitAll()
+                    // Sign up
+                    .requestMatchers(HttpMethod.POST, "/api/sign-up/teacher").permitAll()
 
-            // Swagger Documentation
-            .requestMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
-            .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/v3/api-docs").permitAll()
-            .requestMatchers(HttpMethod.GET, "/v3/api-docs/swagger-config").permitAll()
-            .anyRequest().authenticated()
+                    // Swagger Documentation
+                    .requestMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/v3/api-docs").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/v3/api-docs/swagger-config").permitAll()
+                    .anyRequest().authenticated()
+            }
 
         http.addFilterBefore(authorizationTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()

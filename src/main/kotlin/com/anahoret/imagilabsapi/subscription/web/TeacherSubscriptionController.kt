@@ -14,11 +14,7 @@ import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
@@ -28,7 +24,7 @@ class TeacherSubscriptionController(
     private val checkTeacherAccessProLessonsUseCase: CheckTeacherAccessProLessonsUseCase
 ) {
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @PutMapping("/api/teachers/{teacherId}/subscription")
     fun setSubscriptionPeriodForTeacher(
         @RequestBody setSubscriptionPeriodRequest: SetSubscriptionPeriodRequest,
@@ -40,7 +36,7 @@ class TeacherSubscriptionController(
         }
     }
 
-    @Secured(UserRole.admin, UserRole.teacher)
+    @Secured(UserRole.ADMIN, UserRole.TEACHER)
     @PutMapping("/api/teachers/{teacherId}/subscription/cancel")
     fun cancelTeacherSubscription(
         @PathVariable teacherId: UUID,
@@ -52,7 +48,7 @@ class TeacherSubscriptionController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @GetMapping("/api/teacher/subscription/access/pro-lessons")
     fun checkTeacherHasAccessToProLessons(
         @AuthenticationPrincipal teacherProfile: TeacherProfile

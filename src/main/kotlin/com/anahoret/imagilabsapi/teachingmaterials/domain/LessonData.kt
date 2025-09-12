@@ -6,15 +6,4 @@ data class LessonData(
     val worksheetUri: String,
     val slidesUri: String,
     val proLesson: Boolean
-) {
-
-    companion object {
-
-        fun fromBundleLesson(bundleLesson: BundleLesson): LessonData {
-            return with(bundleLesson) {
-                LessonData(index, name, worksheetUri, slidesUri, proLesson)
-            }
-        }
-    }
-
-}
+)

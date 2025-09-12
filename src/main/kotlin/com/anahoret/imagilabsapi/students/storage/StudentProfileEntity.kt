@@ -1,10 +1,10 @@
 package com.anahoret.imagilabsapi.students.storage
 
 import com.anahoret.imagilabsapi.common.storage.BaseEntity
-import java.util.*
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
+import java.util.*
 
 @Entity
 @Table(name = "student_profiles")

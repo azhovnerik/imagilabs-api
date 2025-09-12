@@ -54,7 +54,7 @@ class AdminGetTeacherByIdAPITest : ControllerTest() {
         every { teacherGetUseCase.get(teacherId) } returns mockk<TeacherProfileAdminView>(relaxed = true).right()
         val adminMock = AdminProfile(adminId, "Admin")
         every { adminProfileService.getAdminById(adminId) } returns adminMock
-        every { authorityService.getAuthorities(adminMock) } returns listOf(SimpleGrantedAuthority(UserRole.admin))
+        every { authorityService.getAuthorities(adminMock) } returns listOf(SimpleGrantedAuthority(UserRole.ADMIN))
         val token = jwtTokenUtil.createToken(adminId, UserType.ADMIN)
         mvc.perform(
             get("/api/teachers/$teacherId")

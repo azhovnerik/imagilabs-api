@@ -21,7 +21,7 @@ class APIRootSteps(private val mvc: MockMvc) {
     @Then("^Swagger docs URI in response equals to (.*)$")
     fun `I see welcome message`(swaggerDocsUri: String) {
         get.andExpect {
-            jsonPath("\$.payload.documentation", `is`(swaggerDocsUri))
+            jsonPath($$"$.payload.documentation", `is`(swaggerDocsUri))
         }
     }
 

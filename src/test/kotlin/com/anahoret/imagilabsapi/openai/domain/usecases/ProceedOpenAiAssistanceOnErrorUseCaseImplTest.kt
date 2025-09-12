@@ -48,7 +48,7 @@ class ProceedOpenAiAssistanceOnErrorUseCaseImplTest {
     }
 
     @Test
-    fun `should return error when precondiotions not checked`() {
+    fun `should return error when preconditions not checked`() {
         val error = mockk<NotFoundError>()
         every { openAiRequestValidator.validate(request, userProfile) } returns Unit.right()
         every { openAiPreconditionChecker.check(request, userProfile) } returns error.left()

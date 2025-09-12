@@ -39,11 +39,11 @@ class TipTokensServiceImplTest {
     private val testTeacherId = UUID.randomUUID()
     private val testStudentId = UUID.randomUUID()
 
-    private val studentProfile = mockk<UserProfile>() {
+    private val studentProfile = mockk<UserProfile> {
         every { id } returns testStudentId
         every { userType } returns UserType.STUDENT
     }
-    private val teacherProfile = mockk<UserProfile>() {
+    private val teacherProfile = mockk<UserProfile> {
         every { id } returns testTeacherId
         every { userType } returns UserType.TEACHER
     }

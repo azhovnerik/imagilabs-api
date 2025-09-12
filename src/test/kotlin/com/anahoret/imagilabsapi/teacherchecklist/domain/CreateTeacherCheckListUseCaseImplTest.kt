@@ -3,13 +3,13 @@ package com.anahoret.imagilabsapi.teacherchecklist.domain
 import arrow.core.Either
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.testTeacherCheckList
-import io.mockk.mockk
-import org.junit.jupiter.api.DisplayName
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import io.mockk.every
-import org.junit.jupiter.api.Test
-import java.util.UUID
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import java.util.*
 
 @DisplayName("Create teacher check list use case")
 class CreateTeacherCheckListUseCaseImplTest {

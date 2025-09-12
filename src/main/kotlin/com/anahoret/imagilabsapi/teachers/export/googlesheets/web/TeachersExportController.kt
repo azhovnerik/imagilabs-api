@@ -20,14 +20,14 @@ class TeachersExportController(
     private val applicationPropertiesService: ApplicationPropertiesService
 ) {
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @PutMapping("/api/teachers/export/google-sheet")
     fun exportGoogleSheetAll(): ResponseDto<Void> {
         googleSheetsTeachersExportUseCase.export()
         return EmptySuccessResponseDto
     }
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @GetMapping("/api/teachers/export/google-sheet")
     fun getGoogleSheetUri(): ResponseDto<String?> {
         return SuccessResponseDto(

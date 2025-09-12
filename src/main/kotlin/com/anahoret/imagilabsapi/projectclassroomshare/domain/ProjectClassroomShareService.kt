@@ -3,9 +3,9 @@ package com.anahoret.imagilabsapi.projectclassroomshare.domain
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomSearchProjectsRequest
 import com.anahoret.imagilabsapi.projectclassroomshare.storage.ProjectClassroomShareEntity
 import com.anahoret.imagilabsapi.projectclassroomshare.storage.ProjectClassroomShareEntityRepository
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.*
-import jakarta.transaction.Transactional
 
 interface ProjectClassroomShareService {
 

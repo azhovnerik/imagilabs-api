@@ -1,6 +1,5 @@
 package com.anahoret.imagilabsapi.teachers.export.clevertap.config
 
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean

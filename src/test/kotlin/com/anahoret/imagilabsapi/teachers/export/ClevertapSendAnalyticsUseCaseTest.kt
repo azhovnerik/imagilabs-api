@@ -4,7 +4,6 @@ import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep
 import com.anahoret.imagilabsapi.teachers.export.clevertap.api.ClevertapAnalyticsApi
 import com.anahoret.imagilabsapi.teachers.export.clevertap.domain.ClevertapRequest
 import com.anahoret.imagilabsapi.teachers.export.clevertap.domain.ClevertapSendAnalyticsUseCaseImpl
-import io.mockk.called
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -81,7 +80,7 @@ class ClevertapSendAnalyticsUseCaseTest {
 
             clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(teacherId, step)
 
-            verify { clevertapAnalyticsApi.sendAnalytics(any()) wasNot called }
+            verify(inverse = true) { clevertapAnalyticsApi.sendAnalytics(any()) }
         }
     }
 

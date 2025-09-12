@@ -1,7 +1,6 @@
 package com.anahoret.imagilabsapi.coteachers
 
 import arrow.core.left
-import arrow.core.prependTo
 import arrow.core.right
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
@@ -16,7 +15,6 @@ import com.anahoret.imagilabsapi.coteachers.domain.*
 import com.anahoret.imagilabsapi.coteachers.web.CoTeachersController
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.verify
 import org.json.JSONObject
 import org.junit.jupiter.api.DisplayName

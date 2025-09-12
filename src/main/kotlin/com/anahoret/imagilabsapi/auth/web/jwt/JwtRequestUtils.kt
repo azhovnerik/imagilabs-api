@@ -1,8 +1,8 @@
 package com.anahoret.imagilabsapi.auth.web.jwt
 
 import com.anahoret.imagilabsapi.auth.web.JwtAuthorizationTokenFilter
-import java.net.URLDecoder
 import jakarta.servlet.http.HttpServletRequest
+import java.net.URLDecoder
 
 fun HttpServletRequest.getToken(): String? {
     return getTokenFromHeader() ?: getTokenFromCookie()

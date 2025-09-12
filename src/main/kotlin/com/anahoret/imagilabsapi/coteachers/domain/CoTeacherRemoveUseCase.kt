@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
-import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError

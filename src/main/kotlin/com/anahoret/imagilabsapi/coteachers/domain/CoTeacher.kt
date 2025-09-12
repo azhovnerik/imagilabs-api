@@ -4,7 +4,6 @@ import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherData
 import java.util.*
 
-@Suppress("unused")
 class CoTeacher(
     val id: UUID,
     val classroomId: UUID,

@@ -21,7 +21,7 @@ class LessonBundleController(
     private val lessonBundleService: LessonBundleService
 ) {
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @PostMapping("/api/lessons/bundles")
     fun createBundle(
         @RequestBody lessonBundleDataRequest: LessonBundleDataRequest
@@ -32,7 +32,7 @@ class LessonBundleController(
         }
     }
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @GetMapping("/api/lessons/bundles/{bundleId}")
     fun getBundle(@PathVariable bundleId: UUID): ResponseEntity<ResponseDto<LessonBundle?>> {
         return when (val result = lessonBundleGetUseCase.get(bundleId)) {
@@ -41,7 +41,7 @@ class LessonBundleController(
         }
     }
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @GetMapping("/api/lessons/bundles")
     fun getBundles(
         @RequestParam(required = false) searchQuery: String?,
@@ -50,7 +50,7 @@ class LessonBundleController(
         return SuccessResponseDto(lessonBundleService.list(searchQuery, sort))
     }
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @PutMapping("/api/lessons/bundles/{bundleId}")
     fun updateBundle(
         @PathVariable bundleId: UUID,
@@ -62,7 +62,7 @@ class LessonBundleController(
         }
     }
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @DeleteMapping("/api/lessons/bundles/{bundleId}")
     fun deleteBundle(@PathVariable bundleId: UUID): ResponseDto<Void> {
         lessonBundleService.delete(bundleId)

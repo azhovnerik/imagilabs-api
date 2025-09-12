@@ -70,7 +70,7 @@ class CompleteTeacherCheckListStepUseCaseImplTest {
         every { teacherCheckListService.getCheckListStepByTeacherIdAndStep(teacherId, step) } returns mockk {
             every { completed } returns true
         }
-        every { teacherCheckListService.getCheckList(teacherId) } returns mockk() {
+        every { teacherCheckListService.getCheckList(teacherId) } returns mockk {
             every { checkListSteps } returns listOf(mockk {
                 every { completed } returns true
                 every { step } returns TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM

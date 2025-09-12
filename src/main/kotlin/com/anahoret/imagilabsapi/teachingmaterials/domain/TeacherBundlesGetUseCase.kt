@@ -7,11 +7,10 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
-import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 interface TeacherBundlesGetUseCase {
 

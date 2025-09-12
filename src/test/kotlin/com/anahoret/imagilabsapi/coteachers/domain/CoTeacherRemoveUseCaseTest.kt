@@ -9,7 +9,7 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
 @DisplayName("Co-teacher remove use case")
 class CoTeacherRemoveUseCaseTest {

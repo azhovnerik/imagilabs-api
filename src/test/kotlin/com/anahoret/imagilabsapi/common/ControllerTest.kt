@@ -10,14 +10,11 @@ import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
-import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
-import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.users.UserType
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mockk.mockk
 import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,7 +23,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
-import java.util.*
 
 @ExtendWith(SpringExtension::class)
 @ImagiLabsTestPropertySource
@@ -56,21 +52,21 @@ abstract class ControllerTest {
 
     fun MockHttpServletRequestBuilder.asAdmin(adminProfile: AdminProfile = testAdmin()): MockHttpServletRequestBuilder {
         every { adminProfileService.getAdminById(adminProfile.id) } returns adminProfile
-        every { authorityService.getAuthorities(adminProfile) } returns listOf(SimpleGrantedAuthority(UserRole.admin))
+        every { authorityService.getAuthorities(adminProfile) } returns listOf(SimpleGrantedAuthority(UserRole.ADMIN))
         val token = jwtTokenUtil.createToken(adminProfile.id, UserType.ADMIN)
         return this.header("Authorization", "Bearer+${token.token}")
     }
 
     fun MockHttpServletRequestBuilder.asTeacher(teacherProfile: TeacherProfile = testTeacher()): MockHttpServletRequestBuilder {
         every { teacherProfileService.getTeacherById(teacherProfile.id) } returns teacherProfile
-        every { authorityService.getAuthorities(teacherProfile) } returns listOf(SimpleGrantedAuthority(UserRole.teacher))
+        every { authorityService.getAuthorities(teacherProfile) } returns listOf(SimpleGrantedAuthority(UserRole.TEACHER))
         val token = jwtTokenUtil.createToken(teacherProfile.id, UserType.TEACHER)
         return this.header("Authorization", "Bearer+${token.token}")
     }
 
     fun MockHttpServletRequestBuilder.asStudent(studentProfile: StudentProfile = testStudent()): MockHttpServletRequestBuilder {
         every { studentProfileService.getStudentById(studentProfile.id) } returns studentProfile
-        every { authorityService.getAuthorities(studentProfile) } returns listOf(SimpleGrantedAuthority(UserRole.student))
+        every { authorityService.getAuthorities(studentProfile) } returns listOf(SimpleGrantedAuthority(UserRole.STUDENT))
         val token = jwtTokenUtil.createToken(studentProfile.id, UserType.STUDENT)
         return this.header("Authorization", "Bearer+${token.token}")
     }

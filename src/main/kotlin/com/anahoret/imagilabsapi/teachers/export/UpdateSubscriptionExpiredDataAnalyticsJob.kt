@@ -19,7 +19,7 @@ class UpdateSubscriptionExpiredDataAnalyticsJob(
 ) {
 
     @Scheduled(cron = CronExpressions.EVERY_NIGHT_AT_1_AM, zone = TimeZones.EUROPE_STOCKHOLM_VALUE)
-    @SchedulerLock(name = "UpdateSubscriptionExpiredDataAnalyticsJob",)
+    @SchedulerLock(name = "UpdateSubscriptionExpiredDataAnalyticsJob")
     fun updateSubscriptionExpiredData() {
         val teachersIdsToUpdate = getTeachersWithExpiredSubscriptionUseCase.getAll()
         if (teachersIdsToUpdate.isNotEmpty()) {

@@ -16,6 +16,6 @@ class ImagiLabsEmailValidatorImpl : ImagiLabsEmailValidator {
     override fun isValid(email: String): Boolean {
         if (email.isBlank()) return false
         if (!emailValidator.isValid(email, null)) return false
-        return email.substring(email.indexOf('@')).contains('.')
+        return email.substringAfter('@').contains('.')
     }
 }

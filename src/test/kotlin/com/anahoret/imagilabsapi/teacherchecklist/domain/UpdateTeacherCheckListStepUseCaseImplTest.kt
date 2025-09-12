@@ -1,16 +1,16 @@
 package com.anahoret.imagilabsapi.teacherchecklist.domain
 
-import io.mockk.mockk
-import org.junit.jupiter.api.DisplayName
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.testTeacherCheckList
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.*
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
 @DisplayName("Update teacher check list step use case")
 class UpdateTeacherCheckListStepUseCaseImplTest {

@@ -11,6 +11,7 @@ import com.anahoret.imagilabsapi.signup.domain.TeacherSignUpUseCase
 import com.anahoret.imagilabsapi.teachers.domain.TeacherEmailVerificationRequest
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherSignupRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
@@ -18,7 +19,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import jakarta.servlet.http.HttpServletResponse
 
 @RestController
 class TeacherSignupController(
@@ -39,7 +39,7 @@ class TeacherSignupController(
         }
     }
 
-    @Secured(UserRole.teacherEmailNotVerified)
+    @Secured(UserRole.TEACHER_EMAIL_NOT_VERIFIED)
     @PostMapping("/api/sign-up/teacher/email-verification")
     fun emailVerification(
         @RequestBody emailVerificationRequest: TeacherEmailVerificationRequest,
@@ -53,7 +53,7 @@ class TeacherSignupController(
         }
     }
 
-    @Secured(UserRole.teacherEmailNotVerified)
+    @Secured(UserRole.TEACHER_EMAIL_NOT_VERIFIED)
     @PostMapping("/api/sign-up/teacher/email-verification/resend-code")
     fun resendEmailVerification(
         @AuthenticationPrincipal teacherProfile: TeacherProfile

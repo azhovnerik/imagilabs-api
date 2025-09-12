@@ -1,4 +1,4 @@
-package com.anahoret.imagilabsapi.authTests
+package com.anahoret.imagilabsapi.apiTests.auth
 
 import com.anahoret.imagilabsapi.auth.web.AuthenticationController
 import com.anahoret.imagilabsapi.auth.web.RequestAuthenticatorService
@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -27,22 +27,22 @@ class TeacherAuthAPITest (
     @Autowired private val mockMvc: MockMvc
 
 ) {
-    @MockBean
+    @MockitoBean
     lateinit var authenticationManager: AuthenticationManager
 
-    @MockBean
+    @MockitoBean
     lateinit var authenticationController: AuthenticationController
 
-    @MockBean
+    @MockitoBean
     lateinit var requestAuthenticatorService: RequestAuthenticatorService
 
-    @MockBean
+    @MockitoBean
     lateinit var teacherProfileService: TeacherProfileService
 
-    @MockBean
+    @MockitoBean
     lateinit var teacherEmailVerificationCodeSenderUseCaseImpl: TeacherEmailVerificationCodeSenderUseCaseImpl
 
-    @MockBean
+    @MockitoBean
     lateinit var teacherPasswordResetCodeSenderUseCaseImpl: TeacherPasswordResetCodeSenderUseCaseImpl
 
     @Test

@@ -1,7 +1,6 @@
 package com.anahoret.imagilabsapi.classrooms.domain
 
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
-import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.stereotype.Service
 import java.util.*
 

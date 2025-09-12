@@ -1,11 +1,11 @@
 package com.anahoret.imagilabsapi.teachers.domain
 
 import io.mockk.every
-import org.junit.jupiter.api.DisplayName
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
 @DisplayName("Teacher get statistic use case")
 class TeacherGetStatisticUseCaseTest {

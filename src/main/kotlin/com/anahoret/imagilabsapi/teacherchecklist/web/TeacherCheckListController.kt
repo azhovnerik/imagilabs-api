@@ -1,7 +1,6 @@
 package com.anahoret.imagilabsapi.teacherchecklist.web
 
 import arrow.core.Either
-import arrow.core.continuations.result
 import com.anahoret.imagilabsapi.common.web.EmptySuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
@@ -32,7 +31,7 @@ class TeacherCheckListController(
         const val TEACHER_CHECK_LIST_COMPLETED_PATH = "/api/teacher/checklist/completed"
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @GetMapping(TEACHER_CHECK_LIST_PATH)
     fun getTeacherCheckList(
         @AuthenticationPrincipal teacherProfile: TeacherProfile
@@ -43,7 +42,7 @@ class TeacherCheckListController(
         }
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @PutMapping(TEACHER_CHECK_LIST_COMPLETE_STEP_PATH)
     fun completeStep(
         @AuthenticationPrincipal teacherProfile: TeacherProfile,
@@ -53,7 +52,7 @@ class TeacherCheckListController(
         return ResponseEntity.ok(SuccessResponseDto(result))
     }
 
-    @Secured(UserRole.teacher)
+    @Secured(UserRole.TEACHER)
     @PostMapping(TEACHER_CHECK_LIST_COMPLETED_PATH)
     fun completeTeacherCheckList(
         @AuthenticationPrincipal teacherProfile: TeacherProfile
@@ -64,7 +63,7 @@ class TeacherCheckListController(
         }
     }
 
-    @Secured(UserRole.admin)
+    @Secured(UserRole.ADMIN)
     @Deprecated("Should be deleted after first usage")
     @PostMapping(TEACHER_CHECK_LIST_PATH)
     fun createTeacherCheckLists(): ResponseEntity<*> {

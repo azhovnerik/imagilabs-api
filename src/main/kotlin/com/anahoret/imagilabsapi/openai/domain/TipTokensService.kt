@@ -31,7 +31,7 @@ class TipTokensServiceImpl(
     private val studentProfileEntityRepository: StudentProfileEntityRepository,
     private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
     private val classroomService: ClassroomService,
-    @Value("\${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int,
+    @Value($$"${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int,
     private val clock: Clock
 ) : TipTokensService {
 

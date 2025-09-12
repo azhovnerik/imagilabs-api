@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       POSTGRES_DB: imagilabs # Database name
-      POSTGRES_USER: imagilabs # Database user name
+      POSTGRES_USER: imagilabs # Database username
       POSTGRES_PASSWORD: imagilabs # Database user password
     ports:
       - "5432:5432"
@@ -17,4 +17,4 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8085:8080
+      - "8085:8080"

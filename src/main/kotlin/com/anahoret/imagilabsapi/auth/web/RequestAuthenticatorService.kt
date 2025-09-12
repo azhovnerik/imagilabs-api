@@ -7,6 +7,7 @@ import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import com.anahoret.imagilabsapi.users.UserType
 import com.auth0.jwt.JWT
+import jakarta.servlet.http.HttpServletResponse
 import org.apache.tomcat.util.http.SameSiteCookies
 import org.springframework.http.HttpCookie
 import org.springframework.http.HttpHeaders
@@ -16,7 +17,6 @@ import java.net.URLEncoder
 import java.time.Duration
 import java.time.Instant
 import java.util.*
-import jakarta.servlet.http.HttpServletResponse
 
 interface RequestAuthenticatorService {
 

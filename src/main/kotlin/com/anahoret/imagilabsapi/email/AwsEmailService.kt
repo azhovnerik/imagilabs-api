@@ -1,11 +1,11 @@
 package com.anahoret.imagilabsapi.email
 
+import jakarta.mail.Message
+import jakarta.mail.internet.InternetAddress
 import org.springframework.context.annotation.Profile
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
-import jakarta.mail.Message
-import jakarta.mail.internet.InternetAddress
 
 @Service
 @Profile("prod", "stage")
