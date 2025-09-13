@@ -59,7 +59,9 @@ dependencies {
 
     // Utils
     implementation("io.arrow-kt:arrow-core:$arrowKtVersion")
-    implementation("org.apache.pdfbox:pdfbox:$pdfBoxVersion")
+    implementation("org.apache.pdfbox:pdfbox:$pdfBoxVersion") {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
     implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
 
     // Web
@@ -82,7 +84,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail")
 
     // Google
-    implementation("com.google.apis:google-api-services-sheets:$googleSheetsApiVersion")
+    implementation("com.google.apis:google-api-services-sheets:$googleSheetsApiVersion") {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
     implementation("com.google.auth:google-auth-library-oauth2-http:$googleAuthVersion")
 
     // ShedLock
