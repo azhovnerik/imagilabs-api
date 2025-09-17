@@ -32,12 +32,12 @@ class LovableAccountServiceImpl(
     }
 
     private fun doConnect(id: UUID): LovableAccount? {
-        lovableAccountRepository.findByConnectedUser(id)
-            .onEach { it.active = false }
-            .let(lovableAccountRepository::saveAll)
-
         return lovableAccountRepository.findOneByConnectedUserIsNull()
             ?.let {
+                lovableAccountRepository.findByConnectedUser(id)
+                    .onEach { it.active = false }
+                    .let(lovableAccountRepository::saveAll)
+
                 it.connectedUser = id
                 it.connectedAt = clock.millis()
                 it.active = true
