@@ -1,0 +1,130 @@
+package com.anahoret.imagilabsapi.lovable.domain
+
+import com.anahoret.imagilabsapi.common.testAdmin
+import com.anahoret.imagilabsapi.common.testTeacher
+import com.anahoret.imagilabsapi.lovable.storage.LovableAccountEntity
+import com.anahoret.imagilabsapi.lovable.storage.LovableAccountRepository
+import com.anahoret.imagilabsapi.users.UserType
+import io.mockk.*
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.time.Clock
+import java.util.*
+
+class LovableAccountServiceImplTest {
+
+    private lateinit var repo: LovableAccountRepository
+    private lateinit var clock: Clock
+    private lateinit var service: LovableAccountService
+
+    @BeforeEach
+    fun setUp() {
+        repo = mockk(relaxed = true)
+        clock = mockk()
+        service = LovableAccountServiceImpl(repo, clock)
+    }
+
+    @Test
+    fun `connectedCount delegates to repository`() {
+        val id = UUID.randomUUID()
+        every { repo.countByConnectedUser(id) } returns 5
+
+        val result = service.connectedCount(id)
+
+        assertEquals(5, result)
+        verify(exactly = 1) { repo.countByConnectedUser(id) }
+    }
+
+    @Test
+    fun `getActive returns mapped domain when entity exists`() {
+        val teacher = testTeacher()
+        val entity = LovableAccountEntity("a@x.com", "secret", teacher.id, 100L, active = true)
+        every { repo.findOneByConnectedUserAndActiveTrue(teacher.id) } returns entity
+
+        val result = service.getActive(teacher)
+
+        assertNotNull(result)
+        assertEquals("a@x.com", result!!.email)
+        assertEquals("secret", result.password)
+        verify { repo.findOneByConnectedUserAndActiveTrue(teacher.id) }
+    }
+
+    @Test
+    fun `getActive returns null when no active entity`() {
+        val teacher = testTeacher()
+        every { repo.findOneByConnectedUserAndActiveTrue(teacher.id) } returns null
+
+        val result = service.getActive(teacher)
+
+        assertNull(result)
+        verify { repo.findOneByConnectedUserAndActiveTrue(teacher.id) }
+    }
+
+    @Test
+    fun `connectToUser throws on admin`() {
+        val admin = testAdmin()
+        assertEquals(UserType.ADMIN, admin.userType)
+
+        val ex = assertThrows(IllegalArgumentException::class.java) {
+            service.connectToUser(admin)
+        }
+        assertTrue(ex.message!!.contains("Cannot connect admin"))
+    }
+
+    @Test
+    fun `connectToUser returns null when no free accounts available`() {
+        val teacher = testTeacher()
+        val alreadyConnected = listOf(
+            LovableAccountEntity("e1@x.com", "p1", teacher.id, 10L, active = false),
+            LovableAccountEntity("e2@x.com", "p2", teacher.id, 20L, active = true)
+        )
+
+        every { repo.findByConnectedUser(teacher.id) } returns alreadyConnected
+        every { repo.saveAll(any<List<LovableAccountEntity>>()) } answers { firstArg() }
+        every { repo.findOneByConnectedUserIsNull() } returns null
+
+        val result = service.connectToUser(teacher)
+        assertNull(result)
+
+        verify(inverse = true) { repo.findByConnectedUser(teacher.id) }
+        verify(inverse = true) { repo.saveAll(alreadyConnected) }
+
+        verify { repo.findOneByConnectedUserIsNull() }
+        confirmVerified(repo)
+    }
+
+    @Test
+    fun `connectToUser activates and returns next free account`() {
+        val teacher = testTeacher()
+        val previouslyConnected = listOf(
+            LovableAccountEntity("old@x.com", "oldpass", teacher.id, 5L, active = true)
+        )
+        val free = LovableAccountEntity("new@x.com", "newpass", null, null, active = false)
+
+        every { clock.millis() } returns 12345L
+        every { repo.findByConnectedUser(teacher.id) } returns previouslyConnected
+        every { repo.saveAll(any<List<LovableAccountEntity>>()) } answers { firstArg() }
+        every { repo.findOneByConnectedUserIsNull() } returns free
+        every { repo.save(any<LovableAccountEntity>()) } answers { firstArg() }
+
+        val result = service.connectToUser(teacher)
+
+        assertNotNull(result)
+        assertEquals("new@x.com", result!!.email)
+        assertEquals("newpass", result.password)
+
+        // verify state changes on the entity that got connected
+        assertEquals(teacher.id, free.connectedUser)
+        assertEquals(12345L, free.connectedAt)
+        assertTrue(free.active)
+
+        verifySequence {
+            repo.findOneByConnectedUserIsNull()
+            repo.findByConnectedUser(teacher.id)
+            repo.saveAll(match<List<LovableAccountEntity>> { list -> list.all { !it.active } })
+            repo.save(free)
+        }
+        confirmVerified(repo)
+    }
+}
