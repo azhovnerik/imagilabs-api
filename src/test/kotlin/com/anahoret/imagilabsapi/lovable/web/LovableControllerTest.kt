@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.lovable.web
 import arrow.core.Either
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.lovable.domain.ConnectLovableAccountToTeacherUseCase
+import com.anahoret.imagilabsapi.lovable.domain.GetLovableAccountForTeacherUseCase
 import com.anahoret.imagilabsapi.lovable.domain.LovableAccount
 import com.anahoret.imagilabsapi.lovable.domain.MaxNumberOfConnectedAccountsExceededError
 import io.mockk.every
@@ -13,14 +14,16 @@ import org.springframework.http.ResponseEntity
 
 class LovableControllerTest {
 
-    private val useCase: ConnectLovableAccountToTeacherUseCase = mockk()
-    private val controller = LovableController(useCase)
+    private val connectLovableAccountToTeacherUseCase: ConnectLovableAccountToTeacherUseCase = mockk()
+    private val getLovableAccountForTeacherUseCase: GetLovableAccountForTeacherUseCase = mockk()
+    private val controller =
+        LovableController(connectLovableAccountToTeacherUseCase, getLovableAccountForTeacherUseCase)
 
     @Test
     fun `connectTeacherProfile returns 200 with body on success`() {
         val teacher = testTeacher()
         val account = LovableAccount("a@x.com", "p")
-        every { useCase.connect(teacher) } returns Either.Right(account)
+        every { connectLovableAccountToTeacherUseCase.connect(teacher) } returns Either.Right(account)
 
         val response: ResponseEntity<*> = controller.connectTeacherProfile(teacher)
 
@@ -33,7 +36,9 @@ class LovableControllerTest {
     @Test
     fun `connectTeacherProfile maps errors to non-2xx`() {
         val teacher = testTeacher()
-        every { useCase.connect(teacher) } returns Either.Left(MaxNumberOfConnectedAccountsExceededError())
+        every { connectLovableAccountToTeacherUseCase.connect(teacher) } returns Either.Left(
+            MaxNumberOfConnectedAccountsExceededError()
+        )
 
         val response: ResponseEntity<*> = controller.connectTeacherProfile(teacher)
 

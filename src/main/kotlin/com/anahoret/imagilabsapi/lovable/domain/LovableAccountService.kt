@@ -9,6 +9,7 @@ import java.time.Clock
 import java.util.*
 
 interface LovableAccountService {
+    fun getActive(user: UserProfile): LovableAccount?
     fun connectToUser(user: UserProfile): LovableAccount?
     fun connectedCount(userId: UUID): Long
 }
@@ -29,6 +30,11 @@ class LovableAccountServiceImpl(
 
     override fun connectedCount(userId: UUID): Long {
         return lovableAccountRepository.countByConnectedUser(userId)
+    }
+
+    override fun getActive(user: UserProfile): LovableAccount? {
+        return lovableAccountRepository.findOneByConnectedUserAndActiveTrue(user.id)
+            ?.let { LovableAccount(it.email, it.password) }
     }
 
     private fun doConnect(id: UUID): LovableAccount? {
