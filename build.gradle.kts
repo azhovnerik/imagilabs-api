@@ -104,7 +104,9 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-common:$springDocVersion")
 
     // Open AI
-    implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
+    implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter") {
+        exclude(group = "io.swagger.core.v3", module = "swagger-annotations")
+    }
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
