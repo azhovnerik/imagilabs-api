@@ -46,4 +46,28 @@ class LovableControllerTest {
         assertTrue(response.statusCode.isError)
         assertNotNull(response.body)
     }
+
+    @Test
+    fun `getLovableAccount returns 200 with body when found`() {
+        val teacher = testTeacher()
+        val account = LovableAccount("b@x.com", "pwd")
+        every { getLovableAccountForTeacherUseCase.get(teacher) } returns account
+
+        val response: ResponseEntity<*> = controller.getLovableAccount(teacher)
+
+        assertEquals(200, response.statusCode.value())
+        assertTrue(response.statusCode.is2xxSuccessful)
+        assertNotNull(response.body)
+    }
+
+    @Test
+    fun `getLovableAccount returns 404 when not found`() {
+        val teacher = testTeacher()
+        every { getLovableAccountForTeacherUseCase.get(teacher) } returns null
+
+        val response: ResponseEntity<*> = controller.getLovableAccount(teacher)
+
+        assertEquals(404, response.statusCode.value())
+        assertTrue(response.body == null)
+    }
 }

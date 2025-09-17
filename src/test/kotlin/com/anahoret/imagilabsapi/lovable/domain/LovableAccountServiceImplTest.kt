@@ -37,6 +37,31 @@ class LovableAccountServiceImplTest {
     }
 
     @Test
+    fun `getActive returns mapped domain when entity exists`() {
+        val teacher = testTeacher()
+        val entity = LovableAccountEntity("a@x.com", "secret", teacher.id, 100L, active = true)
+        every { repo.findOneByConnectedUserAndActiveTrue(teacher.id) } returns entity
+
+        val result = service.getActive(teacher)
+
+        assertNotNull(result)
+        assertEquals("a@x.com", result!!.email)
+        assertEquals("secret", result.password)
+        verify { repo.findOneByConnectedUserAndActiveTrue(teacher.id) }
+    }
+
+    @Test
+    fun `getActive returns null when no active entity`() {
+        val teacher = testTeacher()
+        every { repo.findOneByConnectedUserAndActiveTrue(teacher.id) } returns null
+
+        val result = service.getActive(teacher)
+
+        assertNull(result)
+        verify { repo.findOneByConnectedUserAndActiveTrue(teacher.id) }
+    }
+
+    @Test
     fun `connectToUser throws on admin`() {
         val admin = testAdmin()
         assertEquals(UserType.ADMIN, admin.userType)
