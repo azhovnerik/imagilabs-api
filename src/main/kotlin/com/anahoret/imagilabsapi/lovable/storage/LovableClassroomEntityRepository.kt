@@ -6,4 +6,5 @@ import java.util.*
 interface LovableClassroomEntityRepository : JpaRepository<LovableClassroomEntity, UUID> {
     fun findOneByClassroomId(classroomId: UUID): LovableClassroomEntity?
     fun deleteByClassroomId(classroomId: UUID)
+    fun getByClassroomId(classroomId: UUID): LovableClassroomEntity?
 }

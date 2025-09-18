@@ -21,7 +21,8 @@ class LovableController(
     private val getLovableAccountForUserUseCase: GetLovableAccountForUserUseCase,
     private val enableLovableIntegrationForClassroomUseCase: EnableLovableIntegrationForClassroomUseCase,
     private val setPausedLovableIntegrationForClassroomUseCase: SetPausedLovableIntegrationForClassroomUseCase,
-    private val getLovableCredentialsForClassroomUseCase: GetLovableCredentialsForClassroomUseCase
+    private val getLovableCredentialsForClassroomUseCase: GetLovableCredentialsForClassroomUseCase,
+    private val getLovableIntegrationForClassroomUseCase: GetLovableIntegrationForClassroomUseCase
 ) {
 
     @PostMapping("/teacher/profile")
@@ -48,6 +49,18 @@ class LovableController(
         @PathVariable classroomId: UUID
     ): ResponseEntity<ResponseDto<Void>> {
         return when (val result = enableLovableIntegrationForClassroomUseCase.enable(teacher, classroomId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> return ResponseEntity.ok().build()
+        }
+    }
+
+    @GetMapping("/classroom/{classroomId}")
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
+    fun getIntegrationForClassroom(
+        @AuthenticationPrincipal user: UserProfile,
+        @PathVariable classroomId: UUID
+    ): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = getLovableIntegrationForClassroomUseCase.get(user, classroomId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> return ResponseEntity.ok().build()
         }
