@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.lovable.web
 
 import arrow.core.Either
+import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
@@ -34,8 +35,8 @@ class LovableController(
 
     @GetMapping("/user/profile")
     @Secured(UserRole.TEACHER, UserRole.STUDENT)
-    fun getLovableAccount(@AuthenticationPrincipal teacher: TeacherProfile): ResponseEntity<ResponseDto<LovableAccount>> {
-        return getLovableAccountForUserUseCase.get(teacher)
+    fun getLovableAccount(@AuthenticationPrincipal user: UserProfile): ResponseEntity<ResponseDto<LovableAccount>> {
+        return getLovableAccountForUserUseCase.get(user)
             ?.let { ResponseEntity.ok(SuccessResponseDto(it)) }
             ?: ResponseEntity.notFound().build()
     }
