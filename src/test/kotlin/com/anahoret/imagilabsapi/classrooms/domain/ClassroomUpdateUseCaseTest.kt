@@ -16,6 +16,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.springframework.context.ApplicationEventPublisher
 import java.util.*
 
 @DisplayName("Classroom update use case")
@@ -26,13 +27,15 @@ class ClassroomUpdateUseCaseTest {
     private val classroomValidator = mockk<ClassroomValidator>()
     private val studentProfileService = mockk<StudentProfileService>()
     private val coTeacherService = mockk<CoTeacherService>()
+    private val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
 
     private val classroomUpdateUseCase = ClassroomUpdateUseCaseImpl(
         classroomAccessService,
         classroomService,
         classroomValidator,
         studentProfileService,
-        coTeacherService
+        coTeacherService,
+        applicationEventPublisher
     )
 
     private val teacherProfile = mockk<TeacherProfile> {

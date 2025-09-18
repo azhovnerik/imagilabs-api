@@ -10,4 +10,6 @@ interface LovableConnectionError : OperationError {
 class MaxNumberOfConnectedAccountsExceededError
     : LovableConnectionError, ValidationError("Max number of connected accounts exceeded")
 
-class OutOfLovableAccountsError : LovableConnectionError, ValidationError("Out of lovable accounts")
+class OutOfLovableAccountsError : LovableConnectionError, ValidationError("Out of Lovable accounts")
+
+class UnapplicableUserTypeError : LovableConnectionError, ValidationError("Cannot connect Lovable account to user")

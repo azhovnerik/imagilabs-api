@@ -7,11 +7,12 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.util.*
 
 class ConnectLovableAccountToTeacherUseCaseTest {
 
     private val service: LovableAccountService = mockk()
-    private val useCase: ConnectLovableAccountToTeacherUseCase = ConnectLovableAccountToTeacherUseCaseImpl(service)
+    private val useCase: ConnectLovableAccountToUserUseCase = ConnectLovableAccountToUserUseCaseImpl(service)
 
     @Test
     fun `returns Left when max number of connected accounts reached`() {
@@ -39,7 +40,7 @@ class ConnectLovableAccountToTeacherUseCaseTest {
     @Test
     fun `returns Right with connected account`() {
         val teacher = testTeacher()
-        val account = LovableAccount("a@x.com", "p")
+        val account = LovableAccount(UUID.randomUUID(), "a@x.com", "p")
         every { service.connectedCount(teacher.id) } returns 0
         every { service.connectToUser(teacher) } returns account
 

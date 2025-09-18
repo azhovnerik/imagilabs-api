@@ -12,6 +12,7 @@ interface LovableAccountService {
     fun getActive(user: UserProfile): LovableAccount?
     fun connectToUser(user: UserProfile): LovableAccount?
     fun connectedCount(userId: UUID): Long
+    fun getByConnectedUsers(userIds: List<UUID>): List<LovableAccount>
 }
 
 @Service
@@ -32,9 +33,17 @@ class LovableAccountServiceImpl(
         return lovableAccountRepository.countByConnectedUser(userId)
     }
 
+    override fun getByConnectedUsers(userIds: List<UUID>): List<LovableAccount> {
+        if (userIds.isEmpty()) return emptyList()
+
+        return lovableAccountRepository.findByConnectedUserIn(userIds).map {
+            LovableAccount(it.connectedUser, it.email, it.password)
+        }
+    }
+
     override fun getActive(user: UserProfile): LovableAccount? {
         return lovableAccountRepository.findOneByConnectedUserAndActiveTrue(user.id)
-            ?.let { LovableAccount(it.email, it.password) }
+            ?.let { LovableAccount(it.connectedUser, it.email, it.password) }
     }
 
     private fun doConnect(id: UUID): LovableAccount? {
@@ -48,7 +57,7 @@ class LovableAccountServiceImpl(
                 it.connectedAt = clock.millis()
                 it.active = true
                 lovableAccountRepository.save(it)
-                LovableAccount(it.email, it.password)
+                LovableAccount(it.connectedUser, it.email, it.password)
             }
     }
 

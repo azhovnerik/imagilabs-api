@@ -4,41 +4,77 @@ import arrow.core.Either
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
-import com.anahoret.imagilabsapi.lovable.domain.ConnectLovableAccountToTeacherUseCase
-import com.anahoret.imagilabsapi.lovable.domain.GetLovableAccountForTeacherUseCase
-import com.anahoret.imagilabsapi.lovable.domain.LovableAccount
+import com.anahoret.imagilabsapi.lovable.domain.*
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @RequestMapping("/api/lovable")
 class LovableController(
-    private val connectLovableAccountToTeacherUseCase: ConnectLovableAccountToTeacherUseCase,
-    private val getLovableAccountForTeacherUseCase: GetLovableAccountForTeacherUseCase
+    private val connectLovableAccountToUserUseCase: ConnectLovableAccountToUserUseCase,
+    private val getLovableAccountForUserUseCase: GetLovableAccountForUserUseCase,
+    private val enableLovableIntegrationForClassroomUseCase: EnableLovableIntegrationForClassroomUseCase,
+    private val setPausedLovableIntegrationForClassroomUseCase: SetPausedLovableIntegrationForClassroomUseCase,
+    private val getLovableCredentialsForClassroomUseCase: GetLovableCredentialsForClassroomUseCase
 ) {
 
     @PostMapping("/teacher/profile")
     @Secured(UserRole.TEACHER)
     fun connectTeacherProfile(@AuthenticationPrincipal teacher: TeacherProfile): ResponseEntity<ResponseDto<LovableAccount>> {
-        return when (val result = connectLovableAccountToTeacherUseCase.connect(teacher)) {
+        return when (val result = connectLovableAccountToUserUseCase.connect(teacher)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> return ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
-    @GetMapping("/teacher/profile")
-    @Secured(UserRole.TEACHER)
+    @GetMapping("/user/profile")
+    @Secured(UserRole.TEACHER, UserRole.STUDENT)
     fun getLovableAccount(@AuthenticationPrincipal teacher: TeacherProfile): ResponseEntity<ResponseDto<LovableAccount>> {
-        return getLovableAccountForTeacherUseCase.get(teacher)
+        return getLovableAccountForUserUseCase.get(teacher)
             ?.let { ResponseEntity.ok(SuccessResponseDto(it)) }
             ?: ResponseEntity.notFound().build()
     }
+
+    @PostMapping("/classroom/{classroomId}")
+    @Secured(UserRole.TEACHER)
+    fun enableIntegrationForClassroom(
+        @AuthenticationPrincipal teacher: TeacherProfile,
+        @PathVariable classroomId: UUID
+    ): ResponseEntity<ResponseDto<Void>> {
+        return when (val result = enableLovableIntegrationForClassroomUseCase.enable(teacher, classroomId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> return ResponseEntity.ok().build()
+        }
+    }
+
+    @PutMapping("/classroom/{classroomId}/paused")
+    @Secured(UserRole.TEACHER)
+    fun setPausedIntegrationForClassroom(
+        @AuthenticationPrincipal teacher: TeacherProfile,
+        @PathVariable classroomId: UUID,
+        @RequestBody setPausedRequest: SetPausedRequest
+    ): ResponseEntity<Void> {
+        setPausedLovableIntegrationForClassroomUseCase.setPaused(teacher, classroomId, setPausedRequest.paused)
+        return ResponseEntity.ok().build()
+    }
+
+    @GetMapping("/classroom/{classroomId}/students")
+    @Secured(UserRole.TEACHER)
+    fun getStudentsCredentialsForClassroom(
+        @AuthenticationPrincipal teacher: TeacherProfile,
+        @PathVariable classroomId: UUID
+    ): ResponseEntity<ResponseDto<List<LovableAccount>>> {
+        return when (val result = getLovableCredentialsForClassroomUseCase.getCredentials(teacher, classroomId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> return ResponseEntity.ok().body(SuccessResponseDto(result.value))
+        }
+    }
+
+    class SetPausedRequest(val paused: Boolean)
 
 }
