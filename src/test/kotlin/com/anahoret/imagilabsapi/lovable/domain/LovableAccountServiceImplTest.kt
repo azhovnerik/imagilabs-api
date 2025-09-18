@@ -82,7 +82,7 @@ class LovableAccountServiceImplTest {
 
         every { repo.findByConnectedUser(teacher.id) } returns alreadyConnected
         every { repo.saveAll(any<List<LovableAccountEntity>>()) } answers { firstArg() }
-        every { repo.findOneByConnectedUserIsNull() } returns null
+        every { repo.findFirstByConnectedUserIsNull() } returns null
 
         val result = service.connectToUser(teacher)
         assertNull(result)
@@ -90,7 +90,7 @@ class LovableAccountServiceImplTest {
         verify(inverse = true) { repo.findByConnectedUser(teacher.id) }
         verify(inverse = true) { repo.saveAll(alreadyConnected) }
 
-        verify { repo.findOneByConnectedUserIsNull() }
+        verify { repo.findFirstByConnectedUserIsNull() }
         confirmVerified(repo)
     }
 
@@ -105,7 +105,7 @@ class LovableAccountServiceImplTest {
         every { clock.millis() } returns 12345L
         every { repo.findByConnectedUser(teacher.id) } returns previouslyConnected
         every { repo.saveAll(any<List<LovableAccountEntity>>()) } answers { firstArg() }
-        every { repo.findOneByConnectedUserIsNull() } returns free
+        every { repo.findFirstByConnectedUserIsNull() } returns free
         every { repo.save(any<LovableAccountEntity>()) } answers { firstArg() }
 
         val result = service.connectToUser(teacher)
@@ -120,7 +120,7 @@ class LovableAccountServiceImplTest {
         assertTrue(free.active)
 
         verifySequence {
-            repo.findOneByConnectedUserIsNull()
+            repo.findFirstByConnectedUserIsNull()
             repo.findByConnectedUser(teacher.id)
             repo.saveAll(match<List<LovableAccountEntity>> { list -> list.all { !it.active } })
             repo.save(free)

@@ -38,7 +38,7 @@ class LovableAccountServiceImpl(
     }
 
     private fun doConnect(id: UUID): LovableAccount? {
-        return lovableAccountRepository.findOneByConnectedUserIsNull()
+        return lovableAccountRepository.findFirstByConnectedUserIsNull()
             ?.let {
                 lovableAccountRepository.findByConnectedUser(id)
                     .onEach { it.active = false }
