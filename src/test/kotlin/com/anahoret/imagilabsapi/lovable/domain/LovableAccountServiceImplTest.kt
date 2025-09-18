@@ -127,4 +127,36 @@ class LovableAccountServiceImplTest {
         }
         confirmVerified(repo)
     }
+
+    @Test
+    fun `getByConnectedUsers returns empty list when input is empty`() {
+        val result = service.getByConnectedUsers(emptyList())
+        assertTrue(result.isEmpty())
+        confirmVerified(repo)
+    }
+
+    @Test
+    fun `getByConnectedUsers maps entities to domain`() {
+        val id1 = UUID.randomUUID()
+        val id2 = UUID.randomUUID()
+        val entities = listOf(
+            LovableAccountEntity("u1@x.com", "p1", id1, 1L, active = true),
+            LovableAccountEntity("u2@x.com", "p2", id2, 2L, active = false)
+        )
+
+        every { repo.findByConnectedUserIn(match { it.containsAll(listOf(id1, id2)) }) } returns entities
+
+        val result = service.getByConnectedUsers(listOf(id1, id2))
+
+        assertEquals(2, result.size)
+        assertEquals("u1@x.com", result[0].email)
+        assertEquals("p1", result[0].password)
+        assertEquals(id1, result[0].connectedUserId)
+        assertEquals("u2@x.com", result[1].email)
+        assertEquals("p2", result[1].password)
+        assertEquals(id2, result[1].connectedUserId)
+
+        verify { repo.findByConnectedUserIn(match { it.containsAll(listOf(id1, id2)) }) }
+        confirmVerified(repo)
+    }
 }

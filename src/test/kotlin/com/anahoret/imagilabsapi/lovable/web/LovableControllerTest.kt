@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.lovable.web
 
 import arrow.core.Either
+import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.lovable.domain.*
 import io.mockk.every
@@ -57,12 +58,25 @@ class LovableControllerTest {
     }
 
     @Test
-    fun `getLovableAccount returns 200 with body when found`() {
+    fun `getLovableAccount returns 200 with body when found for teacher`() {
         val teacher = testTeacher()
         val account = LovableAccount(UUID.randomUUID(), "b@x.com", "pwd")
         every { getLovableAccountForUserUseCase.get(teacher) } returns account
 
         val response: ResponseEntity<*> = controller.getLovableAccount(teacher)
+
+        assertEquals(200, response.statusCode.value())
+        assertTrue(response.statusCode.is2xxSuccessful)
+        assertNotNull(response.body)
+    }
+
+    @Test
+    fun `getLovableAccount returns 200 with body when found for student`() {
+        val student = testStudent()
+        val account = LovableAccount(UUID.randomUUID(), "b@x.com", "pwd")
+        every { getLovableAccountForUserUseCase.get(student) } returns account
+
+        val response: ResponseEntity<*> = controller.getLovableAccount(student)
 
         assertEquals(200, response.statusCode.value())
         assertTrue(response.statusCode.is2xxSuccessful)
