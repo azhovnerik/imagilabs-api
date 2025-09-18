@@ -10,6 +10,7 @@ interface LovableClassroomService {
     fun setPausedIntegrationForClassroom(classroomId: UUID, paused: Boolean)
     fun integrationEnabledForClassroom(classroomId: UUID): Boolean
     fun integrationPausedForClassroom(classroomId: UUID): Boolean
+    fun deleteForClassroom(classroomId: UUID)
 }
 
 @Service
@@ -38,6 +39,10 @@ class LovableClassroomServiceImpl(
     override fun integrationPausedForClassroom(classroomId: UUID): Boolean {
         return lovableClassroomEntityRepository.findOneByClassroomId(classroomId)
             ?.lovableIntegrationPaused ?: false
+    }
+
+    override fun deleteForClassroom(classroomId: UUID) {
+        lovableClassroomEntityRepository.deleteByClassroomId(classroomId)
     }
 
 }

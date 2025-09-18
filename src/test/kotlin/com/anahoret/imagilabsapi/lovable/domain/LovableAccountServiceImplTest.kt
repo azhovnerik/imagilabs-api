@@ -159,4 +159,23 @@ class LovableAccountServiceImplTest {
         verify { repo.findByConnectedUserIn(match { it.containsAll(listOf(id1, id2)) }) }
         confirmVerified(repo)
     }
+
+    @Test
+    fun `deleteByIds does nothing when input list is empty`() {
+        service.deleteByIds(emptyList())
+        verify(exactly = 0) { repo.deleteByConnectedUserIn(any()) }
+        confirmVerified(repo)
+    }
+
+    @Test
+    fun `deleteByIds delegates to repository with provided ids`() {
+        val ids = listOf(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID())
+
+        every { repo.deleteByConnectedUserIn(ids) } just Runs
+
+        service.deleteByIds(ids)
+
+        verify(exactly = 1) { repo.deleteByConnectedUserIn(match { it == ids }) }
+        confirmVerified(repo)
+    }
 }

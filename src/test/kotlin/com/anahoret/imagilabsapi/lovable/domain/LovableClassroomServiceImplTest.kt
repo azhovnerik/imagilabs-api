@@ -21,7 +21,7 @@ class LovableClassroomServiceImplTest {
     }
 
     @Test
-    fun `enableIntegrationForClassroom creates entity when missing`() {
+    fun `enableIntegrationForClassroom creates entity when absent`() {
         val classroomId = UUID.randomUUID()
         every { repo.findOneByClassroomId(classroomId) } returns null
         every { repo.save(any<LovableClassroomEntity>()) } answers { firstArg() }
@@ -30,81 +30,110 @@ class LovableClassroomServiceImplTest {
 
         verifySequence {
             repo.findOneByClassroomId(classroomId)
-            repo.save(match { it.classroomId == classroomId && it.lovableIntegrationEnabled })
+            repo.save(match { it.classroomId == classroomId && it.lovableIntegrationEnabled && !it.lovableIntegrationPaused })
         }
+        confirmVerified(repo)
     }
 
     @Test
     fun `enableIntegrationForClassroom does nothing when already exists`() {
         val classroomId = UUID.randomUUID()
-        val existing = LovableClassroomEntity(classroomId)
-        every { repo.findOneByClassroomId(classroomId) } returns existing
+        every { repo.findOneByClassroomId(classroomId) } returns LovableClassroomEntity(classroomId)
 
         service.enableIntegrationForClassroom(classroomId)
 
-        verify(exactly = 1) { repo.findOneByClassroomId(classroomId) }
-        verify(inverse = true) { repo.save(any<LovableClassroomEntity>()) }
+        verify { repo.findOneByClassroomId(classroomId) }
+        verify(exactly = 0) { repo.save(any<LovableClassroomEntity>()) }
         confirmVerified(repo)
     }
 
     @Test
     fun `setPausedIntegrationForClassroom updates when exists`() {
         val classroomId = UUID.randomUUID()
-        val existing = LovableClassroomEntity(classroomId)
-        every { repo.findOneByClassroomId(classroomId) } returns existing
-        every { repo.save(existing) } returns existing
+        val entity =
+            LovableClassroomEntity(classroomId, lovableIntegrationEnabled = true, lovableIntegrationPaused = false)
+        every { repo.findOneByClassroomId(classroomId) } returns entity
+        every { repo.save(any<LovableClassroomEntity>()) } answers { firstArg() }
 
         service.setPausedIntegrationForClassroom(classroomId, true)
 
-        assertTrue(existing.lovableIntegrationPaused)
+        assertTrue(entity.lovableIntegrationPaused)
         verifySequence {
             repo.findOneByClassroomId(classroomId)
-            repo.save(existing)
+            repo.save(entity)
         }
+        confirmVerified(repo)
     }
 
     @Test
-    fun `setPausedIntegrationForClassroom does nothing when missing`() {
+    fun `setPausedIntegrationForClassroom does nothing when not exists`() {
         val classroomId = UUID.randomUUID()
         every { repo.findOneByClassroomId(classroomId) } returns null
 
         service.setPausedIntegrationForClassroom(classroomId, true)
 
-        verify(exactly = 1) { repo.findOneByClassroomId(classroomId) }
-        verify(inverse = true) { repo.save(any<LovableClassroomEntity>()) }
+        verify { repo.findOneByClassroomId(classroomId) }
+        verify(exactly = 0) { repo.save(any<LovableClassroomEntity>()) }
+        confirmVerified(repo)
     }
 
     @Test
-    fun `integrationEnabledForClassroom returns true when enabled`() {
+    fun `integrationEnabledForClassroom returns flag when exists`() {
         val classroomId = UUID.randomUUID()
-        val existing = LovableClassroomEntity(classroomId)
-        every { repo.findOneByClassroomId(classroomId) } returns existing
+        every { repo.findOneByClassroomId(classroomId) } returns LovableClassroomEntity(
+            classroomId,
+            lovableIntegrationEnabled = true
+        )
 
         val result = service.integrationEnabledForClassroom(classroomId)
 
         assertTrue(result)
+        verify { repo.findOneByClassroomId(classroomId) }
     }
 
     @Test
-    fun `integrationEnabledForClassroom returns false when missing`() {
+    fun `integrationEnabledForClassroom returns false when not exists`() {
         val classroomId = UUID.randomUUID()
         every { repo.findOneByClassroomId(classroomId) } returns null
 
         val result = service.integrationEnabledForClassroom(classroomId)
 
         assertFalse(result)
+        verify { repo.findOneByClassroomId(classroomId) }
     }
 
     @Test
-    fun `integrationPausedForClassroom returns flag or false by default`() {
+    fun `integrationPausedForClassroom returns flag when exists`() {
         val classroomId = UUID.randomUUID()
-        val existing = LovableClassroomEntity(classroomId)
-        existing.lovableIntegrationPaused = true
-        every { repo.findOneByClassroomId(classroomId) } returns existing
+        every { repo.findOneByClassroomId(classroomId) } returns LovableClassroomEntity(
+            classroomId,
+            lovableIntegrationPaused = true
+        )
 
-        assertTrue(service.integrationPausedForClassroom(classroomId))
+        val result = service.integrationPausedForClassroom(classroomId)
 
+        assertTrue(result)
+        verify { repo.findOneByClassroomId(classroomId) }
+    }
+
+    @Test
+    fun `integrationPausedForClassroom returns false when not exists`() {
+        val classroomId = UUID.randomUUID()
         every { repo.findOneByClassroomId(classroomId) } returns null
-        assertFalse(service.integrationPausedForClassroom(classroomId))
+
+        val result = service.integrationPausedForClassroom(classroomId)
+
+        assertFalse(result)
+        verify { repo.findOneByClassroomId(classroomId) }
+    }
+
+    @Test
+    fun `deleteForClassroom delegates to repository`() {
+        val classroomId = UUID.randomUUID()
+
+        service.deleteForClassroom(classroomId)
+
+        verify { repo.deleteByClassroomId(classroomId) }
+        confirmVerified(repo)
     }
 }

@@ -11,4 +11,5 @@ interface LovableAccountRepository : JpaRepository<LovableAccountEntity, UUID> {
     fun countByConnectedUser(id: UUID): Long
     fun findOneByConnectedUserAndActiveTrue(id: UUID): LovableAccountEntity?
     fun findByConnectedUserIn(userIds: List<UUID>): List<LovableAccountEntity>
+    fun deleteByConnectedUserIn(userIds: List<UUID>)
 }

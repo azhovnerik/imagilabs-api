@@ -13,6 +13,7 @@ interface LovableAccountService {
     fun connectToUser(user: UserProfile): LovableAccount?
     fun connectedCount(userId: UUID): Long
     fun getByConnectedUsers(userIds: List<UUID>): List<LovableAccount>
+    fun deleteByIds(userIds: List<UUID>)
 }
 
 @Service
@@ -39,6 +40,11 @@ class LovableAccountServiceImpl(
         return lovableAccountRepository.findByConnectedUserIn(userIds).map {
             LovableAccount(it.connectedUser, it.email, it.password)
         }
+    }
+
+    override fun deleteByIds(userIds: List<UUID>) {
+        if (userIds.isEmpty()) return
+        lovableAccountRepository.deleteByConnectedUserIn(userIds)
     }
 
     override fun getActive(user: UserProfile): LovableAccount? {
