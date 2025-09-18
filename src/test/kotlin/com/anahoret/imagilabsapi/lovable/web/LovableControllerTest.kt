@@ -5,6 +5,7 @@ import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.lovable.domain.*
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.http.ResponseEntity
@@ -15,7 +16,8 @@ class LovableControllerTest {
     private val connectLovableAccountToUserUseCase: ConnectLovableAccountToUserUseCase = mockk()
     private val getLovableAccountForUserUseCase: GetLovableAccountForUserUseCase = mockk()
     private val enableLovableIntegrationForClassroomUseCase: EnableLovableIntegrationForClassroomUseCase = mockk()
-    private val setPausedLovableIntegrationForClassroomUseCase: SetPausedLovableIntegrationForClassroomUseCase = mockk()
+    private val setPausedLovableIntegrationForClassroomUseCase: SetPausedLovableIntegrationForClassroomUseCase =
+        mockk(relaxed = true)
     private val getLovableCredentialsForClassroomUseCase: GetLovableCredentialsForClassroomUseCase = mockk()
     private val controller =
         LovableController(
@@ -76,5 +78,74 @@ class LovableControllerTest {
 
         assertEquals(404, response.statusCode.value())
         assertTrue(response.body == null)
+    }
+
+    @Test
+    fun `enableIntegrationForClassroom returns 200 on success`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        every { enableLovableIntegrationForClassroomUseCase.enable(teacher, classroomId) } returns Either.Right(Unit)
+
+        val response: ResponseEntity<*> = controller.enableIntegrationForClassroom(teacher, classroomId)
+
+        assertEquals(200, response.statusCode.value())
+        assertTrue(response.statusCode.is2xxSuccessful)
+    }
+
+    @Test
+    fun `enableIntegrationForClassroom maps errors to non-2xx`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        every { enableLovableIntegrationForClassroomUseCase.enable(teacher, classroomId) } returns Either.Left(
+            MaxNumberOfConnectedAccountsExceededError()
+        )
+
+        val response: ResponseEntity<*> = controller.enableIntegrationForClassroom(teacher, classroomId)
+
+        assertTrue(response.statusCode.isError)
+        assertNotEquals(200, response.statusCode.value())
+        assertNotNull(response.body)
+    }
+
+    @Test
+    fun `setPausedIntegrationForClassroom returns 200 and passes args`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        val request = LovableController.SetPausedRequest(true)
+
+        val response: ResponseEntity<Void> = controller.setPausedIntegrationForClassroom(teacher, classroomId, request)
+
+        assertEquals(200, response.statusCode.value())
+        verify { setPausedLovableIntegrationForClassroomUseCase.setPaused(teacher, classroomId, true) }
+    }
+
+    @Test
+    fun `getStudentsCredentialsForClassroom returns 200 with body on success`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        val list = listOf(LovableAccount(UUID.randomUUID(), "c@x.com", "pass"))
+        every { getLovableCredentialsForClassroomUseCase.getCredentials(teacher, classroomId) } returns Either.Right(
+            list
+        )
+
+        val response: ResponseEntity<*> = controller.getStudentsCredentialsForClassroom(teacher, classroomId)
+
+        assertEquals(200, response.statusCode.value())
+        assertTrue(response.statusCode.is2xxSuccessful)
+        assertNotNull(response.body)
+    }
+
+    @Test
+    fun `getStudentsCredentialsForClassroom maps errors to non-2xx`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        every { getLovableCredentialsForClassroomUseCase.getCredentials(teacher, classroomId) } returns Either.Left(
+            MaxNumberOfConnectedAccountsExceededError()
+        )
+
+        val response: ResponseEntity<*> = controller.getStudentsCredentialsForClassroom(teacher, classroomId)
+
+        assertTrue(response.statusCode.isError)
+        assertNotNull(response.body)
     }
 }
