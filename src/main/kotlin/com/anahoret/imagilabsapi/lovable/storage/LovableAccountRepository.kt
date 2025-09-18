@@ -6,7 +6,7 @@ import java.util.*
 
 @Repository
 interface LovableAccountRepository : JpaRepository<LovableAccountEntity, UUID> {
-    fun findOneByConnectedUserIsNull(): LovableAccountEntity?
+    fun findFirstByConnectedUserIsNull(): LovableAccountEntity?
     fun findByConnectedUser(id: UUID): List<LovableAccountEntity>
     fun countByConnectedUser(id: UUID): Long
     fun findOneByConnectedUserAndActiveTrue(id: UUID): LovableAccountEntity?
