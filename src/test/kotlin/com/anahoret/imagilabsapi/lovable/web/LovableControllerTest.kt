@@ -20,13 +20,15 @@ class LovableControllerTest {
     private val setPausedLovableIntegrationForClassroomUseCase: SetPausedLovableIntegrationForClassroomUseCase =
         mockk(relaxed = true)
     private val getLovableCredentialsForClassroomUseCase: GetLovableCredentialsForClassroomUseCase = mockk()
+    private val getLovableIntegrationForClassroomUseCase: GetLovableIntegrationForClassroomUseCase = mockk()
     private val controller =
         LovableController(
             connectLovableAccountToUserUseCase,
             getLovableAccountForUserUseCase,
             enableLovableIntegrationForClassroomUseCase,
             setPausedLovableIntegrationForClassroomUseCase,
-            getLovableCredentialsForClassroomUseCase
+            getLovableCredentialsForClassroomUseCase,
+            getLovableIntegrationForClassroomUseCase
         )
 
     @Test
@@ -159,6 +161,50 @@ class LovableControllerTest {
 
         val response: ResponseEntity<*> = controller.getStudentsCredentialsForClassroom(teacher, classroomId)
 
+        assertTrue(response.statusCode.isError)
+        assertNotNull(response.body)
+    }
+
+    @Test
+    fun `getIntegrationForClassroom returns 200 on success`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        every { getLovableIntegrationForClassroomUseCase.get(teacher, classroomId) } returns Either.Right(
+            LovableClassroom(classroomId, true, false)
+        )
+
+        val response: ResponseEntity<*> = controller.getIntegrationForClassroom(teacher, classroomId)
+
+        assertEquals(200, response.statusCode.value())
+        assertTrue(response.statusCode.is2xxSuccessful)
+    }
+
+    @Test
+    fun `getIntegrationForClassroom maps NotFound to 404`() {
+        val student = testStudent()
+        val classroomId = UUID.randomUUID()
+        every { getLovableIntegrationForClassroomUseCase.get(student, classroomId) } returns Either.Left(
+            com.anahoret.imagilabsapi.common.domain.error.NotFoundError("LOVABLE_INTEGRATION_NOT_FOUND")
+        )
+
+        val response: ResponseEntity<*> = controller.getIntegrationForClassroom(student, classroomId)
+
+        assertEquals(404, response.statusCode.value())
+        assertTrue(response.statusCode.isError)
+        assertNotNull(response.body)
+    }
+
+    @Test
+    fun `getIntegrationForClassroom maps AccessDenied to 403`() {
+        val student = testStudent()
+        val classroomId = UUID.randomUUID()
+        every { getLovableIntegrationForClassroomUseCase.get(student, classroomId) } returns Either.Left(
+            com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED")
+        )
+
+        val response: ResponseEntity<*> = controller.getIntegrationForClassroom(student, classroomId)
+
+        assertEquals(403, response.statusCode.value())
         assertTrue(response.statusCode.isError)
         assertNotNull(response.body)
     }

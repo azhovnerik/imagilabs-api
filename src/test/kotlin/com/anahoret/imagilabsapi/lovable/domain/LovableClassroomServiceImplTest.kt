@@ -136,4 +136,36 @@ class LovableClassroomServiceImplTest {
         verify { repo.deleteByClassroomId(classroomId) }
         confirmVerified(repo)
     }
+
+    @Test
+    fun `getIntegrationForClassroom returns mapped domain when entity exists`() {
+        val classroomId = UUID.randomUUID()
+        val entity = LovableClassroomEntity(
+            classroomId = classroomId,
+            lovableIntegrationEnabled = true,
+            lovableIntegrationPaused = false
+        )
+        every { repo.getByClassroomId(classroomId) } returns entity
+
+        val result = service.getIntegrationForClassroom(classroomId)
+
+        assertTrue(result != null)
+        assertTrue(result!!.classroomId == classroomId)
+        assertTrue(result.lovableIntegrationEnabled)
+        assertFalse(result.lovableIntegrationPaused)
+        verify(exactly = 1) { repo.getByClassroomId(classroomId) }
+        confirmVerified(repo)
+    }
+
+    @Test
+    fun `getIntegrationForClassroom returns null when entity not found`() {
+        val classroomId = UUID.randomUUID()
+        every { repo.getByClassroomId(classroomId) } returns null
+
+        val result = service.getIntegrationForClassroom(classroomId)
+
+        assertTrue(result == null)
+        verify(exactly = 1) { repo.getByClassroomId(classroomId) }
+        confirmVerified(repo)
+    }
 }
