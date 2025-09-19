@@ -1,15 +1,25 @@
 package com.anahoret.imagilabsapi.lovable.web
 
 import arrow.core.Either
+import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
+import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.lovable.domain.*
+import com.anahoret.imagilabsapi.lovable.domain.accountcards.StudentLovableAccountCardsFile
+import com.anahoret.imagilabsapi.lovable.domain.accountcards.StudentLovableAccountCardsGenerator
+import com.anahoret.imagilabsapi.lovable.domain.accountcards.StudentsLovableAccountCardsFormat
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.springframework.core.io.InputStreamResource
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import java.io.ByteArrayInputStream
 import java.util.*
 
 class LovableControllerTest {
@@ -21,6 +31,7 @@ class LovableControllerTest {
         mockk(relaxed = true)
     private val getLovableCredentialsForClassroomUseCase: GetLovableCredentialsForClassroomUseCase = mockk()
     private val getLovableIntegrationForClassroomUseCase: GetLovableIntegrationForClassroomUseCase = mockk()
+    private val studentLovableAccountCardsGenerator: StudentLovableAccountCardsGenerator = mockk()
     private val controller =
         LovableController(
             connectLovableAccountToUserUseCase,
@@ -28,13 +39,14 @@ class LovableControllerTest {
             enableLovableIntegrationForClassroomUseCase,
             setPausedLovableIntegrationForClassroomUseCase,
             getLovableCredentialsForClassroomUseCase,
-            getLovableIntegrationForClassroomUseCase
+            getLovableIntegrationForClassroomUseCase,
+            studentLovableAccountCardsGenerator
         )
 
     @Test
     fun `connectTeacherProfile returns 200 with body on success`() {
         val teacher = testTeacher()
-        val account = LovableAccount(UUID.randomUUID(), "a@x.com", "p")
+        val account = LovableAccount(UUID.randomUUID(), "u", "a@x.com", "p")
         every { connectLovableAccountToUserUseCase.connect(teacher) } returns Either.Right(account)
 
         val response: ResponseEntity<*> = controller.connectTeacherProfile(teacher)
@@ -62,7 +74,7 @@ class LovableControllerTest {
     @Test
     fun `getLovableAccount returns 200 with body when found for teacher`() {
         val teacher = testTeacher()
-        val account = LovableAccount(UUID.randomUUID(), "b@x.com", "pwd")
+        val account = LovableAccount(UUID.randomUUID(), "u", "b@x.com", "pwd")
         every { getLovableAccountForUserUseCase.get(teacher) } returns account
 
         val response: ResponseEntity<*> = controller.getLovableAccount(teacher)
@@ -75,7 +87,7 @@ class LovableControllerTest {
     @Test
     fun `getLovableAccount returns 200 with body when found for student`() {
         val student = testStudent()
-        val account = LovableAccount(UUID.randomUUID(), "b@x.com", "pwd")
+        val account = LovableAccount(UUID.randomUUID(), "u", "b@x.com", "pwd")
         every { getLovableAccountForUserUseCase.get(student) } returns account
 
         val response: ResponseEntity<*> = controller.getLovableAccount(student)
@@ -139,7 +151,7 @@ class LovableControllerTest {
     fun `getStudentsCredentialsForClassroom returns 200 with body on success`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val list = listOf(LovableAccount(UUID.randomUUID(), "c@x.com", "pass"))
+        val list = listOf(LovableAccount(UUID.randomUUID(), "u", "c@x.com", "pass"))
         every { getLovableCredentialsForClassroomUseCase.getCredentials(teacher, classroomId) } returns Either.Right(
             list
         )
@@ -184,7 +196,7 @@ class LovableControllerTest {
         val student = testStudent()
         val classroomId = UUID.randomUUID()
         every { getLovableIntegrationForClassroomUseCase.get(student, classroomId) } returns Either.Left(
-            com.anahoret.imagilabsapi.common.domain.error.NotFoundError("LOVABLE_INTEGRATION_NOT_FOUND")
+            NotFoundError("LOVABLE_INTEGRATION_NOT_FOUND")
         )
 
         val response: ResponseEntity<*> = controller.getIntegrationForClassroom(student, classroomId)
@@ -199,7 +211,7 @@ class LovableControllerTest {
         val student = testStudent()
         val classroomId = UUID.randomUUID()
         every { getLovableIntegrationForClassroomUseCase.get(student, classroomId) } returns Either.Left(
-            com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED")
+            AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED")
         )
 
         val response: ResponseEntity<*> = controller.getIntegrationForClassroom(student, classroomId)
@@ -207,5 +219,224 @@ class LovableControllerTest {
         assertEquals(403, response.statusCode.value())
         assertTrue(response.statusCode.isError)
         assertNotNull(response.body)
+    }
+
+    @Test
+    fun `getStudentsLovableAccountsForClassroom returns PDF file with correct headers on success`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        val downloadRequest = DownloadStudentsLovableAccountsRequest(
+            format = StudentsLovableAccountCardsFormat.PDF,
+            studentIds = null
+        )
+        val pdfInputStream = ByteArrayInputStream("pdf content".toByteArray())
+        val cardsFile = StudentLovableAccountCardsFile(
+            inputStream = pdfInputStream,
+            fileName = "test-classroom-students.pdf",
+            format = StudentsLovableAccountCardsFormat.PDF
+        )
+
+        every {
+            studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest)
+        } returns Either.Right(cardsFile)
+
+        val response = controller.getStudentsLovableAccountsForClassroom(teacher, classroomId, downloadRequest)
+
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals(MediaType.APPLICATION_PDF.toString(), response.headers.getFirst(HttpHeaders.CONTENT_TYPE))
+        assertEquals(
+            "attachment; filename=\"test-classroom-students.pdf\"",
+            response.headers.getFirst(HttpHeaders.CONTENT_DISPOSITION)
+        )
+        assertTrue(response.body is InputStreamResource)
+        verify { studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest) }
+    }
+
+    @Test
+    fun `getStudentsLovableAccountsForClassroom returns CSV file with correct headers on success`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        val downloadRequest = DownloadStudentsLovableAccountsRequest(
+            format = StudentsLovableAccountCardsFormat.CSV,
+            studentIds = null
+        )
+        val csvInputStream = ByteArrayInputStream("csv,content".toByteArray())
+        val cardsFile = StudentLovableAccountCardsFile(
+            inputStream = csvInputStream,
+            fileName = "test-classroom-students.csv",
+            format = StudentsLovableAccountCardsFormat.CSV
+        )
+
+        every {
+            studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest)
+        } returns Either.Right(cardsFile)
+
+        val response = controller.getStudentsLovableAccountsForClassroom(teacher, classroomId, downloadRequest)
+
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals("text/csv", response.headers.getFirst(HttpHeaders.CONTENT_TYPE))
+        assertEquals(
+            "attachment; filename=\"test-classroom-students.csv\"",
+            response.headers.getFirst(HttpHeaders.CONTENT_DISPOSITION)
+        )
+        assertTrue(response.body is InputStreamResource)
+        verify { studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest) }
+    }
+
+    @Test
+    fun `getStudentsLovableAccountsForClassroom handles filtered students request`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        val studentIds = setOf(UUID.randomUUID(), UUID.randomUUID())
+        val downloadRequest = DownloadStudentsLovableAccountsRequest(
+            format = StudentsLovableAccountCardsFormat.PDF,
+            studentIds = studentIds
+        )
+        val pdfInputStream = ByteArrayInputStream("filtered pdf content".toByteArray())
+        val cardsFile = StudentLovableAccountCardsFile(
+            inputStream = pdfInputStream,
+            fileName = "filtered-students.pdf",
+            format = StudentsLovableAccountCardsFormat.PDF
+        )
+
+        every {
+            studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest)
+        } returns Either.Right(cardsFile)
+
+        val response = controller.getStudentsLovableAccountsForClassroom(teacher, classroomId, downloadRequest)
+
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertTrue(response.body is InputStreamResource)
+        verify { studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest) }
+    }
+
+    @Test
+    fun `getStudentsLovableAccountsForClassroom maps NotFoundError to 404`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        val downloadRequest = DownloadStudentsLovableAccountsRequest(
+            format = StudentsLovableAccountCardsFormat.PDF,
+            studentIds = null
+        )
+
+        every {
+            studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest)
+        } returns Either.Left(NotFoundError("CLASSROOM_NOT_FOUND"))
+
+        val response = controller.getStudentsLovableAccountsForClassroom(teacher, classroomId, downloadRequest)
+
+        assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+        assertNotNull(response.body)
+        verify { studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest) }
+    }
+
+    @Test
+    fun `getStudentsLovableAccountsForClassroom maps AccessDeniedError to 403`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        val downloadRequest = DownloadStudentsLovableAccountsRequest(
+            format = StudentsLovableAccountCardsFormat.PDF,
+            studentIds = null
+        )
+
+        every {
+            studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest)
+        } returns Either.Left(AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED"))
+
+        val response = controller.getStudentsLovableAccountsForClassroom(teacher, classroomId, downloadRequest)
+
+        assertEquals(HttpStatus.FORBIDDEN, response.statusCode)
+        assertNotNull(response.body)
+        verify { studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest) }
+    }
+
+    @Test
+    fun `getStudentsLovableAccountsForClassroom maps other errors to appropriate status`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        val downloadRequest = DownloadStudentsLovableAccountsRequest(
+            format = StudentsLovableAccountCardsFormat.PDF,
+            studentIds = null
+        )
+
+        every {
+            studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest)
+        } returns Either.Left(MaxNumberOfConnectedAccountsExceededError())
+
+        val response = controller.getStudentsLovableAccountsForClassroom(teacher, classroomId, downloadRequest)
+
+        assertTrue(response.statusCode.isError)
+        assertNotNull(response.body)
+        verify { studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest) }
+    }
+
+    @Test
+    fun `toMediaType extension function returns correct MediaType for PDF`() {
+        val controller = LovableController(
+            connectLovableAccountToUserUseCase,
+            getLovableAccountForUserUseCase,
+            enableLovableIntegrationForClassroomUseCase,
+            setPausedLovableIntegrationForClassroomUseCase,
+            getLovableCredentialsForClassroomUseCase,
+            getLovableIntegrationForClassroomUseCase,
+            studentLovableAccountCardsGenerator
+        )
+
+        // Test the toMediaType extension by triggering it through the controller method
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        val downloadRequest = DownloadStudentsLovableAccountsRequest(
+            format = StudentsLovableAccountCardsFormat.PDF,
+            studentIds = null
+        )
+        val pdfInputStream = ByteArrayInputStream("pdf".toByteArray())
+        val cardsFile = StudentLovableAccountCardsFile(
+            inputStream = pdfInputStream,
+            fileName = "test.pdf",
+            format = StudentsLovableAccountCardsFormat.PDF
+        )
+
+        every {
+            studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest)
+        } returns Either.Right(cardsFile)
+
+        val response = controller.getStudentsLovableAccountsForClassroom(teacher, classroomId, downloadRequest)
+
+        assertEquals(MediaType.APPLICATION_PDF.toString(), response.headers.getFirst(HttpHeaders.CONTENT_TYPE))
+    }
+
+    @Test
+    fun `toMediaType extension function returns correct MediaType for CSV`() {
+        val controller = LovableController(
+            connectLovableAccountToUserUseCase,
+            getLovableAccountForUserUseCase,
+            enableLovableIntegrationForClassroomUseCase,
+            setPausedLovableIntegrationForClassroomUseCase,
+            getLovableCredentialsForClassroomUseCase,
+            getLovableIntegrationForClassroomUseCase,
+            studentLovableAccountCardsGenerator
+        )
+
+        // Test the toMediaType extension by triggering it through the controller method
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        val downloadRequest = DownloadStudentsLovableAccountsRequest(
+            format = StudentsLovableAccountCardsFormat.CSV,
+            studentIds = null
+        )
+        val csvInputStream = ByteArrayInputStream("csv".toByteArray())
+        val cardsFile = StudentLovableAccountCardsFile(
+            inputStream = csvInputStream,
+            fileName = "test.csv",
+            format = StudentsLovableAccountCardsFormat.CSV
+        )
+
+        every {
+            studentLovableAccountCardsGenerator.generate(teacher, classroomId, downloadRequest)
+        } returns Either.Right(cardsFile)
+
+        val response = controller.getStudentsLovableAccountsForClassroom(teacher, classroomId, downloadRequest)
+
+        assertEquals("text/csv", response.headers.getFirst(HttpHeaders.CONTENT_TYPE))
     }
 }

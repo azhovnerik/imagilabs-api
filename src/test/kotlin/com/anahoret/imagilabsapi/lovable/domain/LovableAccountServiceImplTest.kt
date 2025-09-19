@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.lovable.domain
 import com.anahoret.imagilabsapi.common.testAdmin
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.lovable.storage.LovableAccountEntity
+import com.anahoret.imagilabsapi.lovable.storage.LovableAccountProjection
 import com.anahoret.imagilabsapi.lovable.storage.LovableAccountRepository
 import com.anahoret.imagilabsapi.users.UserType
 import io.mockk.*
@@ -39,7 +40,7 @@ class LovableAccountServiceImplTest {
     @Test
     fun `getActive returns mapped domain when entity exists`() {
         val teacher = testTeacher()
-        val entity = LovableAccountEntity("a@x.com", "secret", teacher.id, 100L, active = true)
+        val entity = LovableAccountProjectionTestImpl(teacher.id, null, "a@x.com", "secret")
         every { repo.findOneByConnectedUserAndActiveTrue(teacher.id) } returns entity
 
         val result = service.getActive(teacher)
@@ -107,6 +108,9 @@ class LovableAccountServiceImplTest {
         every { repo.saveAll(any<List<LovableAccountEntity>>()) } answers { firstArg() }
         every { repo.findFirstByConnectedUserIsNull() } returns free
         every { repo.save(any<LovableAccountEntity>()) } answers { firstArg() }
+        every { repo.findOneByConnectedUserAndActiveTrue(teacher.id) } returns LovableAccountProjectionTestImpl(
+            teacher.id, null, "new@x.com", "newpass"
+        )
 
         val result = service.connectToUser(teacher)
 
@@ -124,6 +128,7 @@ class LovableAccountServiceImplTest {
             repo.findByConnectedUser(teacher.id)
             repo.saveAll(match<List<LovableAccountEntity>> { list -> list.all { !it.active } })
             repo.save(free)
+            repo.findOneByConnectedUserAndActiveTrue(teacher.id)
         }
         confirmVerified(repo)
     }
@@ -140,8 +145,8 @@ class LovableAccountServiceImplTest {
         val id1 = UUID.randomUUID()
         val id2 = UUID.randomUUID()
         val entities = listOf(
-            LovableAccountEntity("u1@x.com", "p1", id1, 1L, active = true),
-            LovableAccountEntity("u2@x.com", "p2", id2, 2L, active = false)
+            LovableAccountProjectionTestImpl(id1, null, "u1@x.com", "p1"),
+            LovableAccountProjectionTestImpl(id2, null, "u2@x.com", "p2")
         )
 
         every { repo.findByConnectedUserIn(match { it.containsAll(listOf(id1, id2)) }) } returns entities
@@ -178,4 +183,11 @@ class LovableAccountServiceImplTest {
         verify(exactly = 1) { repo.deleteByConnectedUserIn(match { it == ids }) }
         confirmVerified(repo)
     }
+
+    private class LovableAccountProjectionTestImpl(
+        override val connectedUser: UUID?,
+        override val username: String?,
+        override val email: String,
+        override val password: String
+    ) : LovableAccountProjection
 }

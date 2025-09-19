@@ -85,7 +85,7 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns true
         every { studentProfileService.listByClassroom(classroomId) } returns listOf(s1, s2)
-        every { lovableAccountService.getActive(s1) } returns LovableAccount(s1.id, "e", "p")
+        every { lovableAccountService.getActive(s1) } returns LovableAccount(s1.id, "u1", "e", "p")
         every { lovableAccountService.getActive(s2) } returns null
 
         val result = useCase.enable(teacher, classroomId)
