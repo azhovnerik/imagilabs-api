@@ -12,6 +12,7 @@ import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import jakarta.transaction.Transactional
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -31,7 +32,8 @@ class ClassroomUpdateUseCaseImpl(
     private val classroomService: ClassroomService,
     private val classroomValidator: ClassroomValidator,
     private val studentProfileService: StudentProfileService,
-    private val coTeacherService: CoTeacherService
+    private val coTeacherService: CoTeacherService,
+    private val applicationEventPublisher: ApplicationEventPublisher
 ) : ClassroomUpdateUseCase {
 
     @Transactional(rollbackOn = [Throwable::class])
@@ -58,7 +60,10 @@ class ClassroomUpdateUseCaseImpl(
     ): Either<OperationError, Classroom> {
         val classroom = classroomService.update(classroomId, classroomUpdateRequest)
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
-        studentProfileService.createStudents(classroom.id, classroomUpdateRequest.studentCreateRequests)
+        val newStudents =
+            studentProfileService.createStudents(classroom.id, classroomUpdateRequest.studentCreateRequests)
+
+        applicationEventPublisher.publishEvent(StudentsCreatedEvent(newStudents, classroomId))
 
         if (coTeacherService.isLinkedToClassroom(classroom.id, updateBy.id))
             classroom.teacherRole = TeacherRole.CO_TEACHER

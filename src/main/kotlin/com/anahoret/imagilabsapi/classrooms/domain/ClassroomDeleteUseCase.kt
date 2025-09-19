@@ -6,6 +6,7 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.lovable.domain.LovableClassroomDeleteUseCase
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
@@ -26,7 +27,8 @@ class ClassroomDeleteUseCaseImpl(
     private val classroomAccessService: ClassroomAccessService,
     private val projectService: ProjectService,
     private val projectClassroomShareService: ProjectClassroomShareService,
-    private val studentProfileService: StudentProfileService
+    private val studentProfileService: StudentProfileService,
+    private val lovableClassroomDeleteUseCase: LovableClassroomDeleteUseCase
 ) : ClassroomDeleteUseCase {
 
     @Transactional(rollbackOn = [Throwable::class])
@@ -36,6 +38,8 @@ class ClassroomDeleteUseCaseImpl(
 
         if (!classroomAccessService.canDeleteClassroom(deleteBy, classroom))
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
+
+        lovableClassroomDeleteUseCase.delete(classroomId)
 
         val studentIds = studentProfileService.listByClassroom(classroom.id)
             .map(StudentProfile::id)

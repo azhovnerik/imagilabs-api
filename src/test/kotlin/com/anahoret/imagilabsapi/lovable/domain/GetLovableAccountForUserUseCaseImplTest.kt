@@ -7,16 +7,17 @@ import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
+import java.util.*
 
-class GetLovableAccountForTeacherUseCaseImplTest {
+class GetLovableAccountForUserUseCaseImplTest {
 
     private val service: LovableAccountService = mockk()
-    private val useCase: GetLovableAccountForTeacherUseCase = GetLovableAccountForTeacherUseCaseImpl(service)
+    private val useCase: GetLovableAccountForUserUseCase = GetLovableAccountForUserUseCaseImpl(service)
 
     @Test
     fun `get delegates to service and returns account`() {
         val teacher = testTeacher()
-        val account = LovableAccount("x@y.com", "pass")
+        val account = LovableAccount(UUID.randomUUID(), "x@y.com", "pass")
         every { service.getActive(teacher) } returns account
 
         val result = useCase.get(teacher)
