@@ -17,7 +17,7 @@ class GetLovableAccountForUserUseCaseImplTest {
     @Test
     fun `get delegates to service and returns account`() {
         val teacher = testTeacher()
-        val account = LovableAccount(UUID.randomUUID(), "x@y.com", "pass")
+        val account = LovableAccount(UUID.randomUUID(), "u", "x@y.com", "pass")
         every { service.getActive(teacher) } returns account
 
         val result = useCase.get(teacher)

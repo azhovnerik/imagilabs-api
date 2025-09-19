@@ -4,6 +4,7 @@ import arrow.core.Either
 import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.lovable.domain.*
+import com.anahoret.imagilabsapi.lovable.domain.accountcards.StudentLovableAccountCardsGenerator
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -21,6 +22,7 @@ class LovableControllerTest {
         mockk(relaxed = true)
     private val getLovableCredentialsForClassroomUseCase: GetLovableCredentialsForClassroomUseCase = mockk()
     private val getLovableIntegrationForClassroomUseCase: GetLovableIntegrationForClassroomUseCase = mockk()
+    private val studentLovableAccountCardsGenerator: StudentLovableAccountCardsGenerator = mockk()
     private val controller =
         LovableController(
             connectLovableAccountToUserUseCase,
@@ -28,13 +30,14 @@ class LovableControllerTest {
             enableLovableIntegrationForClassroomUseCase,
             setPausedLovableIntegrationForClassroomUseCase,
             getLovableCredentialsForClassroomUseCase,
-            getLovableIntegrationForClassroomUseCase
+            getLovableIntegrationForClassroomUseCase,
+            studentLovableAccountCardsGenerator
         )
 
     @Test
     fun `connectTeacherProfile returns 200 with body on success`() {
         val teacher = testTeacher()
-        val account = LovableAccount(UUID.randomUUID(), "a@x.com", "p")
+        val account = LovableAccount(UUID.randomUUID(), "u", "a@x.com", "p")
         every { connectLovableAccountToUserUseCase.connect(teacher) } returns Either.Right(account)
 
         val response: ResponseEntity<*> = controller.connectTeacherProfile(teacher)
@@ -62,7 +65,7 @@ class LovableControllerTest {
     @Test
     fun `getLovableAccount returns 200 with body when found for teacher`() {
         val teacher = testTeacher()
-        val account = LovableAccount(UUID.randomUUID(), "b@x.com", "pwd")
+        val account = LovableAccount(UUID.randomUUID(), "u", "b@x.com", "pwd")
         every { getLovableAccountForUserUseCase.get(teacher) } returns account
 
         val response: ResponseEntity<*> = controller.getLovableAccount(teacher)
@@ -75,7 +78,7 @@ class LovableControllerTest {
     @Test
     fun `getLovableAccount returns 200 with body when found for student`() {
         val student = testStudent()
-        val account = LovableAccount(UUID.randomUUID(), "b@x.com", "pwd")
+        val account = LovableAccount(UUID.randomUUID(), "u", "b@x.com", "pwd")
         every { getLovableAccountForUserUseCase.get(student) } returns account
 
         val response: ResponseEntity<*> = controller.getLovableAccount(student)
@@ -139,7 +142,7 @@ class LovableControllerTest {
     fun `getStudentsCredentialsForClassroom returns 200 with body on success`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val list = listOf(LovableAccount(UUID.randomUUID(), "c@x.com", "pass"))
+        val list = listOf(LovableAccount(UUID.randomUUID(), "u", "c@x.com", "pass"))
         every { getLovableCredentialsForClassroomUseCase.getCredentials(teacher, classroomId) } returns Either.Right(
             list
         )
