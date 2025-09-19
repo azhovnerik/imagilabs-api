@@ -27,6 +27,7 @@ class LovableControllerTest {
     private val connectLovableAccountToUserUseCase: ConnectLovableAccountToUserUseCase = mockk()
     private val getLovableAccountForUserUseCase: GetLovableAccountForUserUseCase = mockk()
     private val getLovableAccountForStudentUseCase: GetLovableAccountForStudentUseCase = mockk()
+    private val reconnectLovableAccountForStudentUseCase: ReconnectLovableAccountForStudentUseCase = mockk()
     private val enableLovableIntegrationForClassroomUseCase: EnableLovableIntegrationForClassroomUseCase = mockk()
     private val setPausedLovableIntegrationForClassroomUseCase: SetPausedLovableIntegrationForClassroomUseCase =
         mockk(relaxed = true)
@@ -38,6 +39,7 @@ class LovableControllerTest {
             connectLovableAccountToUserUseCase,
             getLovableAccountForUserUseCase,
             getLovableAccountForStudentUseCase,
+            reconnectLovableAccountForStudentUseCase,
             enableLovableIntegrationForClassroomUseCase,
             setPausedLovableIntegrationForClassroomUseCase,
             getLovableCredentialsForClassroomUseCase,
@@ -378,6 +380,7 @@ class LovableControllerTest {
             connectLovableAccountToUserUseCase,
             getLovableAccountForUserUseCase,
             getLovableAccountForStudentUseCase,
+            reconnectLovableAccountForStudentUseCase,
             enableLovableIntegrationForClassroomUseCase,
             setPausedLovableIntegrationForClassroomUseCase,
             getLovableCredentialsForClassroomUseCase,
@@ -414,6 +417,7 @@ class LovableControllerTest {
             connectLovableAccountToUserUseCase,
             getLovableAccountForUserUseCase,
             getLovableAccountForStudentUseCase,
+            reconnectLovableAccountForStudentUseCase,
             enableLovableIntegrationForClassroomUseCase,
             setPausedLovableIntegrationForClassroomUseCase,
             getLovableCredentialsForClassroomUseCase,
@@ -505,5 +509,82 @@ class LovableControllerTest {
         assertTrue(response.statusCode.isError)
         assertNotNull(response.body)
         verify { getLovableAccountForStudentUseCase.get(teacher, studentId) }
+    }
+
+    @Test
+    fun `reconnectLovableAccountForStudent returns 200 with body when successful`() {
+        val teacher = testTeacher()
+        val studentId = UUID.randomUUID()
+        val account = LovableAccount(studentId, "student1", "student1@example.com", "newpassword123")
+        every { reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId) } returns Either.Right(account)
+
+        val response: ResponseEntity<*> = controller.reconnectLovableAccountForStudent(teacher, studentId)
+
+        assertEquals(200, response.statusCode.value())
+        assertTrue(response.statusCode.is2xxSuccessful)
+        assertNotNull(response.body)
+        verify { reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId) }
+    }
+
+    @Test
+    fun `reconnectLovableAccountForStudent maps NotFoundError to 404`() {
+        val teacher = testTeacher()
+        val studentId = UUID.randomUUID()
+        every { reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId) } returns Either.Left(
+            NotFoundError("STUDENT_NOT_FOUND")
+        )
+
+        val response: ResponseEntity<*> = controller.reconnectLovableAccountForStudent(teacher, studentId)
+
+        assertEquals(404, response.statusCode.value())
+        assertTrue(response.statusCode.isError)
+        assertNotNull(response.body)
+        verify { reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId) }
+    }
+
+    @Test
+    fun `reconnectLovableAccountForStudent maps AccessDeniedError to 403`() {
+        val teacher = testTeacher()
+        val studentId = UUID.randomUUID()
+        every { reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId) } returns Either.Left(
+            AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED")
+        )
+
+        val response: ResponseEntity<*> = controller.reconnectLovableAccountForStudent(teacher, studentId)
+
+        assertEquals(403, response.statusCode.value())
+        assertTrue(response.statusCode.isError)
+        assertNotNull(response.body)
+        verify { reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId) }
+    }
+
+    @Test
+    fun `reconnectLovableAccountForStudent maps OutOfLovableAccountsError to appropriate status`() {
+        val teacher = testTeacher()
+        val studentId = UUID.randomUUID()
+        every { reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId) } returns Either.Left(
+            OutOfLovableAccountsError()
+        )
+
+        val response: ResponseEntity<*> = controller.reconnectLovableAccountForStudent(teacher, studentId)
+
+        assertTrue(response.statusCode.isError)
+        assertNotNull(response.body)
+        verify { reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId) }
+    }
+
+    @Test
+    fun `reconnectLovableAccountForStudent maps MaxNumberOfConnectedAccountsExceededError to appropriate status`() {
+        val teacher = testTeacher()
+        val studentId = UUID.randomUUID()
+        every { reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId) } returns Either.Left(
+            MaxNumberOfConnectedAccountsExceededError()
+        )
+
+        val response: ResponseEntity<*> = controller.reconnectLovableAccountForStudent(teacher, studentId)
+
+        assertTrue(response.statusCode.isError)
+        assertNotNull(response.body)
+        verify { reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId) }
     }
 }

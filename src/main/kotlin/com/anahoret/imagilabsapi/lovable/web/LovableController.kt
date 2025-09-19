@@ -24,6 +24,7 @@ class LovableController(
     private val connectLovableAccountToUserUseCase: ConnectLovableAccountToUserUseCase,
     private val getLovableAccountForUserUseCase: GetLovableAccountForUserUseCase,
     private val getLovableAccountForStudentUseCase: GetLovableAccountForStudentUseCase,
+    private val reconnectLovableAccountForStudentUseCase: ReconnectLovableAccountForStudentUseCase,
     private val enableLovableIntegrationForClassroomUseCase: EnableLovableIntegrationForClassroomUseCase,
     private val setPausedLovableIntegrationForClassroomUseCase: SetPausedLovableIntegrationForClassroomUseCase,
     private val getLovableCredentialsForClassroomUseCase: GetLovableCredentialsForClassroomUseCase,
@@ -55,6 +56,18 @@ class LovableController(
         @PathVariable studentId: UUID
     ): ResponseEntity<ResponseDto<LovableAccount>> {
         return when (val result = getLovableAccountForStudentUseCase.get(teacher, studentId)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
+    }
+
+    @PostMapping("/student/{studentId}")
+    @Secured(UserRole.TEACHER)
+    fun reconnectLovableAccountForStudent(
+        @AuthenticationPrincipal teacher: TeacherProfile,
+        @PathVariable studentId: UUID
+    ): ResponseEntity<ResponseDto<LovableAccount>> {
+        return when (val result = reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
