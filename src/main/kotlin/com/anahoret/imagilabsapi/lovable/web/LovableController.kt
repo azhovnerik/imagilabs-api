@@ -96,7 +96,7 @@ class LovableController(
 
     @GetMapping("/classroom/{classroomId}/students/download")
     @Secured(UserRole.TEACHER)
-    fun getStudentsCredentialsForClassroom(
+    fun getStudentsLovableAccountsForClassroom(
         @AuthenticationPrincipal teacher: TeacherProfile,
         @PathVariable classroomId: UUID,
         @RequestBody downloadRequest: DownloadStudentsLovableAccountsRequest
