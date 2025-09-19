@@ -38,7 +38,7 @@ class LovableAccountServiceImpl(
         if (userIds.isEmpty()) return emptyList()
 
         return lovableAccountRepository.findByConnectedUserIn(userIds).map {
-            LovableAccount(it.connectedUser, it.email, it.password)
+            LovableAccount(it.connectedUser, it.username, it.email, it.password)
         }
     }
 
@@ -49,21 +49,22 @@ class LovableAccountServiceImpl(
 
     override fun getActive(user: UserProfile): LovableAccount? {
         return lovableAccountRepository.findOneByConnectedUserAndActiveTrue(user.id)
-            ?.let { LovableAccount(it.connectedUser, it.email, it.password) }
+            ?.let { LovableAccount(it.connectedUser, it.username, it.email, it.password) }
     }
 
     private fun doConnect(id: UUID): LovableAccount? {
         return lovableAccountRepository.findFirstByConnectedUserIsNull()
-            ?.let {
+            ?.let { lovableAccountEntity ->
                 lovableAccountRepository.findByConnectedUser(id)
                     .onEach { it.active = false }
                     .let(lovableAccountRepository::saveAll)
 
-                it.connectedUser = id
-                it.connectedAt = clock.millis()
-                it.active = true
-                lovableAccountRepository.save(it)
-                LovableAccount(it.connectedUser, it.email, it.password)
+                lovableAccountEntity.connectedUser = id
+                lovableAccountEntity.connectedAt = clock.millis()
+                lovableAccountEntity.active = true
+                lovableAccountRepository.save(lovableAccountEntity)
+                lovableAccountRepository.findOneByConnectedUserAndActiveTrue(id)
+                    ?.let { LovableAccount(it.connectedUser, it.username, it.email, it.password) }
             }
     }
 
