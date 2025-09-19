@@ -26,6 +26,7 @@ class LovableControllerTest {
 
     private val connectLovableAccountToUserUseCase: ConnectLovableAccountToUserUseCase = mockk()
     private val getLovableAccountForUserUseCase: GetLovableAccountForUserUseCase = mockk()
+    private val getLovableAccountForStudentUseCase: GetLovableAccountForStudentUseCase = mockk()
     private val enableLovableIntegrationForClassroomUseCase: EnableLovableIntegrationForClassroomUseCase = mockk()
     private val setPausedLovableIntegrationForClassroomUseCase: SetPausedLovableIntegrationForClassroomUseCase =
         mockk(relaxed = true)
@@ -36,6 +37,7 @@ class LovableControllerTest {
         LovableController(
             connectLovableAccountToUserUseCase,
             getLovableAccountForUserUseCase,
+            getLovableAccountForStudentUseCase,
             enableLovableIntegrationForClassroomUseCase,
             setPausedLovableIntegrationForClassroomUseCase,
             getLovableCredentialsForClassroomUseCase,
@@ -375,6 +377,7 @@ class LovableControllerTest {
         val controller = LovableController(
             connectLovableAccountToUserUseCase,
             getLovableAccountForUserUseCase,
+            getLovableAccountForStudentUseCase,
             enableLovableIntegrationForClassroomUseCase,
             setPausedLovableIntegrationForClassroomUseCase,
             getLovableCredentialsForClassroomUseCase,
@@ -410,6 +413,7 @@ class LovableControllerTest {
         val controller = LovableController(
             connectLovableAccountToUserUseCase,
             getLovableAccountForUserUseCase,
+            getLovableAccountForStudentUseCase,
             enableLovableIntegrationForClassroomUseCase,
             setPausedLovableIntegrationForClassroomUseCase,
             getLovableCredentialsForClassroomUseCase,
@@ -438,5 +442,68 @@ class LovableControllerTest {
         val response = controller.getStudentsLovableAccountsForClassroom(teacher, classroomId, downloadRequest)
 
         assertEquals("text/csv", response.headers.getFirst(HttpHeaders.CONTENT_TYPE))
+    }
+
+    @Test
+    fun `getLovableAccountForStudent returns 200 with body when found`() {
+        val teacher = testTeacher()
+        val studentId = UUID.randomUUID()
+        val account = LovableAccount(studentId, "student1", "student1@example.com", "password123")
+        every { getLovableAccountForStudentUseCase.get(teacher, studentId) } returns Either.Right(account)
+
+        val response: ResponseEntity<*> = controller.getLovableAccountForStudent(teacher, studentId)
+
+        assertEquals(200, response.statusCode.value())
+        assertTrue(response.statusCode.is2xxSuccessful)
+        assertNotNull(response.body)
+        verify { getLovableAccountForStudentUseCase.get(teacher, studentId) }
+    }
+
+    @Test
+    fun `getLovableAccountForStudent maps LOVABLE_ACCOUNT_NOT_FOUND to 404`() {
+        val teacher = testTeacher()
+        val studentId = UUID.randomUUID()
+        every { getLovableAccountForStudentUseCase.get(teacher, studentId) } returns Either.Left(
+            NotFoundError("LOVABLE_ACCOUNT_NOT_FOUND")
+        )
+
+        val response: ResponseEntity<*> = controller.getLovableAccountForStudent(teacher, studentId)
+
+        assertEquals(404, response.statusCode.value())
+        assertTrue(response.statusCode.isError)
+        assertNotNull(response.body)
+        verify { getLovableAccountForStudentUseCase.get(teacher, studentId) }
+    }
+
+    @Test
+    fun `getLovableAccountForStudent maps NotFoundError to 404`() {
+        val teacher = testTeacher()
+        val studentId = UUID.randomUUID()
+        every { getLovableAccountForStudentUseCase.get(teacher, studentId) } returns Either.Left(
+            NotFoundError("STUDENT_NOT_FOUND")
+        )
+
+        val response: ResponseEntity<*> = controller.getLovableAccountForStudent(teacher, studentId)
+
+        assertEquals(404, response.statusCode.value())
+        assertTrue(response.statusCode.isError)
+        assertNotNull(response.body)
+        verify { getLovableAccountForStudentUseCase.get(teacher, studentId) }
+    }
+
+    @Test
+    fun `getLovableAccountForStudent maps AccessDeniedError to 403`() {
+        val teacher = testTeacher()
+        val studentId = UUID.randomUUID()
+        every { getLovableAccountForStudentUseCase.get(teacher, studentId) } returns Either.Left(
+            AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED")
+        )
+
+        val response: ResponseEntity<*> = controller.getLovableAccountForStudent(teacher, studentId)
+
+        assertEquals(403, response.statusCode.value())
+        assertTrue(response.statusCode.isError)
+        assertNotNull(response.body)
+        verify { getLovableAccountForStudentUseCase.get(teacher, studentId) }
     }
 }
