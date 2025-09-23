@@ -117,7 +117,7 @@ class LovableController(
         }
     }
 
-    @GetMapping("/classroom/{classroomId}/students/download")
+    @PostMapping("/classroom/{classroomId}/students/download")
     @Secured(UserRole.TEACHER)
     fun getStudentsLovableAccountsForClassroom(
         @AuthenticationPrincipal teacher: TeacherProfile,
