@@ -18,7 +18,6 @@ import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import java.io.ByteArrayInputStream
 import java.util.*
 
@@ -53,7 +52,7 @@ class LovableControllerTest {
         val account = LovableAccount(UUID.randomUUID(), "u", "a@x.com", "p")
         every { connectLovableAccountToUserUseCase.connect(teacher) } returns Either.Right(account)
 
-        val response: ResponseEntity<*> = controller.connectTeacherProfile(teacher)
+        val response = controller.connectTeacherProfile(teacher)
 
         assertTrue(response.statusCode.is2xxSuccessful)
         assertEquals(200, response.statusCode.value())
@@ -68,7 +67,7 @@ class LovableControllerTest {
             MaxNumberOfConnectedAccountsExceededError()
         )
 
-        val response: ResponseEntity<*> = controller.connectTeacherProfile(teacher)
+        val response = controller.connectTeacherProfile(teacher)
 
         assertTrue(!response.statusCode.is2xxSuccessful)
         assertTrue(response.statusCode.isError)
@@ -81,7 +80,7 @@ class LovableControllerTest {
         val account = LovableAccount(UUID.randomUUID(), "u", "b@x.com", "pwd")
         every { getLovableAccountForUserUseCase.get(teacher) } returns account
 
-        val response: ResponseEntity<*> = controller.getLovableAccount(teacher)
+        val response = controller.getLovableAccount(teacher)
 
         assertEquals(200, response.statusCode.value())
         assertTrue(response.statusCode.is2xxSuccessful)
@@ -94,7 +93,7 @@ class LovableControllerTest {
         val account = LovableAccount(UUID.randomUUID(), "u", "b@x.com", "pwd")
         every { getLovableAccountForUserUseCase.get(student) } returns account
 
-        val response: ResponseEntity<*> = controller.getLovableAccount(student)
+        val response = controller.getLovableAccount(student)
 
         assertEquals(200, response.statusCode.value())
         assertTrue(response.statusCode.is2xxSuccessful)
@@ -106,7 +105,7 @@ class LovableControllerTest {
         val teacher = testTeacher()
         every { getLovableAccountForUserUseCase.get(teacher) } returns null
 
-        val response: ResponseEntity<*> = controller.getLovableAccount(teacher)
+        val response = controller.getLovableAccount(teacher)
 
         assertEquals(404, response.statusCode.value())
         assertTrue(response.body == null)
@@ -116,9 +115,9 @@ class LovableControllerTest {
     fun `enableIntegrationForClassroom returns 200 on success`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        every { enableLovableIntegrationForClassroomUseCase.enable(teacher, classroomId) } returns Either.Right(Unit)
+        every { enableLovableIntegrationForClassroomUseCase.enable(teacher, classroomId) } returns Either.Right(mockk())
 
-        val response: ResponseEntity<*> = controller.enableIntegrationForClassroom(teacher, classroomId)
+        val response = controller.enableIntegrationForClassroom(teacher, classroomId)
 
         assertEquals(200, response.statusCode.value())
         assertTrue(response.statusCode.is2xxSuccessful)
@@ -132,7 +131,7 @@ class LovableControllerTest {
             MaxNumberOfConnectedAccountsExceededError()
         )
 
-        val response: ResponseEntity<*> = controller.enableIntegrationForClassroom(teacher, classroomId)
+        val response = controller.enableIntegrationForClassroom(teacher, classroomId)
 
         assertTrue(response.statusCode.isError)
         assertNotEquals(200, response.statusCode.value())
@@ -145,7 +144,7 @@ class LovableControllerTest {
         val classroomId = UUID.randomUUID()
         val request = LovableController.SetPausedRequest(true)
 
-        val response: ResponseEntity<Void> = controller.setPausedIntegrationForClassroom(teacher, classroomId, request)
+        val response = controller.setPausedIntegrationForClassroom(teacher, classroomId, request)
 
         assertEquals(200, response.statusCode.value())
         verify { setPausedLovableIntegrationForClassroomUseCase.setPaused(teacher, classroomId, true) }
@@ -160,7 +159,7 @@ class LovableControllerTest {
             list
         )
 
-        val response: ResponseEntity<*> = controller.getStudentsCredentialsForClassroom(teacher, classroomId)
+        val response = controller.getStudentsCredentialsForClassroom(teacher, classroomId)
 
         assertEquals(200, response.statusCode.value())
         assertTrue(response.statusCode.is2xxSuccessful)
@@ -175,7 +174,7 @@ class LovableControllerTest {
             MaxNumberOfConnectedAccountsExceededError()
         )
 
-        val response: ResponseEntity<*> = controller.getStudentsCredentialsForClassroom(teacher, classroomId)
+        val response = controller.getStudentsCredentialsForClassroom(teacher, classroomId)
 
         assertTrue(response.statusCode.isError)
         assertNotNull(response.body)
@@ -189,10 +188,11 @@ class LovableControllerTest {
             LovableClassroom(classroomId, true, false)
         )
 
-        val response: ResponseEntity<*> = controller.getIntegrationForClassroom(teacher, classroomId)
+        val response = controller.getIntegrationForClassroom(teacher, classroomId)
 
         assertEquals(200, response.statusCode.value())
         assertTrue(response.statusCode.is2xxSuccessful)
+        assertEquals(classroomId, response.body?.payload?.classroomId)
     }
 
     @Test
@@ -203,7 +203,7 @@ class LovableControllerTest {
             NotFoundError("LOVABLE_INTEGRATION_NOT_FOUND")
         )
 
-        val response: ResponseEntity<*> = controller.getIntegrationForClassroom(student, classroomId)
+        val response = controller.getIntegrationForClassroom(student, classroomId)
 
         assertEquals(404, response.statusCode.value())
         assertTrue(response.statusCode.isError)
@@ -218,7 +218,7 @@ class LovableControllerTest {
             AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED")
         )
 
-        val response: ResponseEntity<*> = controller.getIntegrationForClassroom(student, classroomId)
+        val response = controller.getIntegrationForClassroom(student, classroomId)
 
         assertEquals(403, response.statusCode.value())
         assertTrue(response.statusCode.isError)
@@ -455,7 +455,7 @@ class LovableControllerTest {
         val account = LovableAccount(studentId, "student1", "student1@example.com", "password123")
         every { getLovableAccountForStudentUseCase.get(teacher, studentId) } returns Either.Right(account)
 
-        val response: ResponseEntity<*> = controller.getLovableAccountForStudent(teacher, studentId)
+        val response = controller.getLovableAccountForStudent(teacher, studentId)
 
         assertEquals(200, response.statusCode.value())
         assertTrue(response.statusCode.is2xxSuccessful)
@@ -471,7 +471,7 @@ class LovableControllerTest {
             NotFoundError("LOVABLE_ACCOUNT_NOT_FOUND")
         )
 
-        val response: ResponseEntity<*> = controller.getLovableAccountForStudent(teacher, studentId)
+        val response = controller.getLovableAccountForStudent(teacher, studentId)
 
         assertEquals(404, response.statusCode.value())
         assertTrue(response.statusCode.isError)
@@ -487,7 +487,7 @@ class LovableControllerTest {
             NotFoundError("STUDENT_NOT_FOUND")
         )
 
-        val response: ResponseEntity<*> = controller.getLovableAccountForStudent(teacher, studentId)
+        val response = controller.getLovableAccountForStudent(teacher, studentId)
 
         assertEquals(404, response.statusCode.value())
         assertTrue(response.statusCode.isError)
@@ -503,7 +503,7 @@ class LovableControllerTest {
             AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED")
         )
 
-        val response: ResponseEntity<*> = controller.getLovableAccountForStudent(teacher, studentId)
+        val response = controller.getLovableAccountForStudent(teacher, studentId)
 
         assertEquals(403, response.statusCode.value())
         assertTrue(response.statusCode.isError)
@@ -518,7 +518,7 @@ class LovableControllerTest {
         val account = LovableAccount(studentId, "student1", "student1@example.com", "newpassword123")
         every { reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId) } returns Either.Right(account)
 
-        val response: ResponseEntity<*> = controller.reconnectLovableAccountForStudent(teacher, studentId)
+        val response = controller.reconnectLovableAccountForStudent(teacher, studentId)
 
         assertEquals(200, response.statusCode.value())
         assertTrue(response.statusCode.is2xxSuccessful)
@@ -534,7 +534,7 @@ class LovableControllerTest {
             NotFoundError("STUDENT_NOT_FOUND")
         )
 
-        val response: ResponseEntity<*> = controller.reconnectLovableAccountForStudent(teacher, studentId)
+        val response = controller.reconnectLovableAccountForStudent(teacher, studentId)
 
         assertEquals(404, response.statusCode.value())
         assertTrue(response.statusCode.isError)
@@ -550,7 +550,7 @@ class LovableControllerTest {
             AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED")
         )
 
-        val response: ResponseEntity<*> = controller.reconnectLovableAccountForStudent(teacher, studentId)
+        val response = controller.reconnectLovableAccountForStudent(teacher, studentId)
 
         assertEquals(403, response.statusCode.value())
         assertTrue(response.statusCode.isError)
@@ -566,7 +566,7 @@ class LovableControllerTest {
             OutOfLovableAccountsError()
         )
 
-        val response: ResponseEntity<*> = controller.reconnectLovableAccountForStudent(teacher, studentId)
+        val response = controller.reconnectLovableAccountForStudent(teacher, studentId)
 
         assertTrue(response.statusCode.isError)
         assertNotNull(response.body)
@@ -581,7 +581,7 @@ class LovableControllerTest {
             MaxNumberOfConnectedAccountsExceededError()
         )
 
-        val response: ResponseEntity<*> = controller.reconnectLovableAccountForStudent(teacher, studentId)
+        val response = controller.reconnectLovableAccountForStudent(teacher, studentId)
 
         assertTrue(response.statusCode.isError)
         assertNotNull(response.body)
