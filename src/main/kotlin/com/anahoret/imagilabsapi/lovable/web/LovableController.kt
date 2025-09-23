@@ -2,10 +2,7 @@ package com.anahoret.imagilabsapi.lovable.web
 
 import arrow.core.Either
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
-import com.anahoret.imagilabsapi.common.web.ResponseDto
-import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
-import com.anahoret.imagilabsapi.common.web.mapErrors
-import com.anahoret.imagilabsapi.common.web.toFileResponse
+import com.anahoret.imagilabsapi.common.web.*
 import com.anahoret.imagilabsapi.lovable.domain.*
 import com.anahoret.imagilabsapi.lovable.domain.accountcards.StudentLovableAccountCardsGenerator
 import com.anahoret.imagilabsapi.lovable.domain.accountcards.StudentsLovableAccountCardsFormat
@@ -78,10 +75,10 @@ class LovableController(
     fun enableIntegrationForClassroom(
         @AuthenticationPrincipal teacher: TeacherProfile,
         @PathVariable classroomId: UUID
-    ): ResponseEntity<ResponseDto<Void>> {
+    ): ResponseEntity<ResponseDto<LovableClassroom>> {
         return when (val result = enableLovableIntegrationForClassroomUseCase.enable(teacher, classroomId)) {
             is Either.Left -> mapErrors(result.value)
-            is Either.Right -> return ResponseEntity.ok().build()
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
@@ -103,9 +100,9 @@ class LovableController(
         @AuthenticationPrincipal teacher: TeacherProfile,
         @PathVariable classroomId: UUID,
         @RequestBody setPausedRequest: SetPausedRequest
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<ResponseDto<Void>> {
         setPausedLovableIntegrationForClassroomUseCase.setPaused(teacher, classroomId, setPausedRequest.paused)
-        return ResponseEntity.ok().build()
+        return ResponseEntity.ok(EmptySuccessResponseDto)
     }
 
     @GetMapping("/classroom/{classroomId}/students")

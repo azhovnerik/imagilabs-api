@@ -11,6 +11,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -25,6 +26,7 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
     private lateinit var classroomAccessService: ClassroomAccessService
     private lateinit var classroomService: ClassroomService
     private lateinit var useCase: EnableLovableIntegrationForClassroomUseCase
+    private lateinit var getLovableIntegrationForClassroomUseCase: GetLovableIntegrationForClassroomUseCase
 
     @BeforeEach
     fun setUp() {
@@ -34,13 +36,15 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
         connectUseCase = mockk(relaxed = true)
         classroomAccessService = mockk()
         classroomService = mockk()
+        getLovableIntegrationForClassroomUseCase = mockk()
         useCase = EnableLovableIntegrationForClassroomUseCaseImpl(
             lovableClassroomService,
             studentProfileService,
             lovableAccountService,
             connectUseCase,
             classroomAccessService,
-            classroomService
+            classroomService,
+            getLovableIntegrationForClassroomUseCase
         )
     }
 
@@ -82,15 +86,20 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
         val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1)
         val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L, classroomId)
         val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L, classroomId)
+        val mockLovableClassroom = mockk<LovableClassroom>()
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns true
         every { studentProfileService.listByClassroom(classroomId) } returns listOf(s1, s2)
         every { lovableAccountService.getActive(s1) } returns LovableAccount(s1.id, "u1", "e", "p")
         every { lovableAccountService.getActive(s2) } returns null
+        every { getLovableIntegrationForClassroomUseCase.get(teacher, classroomId) } returns Either.Right(
+            mockLovableClassroom
+        )
 
         val result = useCase.enable(teacher, classroomId)
 
         assertTrue(result is Either.Right)
+        assertEquals(mockLovableClassroom, (result as Either.Right).value)
         verifySequence {
             classroomService.getById(classroomId)
             classroomAccessService.canUpdateClassroom(teacher, classroom)
