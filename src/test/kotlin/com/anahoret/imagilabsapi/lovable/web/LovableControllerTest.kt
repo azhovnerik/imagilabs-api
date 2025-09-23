@@ -5,6 +5,7 @@ import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.testTeacher
+import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.lovable.domain.*
 import com.anahoret.imagilabsapi.lovable.domain.accountcards.StudentLovableAccountCardsFile
 import com.anahoret.imagilabsapi.lovable.domain.accountcards.StudentLovableAccountCardsGenerator
@@ -189,10 +190,12 @@ class LovableControllerTest {
             LovableClassroom(classroomId, true, false)
         )
 
-        val response: ResponseEntity<*> = controller.getIntegrationForClassroom(teacher, classroomId)
+        val response: ResponseEntity<ResponseDto<LovableClassroom>> =
+            controller.getIntegrationForClassroom(teacher, classroomId)
 
         assertEquals(200, response.statusCode.value())
         assertTrue(response.statusCode.is2xxSuccessful)
+        assertEquals(classroomId, response.body?.payload?.classroomId)
     }
 
     @Test

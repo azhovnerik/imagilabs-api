@@ -90,10 +90,10 @@ class LovableController(
     fun getIntegrationForClassroom(
         @AuthenticationPrincipal user: UserProfile,
         @PathVariable classroomId: UUID
-    ): ResponseEntity<ResponseDto<Void>> {
+    ): ResponseEntity<ResponseDto<LovableClassroom>> {
         return when (val result = getLovableIntegrationForClassroomUseCase.get(user, classroomId)) {
             is Either.Left -> mapErrors(result.value)
-            is Either.Right -> return ResponseEntity.ok().build()
+            is Either.Right -> return ResponseEntity.ok(SuccessResponseDto(result.value))
         }
     }
 
