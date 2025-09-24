@@ -31,7 +31,7 @@ interface LovableAccountRepository : JpaRepository<LovableAccountEntity, UUID> {
         a.email as email,
         a.password as password
         FROM LovableAccountEntity a
-        LEFT JOIN StudentProfileEntity sp ON sp.id = :id
+        LEFT JOIN StudentProfileEntity sp ON sp.id = a.connectedUser
         WHERE a.connectedUser IN :userIds AND a.active = true
     """
     )
