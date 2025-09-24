@@ -12,9 +12,7 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 import java.awt.Color
 import java.io.ByteArrayOutputStream
-import java.io.FileOutputStream
 import java.io.InputStream
-import java.util.*
 
 interface StudentLovableAccountCardsPdfGenerator {
 
@@ -111,7 +109,7 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
     ) {
         val cardCenterX = (rectangle.lowerLeftX + rectangle.upperRightX) / 2
         drawBorder(stream, rectangle)
-        drawlovableLink(stream, textFont, cardCenterX, rectangle)
+        drawLovableLink(stream, textFont, cardCenterX, rectangle)
         drawCredentials(stream, textFont, cardCenterX, rectangle, account)
         drawDisclaimer(stream, textFont, cardCenterX, rectangle, sayNoEvilEmoji)
         drawLogoImage(stream, imagiLogo, rectangle)
@@ -194,7 +192,7 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
         stream.endText()
     }
 
-    private fun drawlovableLink(
+    private fun drawLovableLink(
         stream: PDPageContentStream,
         textFont: PDFont,
         cardCenterX: Float,
@@ -223,14 +221,4 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
         stream.stroke()
     }
 
-}
-
-fun main() {
-    val pdfGenerator = StudentLovableAccountCardsPdfGeneratorImpl()
-    pdfGenerator.generate(
-        listOf(
-            LovableAccount(UUID.randomUUID(), "Elise L", "4AXYZ1", "crystal-onion-clay"),
-            LovableAccount(UUID.randomUUID(), "Sigrid", "4AXYZ2", "01234567890123456789"),
-        )
-    ).transferTo(FileOutputStream("student-cards.pdf"))
 }
