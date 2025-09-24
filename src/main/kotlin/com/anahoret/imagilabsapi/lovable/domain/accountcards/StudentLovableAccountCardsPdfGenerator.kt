@@ -12,7 +12,9 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 import java.awt.Color
 import java.io.ByteArrayOutputStream
+import java.io.FileOutputStream
 import java.io.InputStream
+import java.util.*
 
 interface StudentLovableAccountCardsPdfGenerator {
 
@@ -44,8 +46,8 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
 
         val imagiLogo = PDImageXObject.createFromByteArray(
             document,
-            ClassPathResource("images/imagi_edu_logo.png").inputStream.readAllBytes(),
-            "images/imagi_edu_logo.png"
+            ClassPathResource("images/lovable_logo.png").inputStream.readAllBytes(),
+            "images/lovable_logo.png"
         )
 
         val sayNoEvilEmoji = PDImageXObject.createFromByteArray(
@@ -109,7 +111,7 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
     ) {
         val cardCenterX = (rectangle.lowerLeftX + rectangle.upperRightX) / 2
         drawBorder(stream, rectangle)
-        drawImagilabsLink(stream, textFont, cardCenterX, rectangle)
+        drawlovableLink(stream, textFont, cardCenterX, rectangle)
         drawCredentials(stream, textFont, cardCenterX, rectangle, account)
         drawDisclaimer(stream, textFont, cardCenterX, rectangle, sayNoEvilEmoji)
         drawLogoImage(stream, imagiLogo, rectangle)
@@ -123,7 +125,7 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
         val imageSize = 45f
         stream.drawImage(
             imagiLogo,
-            rectangle.lowerLeftX + 40f,
+            rectangle.lowerLeftX + 35f,
             rectangle.lowerLeftY + 50f,
             imageSize,
             imageSize
@@ -180,34 +182,34 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
         stream.setFont(textFont, credentialsFontSize)
         stream.setLeading(14.5f)
 
-        val credentialsX = cardCenterX - 30
+        val credentialsX = cardCenterX - 45
         val credentialsY = rectangle.upperRightY - 50
 
         stream.newLineAtOffset(credentialsX, credentialsY)
-        stream.showText("Username: ${account.username}")
+        stream.showText("Student: ${account.username}")
         stream.newLine()
-        stream.showText("Email: ${account.email}")
+        stream.showText("Username: ${account.email}")
         stream.newLine()
         stream.showText("Password: ${account.password}")
         stream.endText()
     }
 
-    private fun drawImagilabsLink(
+    private fun drawlovableLink(
         stream: PDPageContentStream,
         textFont: PDFont,
         cardCenterX: Float,
         rectangle: PDRectangle
     ) {
         stream.beginText()
-        val imagiLabsLinkFontSize = 15f
-        stream.setFont(textFont, imagiLabsLinkFontSize)
+        val lovableLinkFontSize = 15f
+        stream.setFont(textFont, lovableLinkFontSize)
 
-        val imagiLabsLink = "https://edu.imagilabs.com"
-        val imagiLabsLinkWidth = textFont.getStringWidth(imagiLabsLink) / 1000 * imagiLabsLinkFontSize
-        val imagiLabsLinkX = cardCenterX - imagiLabsLinkWidth / 2
-        val imagiLabsLinkY = rectangle.upperRightY - 25
-        stream.newLineAtOffset(imagiLabsLinkX, imagiLabsLinkY)
-        stream.showText(imagiLabsLink)
+        val lovableLink = "https://lovable.dev/login"
+        val lovableLinkWidth = textFont.getStringWidth(lovableLink) / 1000 * lovableLinkFontSize
+        val lovableLinkX = cardCenterX - lovableLinkWidth / 2
+        val lovableLinkY = rectangle.upperRightY - 25
+        stream.newLineAtOffset(lovableLinkX, lovableLinkY)
+        stream.showText(lovableLink)
         stream.endText()
     }
 
@@ -221,4 +223,14 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
         stream.stroke()
     }
 
+}
+
+fun main() {
+    val pdfGenerator = StudentLovableAccountCardsPdfGeneratorImpl()
+    pdfGenerator.generate(
+        listOf(
+            LovableAccount(UUID.randomUUID(), "Elise L", "4AXYZ1", "crystal-onion-clay"),
+            LovableAccount(UUID.randomUUID(), "Sigrid", "4AXYZ2", "01234567890123456789"),
+        )
+    ).transferTo(FileOutputStream("student-cards.pdf"))
 }
