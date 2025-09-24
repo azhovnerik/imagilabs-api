@@ -111,7 +111,7 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
     ) {
         val cardCenterX = (rectangle.lowerLeftX + rectangle.upperRightX) / 2
         drawBorder(stream, rectangle)
-        drawlovableLink(stream, textFont, cardCenterX, rectangle)
+        drawLovableLink(stream, textFont, cardCenterX, rectangle)
         drawCredentials(stream, textFont, cardCenterX, rectangle, account)
         drawDisclaimer(stream, textFont, cardCenterX, rectangle, sayNoEvilEmoji)
         drawLogoImage(stream, imagiLogo, rectangle)
@@ -194,7 +194,7 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
         stream.endText()
     }
 
-    private fun drawlovableLink(
+    private fun drawLovableLink(
         stream: PDPageContentStream,
         textFont: PDFont,
         cardCenterX: Float,
