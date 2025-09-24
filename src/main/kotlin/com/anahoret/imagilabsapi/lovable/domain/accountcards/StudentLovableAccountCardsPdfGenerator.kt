@@ -12,9 +12,7 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 import java.awt.Color
 import java.io.ByteArrayOutputStream
-import java.io.FileOutputStream
 import java.io.InputStream
-import java.util.*
 
 interface StudentLovableAccountCardsPdfGenerator {
 
@@ -223,14 +221,4 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
         stream.stroke()
     }
 
-}
-
-fun main() {
-    val pdfGenerator = StudentLovableAccountCardsPdfGeneratorImpl()
-    pdfGenerator.generate(
-        listOf(
-            LovableAccount(UUID.randomUUID(), "Elise L", "4AXYZ1", "crystal-onion-clay"),
-            LovableAccount(UUID.randomUUID(), "Sigrid", "4AXYZ2", "01234567890123456789"),
-        )
-    ).transferTo(FileOutputStream("student-cards.pdf"))
 }
