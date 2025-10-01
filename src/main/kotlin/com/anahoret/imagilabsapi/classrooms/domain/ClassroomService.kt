@@ -4,10 +4,12 @@ import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
+import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
 import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.time.Clock
 import java.util.*
 
 interface ClassroomService {
@@ -30,7 +32,9 @@ class ClassroomServiceImpl(
     private val classroomEntityRepository: ClassroomEntityRepository,
     private val studentClassroomLinkService: StudentClassroomLinkService,
     private val projectClassroomShareService: ProjectClassroomShareService,
-    private val coTeacherService: CoTeacherService
+    private val coTeacherService: CoTeacherService,
+    private val teacherSubscriptionService: TeacherSubscriptionService,
+    private val clock: Clock
 ) : ClassroomService {
 
     override fun create(teacherId: UUID, classroomCreateRequest: ClassroomCreateRequest): Classroom {
@@ -41,7 +45,10 @@ class ClassroomServiceImpl(
                 accessCode,
                 teacherId
             )
-        ).let { Classroom.fromEntity(it, studentsCount = 0, projectsCount = 0, coTeachersCount = 0) }
+        ).let {
+            val blocked = calculateBlockedForSingleClassroom(it)
+            Classroom.fromEntity(it, studentsCount = 0, projectsCount = 0, coTeachersCount = 0, blocked = blocked)
+        }
     }
 
     override fun update(classroomId: UUID, classroomUpdateRequest: ClassroomUpdateRequest): Classroom? {
@@ -79,7 +86,8 @@ class ClassroomServiceImpl(
                 val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
                 val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
                 val coTeachersCount = coTeacherService.getCoTeacherCountByClassroomId(it.id!!)
-                Classroom.fromEntity(it, studentsCount, projectsCount, coTeachersCount)
+                val blocked = calculateBlockedForSingleClassroom(it)
+                Classroom.fromEntity(it, studentsCount, projectsCount, coTeachersCount, blocked)
             }
     }
 
@@ -103,22 +111,29 @@ class ClassroomServiceImpl(
                 val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
                 val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
                 val coTeachersCount = coTeacherService.getCoTeacherCountByClassroomId(it.id!!)
-                Classroom.fromEntity(it, studentsCount, projectsCount, coTeachersCount)
+                val blocked = calculateBlockedForSingleClassroom(it)
+                Classroom.fromEntity(it, studentsCount, projectsCount, coTeachersCount, blocked)
             }
     }
 
     private fun mapToClassrooms(classroomEntities: Iterable<ClassroomEntity>): List<Classroom> {
         val classroomIds = classroomEntities.map { it.id!! }
+        val teacherIds = classroomEntities.map { it.teacherId }.toSet()
+
         val studentCounts = studentClassroomLinkService.getStudentCounts(classroomIds)
         val projectCounts = projectClassroomShareService.getProjectCountsByClassrooms(classroomIds)
         val coTeacherCounts = coTeacherService.getCoTeacherCountsByClassroomIds(classroomIds)
+        val firstClassroomIds = getFirstClassroomIdsByTeachers(teacherIds)
+        val teacherBlockedStatus = getTeacherBlockedStatusMap(teacherIds)
+
         return classroomEntities
             .map {
                 Classroom.fromEntity(
                     classroomEntity = it,
                     studentCounts.getOrDefault(it.id!!, 0),
                     projectCounts.getOrDefault(it.id!!, 0),
-                    coTeacherCounts.getOrDefault(it.id!!, 0)
+                    coTeacherCounts.getOrDefault(it.id!!, 0),
+                    calculateBlocked(it, firstClassroomIds, teacherBlockedStatus)
                 )
             }
     }
@@ -135,5 +150,66 @@ class ClassroomServiceImpl(
 
     fun List<Classroom>.toCoTeacherClassrooms(): List<Classroom> {
         return this.map { it.teacherRole = TeacherRole.CO_TEACHER; it }
+    }
+
+    private fun calculateBlocked(
+        classroomEntity: ClassroomEntity,
+        firstClassroomIds: Set<UUID>,
+        teacherSubscriptions: Map<UUID, Boolean>
+    ): Boolean {
+        // First classroom for a teacher is always unblocked
+        if (firstClassroomIds.contains(classroomEntity.id)) {
+            return false
+        }
+
+        // Check subscription status
+        return teacherSubscriptions[classroomEntity.teacherId] ?: false
+    }
+
+    private fun getFirstClassroomIdsByTeachers(teacherIds: Collection<UUID>): Set<UUID> {
+        if (teacherIds.isEmpty()) return emptySet()
+
+        val allClassrooms = classroomEntityRepository.findAllByTeacherIdIn(teacherIds)
+        return allClassrooms.groupBy { it.teacherId }
+            .mapValues { (_, classrooms) -> classrooms.minByOrNull { it.createdAt ?: Long.MAX_VALUE }?.id }
+            .values
+            .filterNotNull()
+            .toSet()
+    }
+
+    private fun getTeacherBlockedStatusMap(teacherIds: Collection<UUID>): Map<UUID, Boolean> {
+        if (teacherIds.isEmpty()) return emptyMap()
+
+        val now = clock.instant().toEpochMilli()
+        val subscriptions = teacherSubscriptionService.getSubscriptionDtos(teacherIds.toSet())
+
+        return subscriptions.associate { subscription ->
+            val isBlocked = if (subscription.canceled) {
+                true
+            } else {
+                val end = subscription.end
+                end != null && now >= end
+            }
+            subscription.teacherId to isBlocked
+        }
+    }
+
+    private fun calculateBlockedForSingleClassroom(classroomEntity: ClassroomEntity): Boolean {
+        val firstClassroom = classroomEntityRepository.findAllByTeacherId(classroomEntity.teacherId)
+            .minByOrNull { it.createdAt ?: Long.MAX_VALUE }
+
+        if (firstClassroom?.id == classroomEntity.id) {
+            return false
+        }
+
+        val subscription = teacherSubscriptionService.getSubscriptionDto(classroomEntity.teacherId) ?: return false
+
+        if (subscription.canceled) {
+            return true
+        }
+
+        val end = subscription.end ?: return false
+        val now = clock.instant().toEpochMilli()
+        return now >= end
     }
 }

@@ -78,7 +78,7 @@ class GetLovableAccountForStudentUseCaseImplTest {
         val studentId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
         val student = StudentProfile(studentId, "Student Name", "student1", 123L, classroomId)
-        val classroom = Classroom(classroomId, "Test Classroom", "TC123", 0, 0, UUID.randomUUID(), 1)
+        val classroom = Classroom(classroomId, "Test Classroom", "TC123", 0, 0, UUID.randomUUID(), 1, blocked = false)
 
         every { studentProfileService.getStudentById(studentId) } returns student
         every { classroomService.getById(classroomId) } returns classroom
@@ -98,7 +98,7 @@ class GetLovableAccountForStudentUseCaseImplTest {
         val studentId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
         val student = StudentProfile(studentId, "Student Name", "student1", 123L, classroomId)
-        val classroom = Classroom(classroomId, "Test Classroom", "TC123", 0, 0, teacher.id, 1)
+        val classroom = Classroom(classroomId, "Test Classroom", "TC123", 0, 0, teacher.id, 1, blocked = false)
         val lovableAccount = LovableAccount(studentId, "student1", "student1@example.com", "password123")
 
         every { studentProfileService.getStudentById(studentId) } returns student
@@ -120,7 +120,7 @@ class GetLovableAccountForStudentUseCaseImplTest {
         val studentId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
         val student = StudentProfile(studentId, "Student Name", "student1", 123L, classroomId)
-        val classroom = Classroom(classroomId, "Test Classroom", "TC123", 0, 0, teacher.id, 1)
+        val classroom = Classroom(classroomId, "Test Classroom", "TC123", 0, 0, teacher.id, 1, blocked = false)
 
         every { studentProfileService.getStudentById(studentId) } returns student
         every { classroomService.getById(classroomId) } returns classroom

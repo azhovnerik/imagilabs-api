@@ -342,7 +342,7 @@ class CoTeacherControllerTest {
             val teacherProfile = testTeacher()
             val classroom = Classroom(
                 UUID.randomUUID(), "", "sdf2", 0, 0,
-                UUID.randomUUID(), 1, TeacherRole.OWNER
+                UUID.randomUUID(), 1, blocked = false, teacherRole = TeacherRole.OWNER
             )
 
             every { invitationCoTeacherAcceptUseCase.accept(invitationId, teacherProfile) } returns classroom.right()

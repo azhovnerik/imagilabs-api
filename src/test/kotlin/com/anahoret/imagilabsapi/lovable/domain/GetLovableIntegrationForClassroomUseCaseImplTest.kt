@@ -45,7 +45,7 @@ class GetLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns AccessDenied when user cannot access classroom`() {
         val student = testStudent()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "A", "X", 0, 0, student.id, 1)
+        val classroom = Classroom(classroomId, "A", "X", 0, 0, student.id, 1, blocked = false)
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canGetClassroom(student, classroom) } returns false
 
@@ -62,7 +62,7 @@ class GetLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns Right when integration exists and access granted`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "B", "Y", 0, 0, teacher.id, 1)
+        val classroom = Classroom(classroomId, "B", "Y", 0, 0, teacher.id, 1, blocked = false)
         val integration = LovableClassroom(classroomId, true, false)
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canGetClassroom(teacher, classroom) } returns true
@@ -81,7 +81,7 @@ class GetLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns NotFound when integration missing`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "C", "Z", 0, 0, teacher.id, 1)
+        val classroom = Classroom(classroomId, "C", "Z", 0, 0, teacher.id, 1, blocked = false)
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canGetClassroom(teacher, classroom) } returns true
         every { lovableClassroomService.getIntegrationForClassroom(classroomId) } returns null

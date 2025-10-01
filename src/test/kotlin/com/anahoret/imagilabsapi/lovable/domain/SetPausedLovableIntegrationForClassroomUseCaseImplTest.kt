@@ -49,7 +49,7 @@ class SetPausedLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns AccessDenied when teacher cannot update classroom`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1)
+        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = false)
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns false
 
@@ -64,7 +64,7 @@ class SetPausedLovableIntegrationForClassroomUseCaseImplTest {
     fun `sets paused when allowed`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1)
+        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = false)
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns true
 

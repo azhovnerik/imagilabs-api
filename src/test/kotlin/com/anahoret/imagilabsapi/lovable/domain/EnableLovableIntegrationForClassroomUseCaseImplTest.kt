@@ -66,7 +66,7 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns AccessDenied when teacher cannot update classroom`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1)
+        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = false)
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns false
 
@@ -83,7 +83,7 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
     fun `enables integration and connects students without active accounts`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1)
+        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = false)
         val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L, classroomId)
         val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L, classroomId)
         val mockLovableClassroom = mockk<LovableClassroom>()

@@ -62,7 +62,7 @@ class TeacherProfileServiceImpl(
                 )
             ).let {
                 val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it)
+                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
                 TeacherProfile.fromEntity(it, subscription)
             }
         }
@@ -72,7 +72,7 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findByIdOrNull(id)
             ?.let {
                 val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it)
+                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
                 TeacherProfile.fromEntity(it, subscription)
             }
     }
@@ -85,7 +85,7 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findByIdOrNull(id)
             ?.let {
                 val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it)
+                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
                 TeacherProfileAdminView.fromEntity(it, subscription)
             }
     }
@@ -94,7 +94,7 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findAllById(ids)
             .map {
                 val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it)
+                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
                 TeacherProfileAdminView.fromEntity(it, subscription)
             }
     }
@@ -103,7 +103,7 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findAllById(ids)
             .map {
                 val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it)
+                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
                 TeacherProfile.fromEntity(it, subscription)
             }
     }
@@ -114,7 +114,7 @@ class TeacherProfileServiceImpl(
                     ?: teacherProfileEntityRepository.findAll(sort)
                 ).map {
                 val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it)
+                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
                 TeacherProfileAdminView.fromEntity(it, subscription)
             }
     }
@@ -127,7 +127,7 @@ class TeacherProfileServiceImpl(
         }
         return teacherEntities.map {
             val subscription =
-                teacherSubscriptionService.buildSubscriptionDto(it)
+                teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
             TeacherProfileAdminView.fromEntity(it, subscription)
         }
     }
@@ -163,7 +163,7 @@ class TeacherProfileServiceImpl(
             .findAllBySubscriptionStartIsNotNullAndSubscriptionEndBetween(leftRange, rightRange)
             .map {
                 val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it)
+                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
                 TeacherProfile.fromEntity(it, subscription)
             }
     }
@@ -176,14 +176,14 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findByIdOrNull(teacherId)?.let {
             it.aiChatOnboardingCompleted = true
             teacherProfileEntityRepository.save(it)
-        }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it)) }
+        }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)) }
     }
 
     override fun setIntroSeen(teacherId: UUID): TeacherProfile? {
         return teacherProfileEntityRepository.findByIdOrNull(teacherId)?.let {
             it.aiChatIntroSeen = true
             teacherProfileEntityRepository.save(it)
-        }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it)) }
+        }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)) }
     }
 
     override fun isAiChatOnboardingCompleted(teacherId: UUID): Boolean {
@@ -196,7 +196,8 @@ class TeacherProfileServiceImpl(
 
     override fun getTeacherByStudent(studentId: UUID): TeacherProfile? {
         val teacherProfileEntity = teacherProfileEntityRepository.findByStudentId(studentId)
-        val subscription = teacherSubscriptionService.buildSubscriptionDto(teacherProfileEntity)
+        val subscription =
+            teacherSubscriptionService.buildSubscriptionDto(teacherProfileEntity.id!!, teacherProfileEntity)
         return TeacherProfile.fromEntity(teacherProfileEntity, subscription)
     }
 }

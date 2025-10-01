@@ -1,6 +1,6 @@
 package com.anahoret.imagilabsapi.subscription.domain
 
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 import org.springframework.data.repository.findByIdOrNull
@@ -11,10 +11,11 @@ import java.util.*
 interface TeacherSubscriptionService {
     fun setPeriod(teacherId: UUID, start: Long, end: Long)
     fun cancelSubscription(teacherId: UUID)
-    fun buildSubscriptionDto(teacherSubscriptionData: TeacherSubscriptionData): TeacherSubscription
+    fun buildSubscriptionDto(teacherId: UUID, teacherSubscriptionData: TeacherSubscriptionData): TeacherSubscription
     fun canCreateClassroom(teacherProfile: TeacherProfile): Boolean
     fun studentLimitPerClassExceeded(teacherProfile: TeacherProfile, studentCountInClassroom: Long): Boolean
     fun getSubscriptionDto(teacherId: UUID): TeacherSubscription?
+    fun getSubscriptionDtos(teacherIds: Set<UUID>): List<TeacherSubscription>
     fun hasProSubscription(teacherId: UUID): Boolean
 }
 
@@ -22,7 +23,7 @@ interface TeacherSubscriptionService {
 class TeacherSubscriptionServiceImpl(
     private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
     private val clock: Clock,
-    private val classroomService: ClassroomService
+    private val classroomEntityRepository: ClassroomEntityRepository
 ) : TeacherSubscriptionService {
     override fun setPeriod(teacherId: UUID, start: Long, end: Long) {
         teacherProfileEntityRepository.findByIdOrNull(teacherId)
@@ -34,24 +35,49 @@ class TeacherSubscriptionServiceImpl(
             }
     }
 
-    override fun buildSubscriptionDto(teacherSubscriptionData: TeacherSubscriptionData): TeacherSubscription {
+    override fun buildSubscriptionDto(
+        teacherId: UUID,
+        teacherSubscriptionData: TeacherSubscriptionData
+    ): TeacherSubscription {
         with(teacherSubscriptionData) {
             val now = clock.instant().toEpochMilli()
             return if (hasProSubscription(now)) {
-                TeacherSubscription(subscriptionStart, subscriptionEnd, TeacherSubscriptionPlan.PRO, subscriptionCanceled)
+                TeacherSubscription(
+                    subscriptionStart,
+                    subscriptionEnd,
+                    TeacherSubscriptionPlan.PRO,
+                    subscriptionCanceled,
+                    teacherId
+                )
             } else {
-                TeacherSubscription(subscriptionStart, subscriptionEnd, TeacherSubscriptionPlan.STANDARD, subscriptionCanceled)
+                TeacherSubscription(
+                    subscriptionStart,
+                    subscriptionEnd,
+                    TeacherSubscriptionPlan.STANDARD,
+                    subscriptionCanceled,
+                    teacherId
+                )
             }
         }
     }
 
     override fun getSubscriptionDto(teacherId: UUID): TeacherSubscription? {
         return teacherProfileEntityRepository.findByIdOrNull(teacherId)
-            ?.let { buildSubscriptionDto(it) }
+            ?.let { buildSubscriptionDto(teacherId, it) }
+    }
+
+    override fun getSubscriptionDtos(teacherIds: Set<UUID>): List<TeacherSubscription> {
+        if (teacherIds.isEmpty()) return emptyList()
+
+        val teachers = teacherProfileEntityRepository.findAllById(teacherIds)
+
+        return teachers.map { teacher ->
+            buildSubscriptionDto(teacher.id!!, teacher)
+        }
     }
 
     override fun canCreateClassroom(teacherProfile: TeacherProfile): Boolean {
-        val currentClassCount = classroomService.countByTeacher(teacherProfile.id)
+        val currentClassCount = classroomEntityRepository.countByTeacherId(teacherProfile.id)
         return when (teacherProfile.subscription.plan) {
             TeacherSubscriptionPlan.STANDARD -> currentClassCount < TeacherSubscriptionLimits.Standard.CLASSROOMS
             TeacherSubscriptionPlan.PRO -> currentClassCount < TeacherSubscriptionLimits.Pro.CLASSROOMS
