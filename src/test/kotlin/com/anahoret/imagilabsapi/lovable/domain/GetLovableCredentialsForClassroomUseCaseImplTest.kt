@@ -54,7 +54,7 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
     fun `returns AccessDenied when teacher cannot list credentials`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1)
+        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = false)
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns false
 
@@ -68,7 +68,7 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
     fun `returns credentials for all students in classroom`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1)
+        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = false)
         val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L, classroomId)
         val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L, classroomId)
         val a1 = LovableAccount(s1.id, "u1", "e1@x.com", "p1")

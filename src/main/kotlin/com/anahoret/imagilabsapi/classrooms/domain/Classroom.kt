@@ -12,6 +12,7 @@ class Classroom(
     val projectsCount: Long,
     val teacherId: UUID,
     val teachersCount: Long,
+    val blocked: Boolean,
     var teacherRole: TeacherRole = TeacherRole.OWNER
 ) {
 
@@ -22,6 +23,7 @@ class Classroom(
             studentsCount: Long,
             projectsCount: Long,
             coTeachersCount: Long,
+            blocked: Boolean
         ): Classroom {
 
             return with(classroomEntity) {
@@ -33,6 +35,7 @@ class Classroom(
                     projectsCount,
                     teacherId,
                     coTeachersCount + 1,
+                    blocked
                 )
             }
         }
