@@ -34,6 +34,9 @@ class CoTeacherRemoveUseCaseImpl(
         val classroom = classroomService.getById(classroomId)
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
+        if (classroom.blocked)
+            return AccessDeniedError("SUBSCRIPTION_REQUIRED").left()
+
         val coTeacher = coTeacherService.getCoTeacher(invitationId)
             ?: return NotFoundError("CO_TEACHER_NOT_FOUND").left()
 

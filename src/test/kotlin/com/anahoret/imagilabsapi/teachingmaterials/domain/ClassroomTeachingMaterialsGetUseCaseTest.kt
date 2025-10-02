@@ -1,5 +1,7 @@
 package com.anahoret.imagilabsapi.teachingmaterials.domain
 
+import arrow.core.left
+import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.*
@@ -10,6 +12,7 @@ import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan.STA
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -39,6 +42,30 @@ class ClassroomTeachingMaterialsGetUseCaseTest {
 
         assertTrue(result.isLeft())
         result.onLeft { assertTrue(it is AccessDeniedError) }
+    }
+
+    @Test
+    fun `should return subscription required when classroom is blocked`() {
+        val testTeacher = testTeacher()
+        val testClassroom = testClassroom(testTeacher.id).let {
+            Classroom(
+                it.id,
+                it.name,
+                it.accessCode,
+                it.studentsCount,
+                it.projectsCount,
+                it.teacherId,
+                it.teachersCount,
+                blocked = true
+            )
+        }
+
+        every { classroomService.getById(testClassroom.id) } returns testClassroom
+
+        val result = classroomTeachingMaterialsGetUseCase.get(testTeacher, testClassroom.id)
+
+        assertTrue(result.isLeft())
+        assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)
     }
 
     @Test

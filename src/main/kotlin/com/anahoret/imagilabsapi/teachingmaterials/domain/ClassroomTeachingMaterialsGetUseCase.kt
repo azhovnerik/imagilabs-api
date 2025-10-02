@@ -34,6 +34,9 @@ class ClassroomTeachingMaterialsGetUseCaseImpl(
         val classroom = classroomId.let(classroomService::getById)
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
+        if (classroom.blocked)
+            return AccessDeniedError("SUBSCRIPTION_REQUIRED").left()
+
         return when (getBy.userType) {
             UserType.TEACHER -> {
                 if (!classroomAccessService.canGetTeachingMaterials(getBy, classroom))

@@ -1,11 +1,15 @@
 package com.anahoret.imagilabsapi.coteachers.domain
 
+import arrow.core.left
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
+import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -41,7 +45,9 @@ class CoTeacherRemoveUseCaseTest {
         val coTeacherId = UUID.randomUUID()
         val currentTeacherId = UUID.randomUUID()
 
-        every { classroomService.getById(classroomId) } returns mockk<Classroom>()
+        every { classroomService.getById(classroomId) } returns mockk<Classroom> {
+            every { blocked } returns false
+        }
         every { coTeacherService.getCoTeacher(coTeacherId) } returns null
 
         val result = coTeacherRemoveUseCase.remove(classroomId, coTeacherId, currentTeacherId)
@@ -50,19 +56,36 @@ class CoTeacherRemoveUseCaseTest {
     }
 
     @Test
-    fun `should return access denied error`() {
+    fun `should return not found error when co-teacher is not found`() {
         val classroomId = UUID.randomUUID()
         val coTeacherId = UUID.randomUUID()
         val currentTeacherId = UUID.randomUUID()
 
         every { classroomService.getById(classroomId) } returns mockk<Classroom> {
             every { teacherId } returns UUID.randomUUID()
+            every { blocked } returns false
         }
         every { coTeacherService.getCoTeacher(coTeacherId) } returns null
 
         val result = coTeacherRemoveUseCase.remove(classroomId, coTeacherId, currentTeacherId)
 
-        assertTrue(result.isLeft())
+        assertEquals(NotFoundError("CO_TEACHER_NOT_FOUND").left(), result)
+    }
+
+    @Test
+    fun `should return access denied error when classroom is blocked`() {
+        val classroomId = UUID.randomUUID()
+        val coTeacherId = UUID.randomUUID()
+        val currentTeacherId = UUID.randomUUID()
+
+        every { classroomService.getById(classroomId) } returns mockk<Classroom> {
+            every { teacherId } returns UUID.randomUUID()
+            every { blocked } returns true
+        }
+
+        val result = coTeacherRemoveUseCase.remove(classroomId, coTeacherId, currentTeacherId)
+
+        assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)
     }
 
     @Test
@@ -73,6 +96,7 @@ class CoTeacherRemoveUseCaseTest {
 
         every { classroomService.getById(classId) } returns mockk<Classroom> {
             every { teacherId } returns UUID.randomUUID()
+            every { blocked } returns false
         }
         every { coTeacherService.getCoTeacher(coTeacherId) } returns mockk<CoTeacher> {
             every { classroomId } returns UUID.randomUUID()
@@ -93,6 +117,7 @@ class CoTeacherRemoveUseCaseTest {
 
         every { classroomService.getById(classroomIdDeleteFrom) } returns mockk<Classroom> {
             every { teacherId } returns currentTeacherId
+            every { blocked } returns false
         }
         every { coTeacherService.getCoTeacher(invitationId) } returns mockk<CoTeacher> {
             every { classroomId } returns classroomIdDeleteFrom

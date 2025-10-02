@@ -27,6 +27,9 @@ class GetLovableIntegrationForClassroomUseCaseImpl(
         val classroom = classroomService.getById(classroomId)
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
+        if (classroom.blocked)
+            return AccessDeniedError("SUBSCRIPTION_REQUIRED").left()
+
         if (!classroomAccessService.canGetClassroom(userProfile, classroom))
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 

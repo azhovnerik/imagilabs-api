@@ -1,13 +1,16 @@
 package com.anahoret.imagilabsapi.coteachers.domain
 
+import arrow.core.left
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
+import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.signup.domain.ImagiLabsEmailValidator
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -60,6 +63,7 @@ class InvitationCoTeacherUseCaseTest {
         val classroomId = UUID.randomUUID()
         val classroom = mockk<Classroom> {
             every { teacherId } returns UUID.randomUUID()
+            every { blocked } returns false
         }
 
         every { emailValidator.isValid(teacherEmail) } returns true
@@ -79,6 +83,7 @@ class InvitationCoTeacherUseCaseTest {
         val classroomId = UUID.randomUUID()
         val classroom = mockk<Classroom> {
             every { teacherId } returns testTeacher.id
+            every { blocked } returns false
         }
 
         every { emailValidator.isValid(teacherEmail) } returns true
@@ -100,6 +105,7 @@ class InvitationCoTeacherUseCaseTest {
         val classroomId = UUID.randomUUID()
         val classroom = mockk<Classroom> {
             every { teacherId } returns currentTeacher.id
+            every { blocked } returns false
         }
 
         every { emailValidator.isValid(teacherEmail) } returns true
@@ -126,6 +132,7 @@ class InvitationCoTeacherUseCaseTest {
         val classroom = mockk<Classroom> {
             every { teacherId } returns  ownerClassroomId
             every { teacherId } returns testTeacher.id
+            every { blocked } returns false
         }
 
         val coTeacher = CoTeacher(
@@ -155,5 +162,25 @@ class InvitationCoTeacherUseCaseTest {
         val result = invitationCoTeacherUseCase.invite(classroomId, request, testTeacher)
 
         assertTrue(result.isRight())
+    }
+
+    @Test
+    fun `should return subscription required when classroom is blocked`() {
+        val invitationEmailTo = "teacher@gmail.com"
+        val classroomId = UUID.randomUUID()
+        val request = InvitationCoTeacherRequest(invitationEmailTo)
+        val currentTeacher = testTeacher()
+
+        val classroom = mockk<Classroom> {
+            every { teacherId } returns currentTeacher.id
+            every { blocked } returns true
+        }
+
+        every { emailValidator.isValid(invitationEmailTo) } returns true
+        every { classroomService.getById(classroomId) } returns classroom
+
+        val result = invitationCoTeacherUseCase.invite(classroomId, request, currentTeacher)
+
+        assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)
     }
 }

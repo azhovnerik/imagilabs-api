@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.lovable.domain
 
 import arrow.core.Either
+import arrow.core.left
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
@@ -121,6 +122,29 @@ class ReconnectLovableAccountForStudentUseCaseTest {
         verify { studentProfileService.getStudentById(student.id) }
         verify { classroomService.getById(student.classroomId) }
         verify { classroomAccessService.canUpdateClassroom(teacher, classroom) }
+    }
+
+    @Test
+    fun `reconnect returns AccessDenied when classroom is blocked`() {
+        val teacher = testTeacher()
+        val student = testStudent()
+        val classroom = Classroom(
+            id = student.classroomId,
+            name = "Test Classroom",
+            accessCode = "ABC123",
+            studentsCount = 1L,
+            projectsCount = 0L,
+            teacherId = teacher.id,
+            teachersCount = 1L,
+            blocked = true
+        )
+
+        every { studentProfileService.getStudentById(student.id) } returns student
+        every { classroomService.getById(student.classroomId) } returns classroom
+
+        val result = useCase.reconnect(teacher, student.id)
+
+        assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)
     }
 
     @Test

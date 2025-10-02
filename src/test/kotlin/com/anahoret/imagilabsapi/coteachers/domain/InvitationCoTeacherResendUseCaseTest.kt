@@ -1,11 +1,14 @@
 package com.anahoret.imagilabsapi.coteachers.domain
 
+import arrow.core.left
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
+import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -74,6 +77,7 @@ class InvitationCoTeacherResendUseCaseTest {
 
         val classroom = mockk<Classroom> {
             every { teacherId } returns UUID.randomUUID()
+            every { blocked } returns false
         }
 
         every { coTeacherService.getCoTeacher(invitationId) } returns coTeacher
@@ -96,6 +100,7 @@ class InvitationCoTeacherResendUseCaseTest {
 
         val classroom = mockk<Classroom> {
             every { teacherId } returns currentTeacher.id
+            every { blocked } returns false
         }
 
         val preferences = InvitationEmailPreferences(
@@ -112,5 +117,26 @@ class InvitationCoTeacherResendUseCaseTest {
         val result = invitationCoTeacherResendUseCase.resend(invitationId, currentTeacher)
 
         assertTrue(result.isRight())
+    }
+
+    @Test
+    fun `should return subscription required when classroom is blocked`() {
+        val coTeacher = mockk<CoTeacher> {
+            every { teacherId } returns null
+            every { classroomId } returns UUID.randomUUID()
+            every { coTeacherStatus } returns TeacherRole.CO_TEACHER_PENDING
+        }
+
+        val classroom = mockk<Classroom> {
+            every { teacherId } returns currentTeacher.id
+            every { blocked } returns true
+        }
+
+        every { coTeacherService.getCoTeacher(invitationId) } returns coTeacher
+        every { classroomService.getById(coTeacher.classroomId) } returns classroom
+
+        val result = invitationCoTeacherResendUseCase.resend(invitationId, currentTeacher)
+
+        assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)
     }
 }

@@ -1,9 +1,11 @@
 package com.anahoret.imagilabsapi.lovable.domain
 
 import arrow.core.Either
+import arrow.core.left
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
@@ -73,7 +75,7 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
         val result = useCase.enable(teacher, classroomId)
 
         assertTrue(result is Either.Left)
-        assertTrue((result as Either.Left).value is com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError)
+        assertTrue((result as Either.Left).value is AccessDeniedError)
         verify { classroomService.getById(classroomId) }
         verify { classroomAccessService.canUpdateClassroom(teacher, classroom) }
         verify(exactly = 0) { lovableClassroomService.enableIntegrationForClassroom(any()) }
@@ -110,5 +112,17 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
             connectUseCase.connect(s2)
         }
         verify(inverse = true) { connectUseCase.connect(s1) }
+    }
+
+    @Test
+    fun `returns access denied error when classroom is blocked`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = true)
+        every { classroomService.getById(classroomId) } returns classroom
+
+        val result = useCase.enable(teacher, classroomId)
+
+        assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)
     }
 }

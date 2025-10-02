@@ -1,11 +1,14 @@
 package com.anahoret.imagilabsapi.coteachers.domain
 
+import arrow.core.left
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherData
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherRepository
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -33,11 +36,26 @@ class CoTeachersByClassroomIdUseCaseTest {
     }
 
     @Test
+    fun `should return access denied error if classroom is blocked`() {
+        val classroomId = UUID.randomUUID()
+
+        every { classroomService.getById(classroomId) } returns mockk<Classroom> {
+            every { blocked } returns true
+        }
+
+        val result = coTeachersByClassroomIdUseCase.getAll(classroomId)
+
+        assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)
+    }
+
+    @Test
     fun `should return list of co-teachers`() {
         val classroomId = UUID.randomUUID()
         val coTeachers = listOf<CoTeacherData>()
 
-        every { classroomService.getById(classroomId) } returns mockk<Classroom>()
+        every { classroomService.getById(classroomId) } returns mockk<Classroom> {
+            every { blocked } returns false
+        }
         every { coTeacherRepository.findAllByClassroomId(classroomId) } returns coTeachers
 
         val result = coTeachersByClassroomIdUseCase.getAll(classroomId)
