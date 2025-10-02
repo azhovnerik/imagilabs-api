@@ -94,19 +94,25 @@ class AuthenticationController(
         @RequestBody studentLoginRequest: StudentLoginRequest,
         response: HttpServletResponse
     ): ResponseEntity<ResponseDto<StudentAuthenticationSuccess?>> {
+        val classroom = classroomService.getByAccessCode(studentLoginRequest.classroomAccessCode)
+            ?: throw InternalAuthenticationServiceException("CLASSROOM_DOES_NOT_EXIST")
+
+        if (classroom.blocked) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponseDto(HttpStatus.FORBIDDEN.value(), "SUBSCRIPTION_REQUIRED"))
+        }
+
         val authToken = ImagiLabsAuthenticationToken(
             studentLoginRequest.username,
             UserType.STUDENT,
             studentLoginRequest
         )
         return tryAuthenticate(authToken) { principalId ->
-            val currentClassroom = classroomService.getByAccessCode(studentLoginRequest.classroomAccessCode)
-                ?: throw InternalAuthenticationServiceException("CLASSROOM_DOES_NOT_EXIST")
             val authenticationResponse = requestAuthenticatorService.authenticateStudent(
                 principalId,
                 response,
                 studentLoginRequest.mobileAppClient,
-                currentClassroom.id
+                classroom.id
             )
             SuccessResponseDto(authenticationResponse)
         }
