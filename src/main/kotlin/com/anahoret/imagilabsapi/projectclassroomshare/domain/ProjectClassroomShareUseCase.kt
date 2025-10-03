@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
@@ -34,7 +35,8 @@ class ProjectClassroomShareUseCaseImpl(
     private val userClassroomLinkService: UserClassroomLinkService,
     private val coTeacherClassroomLinkService: CoTeacherClassroomLinkService,
     private val projectAccessService: ProjectAccessService,
-    private val codeRunUseCase: CodeRunUseCase
+    private val codeRunUseCase: CodeRunUseCase,
+    private val classroomService: ClassroomService
 ) : ProjectClassroomShareUseCase {
 
     override fun share(
@@ -52,6 +54,11 @@ class ProjectClassroomShareUseCaseImpl(
 
         if (classroomIds.any { !isLinkedToClassroom(sharedBy, it) && !hasAccessToClassroomAsCoTeacher(sharedBy, it) })
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
+
+        // Blocked classroom check
+        val targetClassrooms = classroomService.listByIds(classroomIds)
+        if (targetClassrooms.any { it.blocked })
+            return AccessDeniedError("SUBSCRIPTION_REQUIRED").left()
 
         val result = codeRunUseCase.run(sharedBy, RunCodeRequest(project.sourceCode))
             .flatMap {

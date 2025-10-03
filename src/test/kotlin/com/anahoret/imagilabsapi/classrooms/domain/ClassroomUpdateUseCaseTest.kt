@@ -45,6 +45,7 @@ class ClassroomUpdateUseCaseTest {
     private val classroomId = UUID.randomUUID()
     private val classroom = mockk<Classroom> {
         every { id } returns classroomId
+        every { blocked } returns false
     }
 
     @Test
@@ -92,6 +93,16 @@ class ClassroomUpdateUseCaseTest {
     }
 
     @Test
+    fun `should return subscription required when classroom is blocked`() {
+        every { classroomService.getById(classroomId) } returns mockk<Classroom> {
+            every { id } returns classroomId
+            every { blocked } returns true
+        }
+        val result = classroomUpdateUseCase.update(teacherProfile, classroomId, classroomUpdateRequest)
+        assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)
+    }
+
+    @Test
     fun `should return error if update request is invalid`() {
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacherProfile, classroom) } returns true
@@ -121,6 +132,7 @@ class ClassroomUpdateUseCaseTest {
     fun `should return updated classroom`() {
         val updatedClassroom = mockk<Classroom> {
             every { id } returns classroomId
+            every { blocked } returns false
         }
         val studentCreateRequests = listOf<StudentCreateRequest>(mockk())
         every { classroomUpdateRequest.studentCreateRequests } returns studentCreateRequests

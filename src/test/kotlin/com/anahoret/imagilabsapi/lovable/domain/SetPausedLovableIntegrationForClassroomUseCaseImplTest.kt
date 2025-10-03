@@ -1,13 +1,16 @@
 package com.anahoret.imagilabsapi.lovable.domain
 
 import arrow.core.Either
+import arrow.core.left
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -56,7 +59,7 @@ class SetPausedLovableIntegrationForClassroomUseCaseImplTest {
         val result = useCase.setPaused(teacher, classroomId, true)
 
         assertTrue(result is Either.Left)
-        assertTrue((result as Either.Left).value is com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError)
+        assertTrue((result as Either.Left).value is AccessDeniedError)
         verify(exactly = 0) { lovableClassroomService.setPausedIntegrationForClassroom(any(), any()) }
     }
 
@@ -72,5 +75,17 @@ class SetPausedLovableIntegrationForClassroomUseCaseImplTest {
 
         assertTrue(result is Either.Right)
         verify { lovableClassroomService.setPausedIntegrationForClassroom(classroomId, true) }
+    }
+
+    @Test
+    fun `returns AccessDenied when classroom is blocked`() {
+        val teacher = testTeacher()
+        val classroomId = UUID.randomUUID()
+        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = true)
+        every { classroomService.getById(classroomId) } returns classroom
+
+        val result = useCase.setPaused(teacher, classroomId, true)
+
+        assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)
     }
 }
