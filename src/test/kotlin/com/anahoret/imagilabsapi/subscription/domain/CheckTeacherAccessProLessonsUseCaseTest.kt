@@ -27,12 +27,31 @@ class CheckTeacherAccessProLessonsUseCaseTest {
     }
 
     @Test
-    fun `should return teacher subscription is canceled error`() {
+    fun `should return true when teacher subscription is canceled but teacher still has access to pro subscription`() {
         val teacherProfile = mockk<TeacherProfile> {
             every { subscription.start } returns 0
-            every { subscription.end } returns 1
+            every { subscription.end } returns 2
             every { subscription.canceled } returns true
+            every { subscription.plan } returns TeacherSubscriptionPlan.PRO
         }
+
+        every { clock.instant().toEpochMilli() } returns 1
+
+        val result = checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile)
+
+        assertTrue(result.isRight())
+    }
+
+    @Test
+    fun `should return false when teacher subscription is canceled and teacher has standard subscription`() {
+        val teacherProfile = mockk<TeacherProfile> {
+            every { subscription.start } returns 0
+            every { subscription.end } returns 2
+            every { subscription.canceled } returns true
+            every { subscription.plan } returns TeacherSubscriptionPlan.STANDARD
+        }
+
+        every { clock.instant().toEpochMilli() } returns 1
 
         val result = checkTeacherAccessProLessonsUseCase.checkAccess(teacherProfile)
 

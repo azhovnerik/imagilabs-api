@@ -28,9 +28,6 @@ class CheckTeacherAccessProLessonsUseCaseImpl(
         if (subscription.start == null || subscription.end == null)
             return AccessDeniedError("TEACHER_HAS_NO_SUBSCRIPTION").left()
 
-        if (subscription.canceled)
-            return AccessDeniedError("TEACHER_SUBSCRIPTION_IS_CANCELED").left()
-
         val now = clock.instant().toEpochMilli()
         return when (subscription.plan) {
             STANDARD -> AccessDeniedError("TEACHER_MUST_HAVE_SUBSCRIPTION_PRO_PLAN").left()
