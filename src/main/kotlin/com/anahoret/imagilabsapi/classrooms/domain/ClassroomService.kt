@@ -184,13 +184,7 @@ class ClassroomServiceImpl(
         val subscriptions = teacherSubscriptionService.getSubscriptionDtos(teacherIds.toSet())
 
         return subscriptions.associate { subscription ->
-            val isBlocked = if (subscription.canceled) {
-                true
-            } else {
-                val end = subscription.end
-                end != null && now >= end
-            }
-            subscription.teacherId to isBlocked
+            subscription.teacherId to !subscription.hasProSubscription(now)
         }
     }
 
@@ -203,13 +197,7 @@ class ClassroomServiceImpl(
         }
 
         val subscription = teacherSubscriptionService.getSubscriptionDto(classroomEntity.teacherId) ?: return false
-
-        if (subscription.canceled) {
-            return true
-        }
-
-        val end = subscription.end ?: return false
         val now = clock.instant().toEpochMilli()
-        return now >= end
+        return !subscription.hasProSubscription(now)
     }
 }
