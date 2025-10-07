@@ -180,7 +180,7 @@ class StudentProfileServiceImpl(
         val prefix = when (split.size) {
             1 -> name
             else -> split[0].trim() + split[1].trim().first()
-        }
+        }.replace(Regex("['`]"), "")
 
         for (i in 0..199) {
             val suffix = i.takeIf { it > 0 }?.toString().orEmpty()
