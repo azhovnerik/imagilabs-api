@@ -292,5 +292,100 @@ class ClassroomServiceImplTest {
         assertEquals(1, results.size)
         val classroom = results.first()
         assertTrue(classroom.blocked, "Co-teacher should see classroom blocked when owner has no pro subscription")
+        assertFalse(
+            classroom.permissions.canManageCoTeachers,
+            "Co-teacher permissions should reflect owner's non-pro subscription"
+        )
+    }
+
+    @Test
+    fun `list by teacher should set canManageCoTeachers to true when owner has pro subscription`() {
+        val teacherId = UUID.randomUUID()
+        val classroom1 = ClassroomEntity("Class A", "CODEA", teacherId).apply {
+            id = UUID.randomUUID()
+            createdAt = 100L
+        }
+        val classroom2 = ClassroomEntity("Class B", "CODEB", teacherId).apply {
+            id = UUID.randomUUID()
+            createdAt = 200L
+        }
+
+        val subscription = mockk<TeacherSubscription>()
+        every { subscription.teacherId } returns teacherId
+        every { subscription.hasProSubscription(500L) } returns true
+
+        every { classroomEntityRepository.findAllByTeacherId(teacherId) } returns listOf(classroom1, classroom2)
+        every { classroomEntityRepository.findAllByTeacherIdIn(setOf(teacherId)) } returns listOf(
+            classroom1,
+            classroom2
+        )
+        every { studentClassroomLinkService.getStudentCounts(any()) } returns emptyMap()
+        every { projectClassroomShareService.getProjectCountsByClassrooms(any()) } returns emptyMap()
+        every { coTeacherService.getCoTeacherCountsByClassroomIds(any()) } returns emptyMap()
+        every { teacherSubscriptionService.getSubscriptionDtos(setOf(teacherId)) } returns listOf(subscription)
+
+        val results = classroomService.listByTeacher(teacherId)
+
+        assertEquals(2, results.size)
+        assertTrue(results.all { it.permissions.canManageCoTeachers })
+    }
+
+    @Test
+    fun `list by teacher should set canManageCoTeachers to false when owner has no pro subscription`() {
+        val teacherId = UUID.randomUUID()
+        val classroom1 = ClassroomEntity("Class C", "CODEC", teacherId).apply {
+            id = UUID.randomUUID()
+            createdAt = 100L
+        }
+        val classroom2 = ClassroomEntity("Class D", "CODED", teacherId).apply {
+            id = UUID.randomUUID()
+            createdAt = 200L
+        }
+
+        val subscription = mockk<TeacherSubscription>()
+        every { subscription.teacherId } returns teacherId
+        every { subscription.hasProSubscription(500L) } returns false
+
+        every { classroomEntityRepository.findAllByTeacherId(teacherId) } returns listOf(classroom1, classroom2)
+        every { classroomEntityRepository.findAllByTeacherIdIn(setOf(teacherId)) } returns listOf(
+            classroom1,
+            classroom2
+        )
+        every { studentClassroomLinkService.getStudentCounts(any()) } returns emptyMap()
+        every { projectClassroomShareService.getProjectCountsByClassrooms(any()) } returns emptyMap()
+        every { coTeacherService.getCoTeacherCountsByClassroomIds(any()) } returns emptyMap()
+        every { teacherSubscriptionService.getSubscriptionDtos(setOf(teacherId)) } returns listOf(subscription)
+
+        val results = classroomService.listByTeacher(teacherId)
+
+        assertEquals(2, results.size)
+        assertTrue(results.all { !it.permissions.canManageCoTeachers })
+    }
+
+    @Test
+    fun `get by id should set canManageCoTeachers based on owner's pro subscription`() {
+        val teacherId = UUID.randomUUID()
+        val classroomId = UUID.randomUUID()
+        val classroom = ClassroomEntity("Single Class", "SINGLE1", teacherId).apply {
+            id = classroomId
+            createdAt = 150L
+        }
+
+        val subscription = mockk<TeacherSubscription>()
+        every { subscription.teacherId } returns teacherId
+        every { subscription.hasProSubscription(500L) } returns true
+
+        every { classroomEntityRepository.findByIdOrNull(classroomId) } returns classroom
+        every { studentClassroomLinkService.getStudentCount(classroomId) } returns 0
+        every { projectClassroomShareService.getProjectCount(classroomId) } returns 0
+        every { coTeacherService.getCoTeacherCountByClassroomId(classroomId) } returns 0
+        every { classroomEntityRepository.findAllByTeacherId(teacherId) } returns listOf(classroom)
+        every { teacherSubscriptionService.getSubscriptionDto(teacherId) } returns subscription
+        every { teacherSubscriptionService.getSubscriptionDtos(setOf(teacherId)) } returns listOf(subscription)
+
+        val result = classroomService.getById(classroomId)
+
+        assertNotNull(result)
+        assertTrue(result!!.permissions.canManageCoTeachers)
     }
 }
