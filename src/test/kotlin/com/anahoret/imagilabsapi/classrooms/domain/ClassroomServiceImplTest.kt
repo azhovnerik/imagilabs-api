@@ -60,7 +60,7 @@ class ClassroomServiceImplTest {
         every { projectClassroomShareService.getProjectCount(classroomId) } returns 0
         every { coTeacherService.getCoTeacherCountByClassroomId(classroomId) } returns 0
         every { classroomEntityRepository.findAllByTeacherId(teacherId) } returns listOf(classroom)
-        every { teacherSubscriptionService.getSubscriptionDto(teacherId) } returns subscription
+        every { teacherSubscriptionService.getSubscriptionDtos(setOf(teacherId)) } returns listOf(subscription)
 
         val result = classroomService.getById(classroomId)
 
@@ -98,6 +98,7 @@ class ClassroomServiceImplTest {
             secondClassroom
         )
         every { teacherSubscriptionService.getSubscriptionDto(testTeacherId) } returns subscription
+        every { teacherSubscriptionService.getSubscriptionDtos(setOf(testTeacherId)) } returns listOf(subscription)
 
         val result = classroomService.getById(secondClassroomId)
 
@@ -138,6 +139,7 @@ class ClassroomServiceImplTest {
             secondClassroom
         )
         every { teacherSubscriptionService.getSubscriptionDto(teacherId) } returns subscription
+        every { teacherSubscriptionService.getSubscriptionDtos(setOf(teacherId)) } returns listOf(subscription)
 
         val result = classroomService.getById(secondClassroomId)
 
@@ -178,6 +180,7 @@ class ClassroomServiceImplTest {
             secondClassroom
         )
         every { teacherSubscriptionService.getSubscriptionDto(teacherId) } returns subscription
+        every { teacherSubscriptionService.getSubscriptionDtos(setOf(teacherId)) } returns listOf(subscription)
 
         val result = classroomService.getById(secondClassroomId)
 
@@ -200,7 +203,7 @@ class ClassroomServiceImplTest {
         every { projectClassroomShareService.getProjectCount(classroomId) } returns 0
         every { coTeacherService.getCoTeacherCountByClassroomId(classroomId) } returns 0
         every { classroomEntityRepository.findAllByTeacherId(teacherId) } returns listOf(classroom)
-        every { teacherSubscriptionService.getSubscriptionDto(teacherId) } returns null
+        every { teacherSubscriptionService.getSubscriptionDtos(setOf(teacherId)) } returns emptyList()
 
         val result = classroomService.getById(classroomId)
 

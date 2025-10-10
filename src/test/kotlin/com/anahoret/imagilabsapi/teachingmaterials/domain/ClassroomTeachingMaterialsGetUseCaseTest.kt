@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.teachingmaterials.domain
 import arrow.core.left
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.*
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
@@ -56,7 +57,8 @@ class ClassroomTeachingMaterialsGetUseCaseTest {
                 it.projectsCount,
                 it.teacherId,
                 it.teachersCount,
-                blocked = true
+                blocked = true,
+                ClassroomPermissions(true)
             )
         }
 

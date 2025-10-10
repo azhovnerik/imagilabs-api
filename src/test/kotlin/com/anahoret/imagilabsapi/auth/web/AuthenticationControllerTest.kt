@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.auth.web
 import com.anahoret.imagilabsapi.auth.domain.ImagiLabsAuthenticationToken
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenData
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.web.ErrorResponseDto
@@ -46,7 +47,8 @@ class AuthenticationControllerTest {
             projectsCount = 0,
             teacherId = UUID.randomUUID(),
             teachersCount = 1,
-            blocked = true
+            blocked = true,
+            ClassroomPermissions(true)
         )
         every { classroomService.getByAccessCode(accessCode) } returns classroom
 
@@ -83,7 +85,8 @@ class AuthenticationControllerTest {
             projectsCount = 0,
             teacherId = UUID.randomUUID(),
             teachersCount = 1,
-            blocked = false
+            blocked = false,
+            ClassroomPermissions(true)
         )
         every { classroomService.getByAccessCode(accessCode) } returns classroom
 

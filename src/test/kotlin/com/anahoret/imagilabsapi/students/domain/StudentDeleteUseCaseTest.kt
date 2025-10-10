@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.students.domain
 
 import arrow.core.left
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
@@ -39,13 +40,14 @@ class StudentDeleteUseCaseTest {
         every { studentProfileService.getStudentById(studentId) } returns student
         every { classroomService.getById(classroomId) } returns Classroom(
             classroomId,
-            "c",
-            "ac",
-            0,
-            0,
-            teacher.id,
-            1,
-            true
+            name = "c",
+            accessCode = "ac",
+            studentsCount = 0,
+            projectsCount = 0,
+            teacherId = teacher.id,
+            teachersCount = 1,
+            blocked = true,
+            ClassroomPermissions(true)
         )
 
         val result = useCase.delete(teacher, studentId)

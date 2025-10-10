@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.lovable.domain
 import arrow.core.Either
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
@@ -78,7 +79,17 @@ class GetLovableAccountForStudentUseCaseImplTest {
         val studentId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
         val student = StudentProfile(studentId, "Student Name", "student1", 123L, classroomId)
-        val classroom = Classroom(classroomId, "Test Classroom", "TC123", 0, 0, UUID.randomUUID(), 1, blocked = false)
+        val classroom = Classroom(
+            classroomId,
+            "Test Classroom",
+            "TC123",
+            0,
+            0,
+            UUID.randomUUID(),
+            1,
+            blocked = false,
+            ClassroomPermissions(true)
+        )
 
         every { studentProfileService.getStudentById(studentId) } returns student
         every { classroomService.getById(classroomId) } returns classroom
@@ -98,7 +109,17 @@ class GetLovableAccountForStudentUseCaseImplTest {
         val studentId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
         val student = StudentProfile(studentId, "Student Name", "student1", 123L, classroomId)
-        val classroom = Classroom(classroomId, "Test Classroom", "TC123", 0, 0, teacher.id, 1, blocked = false)
+        val classroom = Classroom(
+            classroomId,
+            "Test Classroom",
+            "TC123",
+            0,
+            0,
+            teacher.id,
+            1,
+            blocked = false,
+            ClassroomPermissions(true)
+        )
         val lovableAccount = LovableAccount(studentId, "student1", "student1@example.com", "password123")
 
         every { studentProfileService.getStudentById(studentId) } returns student
@@ -120,7 +141,17 @@ class GetLovableAccountForStudentUseCaseImplTest {
         val studentId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
         val student = StudentProfile(studentId, "Student Name", "student1", 123L, classroomId)
-        val classroom = Classroom(classroomId, "Test Classroom", "TC123", 0, 0, teacher.id, 1, blocked = false)
+        val classroom = Classroom(
+            classroomId,
+            "Test Classroom",
+            "TC123",
+            0,
+            0,
+            teacher.id,
+            1,
+            blocked = false,
+            ClassroomPermissions(true)
+        )
 
         every { studentProfileService.getStudentById(studentId) } returns student
         every { classroomService.getById(classroomId) } returns classroom
