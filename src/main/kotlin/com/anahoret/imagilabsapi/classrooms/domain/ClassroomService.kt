@@ -68,7 +68,7 @@ class ClassroomServiceImpl(
     }
 
     override fun getAllClassroomAsCoTeacher(classroomIds: List<UUID>): List<Classroom> {
-        return mapToClassrooms(classroomEntityRepository.findAllById(classroomIds))
+        return mapToClassrooms(classroomEntityRepository.findAllById(classroomIds), isCoTeacher = true)
             .toCoTeacherClassrooms()
     }
 
@@ -116,7 +116,10 @@ class ClassroomServiceImpl(
             }
     }
 
-    private fun mapToClassrooms(classroomEntities: Iterable<ClassroomEntity>): List<Classroom> {
+    private fun mapToClassrooms(
+        classroomEntities: Iterable<ClassroomEntity>,
+        isCoTeacher: Boolean = false
+    ): List<Classroom> {
         val classroomIds = classroomEntities.map { it.id!! }
         val teacherIds = classroomEntities.map { it.teacherId }.toSet()
 
@@ -133,7 +136,7 @@ class ClassroomServiceImpl(
                     studentCounts.getOrDefault(it.id!!, 0),
                     projectCounts.getOrDefault(it.id!!, 0),
                     coTeacherCounts.getOrDefault(it.id!!, 0),
-                    calculateBlocked(it, firstClassroomIds, teacherBlockedStatus)
+                    calculateBlocked(it, firstClassroomIds, teacherBlockedStatus, isCoTeacher)
                 )
             }
     }
@@ -155,14 +158,17 @@ class ClassroomServiceImpl(
     private fun calculateBlocked(
         classroomEntity: ClassroomEntity,
         firstClassroomIds: Set<UUID>,
-        teacherSubscriptions: Map<UUID, Boolean>
+        teacherSubscriptions: Map<UUID, Boolean>,
+        isCoTeacher: Boolean
     ): Boolean {
-        // First classroom for a teacher is always unblocked
+        if (isCoTeacher) {
+            return teacherSubscriptions[classroomEntity.teacherId] ?: false
+        }
+
         if (firstClassroomIds.contains(classroomEntity.id)) {
             return false
         }
 
-        // Check subscription status
         return teacherSubscriptions[classroomEntity.teacherId] ?: false
     }
 

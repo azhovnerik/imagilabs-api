@@ -261,4 +261,33 @@ class ClassroomServiceImplTest {
         assertTrue(secondResult!!.blocked, "Second classroom should be blocked")
         assertTrue(thirdResult!!.blocked, "Third classroom should be blocked")
     }
+
+    @Test
+    fun `co-teacher should see classroom blocked when owner has no pro subscription even if first classroom`() {
+        val ownerTeacherId = UUID.randomUUID()
+        val classroomId = UUID.randomUUID()
+
+        val firstClassroom = ClassroomEntity("Owner First Classroom", "ABC123", ownerTeacherId).apply {
+            id = classroomId
+            createdAt = 100L
+        }
+
+        val subscription = mockk<TeacherSubscription> {
+            every { teacherId } returns ownerTeacherId
+            every { hasProSubscription(500L) } returns false
+        }
+
+        every { classroomEntityRepository.findAllById(listOf(classroomId)) } returns listOf(firstClassroom)
+        every { studentClassroomLinkService.getStudentCounts(any()) } returns emptyMap()
+        every { projectClassroomShareService.getProjectCountsByClassrooms(any()) } returns emptyMap()
+        every { coTeacherService.getCoTeacherCountsByClassroomIds(any()) } returns emptyMap()
+        every { classroomEntityRepository.findAllByTeacherIdIn(setOf(ownerTeacherId)) } returns listOf(firstClassroom)
+        every { teacherSubscriptionService.getSubscriptionDtos(setOf(ownerTeacherId)) } returns listOf(subscription)
+
+        val results = classroomService.getAllClassroomAsCoTeacher(listOf(classroomId))
+
+        assertEquals(1, results.size)
+        val classroom = results.first()
+        assertTrue(classroom.blocked, "Co-teacher should see classroom blocked when owner has no pro subscription")
+    }
 }
