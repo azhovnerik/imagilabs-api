@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
@@ -44,7 +45,8 @@ class ReconnectLovableAccountForStudentUseCaseTest {
             projectsCount = 0L,
             teacherId = teacher.id,
             teachersCount = 1L,
-            blocked = false
+            blocked = false,
+            ClassroomPermissions(true)
         )
         val expectedAccount = LovableAccount(student.id, "student1", "student1@example.com", "password123")
 
@@ -107,7 +109,8 @@ class ReconnectLovableAccountForStudentUseCaseTest {
             projectsCount = 0L,
             teacherId = UUID.randomUUID(),
             teachersCount = 1L,
-            blocked = false
+            blocked = false,
+            ClassroomPermissions(true)
         )
 
         every { studentProfileService.getStudentById(student.id) } returns student
@@ -136,7 +139,8 @@ class ReconnectLovableAccountForStudentUseCaseTest {
             projectsCount = 0L,
             teacherId = teacher.id,
             teachersCount = 1L,
-            blocked = true
+            blocked = true,
+            ClassroomPermissions(true)
         )
 
         every { studentProfileService.getStudentById(student.id) } returns student
@@ -159,7 +163,8 @@ class ReconnectLovableAccountForStudentUseCaseTest {
             projectsCount = 0L,
             teacherId = teacher.id,
             teachersCount = 1L,
-            blocked = false
+            blocked = false,
+            ClassroomPermissions(true)
         )
         val expectedError = OutOfLovableAccountsError()
 
@@ -190,7 +195,8 @@ class ReconnectLovableAccountForStudentUseCaseTest {
             projectsCount = 0L,
             teacherId = teacher.id,
             teachersCount = 1L,
-            blocked = false
+            blocked = false,
+            ClassroomPermissions(true)
         )
         val expectedError = MaxNumberOfConnectedAccountsExceededError()
 

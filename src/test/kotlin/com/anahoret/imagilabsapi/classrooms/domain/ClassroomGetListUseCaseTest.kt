@@ -30,7 +30,8 @@ class ClassroomGetListUseCaseTest {
             2L,
             teacherId,
             2L,
-            blocked = false
+            blocked = false,
+            ClassroomPermissions(true)
         )
 
         val emptyListCoClassroomIds = emptyList<UUID>()
@@ -60,7 +61,8 @@ class ClassroomGetListUseCaseTest {
             2L,
             teacherId,
             2L,
-            blocked = false
+            blocked = false,
+            ClassroomPermissions(true)
         )
 
         val coTeacherClassroom = Classroom(
@@ -72,6 +74,7 @@ class ClassroomGetListUseCaseTest {
             teacherId,
             2L,
             blocked = false,
+            ClassroomPermissions(true),
             teacherRole = TeacherRole.CO_TEACHER
         )
 

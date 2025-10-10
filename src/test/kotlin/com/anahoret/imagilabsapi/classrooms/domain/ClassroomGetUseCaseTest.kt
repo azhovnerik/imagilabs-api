@@ -27,7 +27,17 @@ class ClassroomGetUseCaseTest {
     fun `get returns forbidden when classroom is blocked for teacher`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = true)
+        val classroom = Classroom(
+            classroomId,
+            "c",
+            "ac",
+            0,
+            0,
+            teacher.id,
+            1,
+            blocked = true,
+            ClassroomPermissions(true)
+        )
         every { classroomService.getById(classroomId) } returns classroom
 
         val result = useCase.get(teacher, classroomId)
@@ -38,7 +48,17 @@ class ClassroomGetUseCaseTest {
     fun `get returns forbidden when classroom is blocked for student`() {
         val classroomId = UUID.randomUUID()
         val student = testStudent(classroomId)
-        val classroom = Classroom(classroomId, "c", "ac", 0, 0, UUID.randomUUID(), 1, blocked = true)
+        val classroom = Classroom(
+            classroomId,
+            "c",
+            "ac",
+            0,
+            0,
+            UUID.randomUUID(),
+            1,
+            blocked = true,
+            ClassroomPermissions(true)
+        )
         every { classroomService.getById(classroomId) } returns classroom
 
         val result = useCase.get(student, classroomId)

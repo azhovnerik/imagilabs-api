@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.common
 
 import com.anahoret.imagilabsapi.admins.domain.AdminProfile
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
@@ -63,7 +64,8 @@ fun testClassroom(teacherId: UUID = UUID.randomUUID()): Classroom {
         5L,
         teacherId,
         2,
-        blocked = false
+        blocked = false,
+        ClassroomPermissions(true)
     )
 }
 

@@ -47,7 +47,8 @@ class ClassroomServiceImpl(
             )
         ).let {
             val blocked = calculateBlockedForSingleClassroom(it)
-            Classroom.fromEntity(it, studentsCount = 0, projectsCount = 0, coTeachersCount = 0, blocked = blocked)
+            val permissions = calculatePermissions(it)
+            Classroom.fromEntity(it, studentsCount = 0, projectsCount = 0, coTeachersCount = 0, blocked, permissions)
         }
     }
 
@@ -68,7 +69,7 @@ class ClassroomServiceImpl(
     }
 
     override fun getAllClassroomAsCoTeacher(classroomIds: List<UUID>): List<Classroom> {
-        return mapToClassrooms(classroomEntityRepository.findAllById(classroomIds))
+        return mapToClassrooms(classroomEntityRepository.findAllById(classroomIds), isCoTeacher = true)
             .toCoTeacherClassrooms()
     }
 
@@ -87,7 +88,8 @@ class ClassroomServiceImpl(
                 val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
                 val coTeachersCount = coTeacherService.getCoTeacherCountByClassroomId(it.id!!)
                 val blocked = calculateBlockedForSingleClassroom(it)
-                Classroom.fromEntity(it, studentsCount, projectsCount, coTeachersCount, blocked)
+                val permissions = calculatePermissions(it)
+                Classroom.fromEntity(it, studentsCount, projectsCount, coTeachersCount, blocked, permissions)
             }
     }
 
@@ -112,11 +114,15 @@ class ClassroomServiceImpl(
                 val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
                 val coTeachersCount = coTeacherService.getCoTeacherCountByClassroomId(it.id!!)
                 val blocked = calculateBlockedForSingleClassroom(it)
-                Classroom.fromEntity(it, studentsCount, projectsCount, coTeachersCount, blocked)
+                val permissions = calculatePermissions(it)
+                Classroom.fromEntity(it, studentsCount, projectsCount, coTeachersCount, blocked, permissions)
             }
     }
 
-    private fun mapToClassrooms(classroomEntities: Iterable<ClassroomEntity>): List<Classroom> {
+    private fun mapToClassrooms(
+        classroomEntities: Iterable<ClassroomEntity>,
+        isCoTeacher: Boolean = false
+    ): List<Classroom> {
         val classroomIds = classroomEntities.map { it.id!! }
         val teacherIds = classroomEntities.map { it.teacherId }.toSet()
 
@@ -125,6 +131,7 @@ class ClassroomServiceImpl(
         val coTeacherCounts = coTeacherService.getCoTeacherCountsByClassroomIds(classroomIds)
         val firstClassroomIds = getFirstClassroomIdsByTeachers(teacherIds)
         val teacherBlockedStatus = getTeacherBlockedStatusMap(teacherIds)
+        val teacherPermissions = calculatePermissions(classroomEntities.toList())
 
         return classroomEntities
             .map {
@@ -133,7 +140,8 @@ class ClassroomServiceImpl(
                     studentCounts.getOrDefault(it.id!!, 0),
                     projectCounts.getOrDefault(it.id!!, 0),
                     coTeacherCounts.getOrDefault(it.id!!, 0),
-                    calculateBlocked(it, firstClassroomIds, teacherBlockedStatus)
+                    calculateBlocked(it, firstClassroomIds, teacherBlockedStatus, isCoTeacher),
+                    teacherPermissions.getValue(it.id!!)
                 )
             }
     }
@@ -155,14 +163,17 @@ class ClassroomServiceImpl(
     private fun calculateBlocked(
         classroomEntity: ClassroomEntity,
         firstClassroomIds: Set<UUID>,
-        teacherSubscriptions: Map<UUID, Boolean>
+        teacherSubscriptions: Map<UUID, Boolean>,
+        isCoTeacher: Boolean
     ): Boolean {
-        // First classroom for a teacher is always unblocked
+        if (isCoTeacher) {
+            return teacherSubscriptions[classroomEntity.teacherId] ?: false
+        }
+
         if (firstClassroomIds.contains(classroomEntity.id)) {
             return false
         }
 
-        // Check subscription status
         return teacherSubscriptions[classroomEntity.teacherId] ?: false
     }
 
@@ -199,5 +210,22 @@ class ClassroomServiceImpl(
         val subscription = teacherSubscriptionService.getSubscriptionDto(classroomEntity.teacherId) ?: return false
         val now = clock.instant().toEpochMilli()
         return !subscription.hasProSubscription(now)
+    }
+
+    private fun calculatePermissions(classroomEntities: List<ClassroomEntity>): Map<UUID, ClassroomPermissions> {
+        val now = clock.instant().toEpochMilli()
+        val subscriptions =
+            teacherSubscriptionService.getSubscriptionDtos(classroomEntities.map { it.teacherId }.toSet())
+                .associateBy { it.teacherId }
+        return classroomEntities.associate {
+            val canManageCoTeachers = subscriptions[it.teacherId]
+                ?.hasProSubscription(now)
+                ?: false
+            it.id!! to ClassroomPermissions(canManageCoTeachers)
+        }
+    }
+
+    private fun calculatePermissions(classroomEntity: ClassroomEntity): ClassroomPermissions {
+        return calculatePermissions(listOf(classroomEntity)).getValue(classroomEntity.id!!)
     }
 }

@@ -4,6 +4,7 @@ import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomTeacher
 import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.common.ControllerTest
@@ -341,8 +342,16 @@ class CoTeacherControllerTest {
         fun `should return success`() {
             val teacherProfile = testTeacher()
             val classroom = Classroom(
-                UUID.randomUUID(), "", "sdf2", 0, 0,
-                UUID.randomUUID(), 1, blocked = false, teacherRole = TeacherRole.OWNER
+                UUID.randomUUID(),
+                "",
+                "sdf2",
+                0,
+                0,
+                UUID.randomUUID(),
+                1,
+                blocked = false,
+                ClassroomPermissions(true),
+                teacherRole = TeacherRole.OWNER
             )
 
             every { invitationCoTeacherAcceptUseCase.accept(invitationId, teacherProfile) } returns classroom.right()

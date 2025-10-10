@@ -13,6 +13,7 @@ class Classroom(
     val teacherId: UUID,
     val teachersCount: Long,
     val blocked: Boolean,
+    val permissions: ClassroomPermissions,
     var teacherRole: TeacherRole = TeacherRole.OWNER
 ) {
 
@@ -23,7 +24,8 @@ class Classroom(
             studentsCount: Long,
             projectsCount: Long,
             coTeachersCount: Long,
-            blocked: Boolean
+            blocked: Boolean,
+            permissions: ClassroomPermissions
         ): Classroom {
 
             return with(classroomEntity) {
@@ -35,7 +37,8 @@ class Classroom(
                     projectsCount,
                     teacherId,
                     coTeachersCount + 1,
-                    blocked
+                    blocked,
+                    permissions
                 )
             }
         }
@@ -45,3 +48,5 @@ class Classroom(
 enum class TeacherRole {
     CO_TEACHER_PENDING, CO_TEACHER, OWNER
 }
+
+class ClassroomPermissions(val canManageCoTeachers: Boolean)

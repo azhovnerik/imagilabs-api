@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
@@ -56,7 +57,17 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
     fun `returns AccessDenied when teacher cannot list credentials`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = false)
+        val classroom = Classroom(
+            classroomId,
+            "c",
+            "ac",
+            0,
+            0,
+            teacher.id,
+            1,
+            blocked = false,
+            ClassroomPermissions(true)
+        )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns false
 
@@ -70,7 +81,17 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
     fun `returns AccessDenied when classroom is blocked`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = true)
+        val classroom = Classroom(
+            classroomId,
+            "c",
+            "ac",
+            0,
+            0,
+            teacher.id,
+            1,
+            blocked = true,
+            ClassroomPermissions(true)
+        )
         every { classroomService.getById(classroomId) } returns classroom
 
         val result = useCase.getCredentials(teacher, classroomId)
@@ -82,7 +103,17 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
     fun `returns credentials for all students in classroom`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = false)
+        val classroom = Classroom(
+            classroomId,
+            "c",
+            "ac",
+            0,
+            0,
+            teacher.id,
+            1,
+            blocked = false,
+            ClassroomPermissions(true)
+        )
         val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L, classroomId)
         val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L, classroomId)
         val a1 = LovableAccount(s1.id, "u1", "e1@x.com", "p1")

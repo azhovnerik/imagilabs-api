@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.projectclassroomshare.domain
 
 import arrow.core.left
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
@@ -51,7 +52,17 @@ class ProjectClassroomShareUseCaseTest {
         every { userClassroomLinkService.isLinkedToClassroom(teacher, classroomId) } returns true
         every { coTeacherClassroomLinkService.hasAccessToClassroom(classroomId, teacher) } returns false
 
-        val blockedClassroom = Classroom(classroomId, "c", "ac", 0, 0, teacher.id, 1, blocked = true)
+        val blockedClassroom = Classroom(
+            classroomId,
+            "c",
+            "ac",
+            0,
+            0,
+            teacher.id,
+            1,
+            blocked = true,
+            ClassroomPermissions(true)
+        )
         every { classroomService.listByIds(listOf(classroomId)) } returns listOf(blockedClassroom)
 
         val result = useCase.share(teacher, changeRequest)
