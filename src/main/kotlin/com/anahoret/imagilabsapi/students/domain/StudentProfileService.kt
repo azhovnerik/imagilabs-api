@@ -40,6 +40,7 @@ interface StudentProfileService {
     fun resetPassword(studentId: UUID): StudentCredentials?
     fun completeChatOnboarding(studentId: UUID): StudentProfile?
     fun isAiChatOnboardingCompleted(studentId: UUID): Boolean
+    fun getByEdLink(edLinkIntegrationId: UUID, edLinkPersonId: UUID): StudentProfile?
 }
 
 @Service
@@ -67,7 +68,16 @@ class StudentProfileServiceImpl(
             val username = createUniqueStudentUsername(it.name, existingUserNames)
             existingUserNames.add(username)
             val password = createStudentPassword()
-            StudentProfileEntity(it.name, username, password, classroomId, tipTokens, tipTokensReplenishedAt = clock.millis())
+            StudentProfileEntity(
+                it.name,
+                username,
+                password,
+                classroomId,
+                tipTokens,
+                tipTokensReplenishedAt = clock.millis(),
+                edLinkIntegrationId = it.edLinkIntegrationId,
+                edLinkPersonId = it.edLinkPersonId
+            )
         }.let(studentProfileEntityRepository::saveAll)
             .map(StudentProfile.Companion::fromEntity)
     }
@@ -164,6 +174,12 @@ class StudentProfileServiceImpl(
             it.aiChatOnboardingCompleted = true
             studentProfileEntityRepository.save(it)
         }?.let(StudentProfile.Companion::fromEntity)
+    }
+
+    override fun getByEdLink(edLinkIntegrationId: UUID, edLinkPersonId: UUID): StudentProfile? {
+        return studentProfileEntityRepository
+            .findOneByEdLinkIntegrationIdAndEdLinkPersonId(edLinkIntegrationId, edLinkPersonId)
+            ?.let(StudentProfile.Companion::fromEntity)
     }
 
     private fun doListByClassroom(classroomId: UUID, sort: Sort): List<StudentProfile> {

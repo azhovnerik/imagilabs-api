@@ -34,4 +34,8 @@ interface StudentProfileEntityRepository : CrudRepository<StudentProfileEntity, 
 
     @Query("SELECT COALESCE(s.aiChatOnboardingCompleted, FALSE) FROM StudentProfileEntity s WHERE s.id = :studentId")
     fun isAiChatOnboardingCompleted(studentId: UUID): Boolean
+    fun findOneByEdLinkIntegrationIdAndEdLinkPersonId(
+        edLinkIntegrationId: UUID,
+        edLinkPersonId: UUID
+    ): StudentProfileEntity?
 }

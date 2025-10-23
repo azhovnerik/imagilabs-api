@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.signup.domain
 
 import arrow.core.Either
+import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.validation.AbstractValidator
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
@@ -19,6 +20,8 @@ class TeacherSignupRequestValidatorImpl(
 ) : TeacherSignupRequestValidator, AbstractValidator<TeacherSignupRequest>() {
 
     override fun validate(request: TeacherSignupRequest): Either<List<ValidationError>, Unit> {
+        if (request.isEdLinkSignUp()) return Unit.right()
+
         return validate { errors ->
             with(request) {
                 rejectIfBlank(email, errors, "EMAIL")

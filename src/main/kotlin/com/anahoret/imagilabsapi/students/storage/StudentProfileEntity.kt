@@ -29,4 +29,10 @@ class StudentProfileEntity(
 
     @Column(name = "ai_chat_onboarding_completed", nullable = false)
     var aiChatOnboardingCompleted: Boolean = false,
+
+    @Column(name = "ed_link_integration_id")
+    var edLinkIntegrationId: UUID? = null,
+
+    @Column(name = "ed_link_person_id")
+    var edLinkPersonId: UUID? = null
 ) : BaseEntity()

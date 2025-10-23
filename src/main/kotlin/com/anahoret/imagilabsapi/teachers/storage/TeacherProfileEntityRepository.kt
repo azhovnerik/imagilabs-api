@@ -31,4 +31,8 @@ interface TeacherProfileEntityRepository : JpaRepository<TeacherProfileEntity, U
 
     @Query("SELECT COALESCE(t.aiChatIntroSeen, FALSE) FROM TeacherProfileEntity t WHERE t.id = :teacherId")
     fun isAiChatIntroSeen(teacherId: UUID): Boolean
+    fun findOneByEdLinkIntegrationIdAndEdLinkPersonId(
+        edLinkIntegrationId: UUID,
+        edLinkPersonId: UUID
+    ): TeacherProfileEntity?
 }

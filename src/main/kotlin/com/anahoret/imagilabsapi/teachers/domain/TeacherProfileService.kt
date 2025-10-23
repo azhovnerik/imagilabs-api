@@ -33,6 +33,7 @@ interface TeacherProfileService {
     fun setIntroSeen(teacherId: UUID): TeacherProfile?
     fun isAiChatIntroSeen(teacherId: UUID): Boolean
     fun getTeacherByStudent(studentId: UUID): TeacherProfile?
+    fun getByEdLink(edLinkIntegrationId: UUID, edLinkPersonId: UUID): TeacherProfile?
 }
 
 @Service
@@ -58,7 +59,9 @@ class TeacherProfileServiceImpl(
                     howDidYouHearAboutUsOther,
                     marketingEmailSubscribed,
                     tipTokens,
-                    tipTokensReplenishedAt = clock.millis()
+                    tipTokensReplenishedAt = clock.millis(),
+                    edLinkIntegrationId = edLinkIntegrationId,
+                    edLinkPersonId = edLinkPersonId
                 )
             ).let {
                 val subscription =
@@ -199,5 +202,15 @@ class TeacherProfileServiceImpl(
         val subscription =
             teacherSubscriptionService.buildSubscriptionDto(teacherProfileEntity.id!!, teacherProfileEntity)
         return TeacherProfile.fromEntity(teacherProfileEntity, subscription)
+    }
+
+    override fun getByEdLink(edLinkIntegrationId: UUID, edLinkPersonId: UUID): TeacherProfile? {
+        return teacherProfileEntityRepository
+            .findOneByEdLinkIntegrationIdAndEdLinkPersonId(edLinkIntegrationId, edLinkPersonId)
+            ?.let {
+                val subscription =
+                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
+                TeacherProfile.fromEntity(it, subscription)
+            }
     }
 }
