@@ -7,6 +7,7 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.edlink.api.EdLinkDistrictApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkIntegrationApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkProfileApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkTokenApi
@@ -31,6 +32,7 @@ class EdLinkOauthCallbackUseCaseImpl(
     private val edLinkProfileApi: EdLinkProfileApi,
     private val edLinkTokenApi: EdLinkTokenApi,
     private val edLinkIntegrationApi: EdLinkIntegrationApi,
+    private val edLinkDistrictApi: EdLinkDistrictApi,
     private val studentProfileService: StudentProfileService,
     private val teacherProfileService: TeacherProfileService,
     private val teacherSignUpUseCase: TeacherSignUpUseCase
@@ -48,7 +50,7 @@ class EdLinkOauthCallbackUseCaseImpl(
             val integration = edLinkIntegrationApi.myIntegration(token).bind()
             val userType = profile.getUserType().bind()
             when (userType) {
-                UserType.TEACHER -> authenticateTeacher(integration.id, profile, request.mobileAppClient).bind()
+                UserType.TEACHER -> authenticateTeacher(integration.id, profile, request.mobileAppClient, token).bind()
                 UserType.STUDENT -> authenticateStudent(integration.id, profile).bind()
                 else -> AccessDeniedError("UNSUPPORTED_USER_TYPE").left().bind()
             }
@@ -59,24 +61,28 @@ class EdLinkOauthCallbackUseCaseImpl(
     private fun authenticateTeacher(
         integrationId: UUID,
         person: Person,
-        mobileAppClient: Boolean
+        mobileAppClient: Boolean,
+        token: String
     ): Either<OperationError, TeacherProfile> {
         val existingTeacher = teacherProfileService.getByEdLink(integrationId, person.id)
         if (existingTeacher != null) return existingTeacher.right()
-        return teacherSignUpUseCase.signUp(
-            TeacherSignupRequest(
-                person.email,
-                password = "",
-                firstName = person.firstName,
-                lastName = person.lastName,
-                country = person.address.country ?: "",
-                organization = "",
-                howDidYouHearAboutUs = "",
-                howDidYouHearAboutUsOther = null,
-                marketingEmailSubscribed = false,
-                mobileAppClient = mobileAppClient
-            )
-        ).mapLeft {
+        return either {
+            val district = edLinkDistrictApi.myDistrict(token, person.districtId).bind()
+            teacherSignUpUseCase.signUp(
+                TeacherSignupRequest(
+                    person.email,
+                    password = "",
+                    firstName = person.firstName,
+                    lastName = person.lastName,
+                    country = person.address.country ?: "",
+                    organization = district.name,
+                    howDidYouHearAboutUs = "",
+                    howDidYouHearAboutUsOther = null,
+                    marketingEmailSubscribed = false,
+                    mobileAppClient = mobileAppClient
+                )
+            ).bind()
+        }.mapLeft {
             // Should never happen as the request validation is skipped for EdLink signup requests
             AccessDeniedError("TEACHER_CREATION_FAILED")
         }

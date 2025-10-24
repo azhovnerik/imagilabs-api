@@ -5,13 +5,11 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
+import com.anahoret.imagilabsapi.edlink.api.EdLinkDistrictApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkIntegrationApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkProfileApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkTokenApi
-import com.anahoret.imagilabsapi.edlink.api.model.Address
-import com.anahoret.imagilabsapi.edlink.api.model.MyIntegration
-import com.anahoret.imagilabsapi.edlink.api.model.Person
-import com.anahoret.imagilabsapi.edlink.api.model.UnsupportedUserTypeError
+import com.anahoret.imagilabsapi.edlink.api.model.*
 import com.anahoret.imagilabsapi.signup.domain.TeacherSignUpUseCase
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
@@ -36,12 +34,14 @@ class EdLinkOauthCallbackUseCaseTest {
     private val studentProfileService = mockk<StudentProfileService>()
     private val teacherProfileService = mockk<TeacherProfileService>()
     private val teacherSignUpUseCase = mockk<TeacherSignUpUseCase>()
+    private val edLinkDistrictApi = mockk<EdLinkDistrictApi>()
 
     private val useCase = EdLinkOauthCallbackUseCaseImpl(
         edLinkOAuthStateService,
         edLinkProfileApi,
         edLinkTokenApi,
         edLinkIntegrationApi,
+        edLinkDistrictApi,
         studentProfileService,
         teacherProfileService,
         teacherSignUpUseCase
@@ -184,15 +184,18 @@ class EdLinkOauthCallbackUseCaseTest {
         val token = "access-token"
         val integrationId = UUID.randomUUID()
         val personId = UUID.randomUUID()
+        val districtId = UUID.randomUUID()
         val person = createPerson(
             id = personId,
             email = "teacher@example.com",
             firstName = "John",
             lastName = "Doe",
             roles = listOf("teacher"),
-            country = "US"
+            country = "US",
+            districtId = districtId
         )
         val integration = MyIntegration(integrationId)
+        val district = District(districtId, "District name")
         val newTeacher = mockk<TeacherProfile> {
             every { id } returns UUID.randomUUID()
         }
@@ -202,6 +205,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkTokenApi.exchange("test-code") } returns token.right()
         every { edLinkProfileApi.myProfile(token) } returns person.right()
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
+        every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
 
@@ -217,11 +221,9 @@ class EdLinkOauthCallbackUseCaseTest {
                             it.firstName == "John" &&
                             it.lastName == "Doe" &&
                             it.country == "US" &&
-                            it.organization == "" &&
+                            it.organization == "District name" &&
                             it.howDidYouHearAboutUs == "" &&
-                            it.howDidYouHearAboutUsOther == null &&
-                            it.marketingEmailSubscribed == false &&
-                            it.mobileAppClient == false
+                            it.howDidYouHearAboutUsOther == null && !it.marketingEmailSubscribed && !it.mobileAppClient
                 }
             )
         }
@@ -234,8 +236,10 @@ class EdLinkOauthCallbackUseCaseTest {
         val token = "access-token"
         val integrationId = UUID.randomUUID()
         val personId = UUID.randomUUID()
-        val person = createPerson(id = personId, roles = listOf("teacher"))
+        val districtId = UUID.randomUUID()
+        val person = createPerson(id = personId, roles = listOf("teacher"), districtId = districtId)
         val integration = MyIntegration(integrationId)
+        val district = District(districtId, "District name")
         val newTeacher = mockk<TeacherProfile> {
             every { id } returns UUID.randomUUID()
         }
@@ -245,6 +249,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkTokenApi.exchange("test-code") } returns token.right()
         every { edLinkProfileApi.myProfile(token) } returns person.right()
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
+        every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
 
@@ -253,7 +258,7 @@ class EdLinkOauthCallbackUseCaseTest {
         assertTrue(result.isRight())
         verify(exactly = 1) {
             teacherSignUpUseCase.signUp(
-                match { it.mobileAppClient == true }
+                match { it.mobileAppClient }
             )
         }
     }
@@ -265,8 +270,10 @@ class EdLinkOauthCallbackUseCaseTest {
         val token = "access-token"
         val integrationId = UUID.randomUUID()
         val personId = UUID.randomUUID()
-        val person = createPerson(id = personId, roles = listOf("teacher"), country = null)
+        val districtId = UUID.randomUUID()
+        val person = createPerson(id = personId, roles = listOf("teacher"), country = null, districtId = districtId)
         val integration = MyIntegration(integrationId)
+        val district = District(districtId, "District name")
         val newTeacher = mockk<TeacherProfile> {
             every { id } returns UUID.randomUUID()
         }
@@ -276,6 +283,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkTokenApi.exchange("test-code") } returns token.right()
         every { edLinkProfileApi.myProfile(token) } returns person.right()
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
+        every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
 
@@ -296,15 +304,18 @@ class EdLinkOauthCallbackUseCaseTest {
         val token = "access-token"
         val integrationId = UUID.randomUUID()
         val personId = UUID.randomUUID()
-        val person = createPerson(id = personId, roles = listOf("teacher"))
+        val districtId = UUID.randomUUID()
+        val person = createPerson(id = personId, roles = listOf("teacher"), districtId = districtId)
         val integration = MyIntegration(integrationId)
         val validationErrors = listOf(mockk<ValidationError>())
+        val district = District(districtId, "District name")
 
         every { edLinkOAuthStateService.exists(state) } returns true
         every { edLinkOAuthStateService.delete(state) } returns Unit
         every { edLinkTokenApi.exchange("test-code") } returns token.right()
         every { edLinkProfileApi.myProfile(token) } returns person.right()
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
+        every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns validationErrors.left()
 
@@ -371,7 +382,8 @@ class EdLinkOauthCallbackUseCaseTest {
         firstName: String = "Test",
         lastName: String = "User",
         roles: List<String> = emptyList(),
-        country: String? = "US"
+        country: String? = "US",
+        districtId: UUID = UUID.randomUUID(),
     ): Person {
         return Person(
             id = id,
@@ -379,7 +391,8 @@ class EdLinkOauthCallbackUseCaseTest {
             firstName = firstName,
             lastName = lastName,
             roles = roles,
-            address = Address(country)
+            address = Address(country),
+            districtId = districtId
         )
     }
 }

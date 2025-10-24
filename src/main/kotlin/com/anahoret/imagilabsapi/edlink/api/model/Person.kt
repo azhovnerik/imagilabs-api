@@ -14,7 +14,8 @@ class Person(
     @field:JsonProperty("first_name") val firstName: String,
     @field:JsonProperty("last_name") val lastName: String,
     @field:JsonProperty("roles") val roles: List<String>,
-    @field:JsonProperty("address") val address: Address
+    @field:JsonProperty("address") val address: Address,
+    @field:JsonProperty("district_id") val districtId: UUID
 ) {
     fun getUserType(): Either<UnsupportedUserTypeError, UserType> {
         return when {
