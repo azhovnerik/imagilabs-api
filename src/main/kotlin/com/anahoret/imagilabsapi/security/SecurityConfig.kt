@@ -44,7 +44,7 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.POST, "/api/auth/teacher/reset-password").permitAll()
 
                     // EdLink SSO
-                    .requestMatchers(HttpMethod.POST, "/api/oauth/edlink/state").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/oauth/edlink/state").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/oauth/edlink/callback").permitAll()
 
                     // Sign up
