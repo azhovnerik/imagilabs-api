@@ -44,7 +44,9 @@ class JwtAuthorizationTokenFilter(
         "/api/auth/teacher",
         "/api/auth/student",
         "/api/auth/logout",
-        "/api/sign-up/teacher"
+        "/api/sign-up/teacher",
+        "/api/oauth/edlink/state",
+        "/api/oauth/edlink/callback"
     )
 
     override fun doFilterInternal(
