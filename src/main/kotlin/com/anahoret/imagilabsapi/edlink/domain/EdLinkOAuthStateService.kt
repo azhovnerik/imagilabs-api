@@ -23,9 +23,9 @@ class EdLinkOAuthStateServiceImpl(
 ) : EdLinkOAuthStateService {
 
     override fun create(): UUID {
-        val id = UUID.randomUUID()
-        edLinkOAuthRepository.save(EdLinkOAuthStateEntity(id))
-        return id
+        val entity = EdLinkOAuthStateEntity()
+        val savedEntity = edLinkOAuthRepository.save(entity)
+        return savedEntity.id!!
     }
 
     @Transactional(readOnly = true)
