@@ -1,0 +1,34 @@
+package com.anahoret.imagilabsapi.edlink.api.model
+
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
+import com.anahoret.imagilabsapi.common.domain.error.OperationError
+import com.anahoret.imagilabsapi.users.UserType
+import com.fasterxml.jackson.annotation.JsonProperty
+import java.util.*
+
+class Person(
+    @field:JsonProperty("id") val id: UUID,
+    @field:JsonProperty("email") val email: String,
+    @field:JsonProperty("first_name") val firstName: String,
+    @field:JsonProperty("last_name") val lastName: String,
+    @field:JsonProperty("roles") val roles: List<String>,
+    @field:JsonProperty("address") val address: Address
+) {
+    fun getUserType(): Either<UnsupportedUserTypeError, UserType> {
+        return when {
+            roles.contains("student") -> UserType.STUDENT.right()
+            roles.contains("teacher") -> UserType.TEACHER.right()
+            else -> UnsupportedUserTypeError.left()
+        }
+    }
+}
+
+class Address(
+    @field:JsonProperty("country") val country: String?
+)
+
+object UnsupportedUserTypeError : OperationError {
+    const val message: String = "UNSUPPORTED_USER_TYPE"
+}

@@ -43,6 +43,12 @@ clevertap:
   api-passcode-header-name: ${CLEVERTAP_API_PASSCODE_HEADER_NAME:}
   api-passcode: ${CLEVERTAP_API_PASSCODE:}
 
+ed-link:
+  api-url: ${EDLINK_API_URL:}
+  client-secret: ${EDLINK_API_CLIENT_SECRET:}
+  client-id: ${EDLINK_API_CLIENT_ID:}
+  redirect-uri: ${EDLINK_API_REDIRECT_URI:}
+
 ---
 
 spring:

@@ -5,6 +5,7 @@ import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionData
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
+import java.util.*
 
 @Entity
 @Table(name = "teacher_profiles")
@@ -64,5 +65,11 @@ class TeacherProfileEntity(
     var aiChatOnboardingCompleted: Boolean = false,
 
     @Column(name = "ai_chat_intro_seen")
-    var aiChatIntroSeen: Boolean = false
+    var aiChatIntroSeen: Boolean = false,
+
+    @Column(name = "ed_link_integration_id")
+    var edLinkIntegrationId: UUID? = null,
+
+    @Column(name = "ed_link_person_id")
+    var edLinkPersonId: UUID? = null
 ) : BaseEntity(), TeacherSubscriptionData

@@ -1,5 +1,7 @@
 package com.anahoret.imagilabsapi.teachers.domain
 
+import java.util.*
+
 class TeacherSignupRequest(
     val email: String,
     val password: String,
@@ -10,7 +12,9 @@ class TeacherSignupRequest(
     val howDidYouHearAboutUs: String,
     val howDidYouHearAboutUsOther: String?,
     val marketingEmailSubscribed: Boolean,
-    val mobileAppClient: Boolean
+    val mobileAppClient: Boolean,
+    val edLinkIntegrationId: UUID? = null,
+    val edLinkPersonId: UUID? = null
 ) {
 
     fun normalize(): TeacherSignupRequest {
@@ -24,8 +28,12 @@ class TeacherSignupRequest(
             howDidYouHearAboutUs.trim(),
             howDidYouHearAboutUsOther?.trim(),
             marketingEmailSubscribed,
-            mobileAppClient
+            mobileAppClient,
+            edLinkIntegrationId,
+            edLinkPersonId
         )
     }
+
+    fun isEdLinkSignUp(): Boolean = edLinkIntegrationId != null && edLinkPersonId != null
 
 }

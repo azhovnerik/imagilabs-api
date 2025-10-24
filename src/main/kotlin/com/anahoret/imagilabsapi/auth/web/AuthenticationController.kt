@@ -94,6 +94,7 @@ class AuthenticationController(
         @RequestBody studentLoginRequest: StudentLoginRequest,
         response: HttpServletResponse
     ): ResponseEntity<ResponseDto<StudentAuthenticationSuccess?>> {
+        // FIXME: This classroom check logic is duplicated in EdLinkOAuthController
         val classroom = classroomService.getByAccessCode(studentLoginRequest.classroomAccessCode)
             ?: throw InternalAuthenticationServiceException("CLASSROOM_DOES_NOT_EXIST")
 
