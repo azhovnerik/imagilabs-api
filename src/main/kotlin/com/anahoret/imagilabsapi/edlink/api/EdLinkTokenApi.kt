@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 
 interface EdLinkTokenApi {
-    fun exchange(code: String): Either<OperationError, String>
+    fun exchange(code: String, isLocalhostRedirect: Boolean = false): Either<OperationError, String>
 }
 
 @Service
@@ -23,7 +23,8 @@ class EdLinkTokenApiImpl(
     private val edLinkProperties: EdLinkProperties
 ) : EdLinkTokenApi {
 
-    override fun exchange(code: String): Either<OperationError, String> {
+    override fun exchange(code: String, isLocalhostRedirect: Boolean): Either<OperationError, String> {
+        val redirectUri = if (isLocalhostRedirect) "http://localhost:3000/auth" else edLinkProperties.redirectUri
         val request = RequestEntity<Void>
             .post("/authentication/token")
             .body(
@@ -31,7 +32,7 @@ class EdLinkTokenApiImpl(
                     code,
                     edLinkProperties.clientId,
                     edLinkProperties.clientSecret,
-                    edLinkProperties.redirectUri
+                    redirectUri
                 )
             )
         return edLinkRestTemplate

@@ -20,10 +20,12 @@ import com.anahoret.imagilabsapi.users.UserType
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.InternalAuthenticationServiceException
 import java.util.*
 
@@ -61,16 +63,17 @@ class EdLinkOAuthControllerTest {
     @Test
     fun `getToken should return 401 with AccessDeniedError message`() {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
+        val httpRequest = mockk<HttpServletRequest>(relaxed = true)
         val request = EdLinkOAuthCallbackRequest(
             state = UUID.randomUUID(),
             code = "test-code",
             mobileAppClient = false
         )
 
-        every { edLinkOauthCallbackUseCase.tryAuthenticate(request) } returns
+        every { edLinkOauthCallbackUseCase.tryAuthenticate(request, isLocalhostRedirect = false) } returns
                 AccessDeniedError("INVALID_STATE").left()
 
-        val result = controller.getToken(request, httpResponse)
+        val result = controller.getToken(request, httpRequest, httpResponse)
 
         assertEquals(401, result.statusCode.value())
         val body = result.body
@@ -85,16 +88,17 @@ class EdLinkOAuthControllerTest {
     @Test
     fun `getToken should return 401 with UnsupportedUserTypeError message`() {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
+        val httpRequest = mockk<HttpServletRequest>(relaxed = true)
         val request = EdLinkOAuthCallbackRequest(
             state = UUID.randomUUID(),
             code = "test-code",
             mobileAppClient = false
         )
 
-        every { edLinkOauthCallbackUseCase.tryAuthenticate(request) } returns
+        every { edLinkOauthCallbackUseCase.tryAuthenticate(request, isLocalhostRedirect = false) } returns
                 UnsupportedUserTypeError.left()
 
-        val result = controller.getToken(request, httpResponse)
+        val result = controller.getToken(request, httpRequest, httpResponse)
 
         assertEquals(401, result.statusCode.value())
         val body = result.body
@@ -109,6 +113,7 @@ class EdLinkOAuthControllerTest {
     @Test
     fun `getToken should authenticate teacher successfully for web client`() {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
+        val httpRequest = mockk<HttpServletRequest>(relaxed = true)
         val teacherProfile = testTeacher()
         val request = EdLinkOAuthCallbackRequest(
             state = UUID.randomUUID(),
@@ -116,7 +121,12 @@ class EdLinkOAuthControllerTest {
             mobileAppClient = false
         )
 
-        every { edLinkOauthCallbackUseCase.tryAuthenticate(request) } returns teacherProfile.right()
+        every {
+            edLinkOauthCallbackUseCase.tryAuthenticate(
+                request,
+                isLocalhostRedirect = false
+            )
+        } returns teacherProfile.right()
 
         val authSuccess = TeacherAuthenticationSuccess(
             currentUser = TeacherUserData(
@@ -134,7 +144,7 @@ class EdLinkOAuthControllerTest {
             )
         } returns authSuccess
 
-        val result = controller.getToken(request, httpResponse)
+        val result = controller.getToken(request, httpRequest, httpResponse)
 
         assertEquals(200, result.statusCode.value())
         val body = result.body
@@ -155,6 +165,7 @@ class EdLinkOAuthControllerTest {
     @Test
     fun `getToken should authenticate teacher successfully for mobile client`() {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
+        val httpRequest = mockk<HttpServletRequest>(relaxed = true)
         val teacherProfile = testTeacher()
         val request = EdLinkOAuthCallbackRequest(
             state = UUID.randomUUID(),
@@ -162,7 +173,12 @@ class EdLinkOAuthControllerTest {
             mobileAppClient = true
         )
 
-        every { edLinkOauthCallbackUseCase.tryAuthenticate(request) } returns teacherProfile.right()
+        every {
+            edLinkOauthCallbackUseCase.tryAuthenticate(
+                request,
+                isLocalhostRedirect = false
+            )
+        } returns teacherProfile.right()
 
         val authSuccess = TeacherAuthenticationSuccess(
             currentUser = TeacherUserData(
@@ -180,7 +196,7 @@ class EdLinkOAuthControllerTest {
             )
         } returns authSuccess
 
-        val result = controller.getToken(request, httpResponse)
+        val result = controller.getToken(request, httpRequest, httpResponse)
 
         assertEquals(200, result.statusCode.value())
         verify(exactly = 1) {
@@ -195,6 +211,7 @@ class EdLinkOAuthControllerTest {
     @Test
     fun `getToken should authenticate student successfully when classroom not blocked`() {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
+        val httpRequest = mockk<HttpServletRequest>(relaxed = true)
         val classroomId = UUID.randomUUID()
         val studentProfile = testStudent(classroomId)
         val request = EdLinkOAuthCallbackRequest(
@@ -215,7 +232,12 @@ class EdLinkOAuthControllerTest {
             ClassroomPermissions(canManageCoTeachers = true)
         )
 
-        every { edLinkOauthCallbackUseCase.tryAuthenticate(request) } returns studentProfile.right()
+        every {
+            edLinkOauthCallbackUseCase.tryAuthenticate(
+                request,
+                isLocalhostRedirect = false
+            )
+        } returns studentProfile.right()
         every { classroomService.getById(classroomId) } returns classroom
 
         val authSuccess = StudentAuthenticationSuccess(
@@ -236,7 +258,7 @@ class EdLinkOAuthControllerTest {
             )
         } returns authSuccess
 
-        val result = controller.getToken(request, httpResponse)
+        val result = controller.getToken(request, httpRequest, httpResponse)
 
         assertEquals(200, result.statusCode.value())
         val body = result.body
@@ -259,6 +281,7 @@ class EdLinkOAuthControllerTest {
     @Test
     fun `getToken should return 403 when student classroom is blocked`() {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
+        val httpRequest = mockk<HttpServletRequest>(relaxed = true)
         val classroomId = UUID.randomUUID()
         val studentProfile = testStudent(classroomId)
         val request = EdLinkOAuthCallbackRequest(
@@ -279,10 +302,15 @@ class EdLinkOAuthControllerTest {
             ClassroomPermissions(canManageCoTeachers = true)
         )
 
-        every { edLinkOauthCallbackUseCase.tryAuthenticate(request) } returns studentProfile.right()
+        every {
+            edLinkOauthCallbackUseCase.tryAuthenticate(
+                request,
+                isLocalhostRedirect = false
+            )
+        } returns studentProfile.right()
         every { classroomService.getById(classroomId) } returns classroom
 
-        val result = controller.getToken(request, httpResponse)
+        val result = controller.getToken(request, httpRequest, httpResponse)
 
         assertEquals(403, result.statusCode.value())
         val body = result.body
@@ -300,6 +328,7 @@ class EdLinkOAuthControllerTest {
     @Test
     fun `getToken should throw exception when student classroom does not exist`() {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
+        val httpRequest = mockk<HttpServletRequest>(relaxed = true)
         val classroomId = UUID.randomUUID()
         val studentProfile = testStudent(classroomId)
         val request = EdLinkOAuthCallbackRequest(
@@ -308,11 +337,16 @@ class EdLinkOAuthControllerTest {
             mobileAppClient = false
         )
 
-        every { edLinkOauthCallbackUseCase.tryAuthenticate(request) } returns studentProfile.right()
+        every {
+            edLinkOauthCallbackUseCase.tryAuthenticate(
+                request,
+                isLocalhostRedirect = false
+            )
+        } returns studentProfile.right()
         every { classroomService.getById(classroomId) } returns null
 
         val ex = assertThrows(InternalAuthenticationServiceException::class.java) {
-            controller.getToken(request, httpResponse)
+            controller.getToken(request, httpRequest, httpResponse)
         }
 
         assertEquals("CLASSROOM_DOES_NOT_EXIST", ex.message)
@@ -323,6 +357,7 @@ class EdLinkOAuthControllerTest {
     @Test
     fun `getToken should authenticate student successfully for mobile client`() {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
+        val httpRequest = mockk<HttpServletRequest>(relaxed = true)
         val classroomId = UUID.randomUUID()
         val studentProfile = testStudent(classroomId)
         val request = EdLinkOAuthCallbackRequest(
@@ -343,7 +378,12 @@ class EdLinkOAuthControllerTest {
             ClassroomPermissions(canManageCoTeachers = true)
         )
 
-        every { edLinkOauthCallbackUseCase.tryAuthenticate(request) } returns studentProfile.right()
+        every {
+            edLinkOauthCallbackUseCase.tryAuthenticate(
+                request,
+                isLocalhostRedirect = false
+            )
+        } returns studentProfile.right()
         every { classroomService.getById(classroomId) } returns classroom
 
         val authSuccess = StudentAuthenticationSuccess(
@@ -364,7 +404,7 @@ class EdLinkOAuthControllerTest {
             )
         } returns authSuccess
 
-        val result = controller.getToken(request, httpResponse)
+        val result = controller.getToken(request, httpRequest, httpResponse)
 
         assertEquals(200, result.statusCode.value())
         verify(exactly = 1) {
@@ -375,5 +415,87 @@ class EdLinkOAuthControllerTest {
                 classroomId
             )
         }
+    }
+
+    @Test
+    fun `getToken should pass isLocalhostRedirect as true when Referer header is localhost 3000`() {
+        val httpResponse = mockk<HttpServletResponse>(relaxed = true)
+        val httpRequest = mockk<HttpServletRequest>(relaxed = true)
+        val teacherProfile = testTeacher()
+        val request = EdLinkOAuthCallbackRequest(
+            state = UUID.randomUUID(),
+            code = "test-code",
+            mobileAppClient = false
+        )
+
+        every { httpRequest.getHeader(HttpHeaders.REFERER) } returns "http://localhost:3000/"
+        every {
+            edLinkOauthCallbackUseCase.tryAuthenticate(
+                request,
+                isLocalhostRedirect = true
+            )
+        } returns teacherProfile.right()
+
+        val authSuccess = TeacherAuthenticationSuccess(
+            currentUser = TeacherUserData(
+                id = teacherProfile.id,
+                userType = UserType.TEACHER.name,
+                profile = null
+            ),
+            jwtToken = JwtTokenData(token = "jwt-token", expiresAt = 123456789L)
+        )
+        every {
+            requestAuthenticatorService.authenticateTeacher(
+                teacherProfile.id,
+                httpResponse,
+                false
+            )
+        } returns authSuccess
+
+        val result = controller.getToken(request, httpRequest, httpResponse)
+
+        assertEquals(200, result.statusCode.value())
+        verify(exactly = 1) { edLinkOauthCallbackUseCase.tryAuthenticate(request, isLocalhostRedirect = true) }
+    }
+
+    @Test
+    fun `getToken should pass isLocalhostRedirect as false when Referer header is not localhost 3000`() {
+        val httpResponse = mockk<HttpServletResponse>(relaxed = true)
+        val httpRequest = mockk<HttpServletRequest>(relaxed = true)
+        val teacherProfile = testTeacher()
+        val request = EdLinkOAuthCallbackRequest(
+            state = UUID.randomUUID(),
+            code = "test-code",
+            mobileAppClient = false
+        )
+
+        every { httpRequest.getHeader(HttpHeaders.REFERER) } returns "https://app.imagilabs.com/"
+        every {
+            edLinkOauthCallbackUseCase.tryAuthenticate(
+                request,
+                isLocalhostRedirect = false
+            )
+        } returns teacherProfile.right()
+
+        val authSuccess = TeacherAuthenticationSuccess(
+            currentUser = TeacherUserData(
+                id = teacherProfile.id,
+                userType = UserType.TEACHER.name,
+                profile = null
+            ),
+            jwtToken = JwtTokenData(token = "jwt-token", expiresAt = 123456789L)
+        )
+        every {
+            requestAuthenticatorService.authenticateTeacher(
+                teacherProfile.id,
+                httpResponse,
+                false
+            )
+        } returns authSuccess
+
+        val result = controller.getToken(request, httpRequest, httpResponse)
+
+        assertEquals(200, result.statusCode.value())
+        verify(exactly = 1) { edLinkOauthCallbackUseCase.tryAuthenticate(request, isLocalhostRedirect = false) }
     }
 }

@@ -23,7 +23,10 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 interface EdLinkOauthCallbackUseCase {
-    fun tryAuthenticate(request: EdLinkOAuthCallbackRequest): Either<OperationError, UserProfile>
+    fun tryAuthenticate(
+        request: EdLinkOAuthCallbackRequest,
+        isLocalhostRedirect: Boolean
+    ): Either<OperationError, UserProfile>
 }
 
 @Service
@@ -38,14 +41,16 @@ class EdLinkOauthCallbackUseCaseImpl(
     private val teacherSignUpUseCase: TeacherSignUpUseCase
 ) : EdLinkOauthCallbackUseCase {
 
-    override fun tryAuthenticate(request: EdLinkOAuthCallbackRequest): Either<OperationError, UserProfile> {
+    override fun tryAuthenticate(
+        request: EdLinkOAuthCallbackRequest,
+        isLocalhostRedirect: Boolean
+    ): Either<OperationError, UserProfile> {
         if (!edLinkOAuthStateService.exists(request.state)) {
             return AccessDeniedError("INVALID_STATE").left()
         }
         edLinkOAuthStateService.delete(request.state)
-
         return either {
-            val token = edLinkTokenApi.exchange(request.code).bind()
+            val token = edLinkTokenApi.exchange(request.code, isLocalhostRedirect).bind()
             val profile = edLinkProfileApi.myProfile(token).bind()
             val integration = edLinkIntegrationApi.myIntegration(token).bind()
             val userType = profile.getUserType().bind()

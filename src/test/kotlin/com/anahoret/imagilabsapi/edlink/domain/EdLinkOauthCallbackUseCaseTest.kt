@@ -54,7 +54,7 @@ class EdLinkOauthCallbackUseCaseTest {
 
         every { edLinkOAuthStateService.exists(state) } returns false
 
-        val result = useCase.tryAuthenticate(request)
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         assertTrue(result.isLeft())
         val error = result.leftOrNull() as AccessDeniedError
@@ -71,7 +71,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkOAuthStateService.delete(state) } returns Unit
         every { edLinkTokenApi.exchange("test-code") } returns mockk<OperationError>().left()
 
-        useCase.tryAuthenticate(request)
+        useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         verify(exactly = 1) { edLinkOAuthStateService.delete(state) }
     }
@@ -86,7 +86,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkOAuthStateService.delete(state) } returns Unit
         every { edLinkTokenApi.exchange("test-code") } returns error.left()
 
-        val result = useCase.tryAuthenticate(request)
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         assertTrue(result.isLeft())
         assertEquals(error, result.leftOrNull())
@@ -104,7 +104,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkTokenApi.exchange("test-code") } returns token.right()
         every { edLinkProfileApi.myProfile(token) } returns error.left()
 
-        val result = useCase.tryAuthenticate(request)
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         assertTrue(result.isLeft())
         assertEquals(error, result.leftOrNull())
@@ -124,7 +124,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkProfileApi.myProfile(token) } returns person.right()
         every { edLinkIntegrationApi.myIntegration(token) } returns error.left()
 
-        val result = useCase.tryAuthenticate(request)
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         assertTrue(result.isLeft())
         assertEquals(error, result.leftOrNull())
@@ -144,7 +144,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkProfileApi.myProfile(token) } returns person.right()
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
 
-        val result = useCase.tryAuthenticate(request)
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         assertTrue(result.isLeft())
         assertEquals(UnsupportedUserTypeError, result.leftOrNull())
@@ -170,11 +170,36 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns existingTeacher
 
-        val result = useCase.tryAuthenticate(request)
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         assertTrue(result.isRight())
         assertEquals(existingTeacher, result.getOrNull())
         verify(exactly = 0) { teacherSignUpUseCase.signUp(any()) }
+    }
+
+    @Test
+    fun `should call exchange code to token method passing the isLocalhostRedirect flag`() {
+        val state = UUID.randomUUID()
+        val request = EdLinkOAuthCallbackRequest(state, "test-code", false)
+        val token = "access-token"
+        val integrationId = UUID.randomUUID()
+        val personId = UUID.randomUUID()
+        val person = createPerson(id = personId, roles = listOf("teacher"))
+        val integration = MyIntegration(integrationId)
+        val existingTeacher = mockk<TeacherProfile> {
+            every { id } returns UUID.randomUUID()
+        }
+
+        every { edLinkOAuthStateService.exists(state) } returns true
+        every { edLinkOAuthStateService.delete(state) } returns Unit
+        every { edLinkTokenApi.exchange("test-code", true) } returns token.right()
+        every { edLinkProfileApi.myProfile(token) } returns person.right()
+        every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
+        every { teacherProfileService.getByEdLink(integrationId, personId) } returns existingTeacher
+
+        useCase.tryAuthenticate(request, isLocalhostRedirect = true)
+
+        verify(exactly = 1) { edLinkTokenApi.exchange("test-code", isLocalhostRedirect = true) }
     }
 
     @Test
@@ -209,7 +234,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
 
-        val result = useCase.tryAuthenticate(request)
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         assertTrue(result.isRight())
         assertEquals(newTeacher, result.getOrNull())
@@ -253,7 +278,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
 
-        val result = useCase.tryAuthenticate(request)
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         assertTrue(result.isRight())
         verify(exactly = 1) {
@@ -287,7 +312,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
 
-        val result = useCase.tryAuthenticate(request)
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         assertTrue(result.isRight())
         verify(exactly = 1) {
@@ -319,7 +344,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns validationErrors.left()
 
-        val result = useCase.tryAuthenticate(request)
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         assertTrue(result.isLeft())
         val error = result.leftOrNull() as AccessDeniedError
@@ -346,7 +371,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
         every { studentProfileService.getByEdLink(integrationId, personId) } returns existingStudent
 
-        val result = useCase.tryAuthenticate(request)
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         assertTrue(result.isRight())
         assertEquals(existingStudent, result.getOrNull())
@@ -369,7 +394,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
         every { studentProfileService.getByEdLink(integrationId, personId) } returns null
 
-        val result = useCase.tryAuthenticate(request)
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
         assertTrue(result.isLeft())
         val error = result.leftOrNull() as AccessDeniedError
