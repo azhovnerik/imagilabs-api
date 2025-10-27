@@ -84,7 +84,9 @@ class EdLinkOauthCallbackUseCaseImpl(
                     howDidYouHearAboutUs = "",
                     howDidYouHearAboutUsOther = null,
                     marketingEmailSubscribed = false,
-                    mobileAppClient = mobileAppClient
+                    mobileAppClient = mobileAppClient,
+                    edLinkIntegrationId = integrationId,
+                    edLinkPersonId = person.id
                 )
             ).bind()
         }.mapLeft { left ->
