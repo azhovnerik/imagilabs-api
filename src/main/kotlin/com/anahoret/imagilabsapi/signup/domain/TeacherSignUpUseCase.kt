@@ -33,7 +33,9 @@ class TeacherSignUpUseCaseImpl(
                 val teacherProfile = teacherProfileService.createTeacher(normalizedRequest)
                 createTeacherCheckListUseCase.create(teacherProfile.id)
                 projectSamplesCreateUseCase.create(teacherProfile)
-                if (!request.isEdLinkSignUp()) {
+                if (request.isEdLinkSignUp()) {
+                    teacherEmailVerificationService.setEmailVerified(teacherProfile.id)
+                } else {
                     teacherEmailVerificationService.generateNewVerificationCode(teacherProfile.id)
                         ?.let { code -> teacherEmailVerificationCodeSenderUseCase.send(request.email, code) }
                 }
