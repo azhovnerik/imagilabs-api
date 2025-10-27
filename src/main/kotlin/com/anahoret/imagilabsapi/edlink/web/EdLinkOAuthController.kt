@@ -16,7 +16,9 @@ import com.anahoret.imagilabsapi.edlink.domain.EdLinkOAuthStateService
 import com.anahoret.imagilabsapi.edlink.domain.EdLinkOauthCallbackUseCase
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.users.UserType
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.InternalAuthenticationServiceException
@@ -34,9 +36,11 @@ class EdLinkOAuthController(
     @PostMapping("/callback")
     fun getToken(
         @RequestBody request: EdLinkOAuthCallbackRequest,
+        httpRequest: HttpServletRequest,
         response: HttpServletResponse
     ): ResponseEntity<ResponseDto<*>> {
-        return when (val result = edLinkOauthCallbackUseCase.tryAuthenticate(request)) {
+        val isLocalhostRedirect = httpRequest.getHeader(HttpHeaders.REFERER) == "http://localhost:3000/"
+        return when (val result = edLinkOauthCallbackUseCase.tryAuthenticate(request, isLocalhostRedirect)) {
             is Either.Left -> handleAuthenticationError(result.value)
             is Either.Right -> authenticate(result.value, response, request)
         }
