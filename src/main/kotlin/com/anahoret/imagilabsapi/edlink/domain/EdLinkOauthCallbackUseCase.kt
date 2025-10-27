@@ -87,9 +87,11 @@ class EdLinkOauthCallbackUseCaseImpl(
                     mobileAppClient = mobileAppClient
                 )
             ).bind()
-        }.mapLeft {
-            // Should never happen as the request validation is skipped for EdLink signup requests
-            AccessDeniedError("TEACHER_CREATION_FAILED")
+        }.mapLeft { left ->
+            when (left) {
+                is OperationError -> left
+                else -> AccessDeniedError("TEACHER_CREATION_FAILED") // Should never happen as the request validation is skipped for EdLink signup requests
+            }
         }
     }
 
