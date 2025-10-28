@@ -202,7 +202,7 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
         val lovableLinkFontSize = 15f
         stream.setFont(textFont, lovableLinkFontSize)
 
-        val lovableLink = "https://lovable.dev/login"
+        val lovableLink = "https://lovable.dev/login/temp"
         val lovableLinkWidth = textFont.getStringWidth(lovableLink) / 1000 * lovableLinkFontSize
         val lovableLinkX = cardCenterX - lovableLinkWidth / 2
         val lovableLinkY = rectangle.upperRightY - 25
