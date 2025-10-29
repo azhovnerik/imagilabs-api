@@ -14,35 +14,26 @@ interface LovableAccountRepository : JpaRepository<LovableAccountEntity, UUID> {
     @Query(
         """SELECT
         a.connectedUser as connectedUser,
-        sp.username as username,
+        a.username as username,
         a.email as email,
         a.password as password
         FROM LovableAccountEntity a
-        LEFT JOIN StudentProfileEntity sp ON sp.id = :id
         WHERE a.connectedUser = :id AND a.active = true
     """
     )
-    fun findOneByConnectedUserAndActiveTrue(id: UUID): LovableAccountProjection?
+    fun findOneByConnectedUserAndActiveTrue(id: UUID): LovableAccountEntity?
 
     @Query(
         """SELECT
         a.connectedUser as connectedUser,
-        sp.username as username,
+        a.username as username,
         a.email as email,
         a.password as password
         FROM LovableAccountEntity a
-        LEFT JOIN StudentProfileEntity sp ON sp.id = a.connectedUser
         WHERE a.connectedUser IN :userIds AND a.active = true
     """
     )
-    fun findByConnectedUserIn(userIds: List<UUID>): List<LovableAccountProjection>
+    fun findByConnectedUserIn(userIds: List<UUID>): List<LovableAccountEntity>
 
     fun deleteByConnectedUserIn(userIds: List<UUID>)
-}
-
-interface LovableAccountProjection {
-    val connectedUser: UUID?
-    val username: String?
-    val email: String
-    val password: String
 }

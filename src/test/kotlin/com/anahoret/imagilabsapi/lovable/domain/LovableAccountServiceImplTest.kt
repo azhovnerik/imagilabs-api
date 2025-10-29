@@ -3,7 +3,6 @@ package com.anahoret.imagilabsapi.lovable.domain
 import com.anahoret.imagilabsapi.common.testAdmin
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.lovable.storage.LovableAccountEntity
-import com.anahoret.imagilabsapi.lovable.storage.LovableAccountProjection
 import com.anahoret.imagilabsapi.lovable.storage.LovableAccountRepository
 import com.anahoret.imagilabsapi.users.UserType
 import io.mockk.*
@@ -40,7 +39,7 @@ class LovableAccountServiceImplTest {
     @Test
     fun `getActive returns mapped domain when entity exists`() {
         val teacher = testTeacher()
-        val entity = LovableAccountProjectionTestImpl(teacher.id, null, "a@x.com", "secret")
+        val entity = LovableAccountEntity("a@x.com", "secret", "u1", teacher.id, null)
         every { repo.findOneByConnectedUserAndActiveTrue(teacher.id) } returns entity
 
         val result = service.getActive(teacher)
@@ -77,8 +76,8 @@ class LovableAccountServiceImplTest {
     fun `connectToUser returns null when no free accounts available`() {
         val teacher = testTeacher()
         val alreadyConnected = listOf(
-            LovableAccountEntity("e1@x.com", "p1", teacher.id, 10L, active = false),
-            LovableAccountEntity("e2@x.com", "p2", teacher.id, 20L, active = true)
+            LovableAccountEntity("e1@x.com", "p1", "u1", teacher.id, 10L, active = false),
+            LovableAccountEntity("e2@x.com", "p2", "u2", teacher.id, 20L, active = true)
         )
 
         every { repo.findByConnectedUser(teacher.id) } returns alreadyConnected
@@ -99,17 +98,17 @@ class LovableAccountServiceImplTest {
     fun `connectToUser activates and returns next free account`() {
         val teacher = testTeacher()
         val previouslyConnected = listOf(
-            LovableAccountEntity("old@x.com", "oldpass", teacher.id, 5L, active = true)
+            LovableAccountEntity("old@x.com", "oldpass", "u1", teacher.id, 5L, active = true)
         )
-        val free = LovableAccountEntity("new@x.com", "newpass", null, null, active = false)
+        val free = LovableAccountEntity("new@x.com", "newpass", "u1", null, null, active = false)
 
         every { clock.millis() } returns 12345L
         every { repo.findByConnectedUser(teacher.id) } returns previouslyConnected
         every { repo.saveAll(any<List<LovableAccountEntity>>()) } answers { firstArg() }
         every { repo.findFirstByConnectedUserIsNull() } returns free
         every { repo.save(any<LovableAccountEntity>()) } answers { firstArg() }
-        every { repo.findOneByConnectedUserAndActiveTrue(teacher.id) } returns LovableAccountProjectionTestImpl(
-            teacher.id, null, "new@x.com", "newpass"
+        every { repo.findOneByConnectedUserAndActiveTrue(teacher.id) } returns LovableAccountEntity(
+            "new@x.com", "newpass", "u1", teacher.id, null
         )
 
         val result = service.connectToUser(teacher)
@@ -145,8 +144,8 @@ class LovableAccountServiceImplTest {
         val id1 = UUID.randomUUID()
         val id2 = UUID.randomUUID()
         val entities = listOf(
-            LovableAccountProjectionTestImpl(id1, null, "u1@x.com", "p1"),
-            LovableAccountProjectionTestImpl(id2, null, "u2@x.com", "p2")
+            LovableAccountEntity("u1@x.com", "p1", "u1", id1, null),
+            LovableAccountEntity("u2@x.com", "p2", "u2", id2, null)
         )
 
         every { repo.findByConnectedUserIn(match { it.containsAll(listOf(id1, id2)) }) } returns entities
@@ -184,10 +183,4 @@ class LovableAccountServiceImplTest {
         confirmVerified(repo)
     }
 
-    private class LovableAccountProjectionTestImpl(
-        override val connectedUser: UUID?,
-        override val username: String?,
-        override val email: String,
-        override val password: String
-    ) : LovableAccountProjection
 }
