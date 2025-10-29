@@ -148,7 +148,7 @@ class LovableAccountServiceImplTest {
             LovableAccountEntity("u2@x.com", "p2", "u2", id2, null)
         )
 
-        every { repo.findByConnectedUserIn(match { it.containsAll(listOf(id1, id2)) }) } returns entities
+        every { repo.findByConnectedUserInAndActiveTrue(match { it.containsAll(listOf(id1, id2)) }) } returns entities
 
         val result = service.getByConnectedUsers(listOf(id1, id2))
 
@@ -160,7 +160,7 @@ class LovableAccountServiceImplTest {
         assertEquals("p2", result[1].password)
         assertEquals(id2, result[1].connectedUserId)
 
-        verify { repo.findByConnectedUserIn(match { it.containsAll(listOf(id1, id2)) }) }
+        verify { repo.findByConnectedUserInAndActiveTrue(match { it.containsAll(listOf(id1, id2)) }) }
         confirmVerified(repo)
     }
 
