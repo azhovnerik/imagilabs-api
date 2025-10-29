@@ -15,6 +15,9 @@ class LovableAccountEntity(
     @Column(name = "password")
     var password: String,
 
+    @Column(name = "username")
+    var username: String,
+
     @Column(name = "connected_user")
     var connectedUser: UUID? = null,
 
