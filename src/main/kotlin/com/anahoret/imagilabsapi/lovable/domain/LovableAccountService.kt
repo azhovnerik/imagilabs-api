@@ -37,7 +37,7 @@ class LovableAccountServiceImpl(
     override fun getByConnectedUsers(userIds: List<UUID>): List<LovableAccount> {
         if (userIds.isEmpty()) return emptyList()
 
-        return lovableAccountRepository.findByConnectedUserIn(userIds).map {
+        return lovableAccountRepository.findByConnectedUserInAndActiveTrue(userIds).map {
             LovableAccount(it.connectedUser, it.username, it.email, it.password)
         }
     }
