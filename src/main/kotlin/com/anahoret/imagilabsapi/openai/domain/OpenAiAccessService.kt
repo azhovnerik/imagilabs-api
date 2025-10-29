@@ -1,23 +1,28 @@
 package com.anahoret.imagilabsapi.openai.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
-import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessService.Companion.availableToQA
-import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessService.Companion.availableToSubscribers
+import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessService.Companion.hourOfAIRange
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
-import java.time.Clock
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.*
 
 interface OpenAiAccessService {
     companion object {
-        val availableToSubscribers = ZonedDateTime.of(2024, 10, 19, 0, 0, 0, 0, ZoneId.of("UTC-7"))
-            .toInstant().toEpochMilli()
-        val availableToQA = ZonedDateTime.of(2024, 10, 1, 0, 0, 0, 0, ZoneId.of("UTC-7"))
-            .toInstant().toEpochMilli()
+        val hourOfAIEventTimeZone = ZoneId.of("UTC-8")
+        private val hourOfAIEventStart = ZonedDateTime.of(
+            LocalDate.of(2025, 11, 8),
+            LocalTime.MIN,
+            hourOfAIEventTimeZone
+        ).toInstant().toEpochMilli()
+        private val hourOfAIEventEnd = ZonedDateTime.of(
+            LocalDate.of(2025, 12, 15),
+            LocalTime.MAX,
+            hourOfAIEventTimeZone
+        ).toInstant().toEpochMilli()
+        val hourOfAIRange = hourOfAIEventStart..hourOfAIEventEnd
     }
 
     fun canGetAssistanceForProject(userProfile: UserProfile): Boolean
@@ -51,7 +56,7 @@ class EnvironmentPermissionServiceStaging(
 ) : EnvironmentPermissionService {
     override fun canGetAssistanceForProject(userProfile: UserProfile): Boolean {
         val now = clock.millis()
-        return now < availableToQA || when (userProfile) {
+        return now in hourOfAIRange || when (userProfile) {
             is TeacherProfile -> true
             is StudentProfile -> teacherProfileService.getTeacherByStudent(userProfile.id)?.hasProSubscription(now)
                 ?: false
@@ -70,7 +75,7 @@ class EnvironmentPermissionServiceProduction(
 
     override fun canGetAssistanceForProject(userProfile: UserProfile): Boolean {
         val now = clock.millis()
-        return now < availableToSubscribers || when (userProfile) {
+        return now in hourOfAIRange || when (userProfile) {
             is TeacherProfile -> true
             is StudentProfile -> teacherProfileService.getTeacherByStudent(userProfile.id)?.hasProSubscription(now)
                 ?: false
