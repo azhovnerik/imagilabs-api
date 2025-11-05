@@ -25,6 +25,7 @@ interface ClassroomService {
     fun update(classroomId: UUID, classroomUpdateRequest: ClassroomUpdateRequest): Classroom?
     fun listIdsByTeacher(teacherId: UUID): Set<UUID>
     fun getAllClassroomAsCoTeacher(classroomIds: List<UUID>): List<Classroom>
+    fun getByEdLinkId(id: UUID): Classroom?
 }
 
 @Service
@@ -43,7 +44,8 @@ class ClassroomServiceImpl(
             ClassroomEntity(
                 classroomCreateRequest.name,
                 accessCode,
-                teacherId
+                teacherId,
+                edLinkId = classroomCreateRequest.edLinkId
             )
         ).let {
             val blocked = calculateBlockedForSingleClassroom(it)
@@ -81,16 +83,13 @@ class ClassroomServiceImpl(
         return doGetClassroomById(classroomId)
     }
 
+    override fun getByEdLinkId(id: UUID): Classroom? {
+        return classroomEntityRepository.findByEdLinkId(id)?.let(::toClassroom)
+    }
+
     override fun getByAccessCode(accessCode: String): Classroom? {
         return classroomEntityRepository.findByAccessCode(accessCode)
-            ?.let {
-                val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
-                val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
-                val coTeachersCount = coTeacherService.getCoTeacherCountByClassroomId(it.id!!)
-                val blocked = calculateBlockedForSingleClassroom(it)
-                val permissions = calculatePermissions(it)
-                Classroom.fromEntity(it, studentsCount, projectsCount, coTeachersCount, blocked, permissions)
-            }
+            ?.let(::toClassroom)
     }
 
     override fun isClassroomOwnedByTeacher(classroomId: UUID, teacherId: UUID): Boolean {
@@ -109,14 +108,23 @@ class ClassroomServiceImpl(
 
     private fun doGetClassroomById(classroomId: UUID): Classroom? {
         return classroomEntityRepository.findByIdOrNull(classroomId)
-            ?.let {
-                val studentsCount = studentClassroomLinkService.getStudentCount(it.id!!)
-                val projectsCount = projectClassroomShareService.getProjectCount(it.id!!)
-                val coTeachersCount = coTeacherService.getCoTeacherCountByClassroomId(it.id!!)
-                val blocked = calculateBlockedForSingleClassroom(it)
-                val permissions = calculatePermissions(it)
-                Classroom.fromEntity(it, studentsCount, projectsCount, coTeachersCount, blocked, permissions)
-            }
+            ?.let(::toClassroom)
+    }
+
+    private fun toClassroom(classroomEntity: ClassroomEntity): Classroom {
+        val studentsCount = studentClassroomLinkService.getStudentCount(classroomEntity.id!!)
+        val projectsCount = projectClassroomShareService.getProjectCount(classroomEntity.id!!)
+        val coTeachersCount = coTeacherService.getCoTeacherCountByClassroomId(classroomEntity.id!!)
+        val blocked = calculateBlockedForSingleClassroom(classroomEntity)
+        val permissions = calculatePermissions(classroomEntity)
+        return Classroom.fromEntity(
+            classroomEntity,
+            studentsCount,
+            projectsCount,
+            coTeachersCount,
+            blocked,
+            permissions
+        )
     }
 
     private fun mapToClassrooms(
