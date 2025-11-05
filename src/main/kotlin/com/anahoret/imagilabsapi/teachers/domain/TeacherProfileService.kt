@@ -34,6 +34,7 @@ interface TeacherProfileService {
     fun isAiChatIntroSeen(teacherId: UUID): Boolean
     fun getTeacherByStudent(studentId: UUID): TeacherProfile?
     fun getByEdLink(edLinkIntegrationId: UUID, edLinkPersonId: UUID): TeacherProfile?
+    fun listAllByEdLink(): List<TeacherProfile>
 }
 
 @Service
@@ -42,7 +43,7 @@ class TeacherProfileServiceImpl(
     private val passwordEncoder: PasswordEncoder,
     private val teacherSubscriptionService: TeacherSubscriptionService,
     private val clock: Clock,
-    @Value($$"${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
+    @param:Value($$"${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : TeacherProfileService {
 
     override fun createTeacher(request: TeacherSignupRequest): TeacherProfile {
@@ -63,21 +64,13 @@ class TeacherProfileServiceImpl(
                     edLinkIntegrationId = edLinkIntegrationId,
                     edLinkPersonId = edLinkPersonId
                 )
-            ).let {
-                val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-                TeacherProfile.fromEntity(it, subscription)
-            }
+            ).let(::toTeacherProfile)
         }
     }
 
     override fun getTeacherById(id: UUID): TeacherProfile? {
         return teacherProfileEntityRepository.findByIdOrNull(id)
-            ?.let {
-                val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-                TeacherProfile.fromEntity(it, subscription)
-            }
+            ?.let(::toTeacherProfile)
     }
 
     override fun getTeacherIdByEmail(email: String): UUID? {
@@ -104,11 +97,7 @@ class TeacherProfileServiceImpl(
 
     override fun listByIds(ids: Iterable<UUID>): List<TeacherProfile> {
         return teacherProfileEntityRepository.findAllById(ids)
-            .map {
-                val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-                TeacherProfile.fromEntity(it, subscription)
-            }
+            .map(::toTeacherProfile)
     }
 
     override fun listAllForAdmin(searchQuery: String?, sort: Sort): List<TeacherProfileAdminView> {
@@ -164,11 +153,7 @@ class TeacherProfileServiceImpl(
     override fun getTeachersWithExpiredSubscriptionBetween(leftRange: Long, rightRange: Long): List<TeacherProfile> {
         return teacherProfileEntityRepository
             .findAllBySubscriptionStartIsNotNullAndSubscriptionEndBetween(leftRange, rightRange)
-            .map {
-                val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-                TeacherProfile.fromEntity(it, subscription)
-            }
+            .map(::toTeacherProfile)
     }
 
     override fun delete(teacherId: UUID) {
@@ -207,10 +192,16 @@ class TeacherProfileServiceImpl(
     override fun getByEdLink(edLinkIntegrationId: UUID, edLinkPersonId: UUID): TeacherProfile? {
         return teacherProfileEntityRepository
             .findOneByEdLinkIntegrationIdAndEdLinkPersonId(edLinkIntegrationId, edLinkPersonId)
-            ?.let {
-                val subscription =
-                    teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-                TeacherProfile.fromEntity(it, subscription)
-            }
+            ?.let(::toTeacherProfile)
+    }
+
+    override fun listAllByEdLink(): List<TeacherProfile> {
+        return teacherProfileEntityRepository.findAllByEdLink()
+            .map(::toTeacherProfile)
+    }
+
+    private fun toTeacherProfile(entity: TeacherProfileEntity): TeacherProfile {
+        val subscription = teacherSubscriptionService.buildSubscriptionDto(entity.id!!, entity)
+        return TeacherProfile.fromEntity(entity, subscription)
     }
 }

@@ -35,4 +35,7 @@ interface TeacherProfileEntityRepository : JpaRepository<TeacherProfileEntity, U
         edLinkIntegrationId: UUID,
         edLinkPersonId: UUID
     ): TeacherProfileEntity?
+
+    @Query("SELECT t FROM TeacherProfileEntity t WHERE t.edLinkIntegrationId IS NOT NULL AND t.edLinkPersonId IS NOT NULL")
+    fun findAllByEdLink(): List<TeacherProfileEntity>
 }
