@@ -8,11 +8,11 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.edlink.api.model.EdLinkResponseSingle
 import com.anahoret.imagilabsapi.edlink.api.model.Integration
 import com.anahoret.imagilabsapi.edlink.api.model.MyIntegration
-import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpHeaders
 import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.exchange
 import java.util.*
 
 interface EdLinkIntegrationApi {
@@ -32,7 +32,7 @@ class EdLinkIntegrationApiImpl(
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .build()
         return edLinkRestTemplate
-            .exchange(request, object : ParameterizedTypeReference<EdLinkResponseSingle<MyIntegration>>() {})
+            .exchange<EdLinkResponseSingle<MyIntegration>>(request)
             .takeIf { it.statusCode.is2xxSuccessful }
             ?.body
             ?.data
@@ -46,7 +46,7 @@ class EdLinkIntegrationApiImpl(
             .header(HttpHeaders.AUTHORIZATION, "Bearer ${edLinkProperties.clientSecret}")
             .build()
         return edLinkRestTemplate
-            .exchange(request, object : ParameterizedTypeReference<EdLinkResponseSingle<Integration>>() {})
+            .exchange<EdLinkResponseSingle<Integration>>(request)
             .takeIf { it.statusCode.is2xxSuccessful }
             ?.body
             ?.data

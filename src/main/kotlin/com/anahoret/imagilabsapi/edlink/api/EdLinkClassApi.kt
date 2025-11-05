@@ -8,11 +8,11 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.edlink.api.model.EdLinkClass
 import com.anahoret.imagilabsapi.edlink.api.model.EdLinkResponseList
 import com.anahoret.imagilabsapi.edlink.api.model.Person
-import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpHeaders
 import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.exchange
 import java.util.*
 
 interface EdLinkClassApi {
@@ -32,7 +32,7 @@ class EdLinkClassApiImpl(
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .build()
         return edLinkRestTemplate
-            .exchange(request, object : ParameterizedTypeReference<EdLinkResponseList<EdLinkClass>>() {})
+            .exchange<EdLinkResponseList<EdLinkClass>>(request)
             .takeIf { it.statusCode.is2xxSuccessful }
             ?.body
             ?.data
@@ -46,7 +46,7 @@ class EdLinkClassApiImpl(
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .build()
         return edLinkRestTemplate
-            .exchange(request, object : ParameterizedTypeReference<EdLinkResponseList<Person>>() {})
+            .exchange<EdLinkResponseList<Person>>(request)
             .takeIf { it.statusCode.is2xxSuccessful }
             ?.body
             ?.data
@@ -60,7 +60,7 @@ class EdLinkClassApiImpl(
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .build()
         return edLinkRestTemplate
-            .exchange(request, object : ParameterizedTypeReference<EdLinkResponseList<Person>>() {})
+            .exchange<EdLinkResponseList<Person>>(request)
             .takeIf { it.statusCode.is2xxSuccessful }
             ?.body
             ?.data

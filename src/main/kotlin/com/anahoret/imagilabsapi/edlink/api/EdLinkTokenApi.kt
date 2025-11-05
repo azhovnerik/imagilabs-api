@@ -8,10 +8,10 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.edlink.api.model.CodeTokenExchangeRequest
 import com.anahoret.imagilabsapi.edlink.api.model.CodeTokenExchangeResponse
 import com.anahoret.imagilabsapi.edlink.api.model.EdLinkResponseSingle
-import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.exchange
 
 interface EdLinkTokenApi {
     fun exchange(code: String, isLocalhostRedirect: Boolean = false): Either<OperationError, String>
@@ -36,9 +36,7 @@ class EdLinkTokenApiImpl(
                 )
             )
         return edLinkRestTemplate
-            .exchange(
-                request,
-                object : ParameterizedTypeReference<EdLinkResponseSingle<CodeTokenExchangeResponse>>() {})
+            .exchange<EdLinkResponseSingle<CodeTokenExchangeResponse>>(request)
             .takeIf { it.statusCode.is2xxSuccessful }
             ?.body
             ?.data
