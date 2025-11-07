@@ -93,8 +93,8 @@ class StudentLovableAccountCardsGeneratorImplTest {
     @Test
     fun `should generate PDF file successfully for all students`() {
         val accounts = listOf(
-            LovableAccount(UUID.randomUUID(), "user1", "user1@test.com", "pass1"),
-            LovableAccount(UUID.randomUUID(), "user2", "user2@test.com", "pass2")
+            LovableAccount(UUID.randomUUID(), "s1", "user1", "user1@test.com", "pass1"),
+            LovableAccount(UUID.randomUUID(), "s2", "user2", "user2@test.com", "pass2")
         )
         val downloadRequest = DownloadStudentsLovableAccountsRequest(
             format = StudentsLovableAccountCardsFormat.PDF,
@@ -127,8 +127,8 @@ class StudentLovableAccountCardsGeneratorImplTest {
     @Test
     fun `should generate CSV file successfully for all students`() {
         val accounts = listOf(
-            LovableAccount(UUID.randomUUID(), "user1", "user1@test.com", "pass1"),
-            LovableAccount(UUID.randomUUID(), "user2", "user2@test.com", "pass2")
+            LovableAccount(UUID.randomUUID(), "s1", "user1", "user1@test.com", "pass1"),
+            LovableAccount(UUID.randomUUID(), "s2", "user2", "user2@test.com", "pass2")
         )
         val downloadRequest = DownloadStudentsLovableAccountsRequest(
             format = StudentsLovableAccountCardsFormat.CSV,
@@ -165,9 +165,9 @@ class StudentLovableAccountCardsGeneratorImplTest {
         val userId3 = UUID.randomUUID()
 
         val allAccounts = listOf(
-            LovableAccount(userId1, "user1", "user1@test.com", "pass1"),
-            LovableAccount(userId2, "user2", "user2@test.com", "pass2"),
-            LovableAccount(userId3, "user3", "user3@test.com", "pass3")
+            LovableAccount(userId1, "s1", "user1", "user1@test.com", "pass1"),
+            LovableAccount(userId2, "s2", "user2", "user2@test.com", "pass2"),
+            LovableAccount(userId3, "s3", "user3", "user3@test.com", "pass3")
         )
 
         val selectedStudentIds = setOf(userId1, userId3)
@@ -227,7 +227,7 @@ class StudentLovableAccountCardsGeneratorImplTest {
     @Test
     fun `should generate empty file when no students match filter`() {
         val allAccounts = listOf(
-            LovableAccount(UUID.randomUUID(), "user1", "user1@test.com", "pass1")
+            LovableAccount(UUID.randomUUID(), "s1", "user1", "user1@test.com", "pass1")
         )
 
         val nonMatchingStudentIds = setOf(UUID.randomUUID())
@@ -263,7 +263,7 @@ class StudentLovableAccountCardsGeneratorImplTest {
             studentIds = null
         )
         val mockInputStream = ByteArrayInputStream("pdf content".toByteArray())
-        val accounts = listOf(LovableAccount(UUID.randomUUID(), "user1", "user1@test.com", "pass1"))
+        val accounts = listOf(LovableAccount(UUID.randomUUID(), "s1", "user1", "user1@test.com", "pass1"))
 
         every { classroomService.getById(classroomId) } returns classroomWithSpecialName
         every {

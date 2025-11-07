@@ -25,6 +25,7 @@ class StudentLovableAccountCardsPdfGeneratorImplTest {
     fun `should generate PDF with single account`() {
         val account = LovableAccount(
             connectedUserId = UUID.randomUUID(),
+            connectedStudentName = "student",
             username = "testuser",
             email = "test@example.com",
             password = "testpass123"
@@ -46,6 +47,7 @@ class StudentLovableAccountCardsPdfGeneratorImplTest {
         val accounts = (1..5).map { i ->
             LovableAccount(
                 connectedUserId = UUID.randomUUID(),
+                connectedStudentName = "student$i",
                 username = "user$i",
                 email = "user$i@example.com",
                 password = "pass$i"
@@ -68,6 +70,7 @@ class StudentLovableAccountCardsPdfGeneratorImplTest {
         val accounts = (1..11).map { i ->
             LovableAccount(
                 connectedUserId = UUID.randomUUID(),
+                connectedStudentName = "student$i",
                 username = "user$i",
                 email = "user$i@example.com",
                 password = "pass$i"
@@ -85,6 +88,7 @@ class StudentLovableAccountCardsPdfGeneratorImplTest {
     fun `should handle null username correctly in PDF`() {
         val account = LovableAccount(
             connectedUserId = UUID.randomUUID(),
+            connectedStudentName = "student",
             username = null,
             email = "test@example.com",
             password = "testpass123"
@@ -126,6 +130,7 @@ class StudentLovableAccountCardsPdfGeneratorImplTest {
     fun `should return InputStream that can be consumed`() {
         val account = LovableAccount(
             connectedUserId = UUID.randomUUID(),
+            connectedStudentName = "student",
             username = "testuser",
             email = "test@example.com",
             password = "testpass123"

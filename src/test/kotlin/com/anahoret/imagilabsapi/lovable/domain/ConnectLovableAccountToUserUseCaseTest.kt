@@ -42,7 +42,7 @@ class ConnectLovableAccountToUserUseCaseTest {
     @Test
     fun `returns Right with connected account for teacher`() {
         val teacher = testTeacher()
-        val account = LovableAccount(UUID.randomUUID(), "u", "a@x.com", "p")
+        val account = LovableAccount(UUID.randomUUID(), "s", "u", "a@x.com", "p")
         every { service.connectedCount(teacher.id) } returns 0
         every { service.connectToUser(teacher) } returns account
 
@@ -55,7 +55,7 @@ class ConnectLovableAccountToUserUseCaseTest {
     @Test
     fun `returns Right with connected account for student`() {
         val student = testStudent()
-        val account = LovableAccount(UUID.randomUUID(), "u", "a@x.com", "p")
+        val account = LovableAccount(UUID.randomUUID(), "s", "u", "a@x.com", "p")
         every { service.connectedCount(student.id) } returns 0
         every { service.connectToUser(student) } returns account
 

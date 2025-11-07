@@ -4,6 +4,8 @@ import com.anahoret.imagilabsapi.common.testAdmin
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.lovable.storage.LovableAccountEntity
 import com.anahoret.imagilabsapi.lovable.storage.LovableAccountRepository
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
+import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.users.UserType
 import io.mockk.*
 import org.junit.jupiter.api.Assertions.*
@@ -14,51 +16,52 @@ import java.util.*
 
 class LovableAccountServiceImplTest {
 
-    private lateinit var repo: LovableAccountRepository
+    private lateinit var lovableAccountRepository: LovableAccountRepository
     private lateinit var clock: Clock
-    private lateinit var service: LovableAccountService
+    private lateinit var lovableAccountService: LovableAccountService
+    private val studentProfileService = mockk<StudentProfileService>()
 
     @BeforeEach
     fun setUp() {
-        repo = mockk(relaxed = true)
+        lovableAccountRepository = mockk(relaxed = true)
         clock = mockk()
-        service = LovableAccountServiceImpl(repo, clock)
+        lovableAccountService = LovableAccountServiceImpl(lovableAccountRepository, studentProfileService, clock)
     }
 
     @Test
     fun `connectedCount delegates to repository`() {
         val id = UUID.randomUUID()
-        every { repo.countByConnectedUser(id) } returns 5
+        every { lovableAccountRepository.countByConnectedUser(id) } returns 5
 
-        val result = service.connectedCount(id)
+        val result = lovableAccountService.connectedCount(id)
 
         assertEquals(5, result)
-        verify(exactly = 1) { repo.countByConnectedUser(id) }
+        verify(exactly = 1) { lovableAccountRepository.countByConnectedUser(id) }
     }
 
     @Test
     fun `getActive returns mapped domain when entity exists`() {
         val teacher = testTeacher()
         val entity = LovableAccountEntity("a@x.com", "secret", "u1", teacher.id, null)
-        every { repo.findOneByConnectedUserAndActiveTrue(teacher.id) } returns entity
+        every { lovableAccountRepository.findOneByConnectedUserAndActiveTrue(teacher.id) } returns entity
 
-        val result = service.getActive(teacher)
+        val result = lovableAccountService.getActive(teacher)
 
         assertNotNull(result)
         assertEquals("a@x.com", result!!.email)
         assertEquals("secret", result.password)
-        verify { repo.findOneByConnectedUserAndActiveTrue(teacher.id) }
+        verify { lovableAccountRepository.findOneByConnectedUserAndActiveTrue(teacher.id) }
     }
 
     @Test
     fun `getActive returns null when no active entity`() {
         val teacher = testTeacher()
-        every { repo.findOneByConnectedUserAndActiveTrue(teacher.id) } returns null
+        every { lovableAccountRepository.findOneByConnectedUserAndActiveTrue(teacher.id) } returns null
 
-        val result = service.getActive(teacher)
+        val result = lovableAccountService.getActive(teacher)
 
         assertNull(result)
-        verify { repo.findOneByConnectedUserAndActiveTrue(teacher.id) }
+        verify { lovableAccountRepository.findOneByConnectedUserAndActiveTrue(teacher.id) }
     }
 
     @Test
@@ -67,7 +70,7 @@ class LovableAccountServiceImplTest {
         assertEquals(UserType.ADMIN, admin.userType)
 
         val ex = assertThrows(IllegalArgumentException::class.java) {
-            service.connectToUser(admin)
+            lovableAccountService.connectToUser(admin)
         }
         assertTrue(ex.message!!.contains("Cannot connect admin"))
     }
@@ -80,18 +83,18 @@ class LovableAccountServiceImplTest {
             LovableAccountEntity("e2@x.com", "p2", "u2", teacher.id, 20L, active = true)
         )
 
-        every { repo.findByConnectedUser(teacher.id) } returns alreadyConnected
-        every { repo.saveAll(any<List<LovableAccountEntity>>()) } answers { firstArg() }
-        every { repo.findFirstByConnectedUserIsNull() } returns null
+        every { lovableAccountRepository.findByConnectedUser(teacher.id) } returns alreadyConnected
+        every { lovableAccountRepository.saveAll(any<List<LovableAccountEntity>>()) } answers { firstArg() }
+        every { lovableAccountRepository.findFirstByConnectedUserIsNull() } returns null
 
-        val result = service.connectToUser(teacher)
+        val result = lovableAccountService.connectToUser(teacher)
         assertNull(result)
 
-        verify(inverse = true) { repo.findByConnectedUser(teacher.id) }
-        verify(inverse = true) { repo.saveAll(alreadyConnected) }
+        verify(inverse = true) { lovableAccountRepository.findByConnectedUser(teacher.id) }
+        verify(inverse = true) { lovableAccountRepository.saveAll(alreadyConnected) }
 
-        verify { repo.findFirstByConnectedUserIsNull() }
-        confirmVerified(repo)
+        verify { lovableAccountRepository.findFirstByConnectedUserIsNull() }
+        confirmVerified(lovableAccountRepository)
     }
 
     @Test
@@ -103,15 +106,15 @@ class LovableAccountServiceImplTest {
         val free = LovableAccountEntity("new@x.com", "newpass", "u1", null, null, active = false)
 
         every { clock.millis() } returns 12345L
-        every { repo.findByConnectedUser(teacher.id) } returns previouslyConnected
-        every { repo.saveAll(any<List<LovableAccountEntity>>()) } answers { firstArg() }
-        every { repo.findFirstByConnectedUserIsNull() } returns free
-        every { repo.save(any<LovableAccountEntity>()) } answers { firstArg() }
-        every { repo.findOneByConnectedUserAndActiveTrue(teacher.id) } returns LovableAccountEntity(
+        every { lovableAccountRepository.findByConnectedUser(teacher.id) } returns previouslyConnected
+        every { lovableAccountRepository.saveAll(any<List<LovableAccountEntity>>()) } answers { firstArg() }
+        every { lovableAccountRepository.findFirstByConnectedUserIsNull() } returns free
+        every { lovableAccountRepository.save(any<LovableAccountEntity>()) } answers { firstArg() }
+        every { lovableAccountRepository.findOneByConnectedUserAndActiveTrue(teacher.id) } returns LovableAccountEntity(
             "new@x.com", "newpass", "u1", teacher.id, null
         )
 
-        val result = service.connectToUser(teacher)
+        val result = lovableAccountService.connectToUser(teacher)
 
         assertNotNull(result)
         assertEquals("new@x.com", result!!.email)
@@ -123,20 +126,20 @@ class LovableAccountServiceImplTest {
         assertTrue(free.active)
 
         verifySequence {
-            repo.findFirstByConnectedUserIsNull()
-            repo.findByConnectedUser(teacher.id)
-            repo.saveAll(match<List<LovableAccountEntity>> { list -> list.all { !it.active } })
-            repo.save(free)
-            repo.findOneByConnectedUserAndActiveTrue(teacher.id)
+            lovableAccountRepository.findFirstByConnectedUserIsNull()
+            lovableAccountRepository.findByConnectedUser(teacher.id)
+            lovableAccountRepository.saveAll(match<List<LovableAccountEntity>> { list -> list.all { !it.active } })
+            lovableAccountRepository.save(free)
+            lovableAccountRepository.findOneByConnectedUserAndActiveTrue(teacher.id)
         }
-        confirmVerified(repo)
+        confirmVerified(lovableAccountRepository)
     }
 
     @Test
     fun `getByConnectedUsers returns empty list when input is empty`() {
-        val result = service.getByConnectedUsers(emptyList())
+        val result = lovableAccountService.getByConnectedUsers(emptyList())
         assertTrue(result.isEmpty())
-        confirmVerified(repo)
+        confirmVerified(lovableAccountRepository)
     }
 
     @Test
@@ -147,10 +150,30 @@ class LovableAccountServiceImplTest {
             LovableAccountEntity("u1@x.com", "p1", "u1", id1, null),
             LovableAccountEntity("u2@x.com", "p2", "u2", id2, null)
         )
+        val profiles = listOf(
+            mockk<StudentProfile> {
+                every { id } returns id1
+                every { name } returns "s1"
+            },
+            mockk<StudentProfile> {
+                every { id } returns id2
+                every { name } returns "s2"
+            }
+        )
 
-        every { repo.findByConnectedUserInAndActiveTrue(match { it.containsAll(listOf(id1, id2)) }) } returns entities
+        every { studentProfileService.listByIds(match { it.containsAll(listOf(id1, id2)) }) } returns profiles
+        every {
+            lovableAccountRepository.findByConnectedUserInAndActiveTrue(match {
+                it.containsAll(
+                    listOf(
+                        id1,
+                        id2
+                    )
+                )
+            })
+        } returns entities
 
-        val result = service.getByConnectedUsers(listOf(id1, id2))
+        val result = lovableAccountService.getByConnectedUsers(listOf(id1, id2))
 
         assertEquals(2, result.size)
         assertEquals("u1@x.com", result[0].email)
@@ -160,27 +183,36 @@ class LovableAccountServiceImplTest {
         assertEquals("p2", result[1].password)
         assertEquals(id2, result[1].connectedUserId)
 
-        verify { repo.findByConnectedUserInAndActiveTrue(match { it.containsAll(listOf(id1, id2)) }) }
-        confirmVerified(repo)
+        verify {
+            lovableAccountRepository.findByConnectedUserInAndActiveTrue(match {
+                it.containsAll(
+                    listOf(
+                        id1,
+                        id2
+                    )
+                )
+            })
+        }
+        confirmVerified(lovableAccountRepository)
     }
 
     @Test
     fun `deleteByIds does nothing when input list is empty`() {
-        service.deleteByIds(emptyList())
-        verify(exactly = 0) { repo.deleteByConnectedUserIn(any()) }
-        confirmVerified(repo)
+        lovableAccountService.deleteByIds(emptyList())
+        verify(exactly = 0) { lovableAccountRepository.deleteByConnectedUserIn(any()) }
+        confirmVerified(lovableAccountRepository)
     }
 
     @Test
     fun `deleteByIds delegates to repository with provided ids`() {
         val ids = listOf(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID())
 
-        every { repo.deleteByConnectedUserIn(ids) } just Runs
+        every { lovableAccountRepository.deleteByConnectedUserIn(ids) } just Runs
 
-        service.deleteByIds(ids)
+        lovableAccountService.deleteByIds(ids)
 
-        verify(exactly = 1) { repo.deleteByConnectedUserIn(match { it == ids }) }
-        confirmVerified(repo)
+        verify(exactly = 1) { lovableAccountRepository.deleteByConnectedUserIn(match { it == ids }) }
+        confirmVerified(lovableAccountRepository)
     }
 
 }
