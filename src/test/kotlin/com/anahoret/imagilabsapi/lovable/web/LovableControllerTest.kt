@@ -49,7 +49,7 @@ class LovableControllerTest {
     @Test
     fun `connectTeacherProfile returns 200 with body on success`() {
         val teacher = testTeacher()
-        val account = LovableAccount(UUID.randomUUID(), "u", "a@x.com", "p")
+        val account = LovableAccount(UUID.randomUUID(), "s", "u", "a@x.com", "p")
         every { connectLovableAccountToUserUseCase.connect(teacher) } returns Either.Right(account)
 
         val response = controller.connectTeacherProfile(teacher)
@@ -77,7 +77,7 @@ class LovableControllerTest {
     @Test
     fun `getLovableAccount returns 200 with body when found for teacher`() {
         val teacher = testTeacher()
-        val account = LovableAccount(UUID.randomUUID(), "u", "b@x.com", "pwd")
+        val account = LovableAccount(UUID.randomUUID(), "s", "u", "b@x.com", "pwd")
         every { getLovableAccountForUserUseCase.get(teacher) } returns account
 
         val response = controller.getLovableAccount(teacher)
@@ -90,7 +90,7 @@ class LovableControllerTest {
     @Test
     fun `getLovableAccount returns 200 with body when found for student`() {
         val student = testStudent()
-        val account = LovableAccount(UUID.randomUUID(), "u", "b@x.com", "pwd")
+        val account = LovableAccount(UUID.randomUUID(), "s", "u", "b@x.com", "pwd")
         every { getLovableAccountForUserUseCase.get(student) } returns account
 
         val response = controller.getLovableAccount(student)
@@ -154,7 +154,7 @@ class LovableControllerTest {
     fun `getStudentsCredentialsForClassroom returns 200 with body on success`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val list = listOf(LovableAccount(UUID.randomUUID(), "u", "c@x.com", "pass"))
+        val list = listOf(LovableAccount(UUID.randomUUID(), "s", "u", "c@x.com", "pass"))
         every { getLovableCredentialsForClassroomUseCase.getCredentials(teacher, classroomId) } returns Either.Right(
             list
         )
@@ -452,7 +452,7 @@ class LovableControllerTest {
     fun `getLovableAccountForStudent returns 200 with body when found`() {
         val teacher = testTeacher()
         val studentId = UUID.randomUUID()
-        val account = LovableAccount(studentId, "student1", "student1@example.com", "password123")
+        val account = LovableAccount(studentId, "s1", "student1", "student1@example.com", "password123")
         every { getLovableAccountForStudentUseCase.get(teacher, studentId) } returns Either.Right(account)
 
         val response = controller.getLovableAccountForStudent(teacher, studentId)
@@ -515,7 +515,7 @@ class LovableControllerTest {
     fun `reconnectLovableAccountForStudent returns 200 with body when successful`() {
         val teacher = testTeacher()
         val studentId = UUID.randomUUID()
-        val account = LovableAccount(studentId, "student1", "student1@example.com", "newpassword123")
+        val account = LovableAccount(studentId, "s1", "student1", "student1@example.com", "newpassword123")
         every { reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId) } returns Either.Right(account)
 
         val response = controller.reconnectLovableAccountForStudent(teacher, studentId)

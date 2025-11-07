@@ -48,7 +48,7 @@ class ReconnectLovableAccountForStudentUseCaseTest {
             blocked = false,
             ClassroomPermissions(true)
         )
-        val expectedAccount = LovableAccount(student.id, "student1", "student1@example.com", "password123")
+        val expectedAccount = LovableAccount(student.id, "s1", "student1", "student1@example.com", "password123")
 
         every { studentProfileService.getStudentById(student.id) } returns student
         every { classroomService.getById(student.classroomId) } returns classroom
