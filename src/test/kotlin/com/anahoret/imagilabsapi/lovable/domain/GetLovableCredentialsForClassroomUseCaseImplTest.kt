@@ -116,8 +116,8 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
         )
         val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L, classroomId)
         val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L, classroomId)
-        val a1 = LovableAccount(s1.id, "u1", "e1@x.com", "p1")
-        val a2 = LovableAccount(s2.id, "u2", "e2@x.com", "p2")
+        val a1 = LovableAccount(s1.id, "s1", "u1", "e1@x.com", "p1")
+        val a2 = LovableAccount(s2.id, "s2", "u2", "e2@x.com", "p2")
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns true
         every { studentProfileService.listByClassroom(classroomId) } returns listOf(s1, s2)

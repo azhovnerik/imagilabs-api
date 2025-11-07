@@ -120,7 +120,7 @@ class GetLovableAccountForStudentUseCaseImplTest {
             blocked = false,
             ClassroomPermissions(true)
         )
-        val lovableAccount = LovableAccount(studentId, "student1", "student1@example.com", "password123")
+        val lovableAccount = LovableAccount(studentId, "s1", "student1", "student1@example.com", "password123")
 
         every { studentProfileService.getStudentById(studentId) } returns student
         every { classroomService.getById(classroomId) } returns classroom

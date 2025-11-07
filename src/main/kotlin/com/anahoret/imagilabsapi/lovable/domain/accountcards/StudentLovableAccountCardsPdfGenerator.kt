@@ -184,9 +184,9 @@ class StudentLovableAccountCardsPdfGeneratorImpl : StudentLovableAccountCardsPdf
         val credentialsY = rectangle.upperRightY - 50
 
         stream.newLineAtOffset(credentialsX, credentialsY)
-        stream.showText("Student: ${account.username}")
+        stream.showText("Student: ${account.connectedStudentName}")
         stream.newLine()
-        stream.showText("Username: ${account.email}")
+        stream.showText("Username: ${account.username}")
         stream.newLine()
         stream.showText("Password: ${account.password}")
         stream.endText()

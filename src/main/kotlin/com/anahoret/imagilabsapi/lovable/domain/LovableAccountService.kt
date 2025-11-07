@@ -2,6 +2,8 @@ package com.anahoret.imagilabsapi.lovable.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.lovable.storage.LovableAccountRepository
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
+import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -19,13 +21,14 @@ interface LovableAccountService {
 @Service
 class LovableAccountServiceImpl(
     private val lovableAccountRepository: LovableAccountRepository,
+    private val studentProfileService: StudentProfileService,
     private val clock: Clock
 ) : LovableAccountService {
 
     @Transactional
     override fun connectToUser(user: UserProfile): LovableAccount? {
         return when (user.userType) {
-            UserType.TEACHER, UserType.STUDENT -> doConnect(user.id)
+            UserType.TEACHER, UserType.STUDENT -> doConnect(user)
             UserType.ADMIN -> throw IllegalArgumentException("Cannot connect admin")
         }
     }
@@ -36,9 +39,11 @@ class LovableAccountServiceImpl(
 
     override fun getByConnectedUsers(userIds: List<UUID>): List<LovableAccount> {
         if (userIds.isEmpty()) return emptyList()
-
-        return lovableAccountRepository.findByConnectedUserInAndActiveTrue(userIds).map {
-            LovableAccount(it.connectedUser, it.username, it.email, it.password)
+        val students = studentProfileService.listByIds(userIds).associateBy(StudentProfile::id)
+        return lovableAccountRepository.findByConnectedUserInAndActiveTrue(userIds).mapNotNull {
+            it.connectedUser?.let { id ->
+                LovableAccount(it.connectedUser, students.getValue(id).name, it.username, it.email, it.password)
+            }
         }
     }
 
@@ -49,22 +54,23 @@ class LovableAccountServiceImpl(
 
     override fun getActive(user: UserProfile): LovableAccount? {
         return lovableAccountRepository.findOneByConnectedUserAndActiveTrue(user.id)
-            ?.let { LovableAccount(it.connectedUser, it.username, it.email, it.password) }
+            ?.let { LovableAccount(it.connectedUser, user.fullName, it.username, it.email, it.password) }
     }
 
-    private fun doConnect(id: UUID): LovableAccount? {
+    private fun doConnect(user: UserProfile): LovableAccount? {
         return lovableAccountRepository.findFirstByConnectedUserIsNull()
             ?.let { lovableAccountEntity ->
-                lovableAccountRepository.findByConnectedUser(id)
+                lovableAccountRepository.findByConnectedUser(user.id)
                     .onEach { it.active = false }
                     .let(lovableAccountRepository::saveAll)
 
-                lovableAccountEntity.connectedUser = id
+                lovableAccountEntity.connectedUser = user.id
                 lovableAccountEntity.connectedAt = clock.millis()
                 lovableAccountEntity.active = true
                 lovableAccountRepository.save(lovableAccountEntity)
-                lovableAccountRepository.findOneByConnectedUserAndActiveTrue(id)
-                    ?.let { LovableAccount(it.connectedUser, it.username, it.email, it.password) }
+
+                lovableAccountRepository.findOneByConnectedUserAndActiveTrue(user.id)
+                    ?.let { LovableAccount(it.connectedUser, user.fullName, it.username, it.email, it.password) }
             }
     }
 

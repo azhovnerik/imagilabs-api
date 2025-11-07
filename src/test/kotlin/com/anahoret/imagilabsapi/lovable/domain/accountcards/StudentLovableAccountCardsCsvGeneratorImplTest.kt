@@ -26,6 +26,7 @@ class StudentLovableAccountCardsCsvGeneratorImplTest {
     fun `should generate CSV with single account`() {
         val account = LovableAccount(
             connectedUserId = UUID.randomUUID(),
+            connectedStudentName = "student",
             username = "testuser",
             email = "test@example.com",
             password = "testpass123"
@@ -47,12 +48,14 @@ class StudentLovableAccountCardsCsvGeneratorImplTest {
         val accounts = listOf(
             LovableAccount(
                 connectedUserId = UUID.randomUUID(),
+                connectedStudentName = "student1",
                 username = "user1",
                 email = "user1@example.com",
                 password = "pass1"
             ),
             LovableAccount(
                 connectedUserId = UUID.randomUUID(),
+                connectedStudentName = "student2",
                 username = "user2",
                 email = "user2@example.com",
                 password = "pass2"
@@ -75,6 +78,7 @@ class StudentLovableAccountCardsCsvGeneratorImplTest {
     fun `should handle null username correctly`() {
         val account = LovableAccount(
             connectedUserId = UUID.randomUUID(),
+            connectedStudentName = "student",
             username = null,
             email = "test@example.com",
             password = "testpass123"
@@ -100,6 +104,7 @@ class StudentLovableAccountCardsCsvGeneratorImplTest {
     fun `should return InputStream that can be read multiple times`() {
         val account = LovableAccount(
             connectedUserId = UUID.randomUUID(),
+            connectedStudentName = "student",
             username = "testuser",
             email = "test@example.com",
             password = "testpass123"
