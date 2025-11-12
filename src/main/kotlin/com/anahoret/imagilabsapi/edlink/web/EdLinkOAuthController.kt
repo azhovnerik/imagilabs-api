@@ -2,7 +2,6 @@ package com.anahoret.imagilabsapi.edlink.web
 
 import arrow.core.Either
 import com.anahoret.imagilabsapi.auth.web.RequestAuthenticatorService
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
@@ -21,7 +20,6 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.authentication.InternalAuthenticationServiceException
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -29,8 +27,7 @@ import org.springframework.web.bind.annotation.*
 class EdLinkOAuthController(
     private val edLinkOAuthStateService: EdLinkOAuthStateService,
     private val edLinkOauthCallbackUseCase: EdLinkOauthCallbackUseCase,
-    private val requestAuthenticatorService: RequestAuthenticatorService,
-    private val classroomService: ClassroomService
+    private val requestAuthenticatorService: RequestAuthenticatorService
 ) {
 
     @PostMapping("/callback")
@@ -93,15 +90,6 @@ class EdLinkOAuthController(
         response: HttpServletResponse,
         request: EdLinkOAuthCallbackRequest
     ): ResponseEntity<ResponseDto<*>> {
-        // FIXME: This classroom check logic is duplicated in AuthenticationController
-        val classroom = classroomService.getById(studentProfile.classroomId)
-            ?: throw InternalAuthenticationServiceException("CLASSROOM_DOES_NOT_EXIST")
-
-        if (classroom.blocked) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ErrorResponseDto<String>(HttpStatus.FORBIDDEN.value(), "SUBSCRIPTION_REQUIRED"))
-        }
-
         return requestAuthenticatorService.authenticateStudent(
             studentProfile.id,
             response,
