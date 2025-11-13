@@ -125,14 +125,13 @@ class TeacherStatisticRepositoryTest {
     }
 
     fun setupStudents() {
-        val testStudent = testStudent(classroomId)
+        val testStudent = testStudent()
         studentIds = studentProfileRepository.saveAll(
             listOf(
                 StudentProfileEntity(
                     name = testStudent.name,
                     username = "student 1",
                     password = "",
-                    classroomId = classroomId,
                     tipTokens = 1,
                     tipTokensReplenishedAt = 0
                 ),
@@ -140,7 +139,6 @@ class TeacherStatisticRepositoryTest {
                     name = testStudent.name,
                     username = "student 2",
                     password = "",
-                    classroomId = classroomId,
                     tipTokens = 1,
                     tipTokensReplenishedAt = 0
                 )

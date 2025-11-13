@@ -100,7 +100,7 @@ class ClassroomTeachingMaterialsGetUseCaseTest {
     @Test
     fun `should return access denied error when student have no access to materials`() {
         val testClassroom = testClassroom()
-        val testStudent = testStudent(testClassroom.id)
+        val testStudent = testStudent()
 
         every { classroomService.getById(testClassroom.id) } returns testClassroom
         every { classroomAccessService.canGetTeachingMaterials(testStudent, testClassroom) } returns false
@@ -138,7 +138,7 @@ class ClassroomTeachingMaterialsGetUseCaseTest {
     @Test
     fun `should return teaching materials for student without pro lessons when teacher have standard subscription`() {
         val testClassroom = testClassroom()
-        val testStudent = testStudent(testClassroom.id)
+        val testStudent = testStudent()
         val teacherBundleLessons = listOf(testBundleLesson(proLesson = true))
         val defaultBundle = testLessonBundle(default = true)
 
@@ -162,7 +162,7 @@ class ClassroomTeachingMaterialsGetUseCaseTest {
     @Test
     fun `should return teaching materials for student with pro lessons when teacher have pro subscription`() {
         val testClassroom = testClassroom()
-        val testStudent = testStudent(testClassroom.id)
+        val testStudent = testStudent()
         val teacherBundleLessons = listOf(testBundleLesson(proLesson = true))
         val defaultBundle = testLessonBundle(default = true)
 

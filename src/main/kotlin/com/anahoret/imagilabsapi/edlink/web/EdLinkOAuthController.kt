@@ -93,8 +93,7 @@ class EdLinkOAuthController(
         return requestAuthenticatorService.authenticateStudent(
             studentProfile.id,
             response,
-            request.mobileAppClient,
-            studentProfile.classroomId
+            request.mobileAppClient
         ).let { ResponseEntity.ok(SuccessResponseDto(it)) }
     }
 

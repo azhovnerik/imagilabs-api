@@ -12,6 +12,7 @@ import com.anahoret.imagilabsapi.students.domain.StudentClassroomCard
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.util.*
@@ -33,7 +34,8 @@ class ListStudentsInClassroomUseCaseImpl(
     private val studentProfileService: StudentProfileService,
     private val projectService: ProjectService,
     private val projectClassroomShareService: ProjectClassroomShareService,
-    private val classroomAccessService: ClassroomAccessService
+    private val classroomAccessService: ClassroomAccessService,
+    private val studentClassroomLinkService: StudentClassroomLinkService
 ) : ListStudentsInClassroomUseCase {
 
     override fun list(listBy: TeacherProfile, classroomId: UUID): Either<OperationError, List<StudentClassroomCard>> {
@@ -59,7 +61,7 @@ class ListStudentsInClassroomUseCaseImpl(
         if (!classroomAccessService.canListStudentCredentials(listBy, classroom))
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-        val studentIdsPage = studentProfileService.listByClassroom(classroom.id, searchQuery, sort)
+        val studentIdsPage = studentClassroomLinkService.listStudentsByClassroom(classroom.id, searchQuery, sort)
             .map(StudentProfile::id)
 
         val projectCounts = projectService.getProjectCounts(studentIdsPage)

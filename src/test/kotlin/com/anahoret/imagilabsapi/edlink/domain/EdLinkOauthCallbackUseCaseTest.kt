@@ -417,7 +417,8 @@ class EdLinkOauthCallbackUseCaseTest {
             lastName = lastName,
             roles = roles,
             address = Address(country),
-            districtId = districtId
+            districtId = districtId,
+            displayName = "Test User"
         )
     }
 }

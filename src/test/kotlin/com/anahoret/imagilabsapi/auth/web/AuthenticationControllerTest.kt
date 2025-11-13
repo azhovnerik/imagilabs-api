@@ -113,8 +113,8 @@ class AuthenticationControllerTest {
                 id = studentProfile.id,
                 userType = UserType.STUDENT.name,
                 profile = null,
-                currentClassroomId = classroom.id
             ),
+            currentClassroomId = classroom.id,
             jwtToken = JwtTokenData(token = "token", expiresAt = 0)
         )
 

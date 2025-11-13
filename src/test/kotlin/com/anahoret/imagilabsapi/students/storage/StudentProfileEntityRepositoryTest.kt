@@ -5,6 +5,7 @@ import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
 import com.anahoret.imagilabsapi.spring.ImagiLabsDatabaseTest
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
+import com.anahoret.imagilabsapi.userclassroomlink.storage.StudentClassroomEntityRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -23,6 +24,9 @@ class StudentProfileEntityRepositoryTest {
 
     @Autowired
     lateinit var studentProfileEntityRepository: StudentProfileEntityRepository
+
+    @Autowired
+    lateinit var studentClassroomEntityRepository: StudentClassroomEntityRepository
 
     @Autowired
     lateinit var classroomEntityRepository: ClassroomEntityRepository
@@ -53,8 +57,8 @@ class StudentProfileEntityRepositoryTest {
 
     private fun setupStudents() {
         val classroomStudents = listOf(
-            StudentProfileEntity("Rob Stark", "rstark", "rstark", classroomId, 2, 0),
-            StudentProfileEntity("Sansa Stark", "sstark", "sstark", classroomId, 2, 0),
+            StudentProfileEntity("Rob Stark", "rstark", "rstark", 2, 0),
+            StudentProfileEntity("Sansa Stark", "sstark", "sstark", 2, 0),
         ).let(studentProfileEntityRepository::saveAll)
         sansaId = classroomStudents.find { it.username == "sstark" }?.id!!
         brandonId = classroomStudents.find { it.username == "rstark" }?.id!!
@@ -69,9 +73,9 @@ class StudentProfileEntityRepositoryTest {
         fun `should delete students by ids`() {
             assertEquals(
                 classroomStudentIds,
-                studentProfileEntityRepository.findAllByClassroomId(classroomId).map { it.id })
+                studentClassroomEntityRepository.findAllByClassroomId(classroomId).map { it.studentId })
             studentProfileEntityRepository.deleteByIdIn(classroomStudentIds)
-            val result = studentProfileEntityRepository.findAllByClassroomId(classroomId).map { it.id }
+            val result = studentClassroomEntityRepository.findAllByClassroomId(classroomId).map { it.studentId }
             assertTrue(result.isEmpty())
         }
     }

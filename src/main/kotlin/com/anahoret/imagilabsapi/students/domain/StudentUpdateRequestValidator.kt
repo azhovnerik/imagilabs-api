@@ -1,9 +1,9 @@
 package com.anahoret.imagilabsapi.students.domain
 
 import arrow.core.Either
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.validation.AbstractValidator
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.springframework.stereotype.Service
 
 interface StudentUpdateRequestValidator {
@@ -19,7 +19,7 @@ interface StudentUpdateRequestValidator {
 @Service
 class StudentUpdateRequestValidatorImpl(
     private val studentProfileService: StudentProfileService,
-    private val classroomService: ClassroomService
+    private val studentClassroomLinkService: StudentClassroomLinkService
 ) : StudentUpdateRequestValidator, AbstractValidator<StudentUpdateRequest>() {
 
     override fun validate(
@@ -42,18 +42,22 @@ class StudentUpdateRequestValidatorImpl(
         currentCredentials: StudentCredentials,
         studentUpdateRequest: StudentUpdateRequest
     ) {
-        val classroom = classroomService.getById(studentProfile.classroomId)
-        if (classroom == null) {
+        val classrooms = studentClassroomLinkService.listClassroomsByStudent(studentProfile.id)
+        if (classrooms.isEmpty()) {
             errors.add(ValidationError("STUDENT_CLASSROOM_DOES_NOT_EXIST"))
             return
         }
-        val newCredentials = StudentClassroomCredentials(
-            id = studentProfile.id,
-            username = studentUpdateRequest.username,
-            classroomAccessCode = classroom.accessCode,
-            password = currentCredentials.password,
-        )
-        val newCredentialsExists = studentProfileService.studentCredentialsExists(newCredentials)
+
+        val newCredentialsExists = classrooms.any { classroom ->
+            val newCredentials = StudentClassroomCredentials(
+                id = studentProfile.id,
+                username = studentUpdateRequest.username,
+                classroomAccessCode = classroom.accessCode,
+                password = currentCredentials.password,
+            )
+            studentProfileService.studentCredentialsExists(newCredentials)
+        }
+
         if (newCredentialsExists) errors.add(ValidationError("STUDENT_WITH_SAME_CREDENTIALS_EXISTS"))
     }
 

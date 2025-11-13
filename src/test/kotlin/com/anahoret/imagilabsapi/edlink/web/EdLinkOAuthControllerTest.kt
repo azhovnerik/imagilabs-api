@@ -6,7 +6,6 @@ import com.anahoret.imagilabsapi.auth.web.*
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenData
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.testTeacher
@@ -35,13 +34,11 @@ class EdLinkOAuthControllerTest {
     private val edLinkOAuthStateService: EdLinkOAuthStateService = mockk()
     private val edLinkOauthCallbackUseCase: EdLinkOauthCallbackUseCase = mockk()
     private val requestAuthenticatorService: RequestAuthenticatorService = mockk()
-    private val classroomService: ClassroomService = mockk()
 
     private val controller = EdLinkOAuthController(
         edLinkOAuthStateService,
         edLinkOauthCallbackUseCase,
-        requestAuthenticatorService,
-        classroomService
+        requestAuthenticatorService
     )
 
     @Test
@@ -213,7 +210,7 @@ class EdLinkOAuthControllerTest {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
         val httpRequest = mockk<HttpServletRequest>(relaxed = true)
         val classroomId = UUID.randomUUID()
-        val studentProfile = testStudent(classroomId)
+        val studentProfile = testStudent()
         val request = EdLinkOAuthCallbackRequest(
             state = UUID.randomUUID(),
             code = "test-code",
@@ -238,15 +235,14 @@ class EdLinkOAuthControllerTest {
                 isLocalhostRedirect = false
             )
         } returns studentProfile.right()
-        every { classroomService.getById(classroomId) } returns classroom
 
         val authSuccess = StudentAuthenticationSuccess(
             currentUser = StudentUserData(
                 id = studentProfile.id,
                 userType = UserType.STUDENT.name,
-                profile = null,
-                currentClassroomId = classroomId
+                profile = null
             ),
+            currentClassroomId = classroomId,
             jwtToken = JwtTokenData(token = "jwt-token", expiresAt = 123456789L)
         )
         every {
@@ -267,7 +263,6 @@ class EdLinkOAuthControllerTest {
         @Suppress("UNCHECKED_CAST") val payload = (body as SuccessResponseDto<StudentAuthenticationSuccess>).payload
         assertEquals(authSuccess, payload)
 
-        verify(exactly = 1) { classroomService.getById(classroomId) }
         verify(exactly = 1) {
             requestAuthenticatorService.authenticateStudent(
                 studentProfile.id,
@@ -283,7 +278,7 @@ class EdLinkOAuthControllerTest {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
         val httpRequest = mockk<HttpServletRequest>(relaxed = true)
         val classroomId = UUID.randomUUID()
-        val studentProfile = testStudent(classroomId)
+        val studentProfile = testStudent()
         val request = EdLinkOAuthCallbackRequest(
             state = UUID.randomUUID(),
             code = "test-code",
@@ -308,7 +303,6 @@ class EdLinkOAuthControllerTest {
                 isLocalhostRedirect = false
             )
         } returns studentProfile.right()
-        every { classroomService.getById(classroomId) } returns classroom
 
         val result = controller.getToken(request, httpRequest, httpResponse)
 
@@ -321,7 +315,6 @@ class EdLinkOAuthControllerTest {
         assertEquals(403, errors[0].code)
         assertEquals("SUBSCRIPTION_REQUIRED", errors[0].message)
 
-        verify(exactly = 1) { classroomService.getById(classroomId) }
         verify(exactly = 0) { requestAuthenticatorService.authenticateStudent(any(), any(), any(), any()) }
     }
 
@@ -330,7 +323,7 @@ class EdLinkOAuthControllerTest {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
         val httpRequest = mockk<HttpServletRequest>(relaxed = true)
         val classroomId = UUID.randomUUID()
-        val studentProfile = testStudent(classroomId)
+        val studentProfile = testStudent()
         val request = EdLinkOAuthCallbackRequest(
             state = UUID.randomUUID(),
             code = "test-code",
@@ -343,14 +336,12 @@ class EdLinkOAuthControllerTest {
                 isLocalhostRedirect = false
             )
         } returns studentProfile.right()
-        every { classroomService.getById(classroomId) } returns null
 
         val ex = assertThrows(InternalAuthenticationServiceException::class.java) {
             controller.getToken(request, httpRequest, httpResponse)
         }
 
         assertEquals("CLASSROOM_DOES_NOT_EXIST", ex.message)
-        verify(exactly = 1) { classroomService.getById(classroomId) }
         verify(exactly = 0) { requestAuthenticatorService.authenticateStudent(any(), any(), any(), any()) }
     }
 
@@ -359,7 +350,7 @@ class EdLinkOAuthControllerTest {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
         val httpRequest = mockk<HttpServletRequest>(relaxed = true)
         val classroomId = UUID.randomUUID()
-        val studentProfile = testStudent(classroomId)
+        val studentProfile = testStudent()
         val request = EdLinkOAuthCallbackRequest(
             state = UUID.randomUUID(),
             code = "test-code",
@@ -384,15 +375,14 @@ class EdLinkOAuthControllerTest {
                 isLocalhostRedirect = false
             )
         } returns studentProfile.right()
-        every { classroomService.getById(classroomId) } returns classroom
 
         val authSuccess = StudentAuthenticationSuccess(
             currentUser = StudentUserData(
                 id = studentProfile.id,
                 userType = UserType.STUDENT.name,
-                profile = null,
-                currentClassroomId = classroomId
+                profile = null
             ),
+            currentClassroomId = classroomId,
             jwtToken = JwtTokenData(token = "jwt-token", expiresAt = 123456789L)
         )
         every {

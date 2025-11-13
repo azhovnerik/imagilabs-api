@@ -1,13 +1,11 @@
 package com.anahoret.imagilabsapi.openai.domain
 
-import arrow.core.toNonEmptyListOrNull
-import com.anahoret.imagilabsapi.classrooms.domain.Classroom
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import com.anahoret.imagilabsapi.users.UserType
 import com.anahoret.imagilabsapi.utils.TimeZones
 import org.springframework.beans.factory.annotation.Value
@@ -15,7 +13,6 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.Clock
 import java.time.Instant
-import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -30,16 +27,10 @@ interface TipTokensService {
 class TipTokensServiceImpl(
     private val studentProfileEntityRepository: StudentProfileEntityRepository,
     private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
-    private val classroomService: ClassroomService,
-    @Value($$"${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int,
+    private val studentClassroomLinkService: StudentClassroomLinkService,
+    @param:Value($$"${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int,
     private val clock: Clock
 ) : TipTokensService {
-
-    companion object {
-        private val FREE_FOR_ALL_PERIOD_START = ZonedDateTime.of(2024, 9, 16, 0, 0, 0, 0, ZoneId.of("UTC-7")).toInstant().toEpochMilli()
-        private val FREE_FOR_ALL_PERIOD_END = ZonedDateTime.of(2024, 10, 19, 0, 0, 0, 0, ZoneId.of("UTC-7")).toInstant().toEpochMilli()
-        private val FREE_FOR_ALL_PERIOD = FREE_FOR_ALL_PERIOD_START..FREE_FOR_ALL_PERIOD_END
-    }
 
     override fun getTipTokens(userProfile: UserProfile): Int? {
         return when (userProfile.userType) {
@@ -53,19 +44,12 @@ class TipTokensServiceImpl(
         val now = clock.millis()
 
         val allTeachers = teacherProfileEntityRepository.findAll()
+        val teachersMap = allTeachers.associateBy { it.id!! }
         val teachersToUpdate = allTeachers
             .filter { teacherNeedsReplenish(now, it) }
 
-        val studentsToUpdate = studentProfileEntityRepository.findAll().toNonEmptyListOrNull()?.let { allStudents ->
-            val classroomsMap = classroomService.listByIds(allStudents.map(StudentProfileEntity::classroomId))
-                .associateBy(Classroom::id)
-            val teacherMap = allTeachers.associateBy(TeacherProfileEntity::id)
-            val studentTeacherMap: Map<UUID, TeacherProfileEntity> = allStudents.associate {
-                it.id!! to teacherMap.getValue(classroomsMap.getValue(it.classroomId).teacherId)
-            }
-            allStudents
-                .filter { studentNeedsReplenish(now, it, studentTeacherMap.getValue(it.id!!)) }
-        }
+        val studentsToUpdate = studentProfileEntityRepository.findAll()
+            .filter { studentNeedsReplenish(now, it, teachersMap) }
 
         teachersToUpdate.onEach { teacher ->
             teacher.tipTokens = tipTokens
@@ -73,26 +57,26 @@ class TipTokensServiceImpl(
         }.takeIf { it.isNotEmpty() }
             ?.let(teacherProfileEntityRepository::saveAll)
 
-        studentsToUpdate?.onEach {
+        studentsToUpdate.onEach {
             it.tipTokens = tipTokens
             it.tipTokensReplenishedAt = now
-        }.takeIf { !it.isNullOrEmpty() }
+        }.takeIf { it.isNotEmpty() }
             ?.let(studentProfileEntityRepository::saveAll)
     }
 
     private fun teacherNeedsReplenish(now: Long, teacherProfileEntity: TeacherProfileEntity): Boolean {
-        return now in FREE_FOR_ALL_PERIOD ||
-                teacherProfileEntity.hasProSubscription(now) ||
+        return teacherProfileEntity.hasProSubscription(now) ||
                 freePlanReplenishPeriodPassed(now, teacherProfileEntity.tipTokensReplenishedAt)
     }
 
     private fun studentNeedsReplenish(
         now: Long,
         studentProfileEntity: StudentProfileEntity,
-        teacherProfileEntity: TeacherProfileEntity
+        teachersMap: Map<UUID, TeacherProfileEntity>
     ): Boolean {
-        return now in FREE_FOR_ALL_PERIOD ||
-                teacherProfileEntity.hasProSubscription(now) ||
+        val studentClassrooms = studentClassroomLinkService.listClassroomsByStudent(studentProfileEntity.id!!)
+        val teachers = studentClassrooms.mapNotNull { teachersMap[it.teacherId] }
+        return teachers.any { it.hasProSubscription(now) } ||
                 freePlanReplenishPeriodPassed(now, studentProfileEntity.tipTokensReplenishedAt)
     }
 

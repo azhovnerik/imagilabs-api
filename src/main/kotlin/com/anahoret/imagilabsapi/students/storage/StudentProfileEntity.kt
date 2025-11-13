@@ -18,9 +18,6 @@ class StudentProfileEntity(
     @Column(name = "password", nullable = false)
     var password: String,
 
-    @Column(name = "classroom_id")
-    var classroomId: UUID,
-
     @Column(name = "tip_tokens")
     var tipTokens: Int,
 

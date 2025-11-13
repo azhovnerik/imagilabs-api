@@ -1,12 +1,12 @@
 package com.anahoret.imagilabsapi.students.domain
 
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
-import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
+import com.anahoret.imagilabsapi.userclassroomlink.storage.StudentClassroomEntity
+import com.anahoret.imagilabsapi.userclassroomlink.storage.StudentClassroomEntityRepository
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.Clock
@@ -35,8 +35,6 @@ interface StudentProfileService {
     fun delete(studentIds: Collection<UUID>)
     fun update(studentId: UUID, studentUpdateRequest: StudentUpdateRequest): StudentProfile?
     fun studentCredentialsExists(studentClassroomCredentials: StudentClassroomCredentials): Boolean
-    fun listByClassroom(classroomId: UUID): List<StudentProfile>
-    fun listByClassroom(classroomId: UUID, searchQuery: String?, sort: Sort): List<StudentProfile>
     fun resetPassword(studentId: UUID): StudentCredentials?
     fun completeChatOnboarding(studentId: UUID): StudentProfile?
     fun isAiChatOnboardingCompleted(studentId: UUID): Boolean
@@ -46,9 +44,9 @@ interface StudentProfileService {
 @Service
 class StudentProfileServiceImpl(
     private val studentProfileEntityRepository: StudentProfileEntityRepository,
-    private val classroomEntityRepository: ClassroomEntityRepository,
+    private val studentClassroomEntityRepository: StudentClassroomEntityRepository,
     private val clock: Clock,
-    @Value($$"${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
+    @param:Value($$"${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : StudentProfileService {
 
     companion object {
@@ -60,8 +58,10 @@ class StudentProfileServiceImpl(
         classroomId: UUID,
         studentCreateRequests: List<StudentCreateRequest>
     ): List<StudentProfile> {
-        val existingUserNames = studentProfileEntityRepository
+        val existingUserNames = studentClassroomEntityRepository
             .findAllByClassroomId(classroomId)
+            .map(StudentClassroomEntity::studentId)
+            .let(studentProfileEntityRepository::findAllById)
             .map(StudentProfileEntity::username)
             .toMutableSet()
         return studentCreateRequests.map {
@@ -72,7 +72,6 @@ class StudentProfileServiceImpl(
                 it.name,
                 username,
                 password,
-                classroomId,
                 tipTokens,
                 tipTokensReplenishedAt = clock.millis(),
                 edLinkIntegrationId = it.edLinkIntegrationId,
@@ -94,9 +93,9 @@ class StudentProfileServiceImpl(
                 val draftProjectsCount = projectCounts.getOrDefault(it.id, 0) - sharedProjectsCount
                 StudentClassroomCard.fromEntity(
                     studentProfileEntity = it,
-                    classroom = classroom,
                     sharedProjectsCount = sharedProjectsCount,
-                    draftProjectsCount = draftProjectsCount
+                    draftProjectsCount = draftProjectsCount,
+                    classroomAccessCode = classroom.accessCode
                 )
             }
     }
@@ -108,8 +107,7 @@ class StudentProfileServiceImpl(
 
     override fun getStudentDetailsById(studentId: UUID): StudentDetails? {
         val studentProfileEntity = studentProfileEntityRepository.findByIdOrNull(studentId) ?: return null
-        val classroomEntity = classroomEntityRepository.findByIdOrNull(studentProfileEntity.classroomId) ?: return null
-        return StudentDetails.fromEntity(studentProfileEntity, classroomEntity)
+        return StudentDetails.fromEntity(studentProfileEntity)
     }
 
     override fun listByIds(ids: List<UUID>): List<StudentProfile> {
@@ -152,16 +150,6 @@ class StudentProfileServiceImpl(
         }?.let(StudentProfile.Companion::fromEntity)
     }
 
-    override fun listByClassroom(classroomId: UUID): List<StudentProfile> {
-        return doListByClassroom(classroomId, Sort.unsorted())
-    }
-
-    override fun listByClassroom(classroomId: UUID, searchQuery: String?, sort: Sort): List<StudentProfile> {
-        return if (searchQuery == null) doListByClassroom(classroomId, sort)
-        else studentProfileEntityRepository.findAllByClassroomId(classroomId, searchQuery, sort)
-            .map(StudentProfile.Companion::fromEntity)
-    }
-
     override fun resetPassword(studentId: UUID): StudentCredentials? {
         return studentProfileEntityRepository.findByIdOrNull(studentId)?.let {
             it.password = createStudentPassword()
@@ -182,13 +170,8 @@ class StudentProfileServiceImpl(
             ?.let(StudentProfile.Companion::fromEntity)
     }
 
-    private fun doListByClassroom(classroomId: UUID, sort: Sort): List<StudentProfile> {
-        return studentProfileEntityRepository.findAllByClassroomId(classroomId, sort)
-            .map(StudentProfile.Companion::fromEntity)
-    }
-
     private fun createStudentPassword(): String {
-        return RandomStringUtils.randomAlphabetic(8).uppercase()
+        return RandomStringUtils.secure().nextAlphanumeric(8).uppercase()
     }
 
     private fun createUniqueStudentUsername(name: String, existingUserNames: Set<String>): String {

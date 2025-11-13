@@ -9,7 +9,7 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
-import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -23,31 +23,31 @@ import java.util.*
 class EnableLovableIntegrationForClassroomUseCaseImplTest {
 
     private lateinit var lovableClassroomService: LovableClassroomService
-    private lateinit var studentProfileService: StudentProfileService
     private lateinit var lovableAccountService: LovableAccountService
     private lateinit var connectUseCase: ConnectLovableAccountToUserUseCase
     private lateinit var classroomAccessService: ClassroomAccessService
     private lateinit var classroomService: ClassroomService
     private lateinit var useCase: EnableLovableIntegrationForClassroomUseCase
     private lateinit var getLovableIntegrationForClassroomUseCase: GetLovableIntegrationForClassroomUseCase
+    private lateinit var studentClassroomLinkService: StudentClassroomLinkService
 
     @BeforeEach
     fun setUp() {
         lovableClassroomService = mockk(relaxed = true)
-        studentProfileService = mockk()
         lovableAccountService = mockk()
         connectUseCase = mockk(relaxed = true)
         classroomAccessService = mockk()
         classroomService = mockk()
         getLovableIntegrationForClassroomUseCase = mockk()
+        studentClassroomLinkService = mockk()
         useCase = EnableLovableIntegrationForClassroomUseCaseImpl(
             lovableClassroomService,
-            studentProfileService,
             lovableAccountService,
             connectUseCase,
             classroomAccessService,
             classroomService,
-            getLovableIntegrationForClassroomUseCase
+            getLovableIntegrationForClassroomUseCase,
+            studentClassroomLinkService
         )
     }
 
@@ -107,12 +107,13 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
             blocked = false,
             ClassroomPermissions(true)
         )
-        val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L, classroomId)
-        val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L, classroomId)
+        val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L)
+        val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L)
         val mockLovableClassroom = mockk<LovableClassroom>()
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns true
-        every { studentProfileService.listByClassroom(classroomId) } returns listOf(s1, s2)
+        every { studentClassroomLinkService.listStudentsByClassroom(classroomId) } returns listOf(s1, s2)
+        every { lovableClassroomService.enableIntegrationForClassroom(classroomId) } answers { callOriginal() }
         every { lovableAccountService.getActive(s1) } returns LovableAccount(s1.id, "s1", "u1", "e", "p")
         every { lovableAccountService.getActive(s2) } returns null
         every { getLovableIntegrationForClassroomUseCase.get(teacher, classroomId) } returns Either.Right(
@@ -127,7 +128,7 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
             classroomService.getById(classroomId)
             classroomAccessService.canUpdateClassroom(teacher, classroom)
             lovableClassroomService.enableIntegrationForClassroom(classroomId)
-            studentProfileService.listByClassroom(classroomId)
+            studentClassroomLinkService.listStudentsByClassroom(classroomId)
             lovableAccountService.getActive(s1)
             lovableAccountService.getActive(s2)
             connectUseCase.connect(s2)

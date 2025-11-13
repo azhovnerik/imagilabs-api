@@ -18,8 +18,8 @@ class StudentsCreatedInitLovableAccountsListenerTest {
     fun `does nothing when integration disabled`() {
         val classroomId = UUID.randomUUID()
         every { lovableClassroomService.integrationEnabledForClassroom(classroomId) } returns false
-        val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L, classroomId)
-        val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L, classroomId)
+        val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L)
+        val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L)
         val event = StudentsCreatedEvent(listOf(s1, s2), classroomId)
 
         listener.onApplicationEvent(event)
@@ -31,8 +31,8 @@ class StudentsCreatedInitLovableAccountsListenerTest {
     fun `connects all students when integration enabled`() {
         val classroomId = UUID.randomUUID()
         every { lovableClassroomService.integrationEnabledForClassroom(classroomId) } returns true
-        val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L, classroomId)
-        val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L, classroomId)
+        val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L)
+        val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L)
         val event = StudentsCreatedEvent(listOf(s1, s2), classroomId)
 
         listener.onApplicationEvent(event)

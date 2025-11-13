@@ -4,6 +4,7 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.stereotype.Service
 import java.util.*
@@ -18,39 +19,43 @@ interface StudentAccessService {
 @Service
 class StudentAccessServiceImpl(
     private val classroomService: ClassroomService,
-    private val coTeacherService: CoTeacherService
+    private val coTeacherService: CoTeacherService,
+    private val studentClassroomLinkService: StudentClassroomLinkService
 ) : StudentAccessService {
 
     override fun canDelete(teacherProfile: TeacherProfile, studentProfile: StudentProfile): Boolean {
-        return studentIsInTeacherClassroom(studentProfile.classroomId, teacherProfile)
-                || isLikedAsCoTeacher(studentProfile.classroomId, teacherProfile.id)
+        return studentIsInTeacherClassroom(studentProfile.id, teacherProfile)
+                || isLikedAsCoTeacher(studentProfile.id, teacherProfile.id)
     }
 
     override fun canUpdate(teacherProfile: TeacherProfile, studentProfile: StudentProfile): Boolean {
-        return studentIsInTeacherClassroom(studentProfile.classroomId, teacherProfile)
-                || isLikedAsCoTeacher(studentProfile.classroomId, teacherProfile.id)
+        return studentIsInTeacherClassroom(studentProfile.id, teacherProfile)
+                || isLikedAsCoTeacher(studentProfile.id, teacherProfile.id)
     }
 
     override fun canGet(userProfile: UserProfile, studentDetails: StudentDetails): Boolean {
         return when (userProfile.userType) {
-            UserType.TEACHER -> studentIsInTeacherClassroom(studentDetails.classroomId, userProfile as TeacherProfile)
-                    || isLikedAsCoTeacher(studentDetails.classroomId, userProfile.id)
+            UserType.TEACHER -> studentIsInTeacherClassroom(studentDetails.id, userProfile as TeacherProfile)
+                    || isLikedAsCoTeacher(studentDetails.id, userProfile.id)
+
             UserType.STUDENT -> userProfile.id == studentDetails.id
             UserType.ADMIN -> false
         }
     }
 
     private fun studentIsInTeacherClassroom(
-        studentClassroomId: UUID,
+        studentId: UUID,
         teacherProfile: TeacherProfile
     ): Boolean {
         val teacherClassroomIds = classroomService.listByTeacher(teacherProfile.id)
             .map { it.id }
             .toSet()
-        return studentClassroomId in teacherClassroomIds
+        val studentClassroomIds = studentClassroomLinkService.listClassroomIdsByStudent(studentId).toSet()
+        return teacherClassroomIds.intersect(studentClassroomIds).isNotEmpty()
     }
 
-    private fun isLikedAsCoTeacher(classroomId: UUID, teacherId: UUID): Boolean {
-        return coTeacherService.isLinkedToClassroom(classroomId, teacherId)
+    private fun isLikedAsCoTeacher(studentId: UUID, teacherId: UUID): Boolean {
+        val studentClassroomIds = studentClassroomLinkService.listClassroomIdsByStudent(studentId).toSet()
+        return studentClassroomIds.any { classroomId -> coTeacherService.isLinkedToClassroom(classroomId, teacherId) }
     }
 }

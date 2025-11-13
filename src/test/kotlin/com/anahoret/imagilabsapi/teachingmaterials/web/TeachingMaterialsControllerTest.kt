@@ -131,7 +131,7 @@ class TeachingMaterialsControllerTest {
         @Test
         fun `should return success for student`() {
             val classroomId = UUID.randomUUID()
-            val studentProfile = testStudent(classroomId)
+            val studentProfile = testStudent()
 
             every { classroomTeachingMaterialsGetUseCase.get(studentProfile, classroomId) } returns teachingMaterials.right()
 
@@ -147,7 +147,7 @@ class TeachingMaterialsControllerTest {
         @Test
         fun `should return access denied error for student`() {
             val classroomId = UUID.randomUUID()
-            val studentProfile = testStudent(classroomId)
+            val studentProfile = testStudent()
 
             every { classroomTeachingMaterialsGetUseCase.get(studentProfile, classroomId) } returns AccessDeniedError("").left()
 

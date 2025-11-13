@@ -5,6 +5,7 @@ import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -20,9 +21,14 @@ class ProjectAccessServiceTest {
     private val classroomService = mockk<ClassroomService>()
     private val studentProfileService = mockk<StudentProfileService>()
     private val coTeacherService = mockk<CoTeacherService>()
+    private val studentClassroomLinkService = mockk<StudentClassroomLinkService>()
 
     private val projectAccessService = ProjectAccessServiceImpl(
-        projectClassroomShareService, classroomService, studentProfileService, coTeacherService
+        projectClassroomShareService,
+        classroomService,
+        studentProfileService,
+        coTeacherService,
+        studentClassroomLinkService
     )
 
     private val projectId = UUID.randomUUID()

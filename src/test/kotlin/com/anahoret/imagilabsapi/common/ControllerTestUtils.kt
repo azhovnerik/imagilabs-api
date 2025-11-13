@@ -45,13 +45,12 @@ fun testTeacherSubscription(
     return TeacherSubscription(0, 100, plan, canceled, teacherId)
 }
 
-fun testStudent(classroomId: UUID = UUID.randomUUID()): StudentProfile {
+fun testStudent(): StudentProfile {
     return StudentProfile(
         UUID.randomUUID(),
         "Martin",
         "mrtinos",
-        createdAt = 0L,
-        classroomId,
+        createdAt = 0L
     )
 }
 

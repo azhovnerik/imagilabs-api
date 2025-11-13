@@ -47,7 +47,7 @@ class ClassroomGetUseCaseTest {
     @Test
     fun `get returns forbidden when classroom is blocked for student`() {
         val classroomId = UUID.randomUUID()
-        val student = testStudent(classroomId)
+        val student = testStudent()
         val classroom = Classroom(
             classroomId,
             "c",

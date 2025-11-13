@@ -6,6 +6,7 @@ import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import com.anahoret.imagilabsapi.users.UserType
 import io.mockk.*
 import org.junit.jupiter.api.Assertions.*
@@ -26,14 +27,15 @@ class TipTokensServiceImplTest {
     private val teacherProfileEntityRepository = mockk<TeacherProfileEntityRepository>()
     private val classroomService = mockk<ClassroomService>()
     private val clock = mockk<Clock>()
+    private val studentClassroomLinkService = mockk<StudentClassroomLinkService>()
     private val tipTokens = 5
     private val tipTokensService =
         TipTokensServiceImpl(
             studentProfileEntityRepository,
             teacherProfileEntityRepository,
-            classroomService,
+            studentClassroomLinkService,
             tipTokens,
-            clock
+            clock,
         )
     private val testClassroomId = UUID.randomUUID()
     private val testTeacherId = UUID.randomUUID()
@@ -168,7 +170,6 @@ class TipTokensServiceImplTest {
                 every { id } returns testStudentId
                 justRun { tipTokens = 5 }
                 justRun { tipTokensReplenishedAt = 100 }
-                every { classroomId } returns testClassroomId
             }
             val students = listOf(student)
             val teacher = mockk<TeacherProfileEntity> {
@@ -206,7 +207,6 @@ class TipTokensServiceImplTest {
                 justRun { tipTokens = 5 }
                 justRun { tipTokensReplenishedAt = now }
                 every { tipTokensReplenishedAt } returns lastReplenishDateMillis
-                every { classroomId } returns testClassroomId
             }
             val students = listOf(student)
             val teacher = mockk<TeacherProfileEntity> {
@@ -244,7 +244,6 @@ class TipTokensServiceImplTest {
                 justRun { tipTokens = 5 }
                 justRun { tipTokensReplenishedAt = now }
                 every { tipTokensReplenishedAt } returns lastReplenishDateMillis
-                every { classroomId } returns testClassroomId
             }
             val students = listOf(student)
             val teacher = mockk<TeacherProfileEntity> {
@@ -282,7 +281,6 @@ class TipTokensServiceImplTest {
                 justRun { tipTokens = 5 }
                 justRun { tipTokensReplenishedAt = now }
                 every { tipTokensReplenishedAt } returns lastReplenishDateMillis
-                every { classroomId } returns testClassroomId
             }
             val students = listOf(student)
             val teacher = mockk<TeacherProfileEntity> {
