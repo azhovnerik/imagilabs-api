@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.subscription.domain
 
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
+import com.anahoret.imagilabsapi.openai.domain.OpenAiAccessService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 import org.springframework.data.repository.findByIdOrNull
@@ -78,17 +79,31 @@ class TeacherSubscriptionServiceImpl(
 
     override fun canCreateClassroom(teacherProfile: TeacherProfile): Boolean {
         val currentClassCount = classroomEntityRepository.countByTeacherId(teacherProfile.id)
-        return when (teacherProfile.subscription.plan) {
-            TeacherSubscriptionPlan.STANDARD -> currentClassCount < TeacherSubscriptionLimits.Standard.CLASSROOMS
-            TeacherSubscriptionPlan.PRO -> currentClassCount < TeacherSubscriptionLimits.Pro.CLASSROOMS
+        val maxClassrooms = when (teacherProfile.subscription.plan) {
+            TeacherSubscriptionPlan.STANDARD -> {
+                // TODO: remove check after December 15, 2025 and always return Standard.CLASSROOMS
+                val now = clock.millis()
+                if (now in OpenAiAccessService.hourOfAIRange) TeacherSubscriptionLimits.Pro.CLASSROOMS
+                else TeacherSubscriptionLimits.Standard.CLASSROOMS
+            }
+
+            TeacherSubscriptionPlan.PRO -> TeacherSubscriptionLimits.Pro.CLASSROOMS
         }
+        return currentClassCount < maxClassrooms
     }
 
     override fun studentLimitPerClassExceeded(teacherProfile: TeacherProfile, studentCountInClassroom: Long): Boolean {
-        return when (teacherProfile.subscription.plan) {
-            TeacherSubscriptionPlan.STANDARD -> studentCountInClassroom > TeacherSubscriptionLimits.Standard.STUDENTS_PER_CLASSROOM
-            TeacherSubscriptionPlan.PRO -> studentCountInClassroom > TeacherSubscriptionLimits.Pro.STUDENTS_PER_CLASSROOM
+        val maxStudents = when (teacherProfile.subscription.plan) {
+            TeacherSubscriptionPlan.STANDARD -> {
+                // TODO: remove check after December 15, 2025 and always return Standard.STUDENTS_PER_CLASSROOM
+                val now = clock.millis()
+                if (now in OpenAiAccessService.hourOfAIRange) TeacherSubscriptionLimits.Pro.STUDENTS_PER_CLASSROOM
+                else TeacherSubscriptionLimits.Standard.STUDENTS_PER_CLASSROOM
+            }
+
+            TeacherSubscriptionPlan.PRO -> TeacherSubscriptionLimits.Pro.STUDENTS_PER_CLASSROOM
         }
+        return studentCountInClassroom > maxStudents
     }
 
     override fun cancelSubscription(teacherId: UUID) {
