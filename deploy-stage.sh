@@ -1,3 +1,3 @@
 #!/bin/bash
 
-git push stage master:master
+git push stage stage:master
