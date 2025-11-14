@@ -35,6 +35,7 @@ class EdLinkOauthCallbackUseCaseTest {
     private val teacherProfileService = mockk<TeacherProfileService>()
     private val teacherSignUpUseCase = mockk<TeacherSignUpUseCase>()
     private val edLinkDistrictApi = mockk<EdLinkDistrictApi>()
+    private val edLinkRefreshTeacherClassesUseCase = mockk<EdLinkRefreshTeacherClassesUseCase>()
 
     private val useCase = EdLinkOauthCallbackUseCaseImpl(
         edLinkOAuthStateService,
@@ -44,7 +45,8 @@ class EdLinkOauthCallbackUseCaseTest {
         edLinkDistrictApi,
         studentProfileService,
         teacherProfileService,
-        teacherSignUpUseCase
+        teacherSignUpUseCase,
+        edLinkRefreshTeacherClassesUseCase
     )
 
     @Test
@@ -233,6 +235,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
+        every { edLinkRefreshTeacherClassesUseCase.refresh(newTeacher) } returns Unit.right()
 
         val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
@@ -277,6 +280,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
+        every { edLinkRefreshTeacherClassesUseCase.refresh(newTeacher) } returns Unit.right()
 
         val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 
@@ -311,6 +315,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
+        every { edLinkRefreshTeacherClassesUseCase.refresh(newTeacher) } returns Unit.right()
 
         val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
 

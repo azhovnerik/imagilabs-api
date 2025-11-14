@@ -39,6 +39,7 @@ interface StudentProfileService {
     fun completeChatOnboarding(studentId: UUID): StudentProfile?
     fun isAiChatOnboardingCompleted(studentId: UUID): Boolean
     fun getByEdLink(edLinkIntegrationId: UUID, edLinkPersonId: UUID): StudentProfile?
+    fun listByEdLinkIds(edLinkIntegrationId: UUID, edLinkPersonIds: List<UUID>): List<StudentProfile>
 }
 
 @Service
@@ -168,6 +169,14 @@ class StudentProfileServiceImpl(
         return studentProfileEntityRepository
             .findOneByEdLinkIntegrationIdAndEdLinkPersonId(edLinkIntegrationId, edLinkPersonId)
             ?.let(StudentProfile.Companion::fromEntity)
+    }
+
+    override fun listByEdLinkIds(edLinkIntegrationId: UUID, edLinkPersonIds: List<UUID>): List<StudentProfile> {
+        return studentProfileEntityRepository.findAllByEdLinkIntegrationIdAndEdLinkPersonIdIn(
+            edLinkIntegrationId,
+            edLinkPersonIds
+        )
+            .map(StudentProfile.Companion::fromEntity)
     }
 
     private fun createStudentPassword(): String {

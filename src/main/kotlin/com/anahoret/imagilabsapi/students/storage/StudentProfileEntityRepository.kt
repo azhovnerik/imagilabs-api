@@ -25,4 +25,9 @@ interface StudentProfileEntityRepository : CrudRepository<StudentProfileEntity, 
         edLinkIntegrationId: UUID,
         edLinkPersonId: UUID
     ): StudentProfileEntity?
+
+    fun findAllByEdLinkIntegrationIdAndEdLinkPersonIdIn(
+        edLinkIntegrationId: UUID,
+        edLinkPersonIds: Collection<UUID>
+    ): MutableList<StudentProfileEntity>
 }

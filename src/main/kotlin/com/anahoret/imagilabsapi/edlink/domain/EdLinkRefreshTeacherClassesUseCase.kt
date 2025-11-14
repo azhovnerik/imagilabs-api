@@ -10,9 +10,12 @@ import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.edlink.api.EdLinkClassApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkIntegrationApi
+import com.anahoret.imagilabsapi.edlink.api.model.Person
 import com.anahoret.imagilabsapi.students.domain.StudentCreateRequest
+import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -26,7 +29,8 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
     private val edLinkClassApi: EdLinkClassApi,
     private val classroomService: ClassroomService,
     private val coTeacherService: CoTeacherService,
-    private val studentProfileService: StudentProfileService
+    private val studentProfileService: StudentProfileService,
+    private val studentClassroomLinkService: StudentClassroomLinkService
 ) : EdLinkRefreshTeacherClassesUseCase {
 
     override fun refresh(teacherProfile: TeacherProfile): Either<OperationError, Unit> = either {
@@ -44,13 +48,24 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             val classroom: Classroom? = classroomService.getByEdLinkId(edLinkClass.id)
             if (classroom == null) {
                 val edLinkStudents = edLinkClassApi.listStudents(integration.accessToken, edLinkClass.id).bind()
-                // TODO: check for existing students, add to classes accordingly instead of creating new students
-                val studentCreateRequests = edLinkStudents
+                val existingStudents =
+                    studentProfileService.listByEdLinkIds(integration.id, edLinkStudents.map(Person::id))
+                val existingStudentIds = existingStudents.map(StudentProfile::id).toSet()
+                val newEdLinkStudents = edLinkStudents.filterNot { it.id in existingStudentIds }
+                val studentCreateRequests = newEdLinkStudents
                     .map { person -> StudentCreateRequest(person.displayName, integration.id, person.id) }
                 val classroomCreateRequest = ClassroomCreateRequest(edLinkClass.name, "", edLinkClass.id)
                 val newClassroom = classroomService.create(teacherProfile.id, classroomCreateRequest)
-                studentProfileService.createStudents(newClassroom.id, studentCreateRequests)
-            } else {
+                val newStudents = studentProfileService.createStudents(newClassroom.id, studentCreateRequests)
+                (existingStudents + newStudents)
+                    .map(StudentProfile::id)
+                    .let { studentIds ->
+                        studentClassroomLinkService.addStudentsToClassroom(studentIds, newClassroom.id)
+                    }
+            } else if (
+                classroom.teacherId != teacherProfile.id &&
+                !coTeacherService.isLinkedToClassroom(classroom.id, teacherProfile.id)
+            ) {
                 coTeacherService.addCoTeacherToClassroom(classroom.id, teacherProfile)
             }
         }

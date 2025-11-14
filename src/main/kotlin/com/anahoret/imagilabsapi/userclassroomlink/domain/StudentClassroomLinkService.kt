@@ -13,6 +13,7 @@ import java.util.*
 interface StudentClassroomLinkService {
     fun listClassroomsByStudent(studentId: UUID): List<Classroom>
     fun addStudentToClassroom(studentId: UUID, classroomId: UUID)
+    fun addStudentsToClassroom(studentIds: List<UUID>, classroomId: UUID)
     fun removeStudentFromClassroom(studentId: UUID, classroomId: UUID)
     fun listStudentsByClassroom(
         classroomId: UUID,
@@ -51,6 +52,16 @@ class StudentClassroomLinkServiceImpl(
         if (!studentClassroomEntityRepository.existsByStudentIdAndClassroomId(studentId, classroomId)) {
             studentClassroomEntityRepository.save(StudentClassroomEntity(studentId, classroomId))
         }
+    }
+
+    @Transactional
+    override fun addStudentsToClassroom(studentIds: List<UUID>, classroomId: UUID) {
+        val studentsAlreadyInClassroom = studentClassroomEntityRepository.findAllByClassroomId(classroomId)
+        val studentIdsToAdd = studentIds.filterNot { studentId ->
+            studentsAlreadyInClassroom.any { it.studentId == studentId }
+        }
+        studentIdsToAdd.map { StudentClassroomEntity(it, classroomId) }
+            .let { studentClassroomEntityRepository.saveAll(it) }
     }
 
     @Transactional
