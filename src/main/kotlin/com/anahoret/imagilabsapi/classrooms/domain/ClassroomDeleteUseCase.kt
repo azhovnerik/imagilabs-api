@@ -12,6 +12,7 @@ import com.anahoret.imagilabsapi.projects.domain.ProjectService
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.*
@@ -28,7 +29,8 @@ class ClassroomDeleteUseCaseImpl(
     private val projectService: ProjectService,
     private val projectClassroomShareService: ProjectClassroomShareService,
     private val studentProfileService: StudentProfileService,
-    private val lovableClassroomDeleteUseCase: LovableClassroomDeleteUseCase
+    private val lovableClassroomDeleteUseCase: LovableClassroomDeleteUseCase,
+    private val studentClassroomLinkService: StudentClassroomLinkService
 ) : ClassroomDeleteUseCase {
 
     @Transactional(rollbackOn = [Throwable::class])
@@ -41,7 +43,7 @@ class ClassroomDeleteUseCaseImpl(
 
         lovableClassroomDeleteUseCase.delete(classroomId)
 
-        val studentIds = studentProfileService.listByClassroom(classroom.id)
+        val studentIds = studentClassroomLinkService.listStudentsByClassroom(classroom.id)
             .map(StudentProfile::id)
         deleteProjects(classroomId, studentIds)
         studentProfileService.delete(studentIds)

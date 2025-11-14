@@ -1,7 +1,5 @@
 package com.anahoret.imagilabsapi.students.domain
 
-import com.anahoret.imagilabsapi.classrooms.domain.Classroom
-import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import java.util.*
 
@@ -10,24 +8,18 @@ open class StudentDetails(
     val id: UUID,
     val name: String,
     val username: String,
-    val password: String,
-    val classroomId: UUID,
-    val classroomName: String,
-    val classroomAccessCode: String
+    val password: String
 ) {
 
     companion object {
 
-        fun fromEntity(studentProfileEntity: StudentProfileEntity, classroomEntity: ClassroomEntity): StudentDetails {
+        fun fromEntity(studentProfileEntity: StudentProfileEntity): StudentDetails {
             return with(studentProfileEntity) {
                 StudentDetails(
                     id!!,
                     name,
                     username,
-                    password,
-                    classroomId,
-                    classroomEntity.name,
-                    classroomEntity.accessCode
+                    password
                 )
             }
         }
@@ -40,18 +32,16 @@ class StudentClassroomCard(
     name: String,
     username: String,
     password: String,
-    classroomId: UUID,
-    classroomName: String,
-    classroomAccessCode: String,
+    val classroomAccessCode: String,
     val sharedProjectsCount: Long,
     val draftProjectsCount: Long
-) : StudentDetails(id, name, username, password, classroomId, classroomName, classroomAccessCode) {
+) : StudentDetails(id, name, username, password) {
 
     companion object {
 
         fun fromEntity(
             studentProfileEntity: StudentProfileEntity,
-            classroom: Classroom,
+            classroomAccessCode: String,
             sharedProjectsCount: Long,
             draftProjectsCount: Long
         ): StudentClassroomCard {
@@ -61,9 +51,7 @@ class StudentClassroomCard(
                     name,
                     username,
                     password,
-                    classroomId,
-                    classroom.name,
-                    classroom.accessCode,
+                    classroomAccessCode,
                     sharedProjectsCount,
                     draftProjectsCount
                 )

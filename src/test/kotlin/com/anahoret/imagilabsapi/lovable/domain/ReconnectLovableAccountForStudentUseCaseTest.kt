@@ -21,12 +21,14 @@ import java.util.*
 
 class ReconnectLovableAccountForStudentUseCaseTest {
 
+    private val classroomId = UUID.randomUUID()
+
     private val classroomAccessService: ClassroomAccessService = mockk()
     private val classroomService: ClassroomService = mockk()
     private val connectLovableAccountToUserUseCase: ConnectLovableAccountToUserUseCase = mockk()
     private val studentProfileService: StudentProfileService = mockk()
 
-    private val useCase = ReconnectLovableAccountForStudentUseCaseImpl(
+    private val reconnectLovableAccountForStudentUseCase = ReconnectLovableAccountForStudentUseCaseImpl(
         classroomAccessService,
         classroomService,
         connectLovableAccountToUserUseCase,
@@ -38,7 +40,7 @@ class ReconnectLovableAccountForStudentUseCaseTest {
         val teacher = testTeacher()
         val student = testStudent()
         val classroom = Classroom(
-            id = student.classroomId,
+            id = classroomId,
             name = "Test Classroom",
             accessCode = "ABC123",
             studentsCount = 1L,
@@ -51,16 +53,16 @@ class ReconnectLovableAccountForStudentUseCaseTest {
         val expectedAccount = LovableAccount(student.id, "s1", "student1", "student1@example.com", "password123")
 
         every { studentProfileService.getStudentById(student.id) } returns student
-        every { classroomService.getById(student.classroomId) } returns classroom
+        every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns true
         every { connectLovableAccountToUserUseCase.connect(student) } returns Either.Right(expectedAccount)
 
-        val result = useCase.reconnect(teacher, student.id)
+        val result = reconnectLovableAccountForStudentUseCase.reconnect(teacher, student.id, classroomId)
 
         assertTrue(result.isRight())
         assertEquals(expectedAccount, result.getOrNull())
         verify { studentProfileService.getStudentById(student.id) }
-        verify { classroomService.getById(student.classroomId) }
+        verify { classroomService.getById(classroomId) }
         verify { classroomAccessService.canUpdateClassroom(teacher, classroom) }
         verify { connectLovableAccountToUserUseCase.connect(student) }
     }
@@ -72,7 +74,7 @@ class ReconnectLovableAccountForStudentUseCaseTest {
 
         every { studentProfileService.getStudentById(studentId) } returns null
 
-        val result = useCase.reconnect(teacher, studentId)
+        val result = reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId, classroomId)
 
         assertTrue(result.isLeft())
         assertTrue(result.leftOrNull() is NotFoundError)
@@ -86,15 +88,15 @@ class ReconnectLovableAccountForStudentUseCaseTest {
         val student = testStudent()
 
         every { studentProfileService.getStudentById(student.id) } returns student
-        every { classroomService.getById(student.classroomId) } returns null
+        every { classroomService.getById(classroomId) } returns null
 
-        val result = useCase.reconnect(teacher, student.id)
+        val result = reconnectLovableAccountForStudentUseCase.reconnect(teacher, student.id, classroomId)
 
         assertTrue(result.isLeft())
         assertTrue(result.leftOrNull() is NotFoundError)
         assertEquals("CLASSROOM_NOT_FOUND", (result.leftOrNull() as NotFoundError).message)
         verify { studentProfileService.getStudentById(student.id) }
-        verify { classroomService.getById(student.classroomId) }
+        verify { classroomService.getById(classroomId) }
     }
 
     @Test
@@ -102,7 +104,7 @@ class ReconnectLovableAccountForStudentUseCaseTest {
         val teacher = testTeacher()
         val student = testStudent()
         val classroom = Classroom(
-            id = student.classroomId,
+            id = classroomId,
             name = "Test Classroom",
             accessCode = "ABC123",
             studentsCount = 1L,
@@ -114,16 +116,16 @@ class ReconnectLovableAccountForStudentUseCaseTest {
         )
 
         every { studentProfileService.getStudentById(student.id) } returns student
-        every { classroomService.getById(student.classroomId) } returns classroom
+        every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns false
 
-        val result = useCase.reconnect(teacher, student.id)
+        val result = reconnectLovableAccountForStudentUseCase.reconnect(teacher, student.id, classroomId)
 
         assertTrue(result.isLeft())
         assertTrue(result.leftOrNull() is AccessDeniedError)
         assertEquals("ACCESS_TO_CLASSROOM_DENIED", (result.leftOrNull() as AccessDeniedError).message)
         verify { studentProfileService.getStudentById(student.id) }
-        verify { classroomService.getById(student.classroomId) }
+        verify { classroomService.getById(classroomId) }
         verify { classroomAccessService.canUpdateClassroom(teacher, classroom) }
     }
 
@@ -132,7 +134,7 @@ class ReconnectLovableAccountForStudentUseCaseTest {
         val teacher = testTeacher()
         val student = testStudent()
         val classroom = Classroom(
-            id = student.classroomId,
+            id = classroomId,
             name = "Test Classroom",
             accessCode = "ABC123",
             studentsCount = 1L,
@@ -144,9 +146,9 @@ class ReconnectLovableAccountForStudentUseCaseTest {
         )
 
         every { studentProfileService.getStudentById(student.id) } returns student
-        every { classroomService.getById(student.classroomId) } returns classroom
+        every { classroomService.getById(classroomId) } returns classroom
 
-        val result = useCase.reconnect(teacher, student.id)
+        val result = reconnectLovableAccountForStudentUseCase.reconnect(teacher, student.id, classroomId)
 
         assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)
     }
@@ -156,7 +158,7 @@ class ReconnectLovableAccountForStudentUseCaseTest {
         val teacher = testTeacher()
         val student = testStudent()
         val classroom = Classroom(
-            id = student.classroomId,
+            id = classroomId,
             name = "Test Classroom",
             accessCode = "ABC123",
             studentsCount = 1L,
@@ -169,16 +171,16 @@ class ReconnectLovableAccountForStudentUseCaseTest {
         val expectedError = OutOfLovableAccountsError()
 
         every { studentProfileService.getStudentById(student.id) } returns student
-        every { classroomService.getById(student.classroomId) } returns classroom
+        every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns true
         every { connectLovableAccountToUserUseCase.connect(student) } returns Either.Left(expectedError)
 
-        val result = useCase.reconnect(teacher, student.id)
+        val result = reconnectLovableAccountForStudentUseCase.reconnect(teacher, student.id, classroomId)
 
         assertTrue(result.isLeft())
         assertEquals(expectedError, result.leftOrNull())
         verify { studentProfileService.getStudentById(student.id) }
-        verify { classroomService.getById(student.classroomId) }
+        verify { classroomService.getById(classroomId) }
         verify { classroomAccessService.canUpdateClassroom(teacher, classroom) }
         verify { connectLovableAccountToUserUseCase.connect(student) }
     }
@@ -188,7 +190,7 @@ class ReconnectLovableAccountForStudentUseCaseTest {
         val teacher = testTeacher()
         val student = testStudent()
         val classroom = Classroom(
-            id = student.classroomId,
+            id = classroomId,
             name = "Test Classroom",
             accessCode = "ABC123",
             studentsCount = 1L,
@@ -201,16 +203,16 @@ class ReconnectLovableAccountForStudentUseCaseTest {
         val expectedError = MaxNumberOfConnectedAccountsExceededError()
 
         every { studentProfileService.getStudentById(student.id) } returns student
-        every { classroomService.getById(student.classroomId) } returns classroom
+        every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns true
         every { connectLovableAccountToUserUseCase.connect(student) } returns Either.Left(expectedError)
 
-        val result = useCase.reconnect(teacher, student.id)
+        val result = reconnectLovableAccountForStudentUseCase.reconnect(teacher, student.id, classroomId)
 
         assertTrue(result.isLeft())
         assertEquals(expectedError, result.leftOrNull())
         verify { studentProfileService.getStudentById(student.id) }
-        verify { classroomService.getById(student.classroomId) }
+        verify { classroomService.getById(classroomId) }
         verify { classroomAccessService.canUpdateClassroom(teacher, classroom) }
         verify { connectLovableAccountToUserUseCase.connect(student) }
     }

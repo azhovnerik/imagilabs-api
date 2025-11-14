@@ -3,7 +3,6 @@ package com.anahoret.imagilabsapi.userclassroomlink.domain
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
-import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.stereotype.Service
 import java.util.*
@@ -17,6 +16,7 @@ interface UserClassroomLinkService {
 @Service
 class UserClassroomLinkServiceImpl(
     private val classroomService: ClassroomService,
+    private val studentClassroomLinkService: StudentClassroomLinkService,
 ) : UserClassroomLinkService {
 
     override fun isLinkedToClassroom(userProfile: UserProfile, classroomId: UUID): Boolean {
@@ -36,7 +36,8 @@ class UserClassroomLinkServiceImpl(
     }
 
     private fun isStudentLinkedToClassroom(userProfile: UserProfile, classroomId: UUID): Boolean {
-        return userProfile is StudentProfile && userProfile.classroomId == classroomId
+        return studentClassroomLinkService.listClassroomIdsByStudent(userProfile.id)
+            .contains(classroomId)
     }
 
 }

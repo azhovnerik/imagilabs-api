@@ -24,7 +24,7 @@ interface RequestAuthenticatorService {
         studentId: UUID,
         response: HttpServletResponse,
         mobileAppClient: Boolean,
-        currentClassroomId: UUID
+        currentClassroomId: UUID? = null
     ): StudentAuthenticationSuccess
 
     fun authenticateTeacher(
@@ -60,14 +60,14 @@ class RequestAuthenticatorServiceImpl(
         studentId: UUID,
         response: HttpServletResponse,
         mobileAppClient: Boolean,
-        currentClassroomId: UUID
+        currentClassroomId: UUID?
     ): StudentAuthenticationSuccess {
         val tokenTTL = getTokenTTL(mobileAppClient)
         val jwtTokenData = jwtTokenUtil.createToken(studentId, UserType.STUDENT, tokenTTL)
         setAuthCookie(jwtTokenData.token, response)
         val profile = studentProfileService.getStudentById(studentId)?.let(::StudentUserProfileData)
-        val userData = StudentUserData(studentId, UserType.STUDENT.name, profile, currentClassroomId)
-        return StudentAuthenticationSuccess(userData, jwtTokenData)
+        val userData = StudentUserData(studentId, UserType.STUDENT.name, profile)
+        return StudentAuthenticationSuccess(userData, jwtTokenData, currentClassroomId)
     }
 
     override fun authenticateTeacher(

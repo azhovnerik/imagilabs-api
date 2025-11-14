@@ -69,7 +69,7 @@ class RequestAuthenticatorServiceImplTest {
         assertNotNull(result)
         assertEquals(studentId, result.currentUser.id)
         assertEquals(UserType.STUDENT.name, result.currentUser.userType)
-        assertEquals(classroomId, result.currentUser.currentClassroomId)
+        assertEquals(classroomId, result.currentClassroomId)
 
         val cookie = cookieSlot.captured
         assertTrue(cookie.contains("Authorization="))
@@ -112,7 +112,7 @@ class RequestAuthenticatorServiceImplTest {
         assertNotNull(result)
         assertEquals(studentId, result.currentUser.id)
         assertEquals(UserType.STUDENT.name, result.currentUser.userType)
-        assertEquals(classroomId, result.currentUser.currentClassroomId)
+        assertEquals(classroomId, result.currentClassroomId)
 
         val cookie = cookieSlot.captured
         assertTrue(cookie.contains("Authorization="))

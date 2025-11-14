@@ -5,6 +5,7 @@ import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionData
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.users.UserType
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.*
 
 @Suppress("unused")
@@ -18,7 +19,9 @@ class TeacherProfile(
     val createdAt: Long,
     val emailVerified: Boolean,
     val marketingEmailSubscribed: Boolean,
-    val subscription: TeacherSubscription
+    val subscription: TeacherSubscription,
+    @field:JsonIgnore val edLinkIntegrationId: UUID? = null,
+    @field:JsonIgnore val edLinkPersonId: UUID? = null
 ) : UserProfile, TeacherSubscriptionData by subscription {
 
     override val userType = UserType.TEACHER
@@ -38,7 +41,9 @@ class TeacherProfile(
                     createdAt ?: 0,
                     emailVerified,
                     marketingEmailSubscribed,
-                    subscription
+                    subscription,
+                    edLinkIntegrationId = edLinkIntegrationId,
+                    edLinkPersonId = edLinkPersonId
                 )
             }
         }

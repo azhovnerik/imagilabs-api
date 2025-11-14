@@ -15,7 +15,7 @@ class GetLovableAccountForUserUseCaseImplTest {
 
     private val lovableAccountService: LovableAccountService = mockk()
     private val lovableClassroomService = mockk<LovableClassroomService>()
-    private val useCase: GetLovableAccountForUserUseCase =
+    private val getLovableAccountForUserUseCase: GetLovableAccountForUserUseCase =
         GetLovableAccountForUserUseCaseImpl(lovableAccountService, lovableClassroomService)
 
     @Test
@@ -24,7 +24,7 @@ class GetLovableAccountForUserUseCaseImplTest {
         val account = LovableAccount(UUID.randomUUID(), "s", "u", "x@y.com", "pass")
         every { lovableAccountService.getActive(teacher) } returns account
 
-        val result = useCase.get(teacher)
+        val result = getLovableAccountForUserUseCase.get(teacher)
 
         assertSame(account, result)
         verify { lovableAccountService.getActive(teacher) }
@@ -35,7 +35,7 @@ class GetLovableAccountForUserUseCaseImplTest {
         val teacher = testTeacher()
         every { lovableAccountService.getActive(teacher) } returns null
 
-        val result = useCase.get(teacher)
+        val result = getLovableAccountForUserUseCase.get(teacher)
 
         assertNull(result)
         verify { lovableAccountService.getActive(teacher) }
@@ -44,7 +44,7 @@ class GetLovableAccountForUserUseCaseImplTest {
     @Test
     fun `get returns null for student when integration is not enabled for classroom`() {
         val classroomId = UUID.randomUUID()
-        val student = testStudent(classroomId)
+        val student = testStudent()
 
         every { lovableAccountService.getActive(student) } returns mockk()
         every { lovableClassroomService.getIntegrationForClassroom(classroomId) } returns mockk {
@@ -52,7 +52,7 @@ class GetLovableAccountForUserUseCaseImplTest {
             every { lovableIntegrationPaused } returns false
         }
 
-        val result = useCase.get(student)
+        val result = getLovableAccountForUserUseCase.get(student, classroomId)
 
         assertNull(result)
         verify(inverse = true) { lovableAccountService.getActive(student) }
@@ -62,7 +62,7 @@ class GetLovableAccountForUserUseCaseImplTest {
     @Test
     fun `get returns null for student when integration is paused for classroom`() {
         val classroomId = UUID.randomUUID()
-        val student = testStudent(classroomId)
+        val student = testStudent()
 
         every { lovableAccountService.getActive(student) } returns mockk()
         every { lovableClassroomService.getIntegrationForClassroom(classroomId) } returns mockk {
@@ -70,7 +70,7 @@ class GetLovableAccountForUserUseCaseImplTest {
             every { lovableIntegrationPaused } returns true
         }
 
-        val result = useCase.get(student)
+        val result = getLovableAccountForUserUseCase.get(student, classroomId)
 
         assertNull(result)
         verify(inverse = true) { lovableAccountService.getActive(student) }
@@ -80,7 +80,7 @@ class GetLovableAccountForUserUseCaseImplTest {
     @Test
     fun `get returns profile for student when integration enabled and not paused for classroom`() {
         val classroomId = UUID.randomUUID()
-        val student = testStudent(classroomId)
+        val student = testStudent()
 
         every { lovableAccountService.getActive(student) } returns mockk()
         every { lovableClassroomService.getIntegrationForClassroom(classroomId) } returns mockk {
@@ -88,7 +88,7 @@ class GetLovableAccountForUserUseCaseImplTest {
             every { lovableIntegrationPaused } returns false
         }
 
-        val result = useCase.get(student)
+        val result = getLovableAccountForUserUseCase.get(student, classroomId)
 
         assertNotNull(result)
         verify { lovableAccountService.getActive(student) }

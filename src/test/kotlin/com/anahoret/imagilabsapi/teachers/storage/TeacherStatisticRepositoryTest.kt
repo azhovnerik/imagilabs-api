@@ -15,6 +15,8 @@ import com.anahoret.imagilabsapi.projects.storage.ProjectEntityRepository
 import com.anahoret.imagilabsapi.spring.ImagiLabsDatabaseTest
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntityRepository
+import com.anahoret.imagilabsapi.userclassroomlink.storage.StudentClassroomEntity
+import com.anahoret.imagilabsapi.userclassroomlink.storage.StudentClassroomEntityRepository
 import com.anahoret.imagilabsapi.users.UserType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -48,6 +50,9 @@ class TeacherStatisticRepositoryTest {
     @Autowired
     lateinit var coTeacherRepository: CoTeacherRepository
 
+    @Autowired
+    lateinit var studentClassroomEntityRepository: StudentClassroomEntityRepository
+
     lateinit var teacherId: UUID
     lateinit var coTeacherId: UUID
     lateinit var classroomId: UUID
@@ -60,6 +65,7 @@ class TeacherStatisticRepositoryTest {
         setupClassroom()
         setupCoTeacher()
         setupStudents()
+        setupStudentClassrooms()
         setupProjects()
         setupProjectShared()
     }
@@ -125,14 +131,13 @@ class TeacherStatisticRepositoryTest {
     }
 
     fun setupStudents() {
-        val testStudent = testStudent(classroomId)
+        val testStudent = testStudent()
         studentIds = studentProfileRepository.saveAll(
             listOf(
                 StudentProfileEntity(
                     name = testStudent.name,
                     username = "student 1",
                     password = "",
-                    classroomId = classroomId,
                     tipTokens = 1,
                     tipTokensReplenishedAt = 0
                 ),
@@ -140,12 +145,16 @@ class TeacherStatisticRepositoryTest {
                     name = testStudent.name,
                     username = "student 2",
                     password = "",
-                    classroomId = classroomId,
                     tipTokens = 1,
                     tipTokensReplenishedAt = 0
                 )
             )
         ).map { it.id!! }
+    }
+
+    fun setupStudentClassrooms() {
+        val entities = studentIds.map { StudentClassroomEntity(it, classroomId) }
+        studentClassroomEntityRepository.saveAll(entities)
     }
 
     fun setupProjects() {

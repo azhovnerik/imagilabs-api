@@ -40,8 +40,11 @@ class LovableController(
 
     @GetMapping("/user/profile")
     @Secured(UserRole.TEACHER, UserRole.STUDENT)
-    fun getLovableAccount(@AuthenticationPrincipal user: UserProfile): ResponseEntity<ResponseDto<LovableAccount>> {
-        return getLovableAccountForUserUseCase.get(user)
+    fun getLovableAccount(
+        @AuthenticationPrincipal user: UserProfile,
+        @RequestParam(required = false) classroomId: UUID?
+    ): ResponseEntity<ResponseDto<LovableAccount>> {
+        return getLovableAccountForUserUseCase.get(user, classroomId)
             ?.let { ResponseEntity.ok(SuccessResponseDto(it)) }
             ?: ResponseEntity.notFound().build()
     }
@@ -58,13 +61,14 @@ class LovableController(
         }
     }
 
-    @PostMapping("/student/{studentId}")
+    @PostMapping("/classroom/{classroomId}/student/{studentId}")
     @Secured(UserRole.TEACHER)
     fun reconnectLovableAccountForStudent(
         @AuthenticationPrincipal teacher: TeacherProfile,
-        @PathVariable studentId: UUID
+        @PathVariable studentId: UUID,
+        @PathVariable classroomId: UUID
     ): ResponseEntity<ResponseDto<LovableAccount>> {
-        return when (val result = reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId)) {
+        return when (val result = reconnectLovableAccountForStudentUseCase.reconnect(teacher, studentId, classroomId)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }

@@ -23,8 +23,7 @@ class TeacherUserData(
 class StudentUserData(
     id: UUID,
     userType: String,
-    val profile: StudentUserProfileData?,
-    val currentClassroomId: UUID
+    val profile: StudentUserProfileData?
 ) : UserData(id, userType)
 
 class AdminUserData(
@@ -45,7 +44,11 @@ class TeacherAuthenticationSuccess(val currentUser: TeacherUserData, jwtToken: J
     AuthenticationSuccess(jwtToken)
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class StudentAuthenticationSuccess(val currentUser: StudentUserData, jwtToken: JwtTokenData) :
+class StudentAuthenticationSuccess(
+    val currentUser: StudentUserData,
+    jwtToken: JwtTokenData,
+    val currentClassroomId: UUID? = null
+) :
     AuthenticationSuccess(jwtToken)
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

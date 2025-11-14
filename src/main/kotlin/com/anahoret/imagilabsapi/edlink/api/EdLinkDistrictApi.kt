@@ -7,11 +7,11 @@ import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.edlink.api.model.District
 import com.anahoret.imagilabsapi.edlink.api.model.EdLinkResponseSingle
-import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpHeaders
 import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.exchange
 import java.util.*
 
 interface EdLinkDistrictApi {
@@ -29,7 +29,7 @@ class EdLinkDistrictApiImpl(
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .build()
         return edLinkRestTemplate
-            .exchange(request, object : ParameterizedTypeReference<EdLinkResponseSingle<District>>() {})
+            .exchange<EdLinkResponseSingle<District>>(request)
             .takeIf { it.statusCode.is2xxSuccessful }
             ?.body
             ?.data

@@ -9,37 +9,27 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
-import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
 
 class GetLovableCredentialsForClassroomUseCaseImplTest {
 
-    private lateinit var classroomAccessService: ClassroomAccessService
-    private lateinit var classroomService: ClassroomService
-    private lateinit var lovableAccountService: LovableAccountService
-    private lateinit var studentProfileService: StudentProfileService
-    private lateinit var useCase: GetLovableCredentialsForClassroomUseCase
-
-    @BeforeEach
-    fun setUp() {
-        classroomAccessService = mockk()
-        classroomService = mockk()
-        lovableAccountService = mockk()
-        studentProfileService = mockk()
-        useCase = GetLovableCredentialsForClassroomUseCaseImpl(
-            classroomAccessService,
-            classroomService,
-            lovableAccountService,
-            studentProfileService
-        )
-    }
+    private val classroomAccessService = mockk<ClassroomAccessService>()
+    private val classroomService = mockk<ClassroomService>()
+    private val lovableAccountService = mockk<LovableAccountService>()
+    private val studentClassroomLinkService = mockk<StudentClassroomLinkService>()
+    private val getLovableCredentialsForClassroomUseCase = GetLovableCredentialsForClassroomUseCaseImpl(
+        classroomAccessService,
+        classroomService,
+        lovableAccountService,
+        studentClassroomLinkService
+    )
 
     @Test
     fun `returns NotFound when classroom missing`() {
@@ -47,7 +37,7 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
         val classroomId = UUID.randomUUID()
         every { classroomService.getById(classroomId) } returns null
 
-        val result = useCase.getCredentials(teacher, classroomId)
+        val result = getLovableCredentialsForClassroomUseCase.getCredentials(teacher, classroomId)
 
         assertTrue(result is Either.Left)
         assertTrue((result as Either.Left).value is com.anahoret.imagilabsapi.common.domain.error.NotFoundError)
@@ -71,7 +61,7 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns false
 
-        val result = useCase.getCredentials(teacher, classroomId)
+        val result = getLovableCredentialsForClassroomUseCase.getCredentials(teacher, classroomId)
 
         assertTrue(result is Either.Left)
         assertTrue((result as Either.Left).value is AccessDeniedError)
@@ -94,7 +84,7 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
         )
         every { classroomService.getById(classroomId) } returns classroom
 
-        val result = useCase.getCredentials(teacher, classroomId)
+        val result = getLovableCredentialsForClassroomUseCase.getCredentials(teacher, classroomId)
 
         assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)
     }
@@ -114,13 +104,13 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
             blocked = false,
             ClassroomPermissions(true)
         )
-        val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L, classroomId)
-        val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L, classroomId)
+        val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L)
+        val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L)
         val a1 = LovableAccount(s1.id, "s1", "u1", "e1@x.com", "p1")
         val a2 = LovableAccount(s2.id, "s2", "u2", "e2@x.com", "p2")
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns true
-        every { studentProfileService.listByClassroom(classroomId) } returns listOf(s1, s2)
+        every { studentClassroomLinkService.listStudentsByClassroom(classroomId) } returns listOf(s1, s2)
         every {
             lovableAccountService.getByConnectedUsers(match {
                 it.containsAll(
@@ -132,7 +122,7 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
             })
         } returns listOf(a1, a2)
 
-        val result = useCase.getCredentials(teacher, classroomId)
+        val result = getLovableCredentialsForClassroomUseCase.getCredentials(teacher, classroomId)
 
         assertTrue(result is Either.Right)
         val accounts = (result as Either.Right).value

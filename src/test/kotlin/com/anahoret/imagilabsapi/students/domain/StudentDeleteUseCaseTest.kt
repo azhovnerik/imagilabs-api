@@ -8,6 +8,7 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -21,13 +22,14 @@ class StudentDeleteUseCaseTest {
     private val projectService = mockk<ProjectService>()
     private val projectClassroomShareService = mockk<ProjectClassroomShareService>()
     private val classroomService = mockk<ClassroomService>()
+    private val studentClassroomLinkService = mockk<StudentClassroomLinkService>()
 
     private val useCase = StudentDeleteUseCaseImpl(
         studentAccessService,
         studentProfileService,
         projectService,
         projectClassroomShareService,
-        classroomService
+        studentClassroomLinkService
     )
 
     @Test
@@ -35,7 +37,7 @@ class StudentDeleteUseCaseTest {
         val teacher = testTeacher()
         val studentId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
-        val student = StudentProfile(studentId, "n", "u", 0, classroomId)
+        val student = StudentProfile(studentId, "n", "u", 0)
 
         every { studentProfileService.getStudentById(studentId) } returns student
         every { classroomService.getById(classroomId) } returns Classroom(
@@ -48,6 +50,11 @@ class StudentDeleteUseCaseTest {
             teachersCount = 1,
             blocked = true,
             ClassroomPermissions(true)
+        )
+        every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(
+            mockk {
+                every { blocked } returns true
+            }
         )
 
         val result = useCase.delete(teacher, studentId)

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 interface ReconnectLovableAccountForStudentUseCase {
-    fun reconnect(userProfile: UserProfile, studentId: UUID): Either<OperationError, LovableAccount>
+    fun reconnect(userProfile: UserProfile, studentId: UUID, classroomId: UUID): Either<OperationError, LovableAccount>
 }
 
 @Service
@@ -24,11 +24,15 @@ class ReconnectLovableAccountForStudentUseCaseImpl(
     private val studentProfileService: StudentProfileService
 ) : ReconnectLovableAccountForStudentUseCase {
 
-    override fun reconnect(userProfile: UserProfile, studentId: UUID): Either<OperationError, LovableAccount> {
+    override fun reconnect(
+        userProfile: UserProfile,
+        studentId: UUID,
+        classroomId: UUID
+    ): Either<OperationError, LovableAccount> {
         val student = studentProfileService.getStudentById(studentId)
             ?: return NotFoundError("STUDENT_NOT_FOUND").left()
 
-        val classroom = classroomService.getById(student.classroomId)
+        val classroom = classroomService.getById(classroomId)
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
         if (classroom.blocked)

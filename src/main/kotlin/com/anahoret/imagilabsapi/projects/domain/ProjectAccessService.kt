@@ -5,9 +5,9 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShare
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
-import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import com.anahoret.imagilabsapi.users.UserType
 import org.springframework.stereotype.Service
 import java.util.*
@@ -31,6 +31,7 @@ class ProjectAccessServiceImpl(
     private val classroomService: ClassroomService,
     private val studentProfileService: StudentProfileService,
     private val coTeacherService: CoTeacherService,
+    private val studentClassroomLinkService: StudentClassroomLinkService
 ) : ProjectAccessService {
 
     override fun canEdit(userProfile: UserProfile, project: Project, classroomId: UUID?): Boolean {
@@ -74,8 +75,10 @@ class ProjectAccessServiceImpl(
     private fun userIsTeacherOfOwnerStudent(userProfile: UserProfile, ownerId: UUID): Boolean {
         return userProfile is TeacherProfile && studentProfileService.getStudentById(ownerId)
             ?.let { studentProfile ->
-                val teacherClassroomIds = classroomService.listIdsByTeacher(userProfile.id)
-                studentProfile.classroomId in teacherClassroomIds
+                val teacherClassroomIds = classroomService.listIdsByTeacher(userProfile.id).toSet()
+                val studentClassroomIds =
+                    studentClassroomLinkService.listClassroomIdsByStudent(studentProfile.id).toSet()
+                teacherClassroomIds.intersect(studentClassroomIds).isNotEmpty()
             } ?: false
     }
 
@@ -106,17 +109,17 @@ class ProjectAccessServiceImpl(
     private fun hasSharedAccess(userProfile: UserProfile, project: Project): Boolean {
         return when (userProfile.userType) {
             UserType.TEACHER -> {
-                val teacherClassroomsIds = classroomService.listIdsByTeacher(userProfile.id)
-                val studentOwnerClassroomId = studentProfileService.getStudentById(project.ownerId)?.classroomId
-                return studentOwnerClassroomId in teacherClassroomsIds
+                val teacherClassroomsIds = classroomService.listIdsByTeacher(userProfile.id).toSet()
+                val studentClassroomIds = studentClassroomLinkService.listClassroomIdsByStudent(project.ownerId).toSet()
+                return teacherClassroomsIds.intersect(studentClassroomIds).isNotEmpty()
             }
 
             UserType.STUDENT -> {
                 val projectSharedInClassroomsIds = projectClassroomShareService.getShares(project.id)
                     .map(ProjectClassroomShare::classroomId)
                     .toSet()
-                val studentClassroomId = (userProfile as StudentProfile).classroomId
-                return studentClassroomId in projectSharedInClassroomsIds
+                val studentClassroomIds = studentClassroomLinkService.listClassroomIdsByStudent(project.ownerId).toSet()
+                return projectSharedInClassroomsIds.intersect(studentClassroomIds).isNotEmpty()
             }
 
             else -> false

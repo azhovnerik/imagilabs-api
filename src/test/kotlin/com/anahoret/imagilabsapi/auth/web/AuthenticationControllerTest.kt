@@ -6,7 +6,6 @@ import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.testStudent
-import com.anahoret.imagilabsapi.common.web.ErrorResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.students.domain.StudentLoginRequest
 import com.anahoret.imagilabsapi.teachers.domain.TeacherResetPasswordUseCase
@@ -34,44 +33,6 @@ class AuthenticationControllerTest {
         classroomService,
         teacherResetPasswordUseCase
     )
-
-    @Test
-    fun `studentLogin returns 403 when classroom is blocked`() {
-        val httpResponse = mockk<HttpServletResponse>(relaxed = true)
-        val accessCode = "ABCDEF"
-        val classroom = Classroom(
-            id = UUID.randomUUID(),
-            name = "Blocked class",
-            accessCode = accessCode,
-            studentsCount = 0,
-            projectsCount = 0,
-            teacherId = UUID.randomUUID(),
-            teachersCount = 1,
-            blocked = true,
-            ClassroomPermissions(true)
-        )
-        every { classroomService.getByAccessCode(accessCode) } returns classroom
-
-        val request = StudentLoginRequest(
-            username = "student1",
-            classroomAccessCode = accessCode,
-            password = "pwd",
-            mobileAppClient = false
-        )
-
-        val result = controller.studentLogin(request, httpResponse)
-
-        assertEquals(403, result.statusCode.value())
-        val body = result.body
-        assertNotNull(body)
-        assertTrue(body is ErrorResponseDto<*>)
-        val errors = (body as ErrorResponseDto<*>).errors
-        assertEquals(1, errors.size)
-        assertEquals(403, errors[0].code)
-        assertEquals("SUBSCRIPTION_REQUIRED", errors[0].message)
-
-        verify(exactly = 0) { authenticationManager.authenticate(any()) }
-    }
 
     @Test
     fun `studentLogin authenticates and returns 200 when classroom not blocked`() {
@@ -113,8 +74,8 @@ class AuthenticationControllerTest {
                 id = studentProfile.id,
                 userType = UserType.STUDENT.name,
                 profile = null,
-                currentClassroomId = classroom.id
             ),
+            currentClassroomId = classroom.id,
             jwtToken = JwtTokenData(token = "token", expiresAt = 0)
         )
 

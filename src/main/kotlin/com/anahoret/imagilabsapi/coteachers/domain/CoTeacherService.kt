@@ -4,6 +4,7 @@ import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole.CO_TEACHER
 import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole.CO_TEACHER_PENDING
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherEntity
 import com.anahoret.imagilabsapi.coteachers.storage.CoTeacherRepository
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
@@ -13,6 +14,7 @@ interface CoTeacherService {
     fun createCoTeacher(classroomId: UUID, teacherEmail: String, teacherId: UUID?): CoTeacher
     fun acceptInvitation(coTeacherId: UUID, teacherId: UUID)
     fun acceptInvitation(coTeacherId: UUID)
+    fun addCoTeacherToClassroom(classroomId: UUID, teacherProfile: TeacherProfile)
     fun getCoTeacher(coTeacherId: UUID): CoTeacher?
     fun getClassroomIdListByTeacherId(teacherId: UUID): List<UUID>
     fun isLinkedToClassroom(classroomId: UUID, teacherId: UUID): Boolean
@@ -59,6 +61,10 @@ class CoTeacherServiceImpl(
                 it.coTeacherStatus = CO_TEACHER
                 coTeacherRepository.save(it)
             }
+    }
+
+    override fun addCoTeacherToClassroom(classroomId: UUID, teacherProfile: TeacherProfile) {
+        coTeacherRepository.save(CoTeacherEntity(classroomId, teacherProfile.email, teacherProfile.id, CO_TEACHER))
     }
 
     override fun getClassroomIdListByTeacherId(teacherId: UUID): List<UUID> {

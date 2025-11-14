@@ -10,8 +10,7 @@ class StudentProfile(
     override val id: UUID,
     val name: String,
     val username: String,
-    val createdAt: Long,
-    val classroomId: UUID
+    val createdAt: Long
 ) : UserProfile {
 
     override val userType = UserType.STUDENT
@@ -21,7 +20,7 @@ class StudentProfile(
 
         fun fromEntity(studentProfileEntity: StudentProfileEntity): StudentProfile {
             return with(studentProfileEntity) {
-                StudentProfile(id!!, name, username, createdAt ?: 0, classroomId)
+                StudentProfile(id!!, name, username, createdAt ?: 0)
             }
         }
     }

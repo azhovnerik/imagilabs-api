@@ -4,12 +4,12 @@ import arrow.core.Either
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -22,22 +22,22 @@ import java.util.*
 class GetLovableAccountForStudentUseCaseImplTest {
 
     private lateinit var classroomAccessService: ClassroomAccessService
-    private lateinit var classroomService: ClassroomService
     private lateinit var lovableAccountService: LovableAccountService
     private lateinit var studentProfileService: StudentProfileService
-    private lateinit var useCase: GetLovableAccountForStudentUseCase
+    private lateinit var getLovableAccountForStudentUseCase: GetLovableAccountForStudentUseCase
+    lateinit var studentClassroomLinkService: StudentClassroomLinkService
 
     @BeforeEach
     fun setUp() {
         classroomAccessService = mockk()
-        classroomService = mockk()
         lovableAccountService = mockk()
         studentProfileService = mockk()
-        useCase = GetLovableAccountForStudentUseCaseImpl(
+        studentClassroomLinkService = mockk()
+        getLovableAccountForStudentUseCase = GetLovableAccountForStudentUseCaseImpl(
             classroomAccessService,
-            classroomService,
             lovableAccountService,
-            studentProfileService
+            studentProfileService,
+            studentClassroomLinkService
         )
     }
 
@@ -47,7 +47,7 @@ class GetLovableAccountForStudentUseCaseImplTest {
         val studentId = UUID.randomUUID()
         every { studentProfileService.getStudentById(studentId) } returns null
 
-        val result = useCase.get(teacher, studentId)
+        val result = getLovableAccountForStudentUseCase.get(teacher, studentId)
 
         assertTrue(result is Either.Left)
         val error = (result as Either.Left).value
@@ -59,13 +59,12 @@ class GetLovableAccountForStudentUseCaseImplTest {
     fun `returns NotFound when student's classroom does not exist`() {
         val teacher = testTeacher()
         val studentId = UUID.randomUUID()
-        val classroomId = UUID.randomUUID()
-        val student = StudentProfile(studentId, "Student Name", "student1", 123L, classroomId)
+        val student = StudentProfile(studentId, "Student Name", "student1", 123L)
 
         every { studentProfileService.getStudentById(studentId) } returns student
-        every { classroomService.getById(classroomId) } returns null
+        every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf()
 
-        val result = useCase.get(teacher, studentId)
+        val result = getLovableAccountForStudentUseCase.get(teacher, studentId)
 
         assertTrue(result is Either.Left)
         val error = (result as Either.Left).value
@@ -78,7 +77,7 @@ class GetLovableAccountForStudentUseCaseImplTest {
         val teacher = testTeacher()
         val studentId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
-        val student = StudentProfile(studentId, "Student Name", "student1", 123L, classroomId)
+        val student = StudentProfile(studentId, "Student Name", "student1", 123L)
         val classroom = Classroom(
             classroomId,
             "Test Classroom",
@@ -92,10 +91,10 @@ class GetLovableAccountForStudentUseCaseImplTest {
         )
 
         every { studentProfileService.getStudentById(studentId) } returns student
-        every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns false
+        every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(classroom)
 
-        val result = useCase.get(teacher, studentId)
+        val result = getLovableAccountForStudentUseCase.get(teacher, studentId)
 
         assertTrue(result is Either.Left)
         val error = (result as Either.Left).value
@@ -108,7 +107,7 @@ class GetLovableAccountForStudentUseCaseImplTest {
         val teacher = testTeacher()
         val studentId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
-        val student = StudentProfile(studentId, "Student Name", "student1", 123L, classroomId)
+        val student = StudentProfile(studentId, "Student Name", "student1", 123L)
         val classroom = Classroom(
             classroomId,
             "Test Classroom",
@@ -123,11 +122,11 @@ class GetLovableAccountForStudentUseCaseImplTest {
         val lovableAccount = LovableAccount(studentId, "s1", "student1", "student1@example.com", "password123")
 
         every { studentProfileService.getStudentById(studentId) } returns student
-        every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns true
         every { lovableAccountService.getActive(student) } returns lovableAccount
+        every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(classroom)
 
-        val result = useCase.get(teacher, studentId)
+        val result = getLovableAccountForStudentUseCase.get(teacher, studentId)
 
         assertTrue(result is Either.Right)
         val account = (result as Either.Right).value
@@ -140,7 +139,7 @@ class GetLovableAccountForStudentUseCaseImplTest {
         val teacher = testTeacher()
         val studentId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
-        val student = StudentProfile(studentId, "Student Name", "student1", 123L, classroomId)
+        val student = StudentProfile(studentId, "Student Name", "student1", 123L)
         val classroom = Classroom(
             classroomId,
             "Test Classroom",
@@ -154,11 +153,11 @@ class GetLovableAccountForStudentUseCaseImplTest {
         )
 
         every { studentProfileService.getStudentById(studentId) } returns student
-        every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns true
         every { lovableAccountService.getActive(student) } returns null
+        every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(classroom)
 
-        val result = useCase.get(teacher, studentId)
+        val result = getLovableAccountForStudentUseCase.get(teacher, studentId)
 
         assertTrue(result is Either.Left)
         val error = (result as Either.Left).value

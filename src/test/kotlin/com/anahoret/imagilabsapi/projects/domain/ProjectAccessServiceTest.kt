@@ -5,6 +5,7 @@ import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -20,9 +21,14 @@ class ProjectAccessServiceTest {
     private val classroomService = mockk<ClassroomService>()
     private val studentProfileService = mockk<StudentProfileService>()
     private val coTeacherService = mockk<CoTeacherService>()
+    private val studentClassroomLinkService = mockk<StudentClassroomLinkService>()
 
     private val projectAccessService = ProjectAccessServiceImpl(
-        projectClassroomShareService, classroomService, studentProfileService, coTeacherService
+        projectClassroomShareService,
+        classroomService,
+        studentProfileService,
+        coTeacherService,
+        studentClassroomLinkService
     )
 
     private val projectId = UUID.randomUUID()
@@ -230,6 +236,7 @@ class ProjectAccessServiceTest {
         every { classroomService.listIdsByTeacher(testTeacher.id) } returns emptySet()
         every { studentProfileService.getStudentById(project.ownerId) } returns null
         every { coTeacherService.isLinkedToClassroom(classroomId, testTeacher.id) } returns true
+        every { studentClassroomLinkService.listClassroomIdsByStudent(any()) } returns emptyList()
 
         assertTrue(projectAccessService.canGet(testTeacher, project, classroomId))
     }
@@ -247,6 +254,7 @@ class ProjectAccessServiceTest {
         every { studentProfileService.getStudentById(project.ownerId) } returns null
         every { coTeacherService.isLinkedToClassroom(classroomId, testTeacher.id) } returns false
         every { classroomService.isClassroomOwnedByTeacher(classroomId, testTeacher.id) } returns false
+        every { studentClassroomLinkService.listClassroomIdsByStudent(any()) } returns emptyList()
 
         assertFalse(projectAccessService.canGet(testTeacher, project, classroomId))
     }

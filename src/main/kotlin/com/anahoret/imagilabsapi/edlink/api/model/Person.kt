@@ -13,6 +13,7 @@ class Person(
     @field:JsonProperty("email") val email: String,
     @field:JsonProperty("first_name") val firstName: String,
     @field:JsonProperty("last_name") val lastName: String,
+    @field:JsonProperty("display_name") val displayName: String,
     @field:JsonProperty("roles") val roles: List<String>,
     @field:JsonProperty("address") val address: Address,
     @field:JsonProperty("district_id") val districtId: UUID

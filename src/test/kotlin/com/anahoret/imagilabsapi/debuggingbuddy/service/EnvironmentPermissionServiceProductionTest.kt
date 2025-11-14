@@ -44,9 +44,10 @@ class EnvironmentPermissionServiceProductionTest {
             ZonedDateTime.of(LocalDate.of(2024, 10, 19), LocalTime.MIN, ZoneId.of("UTC-7")).toInstant().toEpochMilli()
         every { clock.millis() } returns october192024
 
-        every { teacherProfileService.getTeacherByStudent(studentId) } returns mockk<TeacherProfile> {
+        val teacherProfile = mockk<TeacherProfile> {
             every { hasProSubscription(october192024) } returns true
         }
+        every { teacherProfileService.listTeachersByStudent(studentId) } returns listOf(teacherProfile)
         val studentProfile = mockk<StudentProfile> {
             every { id } returns studentId
         }
@@ -65,9 +66,10 @@ class EnvironmentPermissionServiceProductionTest {
         val december162025 =
             ZonedDateTime.of(LocalDate.of(2025, 12, 16), LocalTime.MIN, ZoneId.of("UTC-8")).toInstant().toEpochMilli()
         every { clock.millis() } returns december162025
-        every { teacherProfileService.getTeacherByStudent(studentId) } returns mockk<TeacherProfile> {
+        val teacherProfile = mockk<TeacherProfile> {
             every { hasProSubscription(december162025) } returns false
         }
+        every { teacherProfileService.listTeachersByStudent(studentId) } returns listOf(teacherProfile)
         val studentProfile = mockk<StudentProfile> {
             every { id } returns studentId
         }
@@ -79,9 +81,10 @@ class EnvironmentPermissionServiceProductionTest {
         val november72025 =
             ZonedDateTime.of(LocalDate.of(2025, 11, 7), LocalTime.MAX, ZoneId.of("UTC-8")).toInstant().toEpochMilli()
         every { clock.millis() } returns november72025
-        every { teacherProfileService.getTeacherByStudent(studentId) } returns mockk<TeacherProfile> {
+        val teacherProfile = mockk<TeacherProfile> {
             every { hasProSubscription(november72025) } returns false
         }
+        every { teacherProfileService.listTeachersByStudent(studentId) } returns listOf(teacherProfile)
         val studentProfile = mockk<StudentProfile> {
             every { id } returns studentId
         }

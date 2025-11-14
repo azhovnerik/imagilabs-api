@@ -10,7 +10,7 @@ import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
-import com.anahoret.imagilabsapi.students.domain.StudentProfileService
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -24,7 +24,7 @@ class GetLovableCredentialsForClassroomUseCaseImpl(
     private val classroomAccessService: ClassroomAccessService,
     private val classroomService: ClassroomService,
     private val lovableAccountService: LovableAccountService,
-    private val studentProfileService: StudentProfileService
+    private val studentClassroomLinkService: StudentClassroomLinkService
 ) : GetLovableCredentialsForClassroomUseCase {
     override fun getCredentials(
         userProfile: UserProfile,
@@ -39,7 +39,7 @@ class GetLovableCredentialsForClassroomUseCaseImpl(
         if (!classroomAccessService.canListStudentCredentials(userProfile, classroom))
             return AccessDeniedError("ACCESS_TO_CLASSROOM_DENIED").left()
 
-        val studentIds = studentProfileService.listByClassroom(classroomId).map(StudentProfile::id)
+        val studentIds = studentClassroomLinkService.listStudentsByClassroom(classroomId).map(StudentProfile::id)
 
         return lovableAccountService.getByConnectedUsers(studentIds).right()
     }

@@ -6,6 +6,7 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -18,12 +19,13 @@ class StudentUpdateUseCaseTest {
     private val studentProfileService = mockk<StudentProfileService>()
     private val studentUpdateRequestValidator = mockk<StudentUpdateRequestValidator>()
     private val classroomService = mockk<ClassroomService>()
+    private val studentClassroomLinkService = mockk<StudentClassroomLinkService>()
 
     private val useCase = StudentUpdateUseCaseImpl(
         studentAccessService,
         studentProfileService,
         studentUpdateRequestValidator,
-        classroomService
+        studentClassroomLinkService
     )
 
     @Test
@@ -31,12 +33,12 @@ class StudentUpdateUseCaseTest {
         val teacher = testTeacher()
         val studentId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
-        val student = StudentProfile(studentId, "n", "u", 0, classroomId)
+        val student = StudentProfile(studentId, "n", "u", 0)
         val credentials = StudentClassroomCredentials(UUID.randomUUID(), "u", "ac", "p")
 
         every { studentProfileService.getStudentById(studentId) } returns student
         every { studentProfileService.getStudentCredentials(studentId) } returns credentials
-        every { classroomService.getById(classroomId) } returns Classroom(
+        val classroom = Classroom(
             classroomId,
             name = "c",
             accessCode = "ac",
@@ -47,6 +49,8 @@ class StudentUpdateUseCaseTest {
             blocked = true,
             permissions = ClassroomPermissions(true)
         )
+        every { classroomService.getById(classroomId) } returns classroom
+        every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(classroom)
 
         val result = useCase.update(teacher, studentId, mockk())
         assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)

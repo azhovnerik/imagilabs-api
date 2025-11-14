@@ -92,19 +92,19 @@ class ProjectClassroomShareEntityRepositoryTest {
 
         private fun setupStudents() {
             val classroom1Students = listOf(
-                StudentProfileEntity("Rob Stark", "rstark", "rstark", classroom1Id, 3, 0),
-                StudentProfileEntity("Sansa Stark", "sstark", "sstark", classroom1Id, 3, 0),
-                StudentProfileEntity("Aria Stark", "astark", "astark", classroom1Id, 3, 0),
-                StudentProfileEntity("Brandon Stark", "bstark", "bstark", classroom1Id, 3, 0),
-                StudentProfileEntity("Rikon Stark", "ristark", "ristark", classroom1Id, 3, 0),
+                StudentProfileEntity("Rob Stark", "rstark", "rstark", 3, 0),
+                StudentProfileEntity("Sansa Stark", "sstark", "sstark", 3, 0),
+                StudentProfileEntity("Aria Stark", "astark", "astark", 3, 0),
+                StudentProfileEntity("Brandon Stark", "bstark", "bstark", 3, 0),
+                StudentProfileEntity("Rikon Stark", "ristark", "ristark", 3, 0),
             ).let(studentProfileEntityRepository::saveAll)
             sansaId = classroom1Students.find { it.username == "sstark" }?.id!!
             brandonId = classroom1Students.find { it.username == "bstark" }?.id!!
             classroom1StudentIds = classroom1Students.map { it.id!! }
 
             val classroom2Students = listOf(
-                StudentProfileEntity("Theon Greyjoy", "tgrey", "tgrey", classroom2Id, 4, 0),
-                StudentProfileEntity("John Snow", "jsnow", "jsnow", classroom2Id, 4, 0),
+                StudentProfileEntity("Theon Greyjoy", "tgrey", "tgrey", 4, 0),
+                StudentProfileEntity("John Snow", "jsnow", "jsnow", 4, 0),
             ).let(studentProfileEntityRepository::saveAll)
             classroom2StudentIds = classroom2Students.map { it.id!! }
             theonId = classroom2Students.find { it.username == "tgrey" }?.id!!

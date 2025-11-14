@@ -38,7 +38,8 @@ class EdLinkOauthCallbackUseCaseImpl(
     private val edLinkDistrictApi: EdLinkDistrictApi,
     private val studentProfileService: StudentProfileService,
     private val teacherProfileService: TeacherProfileService,
-    private val teacherSignUpUseCase: TeacherSignUpUseCase
+    private val teacherSignUpUseCase: TeacherSignUpUseCase,
+    private val edLinkRefreshTeacherClassesUseCase: EdLinkRefreshTeacherClassesUseCase
 ) : EdLinkOauthCallbackUseCase {
 
     override fun tryAuthenticate(
@@ -73,7 +74,7 @@ class EdLinkOauthCallbackUseCaseImpl(
         if (existingTeacher != null) return existingTeacher.right()
         return either {
             val district = edLinkDistrictApi.myDistrict(token, person.districtId).bind()
-            teacherSignUpUseCase.signUp(
+            val newTeacher = teacherSignUpUseCase.signUp(
                 TeacherSignupRequest(
                     person.email,
                     password = "",
@@ -89,6 +90,8 @@ class EdLinkOauthCallbackUseCaseImpl(
                     edLinkPersonId = person.id
                 )
             ).bind()
+            edLinkRefreshTeacherClassesUseCase.refresh(newTeacher).bind()
+            newTeacher
         }.mapLeft { left ->
             when (left) {
                 is OperationError -> left
