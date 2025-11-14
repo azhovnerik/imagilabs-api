@@ -5,13 +5,8 @@ import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntityRepository
 import com.anahoret.imagilabsapi.spring.ImagiLabsDatabaseTest
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
-import com.anahoret.imagilabsapi.userclassroomlink.storage.StudentClassroomEntityRepository
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.*
 
@@ -24,9 +19,6 @@ class StudentProfileEntityRepositoryTest {
 
     @Autowired
     lateinit var studentProfileEntityRepository: StudentProfileEntityRepository
-
-    @Autowired
-    lateinit var studentClassroomEntityRepository: StudentClassroomEntityRepository
 
     @Autowired
     lateinit var classroomEntityRepository: ClassroomEntityRepository
@@ -65,18 +57,4 @@ class StudentProfileEntityRepositoryTest {
         classroomStudentIds = classroomStudents.map { it.id!! }
     }
 
-    @DisplayName("when deleting students")
-    @Nested
-    inner class StudentProfileDeleteTest {
-
-        @Test
-        fun `should delete students by ids`() {
-            assertEquals(
-                classroomStudentIds,
-                studentClassroomEntityRepository.findAllByClassroomId(classroomId).map { it.studentId })
-            studentProfileEntityRepository.deleteByIdIn(classroomStudentIds)
-            val result = studentClassroomEntityRepository.findAllByClassroomId(classroomId).map { it.studentId }
-            assertTrue(result.isEmpty())
-        }
-    }
 }

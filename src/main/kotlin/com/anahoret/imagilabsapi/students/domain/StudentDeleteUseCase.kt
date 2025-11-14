@@ -45,6 +45,9 @@ class StudentDeleteUseCaseImpl(
             return AccessDeniedError("ACCESS_TO_STUDENT_DENIED").left()
 
         deleteStudentProjects(studentProfile.id)
+        classrooms.forEach { classroom ->
+            studentClassroomLinkService.removeStudentFromClassroom(studentProfile.id, classroom.id)
+        }
         studentProfileService.delete(studentProfile.id)
         return Unit.right()
     }

@@ -52,7 +52,7 @@ class GetLovableAccountForUserUseCaseImplTest {
             every { lovableIntegrationPaused } returns false
         }
 
-        val result = getLovableAccountForUserUseCase.get(student)
+        val result = getLovableAccountForUserUseCase.get(student, classroomId)
 
         assertNull(result)
         verify(inverse = true) { lovableAccountService.getActive(student) }
@@ -70,7 +70,7 @@ class GetLovableAccountForUserUseCaseImplTest {
             every { lovableIntegrationPaused } returns true
         }
 
-        val result = getLovableAccountForUserUseCase.get(student)
+        val result = getLovableAccountForUserUseCase.get(student, classroomId)
 
         assertNull(result)
         verify(inverse = true) { lovableAccountService.getActive(student) }
@@ -88,7 +88,7 @@ class GetLovableAccountForUserUseCaseImplTest {
             every { lovableIntegrationPaused } returns false
         }
 
-        val result = getLovableAccountForUserUseCase.get(student)
+        val result = getLovableAccountForUserUseCase.get(student, classroomId)
 
         assertNotNull(result)
         verify { lovableAccountService.getActive(student) }

@@ -8,6 +8,3 @@ CREATE TABLE student_classrooms
 INSERT INTO student_classrooms (student_id, classroom_id)
 SELECT id, classroom_id
 FROM student_profiles;
-
-ALTER TABLE student_profiles
-    DROP COLUMN classroom_id;

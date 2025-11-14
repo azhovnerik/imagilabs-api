@@ -7,7 +7,7 @@ import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomSh
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
-import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
+import com.anahoret.imagilabsapi.userclassroomlink.storage.StudentClassroomEntityRepository
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.*
@@ -23,7 +23,7 @@ import java.util.*
 class ClassroomServiceImplTest {
 
     private val classroomEntityRepository = mockk<ClassroomEntityRepository>()
-    private val studentClassroomLinkService = mockk<StudentClassroomLinkService>()
+    private val studentClassroomEntityRepository = mockk<StudentClassroomEntityRepository>()
     private val projectClassroomShareService = mockk<ProjectClassroomShareService>()
     private val coTeacherService = mockk<CoTeacherService>()
     private val teacherSubscriptionService = mockk<TeacherSubscriptionService>()
@@ -31,7 +31,7 @@ class ClassroomServiceImplTest {
 
     private val classroomService = ClassroomServiceImpl(
         classroomEntityRepository,
-        studentClassroomLinkService,
+        studentClassroomEntityRepository,
         projectClassroomShareService,
         coTeacherService,
         teacherSubscriptionService,
@@ -56,7 +56,7 @@ class ClassroomServiceImplTest {
         )
 
         every { classroomEntityRepository.findByIdOrNull(classroomId) } returns classroom
-        every { studentClassroomLinkService.getStudentCount(classroomId) } returns 0
+        every { studentClassroomEntityRepository.countByClassroomId(classroomId) } returns 0
         every { projectClassroomShareService.getProjectCount(classroomId) } returns 0
         every { coTeacherService.getCoTeacherCountByClassroomId(classroomId) } returns 0
         every { classroomEntityRepository.findAllByTeacherId(teacherId) } returns listOf(classroom)
@@ -90,7 +90,7 @@ class ClassroomServiceImplTest {
         }
 
         every { classroomEntityRepository.findByIdOrNull(secondClassroomId) } returns secondClassroom
-        every { studentClassroomLinkService.getStudentCount(secondClassroomId) } returns 0
+        every { studentClassroomEntityRepository.countByClassroomId(secondClassroomId) } returns 0
         every { projectClassroomShareService.getProjectCount(secondClassroomId) } returns 0
         every { coTeacherService.getCoTeacherCountByClassroomId(secondClassroomId) } returns 0
         every { classroomEntityRepository.findAllByTeacherId(testTeacherId) } returns listOf(
@@ -131,7 +131,7 @@ class ClassroomServiceImplTest {
         )
 
         every { classroomEntityRepository.findByIdOrNull(secondClassroomId) } returns secondClassroom
-        every { studentClassroomLinkService.getStudentCount(secondClassroomId) } returns 0
+        every { studentClassroomEntityRepository.countByClassroomId(secondClassroomId) } returns 0
         every { projectClassroomShareService.getProjectCount(secondClassroomId) } returns 0
         every { coTeacherService.getCoTeacherCountByClassroomId(secondClassroomId) } returns 0
         every { classroomEntityRepository.findAllByTeacherId(teacherId) } returns listOf(
@@ -172,7 +172,7 @@ class ClassroomServiceImplTest {
         )
 
         every { classroomEntityRepository.findByIdOrNull(secondClassroomId) } returns secondClassroom
-        every { studentClassroomLinkService.getStudentCount(secondClassroomId) } returns 0
+        every { studentClassroomEntityRepository.countByClassroomId(secondClassroomId) } returns 0
         every { projectClassroomShareService.getProjectCount(secondClassroomId) } returns 0
         every { coTeacherService.getCoTeacherCountByClassroomId(secondClassroomId) } returns 0
         every { classroomEntityRepository.findAllByTeacherId(teacherId) } returns listOf(
@@ -199,7 +199,7 @@ class ClassroomServiceImplTest {
         }
 
         every { classroomEntityRepository.findByIdOrNull(classroomId) } returns classroom
-        every { studentClassroomLinkService.getStudentCount(classroomId) } returns 0
+        every { studentClassroomEntityRepository.countByClassroomId(classroomId) } returns 0
         every { projectClassroomShareService.getProjectCount(classroomId) } returns 0
         every { coTeacherService.getCoTeacherCountByClassroomId(classroomId) } returns 0
         every { classroomEntityRepository.findAllByTeacherId(teacherId) } returns listOf(classroom)
@@ -243,7 +243,7 @@ class ClassroomServiceImplTest {
             secondClassroom,
             thirdClassroom
         )
-        every { studentClassroomLinkService.getStudentCounts(any()) } returns emptyMap()
+        every { studentClassroomEntityRepository.getStudentCounts(any()) } returns emptyList()
         every { projectClassroomShareService.getProjectCountsByClassrooms(any()) } returns emptyMap()
         every { coTeacherService.getCoTeacherCountsByClassroomIds(any()) } returns emptyMap()
         every { classroomEntityRepository.findAllByTeacherIdIn(setOf(testTeacherId)) } returns listOf(
@@ -281,7 +281,7 @@ class ClassroomServiceImplTest {
         }
 
         every { classroomEntityRepository.findAllById(listOf(classroomId)) } returns listOf(firstClassroom)
-        every { studentClassroomLinkService.getStudentCounts(any()) } returns emptyMap()
+        every { studentClassroomEntityRepository.getStudentCounts(any()) } returns emptyList()
         every { projectClassroomShareService.getProjectCountsByClassrooms(any()) } returns emptyMap()
         every { coTeacherService.getCoTeacherCountsByClassroomIds(any()) } returns emptyMap()
         every { classroomEntityRepository.findAllByTeacherIdIn(setOf(ownerTeacherId)) } returns listOf(firstClassroom)
@@ -319,7 +319,7 @@ class ClassroomServiceImplTest {
             classroom1,
             classroom2
         )
-        every { studentClassroomLinkService.getStudentCounts(any()) } returns emptyMap()
+        every { studentClassroomEntityRepository.getStudentCounts(any()) } returns emptyList()
         every { projectClassroomShareService.getProjectCountsByClassrooms(any()) } returns emptyMap()
         every { coTeacherService.getCoTeacherCountsByClassroomIds(any()) } returns emptyMap()
         every { teacherSubscriptionService.getSubscriptionDtos(setOf(teacherId)) } returns listOf(subscription)
@@ -351,7 +351,7 @@ class ClassroomServiceImplTest {
             classroom1,
             classroom2
         )
-        every { studentClassroomLinkService.getStudentCounts(any()) } returns emptyMap()
+        every { studentClassroomEntityRepository.getStudentCounts(any()) } returns emptyList()
         every { projectClassroomShareService.getProjectCountsByClassrooms(any()) } returns emptyMap()
         every { coTeacherService.getCoTeacherCountsByClassroomIds(any()) } returns emptyMap()
         every { teacherSubscriptionService.getSubscriptionDtos(setOf(teacherId)) } returns listOf(subscription)
@@ -376,7 +376,7 @@ class ClassroomServiceImplTest {
         every { subscription.hasProSubscription(500L) } returns true
 
         every { classroomEntityRepository.findByIdOrNull(classroomId) } returns classroom
-        every { studentClassroomLinkService.getStudentCount(classroomId) } returns 0
+        every { studentClassroomEntityRepository.countByClassroomId(classroomId) } returns 0
         every { projectClassroomShareService.getProjectCount(classroomId) } returns 0
         every { coTeacherService.getCoTeacherCountByClassroomId(classroomId) } returns 0
         every { classroomEntityRepository.findAllByTeacherId(teacherId) } returns listOf(classroom)

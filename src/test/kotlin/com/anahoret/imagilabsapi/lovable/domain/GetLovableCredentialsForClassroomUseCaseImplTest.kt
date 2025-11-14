@@ -9,39 +9,27 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
-import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
 
 class GetLovableCredentialsForClassroomUseCaseImplTest {
 
-    private lateinit var classroomAccessService: ClassroomAccessService
-    private lateinit var classroomService: ClassroomService
-    private lateinit var lovableAccountService: LovableAccountService
-    private lateinit var studentProfileService: StudentProfileService
-    private lateinit var getLovableCredentialsForClassroomUseCase: GetLovableCredentialsForClassroomUseCase
-    private lateinit var studentClassroomLinkService: StudentClassroomLinkService
-
-    @BeforeEach
-    fun setUp() {
-        classroomAccessService = mockk()
-        lovableAccountService = mockk()
-        studentProfileService = mockk()
-        studentClassroomLinkService = mockk()
-        getLovableCredentialsForClassroomUseCase = GetLovableCredentialsForClassroomUseCaseImpl(
-            classroomAccessService,
-            classroomService,
-            lovableAccountService,
-            studentClassroomLinkService
-        )
-    }
+    private val classroomAccessService = mockk<ClassroomAccessService>()
+    private val classroomService = mockk<ClassroomService>()
+    private val lovableAccountService = mockk<LovableAccountService>()
+    private val studentClassroomLinkService = mockk<StudentClassroomLinkService>()
+    private val getLovableCredentialsForClassroomUseCase = GetLovableCredentialsForClassroomUseCaseImpl(
+        classroomAccessService,
+        classroomService,
+        lovableAccountService,
+        studentClassroomLinkService
+    )
 
     @Test
     fun `returns NotFound when classroom missing`() {

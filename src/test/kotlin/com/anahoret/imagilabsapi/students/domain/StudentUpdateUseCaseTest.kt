@@ -38,7 +38,7 @@ class StudentUpdateUseCaseTest {
 
         every { studentProfileService.getStudentById(studentId) } returns student
         every { studentProfileService.getStudentCredentials(studentId) } returns credentials
-        every { classroomService.getById(classroomId) } returns Classroom(
+        val classroom = Classroom(
             classroomId,
             name = "c",
             accessCode = "ac",
@@ -49,6 +49,8 @@ class StudentUpdateUseCaseTest {
             blocked = true,
             permissions = ClassroomPermissions(true)
         )
+        every { classroomService.getById(classroomId) } returns classroom
+        every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(classroom)
 
         val result = useCase.update(teacher, studentId, mockk())
         assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)

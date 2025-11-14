@@ -59,10 +59,10 @@ class GetLovableAccountForStudentUseCaseImplTest {
     fun `returns NotFound when student's classroom does not exist`() {
         val teacher = testTeacher()
         val studentId = UUID.randomUUID()
-        val classroomId = UUID.randomUUID()
         val student = StudentProfile(studentId, "Student Name", "student1", 123L)
 
         every { studentProfileService.getStudentById(studentId) } returns student
+        every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf()
 
         val result = getLovableAccountForStudentUseCase.get(teacher, studentId)
 
@@ -92,6 +92,7 @@ class GetLovableAccountForStudentUseCaseImplTest {
 
         every { studentProfileService.getStudentById(studentId) } returns student
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns false
+        every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(classroom)
 
         val result = getLovableAccountForStudentUseCase.get(teacher, studentId)
 
@@ -123,6 +124,7 @@ class GetLovableAccountForStudentUseCaseImplTest {
         every { studentProfileService.getStudentById(studentId) } returns student
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns true
         every { lovableAccountService.getActive(student) } returns lovableAccount
+        every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(classroom)
 
         val result = getLovableAccountForStudentUseCase.get(teacher, studentId)
 
@@ -153,6 +155,7 @@ class GetLovableAccountForStudentUseCaseImplTest {
         every { studentProfileService.getStudentById(studentId) } returns student
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns true
         every { lovableAccountService.getActive(student) } returns null
+        every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(classroom)
 
         val result = getLovableAccountForStudentUseCase.get(teacher, studentId)
 

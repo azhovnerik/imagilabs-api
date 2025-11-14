@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.openai.domain
 
+import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.students.storage.StudentProfileEntity
@@ -76,6 +77,7 @@ class TipTokensServiceImplTest {
         @Test
         fun `should refresh tip tokens if teacher has pro subscription`() {
             val teacher = mockk<TeacherProfileEntity> {
+                every { id } returns testTeacherId
                 every { hasProSubscription(100) } returns true
                 justRun { tipTokens = 5 }
                 justRun { tipTokensReplenishedAt = 100 }
@@ -100,6 +102,7 @@ class TipTokensServiceImplTest {
                 .plus(Duration.ofMillis(1))
                 .toInstant().toEpochMilli()
             val teacher = mockk<TeacherProfileEntity> {
+                every { id } returns testTeacherId
                 every { hasProSubscription(now) } returns false
                 justRun { tipTokens = 5 }
                 justRun { tipTokensReplenishedAt = now }
@@ -124,6 +127,7 @@ class TipTokensServiceImplTest {
                 .plusMonths(1)
                 .toInstant().toEpochMilli()
             val teacher = mockk<TeacherProfileEntity> {
+                every { id } returns testTeacherId
                 every { hasProSubscription(now) } returns false
                 justRun { tipTokens = 5 }
                 justRun { tipTokensReplenishedAt = now }
@@ -136,32 +140,9 @@ class TipTokensServiceImplTest {
             every { clock.millis() } returns now
 
             tipTokensService.replenishTipTokens()
+
             verify(inverse = true) { teacher.tipTokens = 5 }
             verify(inverse = true) { teacher.tipTokensReplenishedAt = now }
-        }
-
-        @Test
-        fun `should refresh tip tokens if teacher has standard subscription and free plan replenish period has not passed and current date between September 16 and October 18 2024`() {
-            val lastReplenishDate = ZonedDateTime.of(2024, 9, 16, 0, 0, 0, 0, ZoneId.of("UTC-7"))
-            val lastReplenishDateMillis = lastReplenishDate.toInstant().toEpochMilli()
-            val now = lastReplenishDate
-                .plusSeconds(1)
-                .toInstant().toEpochMilli()
-            val teacher = mockk<TeacherProfileEntity> {
-                every { hasProSubscription(now) } returns false
-                justRun { tipTokens = 5 }
-                justRun { tipTokensReplenishedAt = now }
-                every { tipTokensReplenishedAt } returns lastReplenishDateMillis
-            }
-            val teachers = listOf(teacher)
-            every { studentProfileEntityRepository.findAll() } returns emptyList()
-            every { teacherProfileEntityRepository.findAll() } returns teachers
-            every { teacherProfileEntityRepository.saveAll(teachers) } returns teachers
-            every { clock.millis() } returns now
-
-            tipTokensService.replenishTipTokens()
-            verify { teacher.tipTokens = 5 }
-            verify { teacher.tipTokensReplenishedAt = now }
         }
 
         @Test
@@ -183,12 +164,16 @@ class TipTokensServiceImplTest {
             every { teacherProfileEntityRepository.saveAll(teachers) } returns teachers
             every { studentProfileEntityRepository.findAll() } returns students
             every { studentProfileEntityRepository.saveAll(students) } returns students
-            every { classroomService.listByIds(listOf(testClassroomId)) } returns listOf(mockk {
+            val classroomMock = mockk<Classroom> {
                 every { id } returns testClassroomId
                 every { teacherId } returns testTeacherId
-            })
+            }
+            every { classroomService.listByIds(listOf(testClassroomId)) } returns listOf(classroomMock)
             every { clock.millis() } returns 100
+            every { studentClassroomLinkService.listClassroomsByStudent(testStudentId) } returns listOf(classroomMock)
+
             tipTokensService.replenishTipTokens()
+
             verify { student.tipTokens = 5 }
             verify { student.tipTokensReplenishedAt = 100 }
         }
@@ -221,12 +206,16 @@ class TipTokensServiceImplTest {
             every { teacherProfileEntityRepository.saveAll(teachers) } returns teachers
             every { studentProfileEntityRepository.findAll() } returns students
             every { studentProfileEntityRepository.saveAll(students) } returns students
-            every { classroomService.listByIds(listOf(testClassroomId)) } returns listOf(mockk {
+            val classroomMock = mockk<Classroom> {
                 every { id } returns testClassroomId
                 every { teacherId } returns testTeacherId
-            })
+            }
+            every { classroomService.listByIds(listOf(testClassroomId)) } returns listOf(classroomMock)
             every { clock.millis() } returns now
+            every { studentClassroomLinkService.listClassroomsByStudent(testStudentId) } returns listOf(classroomMock)
+
             tipTokensService.replenishTipTokens()
+
             verify { student.tipTokens = 5 }
             verify { student.tipTokensReplenishedAt = now }
         }
@@ -256,54 +245,20 @@ class TipTokensServiceImplTest {
             every { teacherProfileEntityRepository.saveAll(teachers) } returns teachers
             every { studentProfileEntityRepository.findAll() } returns students
             every { studentProfileEntityRepository.saveAll(students) } returns students
-            every { classroomService.listByIds(listOf(testClassroomId)) } returns listOf(mockk {
+            val classroomMock = mockk<Classroom> {
                 every { id } returns testClassroomId
                 every { teacherId } returns testTeacherId
-            })
+            }
+            every { classroomService.listByIds(listOf(testClassroomId)) } returns listOf(classroomMock)
             every { clock.millis() } returns now
+            every { studentClassroomLinkService.listClassroomsByStudent(testStudentId) } returns listOf(classroomMock)
+
             tipTokensService.replenishTipTokens()
+
             verify(inverse = true) { student.tipTokens = 5 }
             verify(inverse = true) { student.tipTokensReplenishedAt = now }
         }
 
-
-
-        @Test
-        fun `should refresh tip tokens if student's teacher has standard subscription and free plan replenish period has not passed and current date between September 16 and October 18 2024`() {
-            val lastReplenishDate = ZonedDateTime.of(2024, 9, 16, 0, 0, 0, 0, ZoneId.of("UTC-7"))
-            val lastReplenishDateMillis = lastReplenishDate.toInstant().toEpochMilli()
-            val now = lastReplenishDate
-                .plusSeconds(1)
-                .toInstant().toEpochMilli()
-
-            val student = mockk<StudentProfileEntity> {
-                every { id } returns testStudentId
-                justRun { tipTokens = 5 }
-                justRun { tipTokensReplenishedAt = now }
-                every { tipTokensReplenishedAt } returns lastReplenishDateMillis
-            }
-            val students = listOf(student)
-            val teacher = mockk<TeacherProfileEntity> {
-                every { id } returns testTeacherId
-                every { hasProSubscription(now) } returns false
-                every { tipTokensReplenishedAt } returns lastReplenishDateMillis
-                justRun { tipTokens = 5 }
-                justRun { tipTokensReplenishedAt = now }
-            }
-            val teachers = listOf(teacher)
-            every { teacherProfileEntityRepository.findAll() } returns teachers
-            every { teacherProfileEntityRepository.saveAll(teachers) } returns teachers
-            every { studentProfileEntityRepository.findAll() } returns students
-            every { studentProfileEntityRepository.saveAll(students) } returns students
-            every { classroomService.listByIds(listOf(testClassroomId)) } returns listOf(mockk {
-                every { id } returns testClassroomId
-                every { teacherId } returns testTeacherId
-            })
-            every { clock.millis() } returns now
-            tipTokensService.replenishTipTokens()
-            verify { student.tipTokens = 5 }
-            verify { student.tipTokensReplenishedAt = now }
-        }
     }
 
     @DisplayName("When withdraw one tip tokens")

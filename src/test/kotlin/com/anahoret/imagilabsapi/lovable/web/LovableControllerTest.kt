@@ -93,7 +93,7 @@ class LovableControllerTest {
     fun `getLovableAccount returns 200 with body when found for student`() {
         val student = testStudent()
         val account = LovableAccount(UUID.randomUUID(), "s", "u", "b@x.com", "pwd")
-        every { getLovableAccountForUserUseCase.get(student) } returns account
+        every { getLovableAccountForUserUseCase.get(student, classroomId) } returns account
 
         val response = controller.getLovableAccount(student, classroomId)
 

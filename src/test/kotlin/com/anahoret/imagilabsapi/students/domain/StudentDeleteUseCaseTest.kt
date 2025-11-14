@@ -51,6 +51,11 @@ class StudentDeleteUseCaseTest {
             blocked = true,
             ClassroomPermissions(true)
         )
+        every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(
+            mockk {
+                every { blocked } returns true
+            }
+        )
 
         val result = useCase.delete(teacher, studentId)
         assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)

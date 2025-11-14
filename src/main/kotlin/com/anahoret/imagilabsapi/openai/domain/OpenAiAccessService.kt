@@ -58,8 +58,8 @@ class EnvironmentPermissionServiceStaging(
         val now = clock.millis()
         return now in hourOfAIRange || when (userProfile) {
             is TeacherProfile -> true
-            is StudentProfile -> teacherProfileService.getTeacherByStudent(userProfile.id)?.hasProSubscription(now)
-                ?: false
+            is StudentProfile -> teacherProfileService.listTeachersByStudent(userProfile.id)
+                .any { it.hasProSubscription(now) }
 
             else -> false
         }
@@ -77,8 +77,8 @@ class EnvironmentPermissionServiceProduction(
         val now = clock.millis()
         return now in hourOfAIRange || when (userProfile) {
             is TeacherProfile -> true
-            is StudentProfile -> teacherProfileService.getTeacherByStudent(userProfile.id)?.hasProSubscription(now)
-                ?: false
+            is StudentProfile -> teacherProfileService.listTeachersByStudent(userProfile.id)
+                .any { it.hasProSubscription(now) }
 
             else -> false
         }
