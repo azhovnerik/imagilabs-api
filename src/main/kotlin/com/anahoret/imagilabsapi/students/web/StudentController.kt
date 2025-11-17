@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.students.web
 
 import arrow.core.Either
+import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.common.web.mapErrors
@@ -18,7 +19,8 @@ class StudentController(
     private val studentDeleteUseCase: StudentDeleteUseCase,
     private val studentUpdateUseCase: StudentUpdateUseCase,
     private val studentGetUseCase: StudentGetUseCase,
-    private val studentResetPasswordUseCase: StudentResetPasswordUseCase
+    private val studentResetPasswordUseCase: StudentResetPasswordUseCase,
+    private val getStudentClassroomsUseCase: GetStudentClassroomsUseCase
 ) {
 
     @Secured(UserRole.TEACHER)
@@ -68,6 +70,15 @@ class StudentController(
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }
+    }
+
+    @Secured(UserRole.STUDENT)
+    @GetMapping("/api/students/classrooms/me")
+    fun getStudentClassrooms(
+        @AuthenticationPrincipal studentProfile: StudentProfile
+    ): ResponseEntity<ResponseDto<List<Classroom>>> {
+        return getStudentClassroomsUseCase.get(studentProfile)
+            .let { ResponseEntity.ok(SuccessResponseDto(it)) }
     }
 
     @Secured(UserRole.STUDENT)
