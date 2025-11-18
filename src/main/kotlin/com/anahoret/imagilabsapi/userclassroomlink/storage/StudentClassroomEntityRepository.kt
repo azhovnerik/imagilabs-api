@@ -16,8 +16,8 @@ interface StudentClassroomEntityRepository : CrudRepository<StudentClassroomEnti
     @Query(
         """
             SELECT
-                sce.classroomId AS classroomid,
-                COUNT (DISTINCT sce.studentId) AS studentscount
+                sce.classroomId AS classroomId,
+                COUNT (DISTINCT sce.studentId) AS studentsCount
             FROM StudentClassroomEntity sce
             WHERE sce.classroomId IN :classroomIds
             GROUP BY sce.classroomId
@@ -46,7 +46,6 @@ interface StudentClassroomEntityRepository : CrudRepository<StudentClassroomEnti
 }
 
 interface ClassroomStudentCount {
-
     val classroomId: UUID
     val studentsCount: Long
 }
