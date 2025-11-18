@@ -1,9 +1,0 @@
-# Wait * seconds before check. Also this is next check delay.
-WAIT=15
-# Timeout check after * seconds
-TIMEOUT=60
-# Attempt checks * times
-ATTEMPTS=5
-
-/
-/swagger-ui/index.html
