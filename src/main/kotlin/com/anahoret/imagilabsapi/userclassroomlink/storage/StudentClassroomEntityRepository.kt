@@ -16,13 +16,12 @@ interface StudentClassroomEntityRepository : CrudRepository<StudentClassroomEnti
     @Query(
         """
             SELECT
-                CAST (sp.classroom_id AS TEXT) AS classroomid,
-                COUNT(sp.id) AS studentscount
-            FROM student_profiles sp
-            WHERE sp.classroom_id IN :classroomIds
-            GROUP BY sp.classroom_id
-        """,
-        nativeQuery = true
+                sce.classroomId AS classroomid,
+                COUNT (DISTINCT sce.studentId) AS studentscount
+            FROM StudentClassroomEntity sce
+            WHERE sce.classroomId IN :classroomIds
+            GROUP BY sce.classroomId
+        """
     )
     fun getStudentCounts(classroomIds: Iterable<UUID>): Iterable<ClassroomStudentCount>
 
