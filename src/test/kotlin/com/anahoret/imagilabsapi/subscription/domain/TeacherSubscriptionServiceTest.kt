@@ -133,6 +133,8 @@ class TeacherSubscriptionServiceTest {
             @ParameterizedTest
             @ValueSource(longs = [1L, 10L, 100L, Long.MAX_VALUE])
             fun `should return false if teacher has 1 class or more`(classroomsCount: Long) {
+                val now = Instant.ofEpochMilli(0)
+                every { clock.instant() } returns now
                 every { classroomEntityRepository.countByTeacherId(teacherProfile.id) } returns classroomsCount
                 assertFalse(teacherSubscriptionService.canCreateClassroom(teacherProfile))
             }
@@ -186,12 +188,16 @@ class TeacherSubscriptionServiceTest {
             @ParameterizedTest
             @ValueSource(longs = [0L, 25L, 50L])
             fun `should return false if teacher has no more than 50 students in the classroom`(studentCountInClassroom: Long) {
+                val now = Instant.ofEpochMilli(0)
+                every { clock.instant() } returns now
                 assertFalse(teacherSubscriptionService.studentLimitPerClassExceeded(teacherProfile, studentCountInClassroom))
             }
 
             @ParameterizedTest
             @ValueSource(longs = [51L, 100L, Long.MAX_VALUE])
             fun `should return true if teacher has more than 50 students in the classroom`(studentCountInClassroom: Long) {
+                val now = Instant.ofEpochMilli(0)
+                every { clock.instant() } returns now
                 assertTrue(teacherSubscriptionService.studentLimitPerClassExceeded(teacherProfile, studentCountInClassroom))
             }
 

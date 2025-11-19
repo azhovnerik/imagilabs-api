@@ -96,7 +96,7 @@ class TeacherSubscriptionServiceImpl(
         val maxStudents = when (teacherProfile.subscription.plan) {
             TeacherSubscriptionPlan.STANDARD -> {
                 // TODO: remove check after December 15, 2025 and always return Standard.STUDENTS_PER_CLASSROOM
-                val now = clock.millis()
+                val now = clock.instant().toEpochMilli()
                 if (now in OpenAiAccessService.hourOfAIRange) TeacherSubscriptionLimits.Pro.STUDENTS_PER_CLASSROOM
                 else TeacherSubscriptionLimits.Standard.STUDENTS_PER_CLASSROOM
             }
