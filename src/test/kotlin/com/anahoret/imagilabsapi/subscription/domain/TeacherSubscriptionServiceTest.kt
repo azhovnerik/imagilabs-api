@@ -124,6 +124,8 @@ class TeacherSubscriptionServiceTest {
 
             @Test
             fun `should return true if teacher has less than 1 classes`() {
+                val now = Instant.ofEpochMilli(0)
+                every { clock.instant() } returns now
                 every { classroomEntityRepository.countByTeacherId(teacherProfile.id) } returns 0L
                 assertTrue(teacherSubscriptionService.canCreateClassroom(teacherProfile))
             }
