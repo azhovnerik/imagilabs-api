@@ -23,6 +23,7 @@ interface StudentClassroomLinkService {
     fun getStudentCounts(classroomIds: Iterable<UUID>): Map<UUID, Long>
     fun getStudentCount(classroomId: UUID): Long
     fun listClassroomIdsByStudent(studentId: UUID): List<UUID>
+    fun deleteByStudentIds(studentIds: Collection<UUID>)
 }
 
 @Service
@@ -77,6 +78,11 @@ class StudentClassroomLinkServiceImpl(
 
     override fun listClassroomIdsByStudent(studentId: UUID): List<UUID> {
         return studentClassroomEntityRepository.findAllClassroomIdsByStudentId(studentId)
+    }
+
+    @Transactional
+    override fun deleteByStudentIds(studentIds: Collection<UUID>) {
+        studentClassroomEntityRepository.deleteByStudentIdIn(studentIds)
     }
 
     private fun doListByClassroom(classroomId: UUID, sort: Sort): List<StudentProfile> {

@@ -43,6 +43,7 @@ interface StudentClassroomEntityRepository : CrudRepository<StudentClassroomEnti
 
     @Query("SELECT sc.classroomId FROM StudentClassroomEntity sc WHERE sc.studentId = :studentId")
     fun findAllClassroomIdsByStudentId(studentId: UUID): List<UUID>
+    fun deleteByStudentIdIn(studentIds: Collection<UUID>)
 }
 
 interface ClassroomStudentCount {

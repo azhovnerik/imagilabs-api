@@ -46,6 +46,7 @@ class ClassroomDeleteUseCaseImpl(
         val studentIds = studentClassroomLinkService.listStudentsByClassroom(classroom.id)
             .map(StudentProfile::id)
         deleteProjects(classroomId, studentIds)
+        studentClassroomLinkService.deleteByStudentIds(studentIds)
         studentProfileService.delete(studentIds)
         classroomService.delete(classroom.id)
 
