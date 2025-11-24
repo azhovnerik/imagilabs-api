@@ -10,7 +10,9 @@ import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.students.domain.StudentCreateRequest
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
+import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -28,6 +30,7 @@ class ClassroomUpdateUseCaseTest {
     private val studentProfileService = mockk<StudentProfileService>()
     private val coTeacherService = mockk<CoTeacherService>()
     private val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
+    private val studentClassroomLinkService = mockk<StudentClassroomLinkService>()
 
     private val classroomUpdateUseCase = ClassroomUpdateUseCaseImpl(
         classroomAccessService,
@@ -35,7 +38,8 @@ class ClassroomUpdateUseCaseTest {
         classroomValidator,
         studentProfileService,
         coTeacherService,
-        applicationEventPublisher
+        applicationEventPublisher,
+        studentClassroomLinkService
     )
 
     private val teacherProfile = mockk<TeacherProfile> {
@@ -57,6 +61,7 @@ class ClassroomUpdateUseCaseTest {
         every { classroomService.update(classroomId, classroomUpdateRequest) } returns classroom
         every { studentProfileService.createStudents(classroomId, emptyList()) } returns emptyList()
         every { coTeacherService.isLinkedToClassroom(classroomId, teacherProfile.id) } returns false
+        justRun { studentClassroomLinkService.addStudentsToClassroom(emptyList(), classroomId) }
 
         classroomUpdateUseCase.update(teacherProfile, classroomId, classroomUpdateRequest)
         verify { classroomService.update(classroomId, classroomUpdateRequest) }
@@ -72,9 +77,30 @@ class ClassroomUpdateUseCaseTest {
         every { classroomService.update(classroomId, classroomUpdateRequest) } returns classroom
         every { studentProfileService.createStudents(classroomId, studentCreateRequests) } returns emptyList()
         every { coTeacherService.isLinkedToClassroom(classroomId, teacherProfile.id) } returns false
+        justRun { studentClassroomLinkService.addStudentsToClassroom(emptyList(), classroomId) }
 
         classroomUpdateUseCase.update(teacherProfile, classroomId, classroomUpdateRequest)
         verify { studentProfileService.createStudents(classroomId, studentCreateRequests) }
+    }
+
+    @Test
+    fun `should add students to classroom`() {
+        val studentCreateRequests = listOf<StudentCreateRequest>(mockk())
+        val studentId = UUID.randomUUID()
+
+        every { classroomUpdateRequest.studentCreateRequests } returns studentCreateRequests
+        every { classroomService.getById(classroomId) } returns classroom
+        every { classroomAccessService.canUpdateClassroom(teacherProfile, classroom) } returns true
+        every { classroomValidator.validate(teacherProfile, classroomId, classroomUpdateRequest) } returns Unit.right()
+        every { classroomService.update(classroomId, classroomUpdateRequest) } returns classroom
+        every { studentProfileService.createStudents(classroomId, studentCreateRequests) } returns listOf(
+            mockk { every { id } returns studentId }
+        )
+        every { coTeacherService.isLinkedToClassroom(classroomId, teacherProfile.id) } returns false
+        justRun { studentClassroomLinkService.addStudentsToClassroom(listOf(studentId), classroomId) }
+
+        classroomUpdateUseCase.update(teacherProfile, classroomId, classroomUpdateRequest)
+        verify { studentClassroomLinkService.addStudentsToClassroom(listOf(studentId), classroomId) }
     }
 
     @Test
@@ -134,14 +160,18 @@ class ClassroomUpdateUseCaseTest {
             every { id } returns classroomId
             every { blocked } returns false
         }
+        val studentId = UUID.randomUUID()
         val studentCreateRequests = listOf<StudentCreateRequest>(mockk())
         every { classroomUpdateRequest.studentCreateRequests } returns studentCreateRequests
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacherProfile, classroom) } returns true
         every { classroomValidator.validate(teacherProfile, classroomId, classroomUpdateRequest) } returns Unit.right()
         every { classroomService.update(classroomId, classroomUpdateRequest) } returns updatedClassroom
-        every { studentProfileService.createStudents(classroomId, studentCreateRequests) } returns listOf(mockk())
+        every { studentProfileService.createStudents(classroomId, studentCreateRequests) } returns listOf(
+            mockk { every { id } returns studentId }
+        )
         every { coTeacherService.isLinkedToClassroom(classroomId, teacherProfile.id) } returns false
+        justRun { studentClassroomLinkService.addStudentsToClassroom(listOf(studentId), classroomId) }
 
         val result = classroomUpdateUseCase.update(teacherProfile, classroomId, classroomUpdateRequest)
         assertEquals(updatedClassroom.right(), result)
