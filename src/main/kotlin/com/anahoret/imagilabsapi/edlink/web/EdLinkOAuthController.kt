@@ -4,12 +4,12 @@ import arrow.core.Either
 import com.anahoret.imagilabsapi.auth.web.RequestAuthenticatorService
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
+import com.anahoret.imagilabsapi.common.domain.error.UnsupportedUserTypeError
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.web.ErrorResponseDto
 import com.anahoret.imagilabsapi.common.web.ResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
-import com.anahoret.imagilabsapi.edlink.api.model.UnsupportedUserTypeError
 import com.anahoret.imagilabsapi.edlink.domain.EdLinkOAuthCallbackRequest
 import com.anahoret.imagilabsapi.edlink.domain.EdLinkOAuthStateService
 import com.anahoret.imagilabsapi.edlink.domain.EdLinkOauthCallbackUseCase

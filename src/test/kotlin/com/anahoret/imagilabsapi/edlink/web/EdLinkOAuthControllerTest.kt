@@ -4,12 +4,12 @@ import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.auth.web.*
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenData
+import com.anahoret.imagilabsapi.common.domain.error.UnsupportedUserTypeError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.common.web.ErrorResponseDto
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
-import com.anahoret.imagilabsapi.edlink.api.model.UnsupportedUserTypeError
 import com.anahoret.imagilabsapi.edlink.domain.EdLinkOAuthCallbackRequest
 import com.anahoret.imagilabsapi.edlink.domain.EdLinkOAuthStateService
 import com.anahoret.imagilabsapi.edlink.domain.EdLinkOauthCallbackUseCase

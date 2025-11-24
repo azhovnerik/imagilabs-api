@@ -3,7 +3,7 @@ package com.anahoret.imagilabsapi.edlink.api.model
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import com.anahoret.imagilabsapi.common.domain.error.OperationError
+import com.anahoret.imagilabsapi.common.domain.error.UnsupportedUserTypeError
 import com.anahoret.imagilabsapi.users.UserType
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.util.*
@@ -30,7 +30,3 @@ class Person(
 class Address(
     @field:JsonProperty("country") val country: String?
 )
-
-object UnsupportedUserTypeError : OperationError {
-    const val message: String = "UNSUPPORTED_USER_TYPE"
-}

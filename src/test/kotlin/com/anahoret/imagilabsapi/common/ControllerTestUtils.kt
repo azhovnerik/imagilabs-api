@@ -21,8 +21,10 @@ fun testAdmin(): AdminProfile {
     return AdminProfile(UUID.randomUUID(), "Admin")
 }
 
-fun testTeacher(): TeacherProfile {
-    val teacherId = UUID.randomUUID()
+fun testTeacher(
+    teacherId: UUID = UUID.randomUUID(),
+    subscription: TeacherSubscription = TeacherSubscription(null, null, STANDARD, false, teacherId)
+): TeacherProfile {
     return TeacherProfile(
         id = teacherId,
         firstName = "John",
@@ -33,16 +35,18 @@ fun testTeacher(): TeacherProfile {
         createdAt = 0L,
         emailVerified = true,
         marketingEmailSubscribed = false,
-        subscription = TeacherSubscription(null, null, STANDARD, false, teacherId),
+        subscription = subscription
     )
 }
 
 fun testTeacherSubscription(
+    start: Long = 0L,
+    end: Long = 100L,
     plan: TeacherSubscriptionPlan = STANDARD,
     canceled: Boolean = false,
     teacherId: UUID = UUID.randomUUID()
 ): TeacherSubscription {
-    return TeacherSubscription(0, 100, plan, canceled, teacherId)
+    return TeacherSubscription(start, end, plan, canceled, teacherId)
 }
 
 fun testStudent(): StudentProfile {

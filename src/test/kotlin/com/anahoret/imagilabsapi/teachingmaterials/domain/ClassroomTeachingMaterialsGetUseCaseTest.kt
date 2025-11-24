@@ -1,132 +1,56 @@
 package com.anahoret.imagilabsapi.teachingmaterials.domain
 
-import arrow.core.left
-import com.anahoret.imagilabsapi.classrooms.domain.Classroom
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.*
-import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
-import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.common.domain.error.UnsupportedUserTypeError
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan.PRO
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan.STANDARD
-import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
+import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import java.util.*
+import java.time.Clock
+import java.time.Instant
 
 @DisplayName("Classroom teaching materials get use case")
 class ClassroomTeachingMaterialsGetUseCaseTest {
 
     private val teacherBundleService = mockk<TeacherBundleService>()
-    private val classroomService = mockk<ClassroomService>()
-    private val classroomAccessService = mockk<ClassroomAccessService>()
     private val lessonBundleService = mockk<LessonBundleService>()
-    private val teacherSubscriptionService = mockk<TeacherSubscriptionService>()
+    private val teacherProfileService = mockk<TeacherProfileService>()
+    private val clock = mockk<Clock>()
 
-    private val classroomTeachingMaterialsGetUseCase = ClassroomTeachingMaterialsGetUseCaseImpl(
-        teacherBundleService, classroomService, classroomAccessService, lessonBundleService, teacherSubscriptionService
+    private val classroomTeachingMaterialsGetUseCase = TeachingMaterialsGetUseCaseImpl(
+        teacherBundleService, lessonBundleService, teacherProfileService, clock
     )
 
+    @BeforeEach
+    fun setUp() {
+        every { clock.instant() } returns Instant.ofEpochMilli(500)
+    }
+
     @Test
-    fun `should return access denied error when admin try to get materials`() {
+    fun `should return unsupported user type error when admin try to get materials`() {
         val testAdmin = testAdmin()
-        val testClassroom = testClassroom()
 
-        every { classroomService.getById(testClassroom.id) } returns testClassroom
-
-        val result = classroomTeachingMaterialsGetUseCase.get(testAdmin, testClassroom.id)
+        val result = classroomTeachingMaterialsGetUseCase.get(testAdmin)
 
         assertTrue(result.isLeft())
-        result.onLeft { assertTrue(it is AccessDeniedError) }
-    }
-
-    @Test
-    fun `should return subscription required when classroom is blocked`() {
-        val testTeacher = testTeacher()
-        val testClassroom = testClassroom(testTeacher.id).let {
-            Classroom(
-                it.id,
-                it.name,
-                it.accessCode,
-                it.studentsCount,
-                it.projectsCount,
-                it.teacherId,
-                it.teachersCount,
-                blocked = true,
-                ClassroomPermissions(true)
-            )
-        }
-
-        every { classroomService.getById(testClassroom.id) } returns testClassroom
-
-        val result = classroomTeachingMaterialsGetUseCase.get(testTeacher, testClassroom.id)
-
-        assertTrue(result.isLeft())
-        assertEquals(AccessDeniedError("SUBSCRIPTION_REQUIRED").left(), result)
-    }
-
-    @Test
-    fun `should return classroom not found error when classroom does not exists`() {
-        val testTeacher = testTeacher()
-        val classroomId = UUID.randomUUID()
-
-        every { classroomService.getById(classroomId) } returns null
-
-        val result = classroomTeachingMaterialsGetUseCase.get(testTeacher, classroomId)
-
-        assertTrue(result.isLeft())
-        result.onLeft { assertTrue(it is NotFoundError) }
-    }
-
-    @Test
-    fun `should return access denied error when teacher have no access to materials`() {
-        val testTeacher = testTeacher()
-        val testClassroom = testClassroom()
-
-        every { classroomService.getById(testClassroom.id) } returns testClassroom
-        every { classroomAccessService.canGetTeachingMaterials(testTeacher, testClassroom) } returns false
-
-        val result = classroomTeachingMaterialsGetUseCase.get(testTeacher, testClassroom.id)
-
-        assertTrue(result.isLeft())
-        result.onLeft { assertTrue(it is AccessDeniedError) }
-    }
-
-    @Test
-    fun `should return access denied error when student have no access to materials`() {
-        val testClassroom = testClassroom()
-        val testStudent = testStudent()
-
-        every { classroomService.getById(testClassroom.id) } returns testClassroom
-        every { classroomAccessService.canGetTeachingMaterials(testStudent, testClassroom) } returns false
-
-        val result = classroomTeachingMaterialsGetUseCase.get(testStudent, testClassroom.id)
-
-        assertTrue(result.isLeft())
-        result.onLeft { assertTrue(it is AccessDeniedError) }
+        result.onLeft { assertTrue(it is UnsupportedUserTypeError) }
     }
 
     @Test
     fun `should return teaching materials for teacher with nullable pro lessons`() {
-        val testTeacher = testTeacher()
-        val testClassroom = testClassroom(testTeacher.id)
+        val testTeacher = testTeacher(subscription = testTeacherSubscription(plan = PRO))
         val teacherBundleLessons = listOf(testBundleLesson(proLesson = true))
         val defaultBundle = testLessonBundle(default = true)
 
-        every { classroomService.getById(testClassroom.id) } returns testClassroom
-        every { classroomAccessService.canGetTeachingMaterials(testTeacher, testClassroom) } returns true
         every { lessonBundleService.getDefaultBundle() } returns defaultBundle
         every { teacherBundleService.getBundleLessonsByTeacherId(testTeacher.id) } returns teacherBundleLessons
-        every { teacherSubscriptionService.getSubscriptionDto(testClassroom.teacherId) } returns testTeacherSubscription(
-            STANDARD
-        )
 
-        val result = classroomTeachingMaterialsGetUseCase.get(testTeacher, testClassroom.id)
+        val result = classroomTeachingMaterialsGetUseCase.get(testTeacher)
 
         assertTrue(result.isRight())
         result.onRight { materials ->
@@ -137,20 +61,16 @@ class ClassroomTeachingMaterialsGetUseCaseTest {
 
     @Test
     fun `should return teaching materials for student without pro lessons when teacher have standard subscription`() {
-        val testClassroom = testClassroom()
         val testStudent = testStudent()
         val teacherBundleLessons = listOf(testBundleLesson(proLesson = true))
         val defaultBundle = testLessonBundle(default = true)
+        val teacher = testTeacher(subscription = testTeacherSubscription(plan = STANDARD))
 
-        every { classroomService.getById(testClassroom.id) } returns testClassroom
-        every { classroomAccessService.canGetTeachingMaterials(testStudent, testClassroom) } returns true
         every { lessonBundleService.getDefaultBundle() } returns defaultBundle
-        every { teacherBundleService.getBundleLessonsByTeacherId(testClassroom.teacherId) } returns teacherBundleLessons
-        every { teacherSubscriptionService.getSubscriptionDto(testClassroom.teacherId) } returns testTeacherSubscription(
-            STANDARD
-        )
+        every { teacherBundleService.getBundleLessonsByTeacherId(teacher.id) } returns teacherBundleLessons
+        every { teacherProfileService.listTeachersByStudent(testStudent.id) } returns listOf(teacher)
 
-        val result = classroomTeachingMaterialsGetUseCase.get(testStudent, testClassroom.id)
+        val result = classroomTeachingMaterialsGetUseCase.get(testStudent)
 
         assertTrue(result.isRight())
         result.onRight { materials ->
@@ -161,20 +81,16 @@ class ClassroomTeachingMaterialsGetUseCaseTest {
 
     @Test
     fun `should return teaching materials for student with pro lessons when teacher have pro subscription`() {
-        val testClassroom = testClassroom()
         val testStudent = testStudent()
         val teacherBundleLessons = listOf(testBundleLesson(proLesson = true))
         val defaultBundle = testLessonBundle(default = true)
+        val teacher = testTeacher(subscription = testTeacherSubscription(start = 0, end = 1000, PRO))
 
-        every { classroomService.getById(testClassroom.id) } returns testClassroom
-        every { classroomAccessService.canGetTeachingMaterials(testStudent, testClassroom) } returns true
         every { lessonBundleService.getDefaultBundle() } returns defaultBundle
-        every { teacherBundleService.getBundleLessonsByTeacherId(testClassroom.teacherId) } returns teacherBundleLessons
-        every { teacherSubscriptionService.getSubscriptionDto(testClassroom.teacherId) } returns testTeacherSubscription(
-            PRO
-        )
+        every { teacherBundleService.getBundleLessonsByTeacherId(teacher.id) } returns teacherBundleLessons
+        every { teacherProfileService.listTeachersByStudent(testStudent.id) } returns listOf(teacher)
 
-        val result = classroomTeachingMaterialsGetUseCase.get(testStudent, testClassroom.id)
+        val result = classroomTeachingMaterialsGetUseCase.get(testStudent)
 
         assertTrue(result.isRight())
         result.onRight { materials ->
