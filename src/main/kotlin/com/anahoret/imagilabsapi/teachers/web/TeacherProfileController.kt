@@ -28,6 +28,15 @@ class TeacherProfileController(
         return SuccessResponseDto(teacherProfile)
     }
 
+    @Secured(UserRole.TEACHER, UserRole.TEACHER_EMAIL_NOT_VERIFIED)
+    @PatchMapping("/api/teacher/profile/me")
+    fun updateProfile(
+        @AuthenticationPrincipal teacherProfile: TeacherProfile,
+        @RequestBody teacherProfileUpdateRequest: TeacherProfileUpdateRequest
+    ): SuccessResponseDto<TeacherProfile> {
+        TODO()
+    }
+
     @Secured(UserRole.TEACHER)
     @GetMapping("/api/teacher/statistic")
     fun getStatistic(
