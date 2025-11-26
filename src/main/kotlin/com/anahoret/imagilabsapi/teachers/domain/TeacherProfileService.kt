@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Clock
 import java.util.*
 
@@ -39,6 +40,7 @@ interface TeacherProfileService {
 }
 
 @Service
+@Transactional(readOnly = true)
 class TeacherProfileServiceImpl(
     private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
     private val passwordEncoder: PasswordEncoder,
@@ -47,6 +49,7 @@ class TeacherProfileServiceImpl(
     @param:Value($$"${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : TeacherProfileService {
 
+    @Transactional
     override fun createTeacher(request: TeacherSignupRequest): TeacherProfile {
         return with(request) {
             teacherProfileEntityRepository.save(
@@ -78,6 +81,7 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findByEmail(email)?.id
     }
 
+    @Transactional(readOnly = true)
     override fun getTeacherByIdForAdmin(id: UUID): TeacherProfileAdminView? {
         return teacherProfileEntityRepository.findByIdOrNull(id)
             ?.let {
@@ -88,6 +92,7 @@ class TeacherProfileServiceImpl(
             }
     }
 
+    @Transactional(readOnly = true)
     override fun getTeachersByIdsForAdmin(ids: List<UUID>): List<TeacherProfileAdminView> {
         return teacherProfileEntityRepository.findAllById(ids)
             .map {
@@ -147,6 +152,7 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.existsById(teacherId)
     }
 
+    @Transactional
     override fun setPassword(email: String, newPassword: String) {
         teacherProfileEntityRepository.findByEmail(email)
             ?.let {
@@ -161,10 +167,12 @@ class TeacherProfileServiceImpl(
             .map(::toTeacherProfile)
     }
 
+    @Transactional
     override fun delete(teacherId: UUID) {
         teacherProfileEntityRepository.deleteById(teacherId)
     }
 
+    @Transactional
     override fun completeChatOnboarding(teacherId: UUID): TeacherProfile? {
         return teacherProfileEntityRepository.findByIdOrNull(teacherId)?.let {
             it.aiChatOnboardingCompleted = true
@@ -172,6 +180,7 @@ class TeacherProfileServiceImpl(
         }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)) }
     }
 
+    @Transactional
     override fun setIntroSeen(teacherId: UUID): TeacherProfile? {
         return teacherProfileEntityRepository.findByIdOrNull(teacherId)?.let {
             it.aiChatIntroSeen = true
