@@ -1,7 +1,6 @@
 package com.anahoret.imagilabsapi.teachers.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
-import com.anahoret.imagilabsapi.schools.domain.School
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionData
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
@@ -24,8 +23,8 @@ class TeacherProfile(
     val state: String? = null,
     val schoolRoles: List<SchoolRole> = emptyList(),
     val grades: List<GradeLevel> = emptyList(),
-    val subjects: List<Subject> = emptyList(),
-    val schools: List<School> = emptyList(),
+    val subjects: String? = null,
+    val schools: String? = null,
     @field:JsonIgnore val edLinkIntegrationId: UUID? = null,
     @field:JsonIgnore val edLinkPersonId: UUID? = null
 ) : UserProfile, TeacherSubscriptionData by subscription {
@@ -35,7 +34,7 @@ class TeacherProfile(
 
     companion object {
 
-        fun fromEntity(entity: TeacherProfileEntity, subscription: TeacherSubscription, schools: List<School> = emptyList()): TeacherProfile {
+        fun fromEntity(entity: TeacherProfileEntity, subscription: TeacherSubscription): TeacherProfile {
             return with(entity) {
                 TeacherProfile(
                     id!!,
@@ -51,7 +50,7 @@ class TeacherProfile(
                     state = state,
                     schoolRoles = parseSchoolRoles(schoolRoles),
                     grades = parseGrades(grades),
-                    subjects = parseSubjects(subjects),
+                    subjects = subjects,
                     schools = schools,
                     edLinkIntegrationId = edLinkIntegrationId,
                     edLinkPersonId = edLinkPersonId
@@ -81,27 +80,12 @@ class TeacherProfile(
                 } ?: emptyList()
         }
 
-        fun parseSubjects(subjectsString: String?): List<Subject> {
-            return subjectsString?.split(",")
-                ?.mapNotNull {
-                    try {
-                        Subject.valueOf(it.trim())
-                    } catch (e: IllegalArgumentException) {
-                        null
-                    }
-                } ?: emptyList()
-        }
-
         fun schoolRolesToString(roles: List<SchoolRole>?): String? {
             return roles?.takeIf { it.isNotEmpty() }?.joinToString(",") { it.name }
         }
 
         fun gradesToString(grades: List<GradeLevel>?): String? {
             return grades?.takeIf { it.isNotEmpty() }?.joinToString(",") { it.name }
-        }
-
-        fun subjectsToString(subjects: List<Subject>?): String? {
-            return subjects?.takeIf { it.isNotEmpty() }?.joinToString(",") { it.name }
         }
     }
 }

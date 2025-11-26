@@ -134,8 +134,8 @@ class GoogleSheetsTeachersExportUseCaseImpl(
                     subscription.end.toUTC(),
                     schoolRoles.joinToString(", ") { it.name },
                     grades.joinToString(", ") { it.name },
-                    subjects.joinToString(", ") { it.name },
-                    schools.joinToString(", ") { it.name }
+                    subjects ?: "",
+                    schools ?: ""
                 )
             }
         }

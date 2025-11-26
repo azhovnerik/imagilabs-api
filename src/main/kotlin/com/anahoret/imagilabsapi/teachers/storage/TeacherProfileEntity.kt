@@ -1,7 +1,6 @@
 package com.anahoret.imagilabsapi.teachers.storage
 
 import com.anahoret.imagilabsapi.common.storage.BaseEntity
-import com.anahoret.imagilabsapi.schools.storage.SchoolEntity
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionData
 import jakarta.persistence.*
 import java.util.*
@@ -84,11 +83,6 @@ class TeacherProfileEntity(
     @Column(name = "subjects")
     var subjects: String? = null,
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "teacher_schools",
-        joinColumns = [JoinColumn(name = "teacher_id")],
-        inverseJoinColumns = [JoinColumn(name = "school_id")]
-    )
-    var schools: MutableSet<SchoolEntity> = mutableSetOf()
+    @Column(name = "schools")
+    var schools: String? = null
 ) : BaseEntity(), TeacherSubscriptionData

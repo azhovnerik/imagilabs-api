@@ -2,11 +2,6 @@ package com.anahoret.imagilabsapi.teachers.domain
 
 import arrow.core.left
 import arrow.core.right
-import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
-import com.anahoret.imagilabsapi.schools.domain.SchoolService
-import com.anahoret.imagilabsapi.schools.storage.SchoolEntity
-import com.anahoret.imagilabsapi.schools.storage.SchoolRepository
-import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 import io.mockk.every
@@ -22,14 +17,10 @@ class TeacherProfileUpdateUseCaseTest {
 
     private val teacherProfileEntityRepository = mockk<TeacherProfileEntityRepository>(relaxed = true)
     private val teacherProfileService = mockk<TeacherProfileService>()
-    private val schoolService = mockk<SchoolService>()
-    private val schoolRepository = mockk<SchoolRepository>()
 
     private val useCase = TeacherProfileUpdateUseCaseImpl(
         teacherProfileEntityRepository,
-        teacherProfileService,
-        schoolService,
-        schoolRepository
+        teacherProfileService
     )
 
     @Test
@@ -38,21 +29,6 @@ class TeacherProfileUpdateUseCaseTest {
         val request = TeacherProfileUpdateRequest(firstName = "John")
 
         every { teacherProfileEntityRepository.findByIdOrNull(teacherId) } returns null
-
-        val result = useCase.update(teacherId, request)
-
-        assertTrue(result.isLeft())
-    }
-
-    @Test
-    fun `should return validation error when school IDs are invalid`() {
-        val teacherId = UUID.randomUUID()
-        val invalidSchoolId = UUID.randomUUID()
-        val request = TeacherProfileUpdateRequest(schoolIds = listOf(invalidSchoolId))
-
-        val teacherEntity = createMockTeacherEntity(teacherId)
-        every { teacherProfileEntityRepository.findByIdOrNull(teacherId) } returns teacherEntity
-        every { schoolRepository.existsById(invalidSchoolId) } returns false
 
         val result = useCase.update(teacherId, request)
 
@@ -118,10 +94,10 @@ class TeacherProfileUpdateUseCaseTest {
     }
 
     @Test
-    fun `should update subjects as comma-separated string`() {
+    fun `should update subjects as text field`() {
         val teacherId = UUID.randomUUID()
         val request = TeacherProfileUpdateRequest(
-            subjects = listOf(Subject.MATHEMATICS, Subject.COMPUTER_SCIENCE)
+            subjects = "Mathematics, Computer Science"
         )
 
         val teacherEntity = createMockTeacherEntity(teacherId)
@@ -132,38 +108,23 @@ class TeacherProfileUpdateUseCaseTest {
         val result = useCase.update(teacherId, request)
 
         assertTrue(result.isRight())
-        assertEquals("MATHEMATICS,COMPUTER_SCIENCE", teacherEntity.subjects)
+        assertEquals("Mathematics, Computer Science", teacherEntity.subjects)
     }
 
     @Test
-    fun `should replace schools with full replacement strategy`() {
+    fun `should update schools as text field`() {
         val teacherId = UUID.randomUUID()
-        val oldSchoolId = UUID.randomUUID()
-        val schoolId1 = UUID.randomUUID()
-        val schoolId2 = UUID.randomUUID()
-        val request = TeacherProfileUpdateRequest(schoolIds = listOf(schoolId1, schoolId2))
+        val request = TeacherProfileUpdateRequest(schools = "Lincoln Elementary, Washington High")
 
         val teacherEntity = createMockTeacherEntity(teacherId)
-        val oldSchool = SchoolEntity("Old School").apply { id = oldSchoolId }
-        teacherEntity.schools.add(oldSchool)
-
-        val school1 = SchoolEntity("School 1").apply { id = schoolId1 }
-        val school2 = SchoolEntity("School 2").apply { id = schoolId2 }
-
         every { teacherProfileEntityRepository.findByIdOrNull(teacherId) } returns teacherEntity
-        every { schoolRepository.existsById(schoolId1) } returns true
-        every { schoolRepository.existsById(schoolId2) } returns true
-        every { schoolRepository.findAllById(listOf(schoolId1, schoolId2)) } returns listOf(school1, school2)
         every { teacherProfileEntityRepository.save(any()) } returns teacherEntity
         every { teacherProfileService.getTeacherById(teacherId) } returns mockk()
 
         val result = useCase.update(teacherId, request)
 
         assertTrue(result.isRight())
-        assertEquals(2, teacherEntity.schools.size)
-        assertFalse(teacherEntity.schools.contains(oldSchool))
-        assertTrue(teacherEntity.schools.contains(school1))
-        assertTrue(teacherEntity.schools.contains(school2))
+        assertEquals("Lincoln Elementary, Washington High", teacherEntity.schools)
     }
 
     @Test
@@ -201,7 +162,6 @@ class TeacherProfileUpdateUseCaseTest {
             tipTokensReplenishedAt = 0L
         ).apply {
             this.id = id
-            this.schools = mutableSetOf()
         }
     }
 }

@@ -139,30 +139,6 @@ class TeacherProfileControllerTest {
         }
 
         @Test
-        fun `should return validation error when school IDs are invalid`() {
-            val testTeacher = testTeacher()
-            val invalidSchoolId = UUID.randomUUID()
-            val requestBody = """
-                {
-                    "schoolIds": ["$invalidSchoolId"]
-                }
-            """.trimIndent()
-
-            every {
-                teacherProfileUpdateUseCase.update(testTeacher.id, any())
-            } returns ValidationError("School IDs are invalid").left()
-
-            mvc.perform(
-                MockMvcRequestBuilders.patch("/api/teacher/profile/me")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(requestBody)
-                    .asTeacher(testTeacher)
-            ).andExpect(MockMvcResultMatchers.status().isBadRequest)
-
-            verify { teacherProfileUpdateUseCase.update(testTeacher.id, any()) }
-        }
-
-        @Test
         fun `should successfully update basic profile fields`() {
             val testTeacher = testTeacher()
             val updatedTeacher = mockk<TeacherProfile>(relaxed = true) {
@@ -230,11 +206,11 @@ class TeacherProfileControllerTest {
             val testTeacher = testTeacher()
             val updatedTeacher = mockk<TeacherProfile>(relaxed = true) {
                 every { id } returns testTeacher.id
-                every { subjects } returns listOf(Subject.MATHEMATICS, Subject.COMPUTER_SCIENCE)
+                every { subjects } returns "Mathematics, Computer Science"
             }
             val requestBody = """
                 {
-                    "subjects": ["MATHEMATICS", "COMPUTER_SCIENCE"]
+                    "subjects": "Mathematics, Computer Science"
                 }
             """.trimIndent()
 

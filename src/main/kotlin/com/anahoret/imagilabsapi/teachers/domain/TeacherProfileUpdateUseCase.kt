@@ -5,9 +5,6 @@ import arrow.core.left
 import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
-import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
-import com.anahoret.imagilabsapi.schools.domain.SchoolService
-import com.anahoret.imagilabsapi.schools.storage.SchoolRepository
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -21,25 +18,13 @@ interface TeacherProfileUpdateUseCase {
 @Service
 class TeacherProfileUpdateUseCaseImpl(
     private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
-    private val teacherProfileService: TeacherProfileService,
-    private val schoolService: SchoolService,
-    private val schoolRepository: SchoolRepository
+    private val teacherProfileService: TeacherProfileService
 ) : TeacherProfileUpdateUseCase {
 
     @Transactional
     override fun update(teacherId: UUID, request: TeacherProfileUpdateRequest): Either<OperationError, TeacherProfile> {
         val teacherEntity = teacherProfileEntityRepository.findByIdOrNull(teacherId)
             ?: return NotFoundError("TEACHER_NOT_FOUND").left()
-
-        // Validate school IDs if provided
-        if (request.schoolIds != null) {
-            val invalidSchoolIds = request.schoolIds.filter { schoolId ->
-                !schoolRepository.existsById(schoolId)
-            }
-            if (invalidSchoolIds.isNotEmpty()) {
-                return ValidationError("INVALID_SCHOOL_IDS").left()
-            }
-        }
 
         // Update simple fields (only if not null)
         request.firstName?.let { teacherEntity.firstName = it }
@@ -56,16 +41,10 @@ class TeacherProfileUpdateUseCaseImpl(
         request.grades?.let {
             teacherEntity.grades = TeacherProfile.gradesToString(it)
         }
-        request.subjects?.let {
-            teacherEntity.subjects = TeacherProfile.subjectsToString(it)
-        }
 
-        // Update schools (full replacement)
-        request.schoolIds?.let { schoolIds ->
-            val schools = schoolRepository.findAllById(schoolIds)
-            teacherEntity.schools.clear()
-            teacherEntity.schools.addAll(schools)
-        }
+        // Update text fields
+        request.subjects?.let { teacherEntity.subjects = it }
+        request.schools?.let { teacherEntity.schools = it }
 
         teacherProfileEntityRepository.save(teacherEntity)
 

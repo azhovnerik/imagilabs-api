@@ -1,6 +1,5 @@
 package com.anahoret.imagilabsapi.teachers.domain
 
-import com.anahoret.imagilabsapi.schools.domain.School
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
@@ -87,8 +86,7 @@ class TeacherProfileServiceImpl(
             ?.let {
                 val subscription =
                     teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-                val schools = it.schools.map { school -> School.fromEntity(school) }
-                TeacherProfileAdminView.fromEntity(it, subscription, schools)
+                TeacherProfileAdminView.fromEntity(it, subscription)
             }
     }
 
@@ -98,8 +96,7 @@ class TeacherProfileServiceImpl(
             .map {
                 val subscription =
                     teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-                val schools = it.schools.map { school -> School.fromEntity(school) }
-                TeacherProfileAdminView.fromEntity(it, subscription, schools)
+                TeacherProfileAdminView.fromEntity(it, subscription)
             }
     }
 
@@ -115,8 +112,7 @@ class TeacherProfileServiceImpl(
                 ).map {
                 val subscription =
                     teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-                val schools = it.schools.map { school -> School.fromEntity(school) }
-                TeacherProfileAdminView.fromEntity(it, subscription, schools)
+                TeacherProfileAdminView.fromEntity(it, subscription)
             }
     }
 
@@ -129,8 +125,7 @@ class TeacherProfileServiceImpl(
         return teacherEntities.map {
             val subscription =
                 teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-            val schools = it.schools.map { school -> School.fromEntity(school) }
-            TeacherProfileAdminView.fromEntity(it, subscription, schools)
+            TeacherProfileAdminView.fromEntity(it, subscription)
         }
     }
 
@@ -177,7 +172,7 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findByIdOrNull(teacherId)?.let {
             it.aiChatOnboardingCompleted = true
             teacherProfileEntityRepository.save(it)
-        }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)) }
+        }?.let(::toTeacherProfile)
     }
 
     @Transactional
@@ -185,7 +180,7 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findByIdOrNull(teacherId)?.let {
             it.aiChatIntroSeen = true
             teacherProfileEntityRepository.save(it)
-        }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)) }
+        }?.let(::toTeacherProfile)
     }
 
     override fun isAiChatOnboardingCompleted(teacherId: UUID): Boolean {
@@ -214,7 +209,6 @@ class TeacherProfileServiceImpl(
 
     private fun toTeacherProfile(entity: TeacherProfileEntity): TeacherProfile {
         val subscription = teacherSubscriptionService.buildSubscriptionDto(entity.id!!, entity)
-        val schools = entity.schools.map { com.anahoret.imagilabsapi.schools.domain.School.fromEntity(it) }
-        return TeacherProfile.fromEntity(entity, subscription, schools)
+        return TeacherProfile.fromEntity(entity, subscription)
     }
 }
