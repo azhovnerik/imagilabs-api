@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.teachers.domain
 
+import com.anahoret.imagilabsapi.schools.domain.School
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionService
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntityRepository
@@ -82,7 +83,8 @@ class TeacherProfileServiceImpl(
             ?.let {
                 val subscription =
                     teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-                TeacherProfileAdminView.fromEntity(it, subscription)
+                val schools = it.schools.map { school -> School.fromEntity(school) }
+                TeacherProfileAdminView.fromEntity(it, subscription, schools)
             }
     }
 
@@ -91,7 +93,8 @@ class TeacherProfileServiceImpl(
             .map {
                 val subscription =
                     teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-                TeacherProfileAdminView.fromEntity(it, subscription)
+                val schools = it.schools.map { school -> School.fromEntity(school) }
+                TeacherProfileAdminView.fromEntity(it, subscription, schools)
             }
     }
 
@@ -107,7 +110,8 @@ class TeacherProfileServiceImpl(
                 ).map {
                 val subscription =
                     teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-                TeacherProfileAdminView.fromEntity(it, subscription)
+                val schools = it.schools.map { school -> School.fromEntity(school) }
+                TeacherProfileAdminView.fromEntity(it, subscription, schools)
             }
     }
 
@@ -120,7 +124,8 @@ class TeacherProfileServiceImpl(
         return teacherEntities.map {
             val subscription =
                 teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)
-            TeacherProfileAdminView.fromEntity(it, subscription)
+            val schools = it.schools.map { school -> School.fromEntity(school) }
+            TeacherProfileAdminView.fromEntity(it, subscription, schools)
         }
     }
 

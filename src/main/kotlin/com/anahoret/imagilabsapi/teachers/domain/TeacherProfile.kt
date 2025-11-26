@@ -59,7 +59,7 @@ class TeacherProfile(
             }
         }
 
-        private fun parseSchoolRoles(rolesString: String?): List<SchoolRole> {
+        fun parseSchoolRoles(rolesString: String?): List<SchoolRole> {
             return rolesString?.split(",")
                 ?.mapNotNull {
                     try {
@@ -70,7 +70,7 @@ class TeacherProfile(
                 } ?: emptyList()
         }
 
-        private fun parseGrades(gradesString: String?): List<GradeLevel> {
+        fun parseGrades(gradesString: String?): List<GradeLevel> {
             return gradesString?.split(",")
                 ?.mapNotNull {
                     try {
@@ -81,7 +81,7 @@ class TeacherProfile(
                 } ?: emptyList()
         }
 
-        private fun parseSubjects(subjectsString: String?): List<Subject> {
+        fun parseSubjects(subjectsString: String?): List<Subject> {
             return subjectsString?.split(",")
                 ?.mapNotNull {
                     try {
