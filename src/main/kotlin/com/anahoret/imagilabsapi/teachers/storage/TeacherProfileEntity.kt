@@ -1,10 +1,9 @@
 package com.anahoret.imagilabsapi.teachers.storage
 
 import com.anahoret.imagilabsapi.common.storage.BaseEntity
+import com.anahoret.imagilabsapi.schools.storage.SchoolEntity
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionData
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import java.util.*
 
 @Entity
@@ -71,5 +70,25 @@ class TeacherProfileEntity(
     var edLinkIntegrationId: UUID? = null,
 
     @Column(name = "ed_link_person_id")
-    var edLinkPersonId: UUID? = null
+    var edLinkPersonId: UUID? = null,
+
+    @Column(name = "state")
+    var state: String? = null,
+
+    @Column(name = "school_roles")
+    var schoolRoles: String? = null,
+
+    @Column(name = "grades")
+    var grades: String? = null,
+
+    @Column(name = "subjects")
+    var subjects: String? = null,
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "teacher_schools",
+        joinColumns = [JoinColumn(name = "teacher_id")],
+        inverseJoinColumns = [JoinColumn(name = "school_id")]
+    )
+    var schools: MutableSet<SchoolEntity> = mutableSetOf()
 ) : BaseEntity(), TeacherSubscriptionData

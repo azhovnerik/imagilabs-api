@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.teachers.domain
 
 import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
+import com.anahoret.imagilabsapi.schools.domain.School
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionData
 import com.anahoret.imagilabsapi.teachers.storage.TeacherProfileEntity
@@ -20,6 +21,11 @@ class TeacherProfile(
     val emailVerified: Boolean,
     val marketingEmailSubscribed: Boolean,
     val subscription: TeacherSubscription,
+    val state: String? = null,
+    val schoolRoles: List<SchoolRole> = emptyList(),
+    val grades: List<GradeLevel> = emptyList(),
+    val subjects: List<Subject> = emptyList(),
+    val schools: List<School> = emptyList(),
     @field:JsonIgnore val edLinkIntegrationId: UUID? = null,
     @field:JsonIgnore val edLinkPersonId: UUID? = null
 ) : UserProfile, TeacherSubscriptionData by subscription {
@@ -29,7 +35,7 @@ class TeacherProfile(
 
     companion object {
 
-        fun fromEntity(entity: TeacherProfileEntity, subscription: TeacherSubscription): TeacherProfile {
+        fun fromEntity(entity: TeacherProfileEntity, subscription: TeacherSubscription, schools: List<School> = emptyList()): TeacherProfile {
             return with(entity) {
                 TeacherProfile(
                     id!!,
@@ -42,10 +48,60 @@ class TeacherProfile(
                     emailVerified,
                     marketingEmailSubscribed,
                     subscription,
+                    state = state,
+                    schoolRoles = parseSchoolRoles(schoolRoles),
+                    grades = parseGrades(grades),
+                    subjects = parseSubjects(subjects),
+                    schools = schools,
                     edLinkIntegrationId = edLinkIntegrationId,
                     edLinkPersonId = edLinkPersonId
                 )
             }
+        }
+
+        private fun parseSchoolRoles(rolesString: String?): List<SchoolRole> {
+            return rolesString?.split(",")
+                ?.mapNotNull {
+                    try {
+                        SchoolRole.valueOf(it.trim())
+                    } catch (e: IllegalArgumentException) {
+                        null
+                    }
+                } ?: emptyList()
+        }
+
+        private fun parseGrades(gradesString: String?): List<GradeLevel> {
+            return gradesString?.split(",")
+                ?.mapNotNull {
+                    try {
+                        GradeLevel.valueOf(it.trim())
+                    } catch (e: IllegalArgumentException) {
+                        null
+                    }
+                } ?: emptyList()
+        }
+
+        private fun parseSubjects(subjectsString: String?): List<Subject> {
+            return subjectsString?.split(",")
+                ?.mapNotNull {
+                    try {
+                        Subject.valueOf(it.trim())
+                    } catch (e: IllegalArgumentException) {
+                        null
+                    }
+                } ?: emptyList()
+        }
+
+        fun schoolRolesToString(roles: List<SchoolRole>?): String? {
+            return roles?.takeIf { it.isNotEmpty() }?.joinToString(",") { it.name }
+        }
+
+        fun gradesToString(grades: List<GradeLevel>?): String? {
+            return grades?.takeIf { it.isNotEmpty() }?.joinToString(",") { it.name }
+        }
+
+        fun subjectsToString(subjects: List<Subject>?): String? {
+            return subjects?.takeIf { it.isNotEmpty() }?.joinToString(",") { it.name }
         }
     }
 }

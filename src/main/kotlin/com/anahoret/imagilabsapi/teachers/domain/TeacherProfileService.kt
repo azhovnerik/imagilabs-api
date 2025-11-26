@@ -200,6 +200,7 @@ class TeacherProfileServiceImpl(
 
     private fun toTeacherProfile(entity: TeacherProfileEntity): TeacherProfile {
         val subscription = teacherSubscriptionService.buildSubscriptionDto(entity.id!!, entity)
-        return TeacherProfile.fromEntity(entity, subscription)
+        val schools = entity.schools.map { com.anahoret.imagilabsapi.schools.domain.School.fromEntity(it) }
+        return TeacherProfile.fromEntity(entity, subscription, schools)
     }
 }

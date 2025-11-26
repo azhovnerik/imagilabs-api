@@ -5,10 +5,9 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
 import com.anahoret.imagilabsapi.common.ControllerTest
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
+import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.common.testTeacher
-import com.anahoret.imagilabsapi.teachers.domain.TeacherDeleteUseCase
-import com.anahoret.imagilabsapi.teachers.domain.TeacherGetStatisticUseCase
-import com.anahoret.imagilabsapi.teachers.domain.TeacherGetUseCase
+import com.anahoret.imagilabsapi.teachers.domain.*
 import com.anahoret.imagilabsapi.teachers.storage.TeacherStatistic
 import com.anahoret.imagilabsapi.teachers.web.TeacherProfileController
 import com.ninjasquad.springmockk.MockkBean
@@ -25,6 +24,7 @@ import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.util.*
 
 @DisplayName("Teacher profile controller")
 class TeacherProfileControllerTest {
@@ -48,6 +48,9 @@ class TeacherProfileControllerTest {
 
         @MockkBean
         lateinit var teacherGetStatisticUseCase: TeacherGetStatisticUseCase
+
+        @MockkBean
+        lateinit var teacherProfileUpdateUseCase: TeacherProfileUpdateUseCase
 
         @Test
         fun `should return forbidden error when user isn't a teacher`(){
@@ -92,6 +95,188 @@ class TeacherProfileControllerTest {
             ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
 
             verify { teacherGetStatisticUseCase.get(testTeacher.id) }
+        }
+    }
+
+    @ExtendWith(SpringExtension::class)
+    @DisplayName("when update profile")
+    @Nested
+    @WebMvcTest(
+        TeacherProfileController::class,
+        AuthenticationEntryPoint::class,
+        JwtTokenUtil::class
+    )
+    @Suppress("unused")
+    inner class UpdateProfile : ControllerTest() {
+
+        @MockkBean
+        lateinit var teacherGetUseCase: TeacherGetUseCase
+
+        @MockkBean
+        lateinit var teacherDeleteUseCase: TeacherDeleteUseCase
+
+        @MockkBean
+        lateinit var teacherGetStatisticUseCase: TeacherGetStatisticUseCase
+
+        @MockkBean
+        lateinit var teacherProfileUpdateUseCase: TeacherProfileUpdateUseCase
+
+        @Test
+        fun `should return forbidden error when user isn't a teacher`() {
+            val requestBody = """
+                {
+                    "firstName": "John",
+                    "lastName": "Doe"
+                }
+            """.trimIndent()
+
+            mvc.perform(
+                MockMvcRequestBuilders.patch("/api/teacher/profile/me")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody)
+                    .asAdmin()
+            ).andExpect(MockMvcResultMatchers.status().isForbidden)
+        }
+
+        @Test
+        fun `should return validation error when school IDs are invalid`() {
+            val testTeacher = testTeacher()
+            val invalidSchoolId = UUID.randomUUID()
+            val requestBody = """
+                {
+                    "schoolIds": ["$invalidSchoolId"]
+                }
+            """.trimIndent()
+
+            every {
+                teacherProfileUpdateUseCase.update(testTeacher.id, any())
+            } returns ValidationError("School IDs are invalid").left()
+
+            mvc.perform(
+                MockMvcRequestBuilders.patch("/api/teacher/profile/me")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody)
+                    .asTeacher(testTeacher)
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest)
+
+            verify { teacherProfileUpdateUseCase.update(testTeacher.id, any()) }
+        }
+
+        @Test
+        fun `should successfully update basic profile fields`() {
+            val testTeacher = testTeacher()
+            val updatedTeacher = mockk<TeacherProfile>(relaxed = true) {
+                every { id } returns testTeacher.id
+                every { firstName } returns "John"
+                every { lastName } returns "Doe"
+                every { state } returns "California"
+            }
+            val requestBody = """
+                {
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "state": "California"
+                }
+            """.trimIndent()
+
+            every {
+                teacherProfileUpdateUseCase.update(testTeacher.id, any())
+            } returns updatedTeacher.right()
+
+            mvc.perform(
+                MockMvcRequestBuilders.patch("/api/teacher/profile/me")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody)
+                    .asTeacher(testTeacher)
+            ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.payload.firstName").value("John"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.payload.lastName").value("Doe"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.payload.state").value("California"))
+
+            verify { teacherProfileUpdateUseCase.update(testTeacher.id, any()) }
+        }
+
+        @Test
+        fun `should successfully update profile with school roles and grades`() {
+            val testTeacher = testTeacher()
+            val updatedTeacher = mockk<TeacherProfile>(relaxed = true) {
+                every { id } returns testTeacher.id
+                every { schoolRoles } returns listOf(SchoolRole.TEACHER, SchoolRole.COORDINATOR)
+                every { grades } returns listOf(GradeLevel.FIRST_GRADE, GradeLevel.SECOND_GRADE)
+            }
+            val requestBody = """
+                {
+                    "schoolRoles": ["TEACHER", "COORDINATOR"],
+                    "grades": ["FIRST_GRADE", "SECOND_GRADE"]
+                }
+            """.trimIndent()
+
+            every {
+                teacherProfileUpdateUseCase.update(testTeacher.id, any())
+            } returns updatedTeacher.right()
+
+            mvc.perform(
+                MockMvcRequestBuilders.patch("/api/teacher/profile/me")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody)
+                    .asTeacher(testTeacher)
+            ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
+
+            verify { teacherProfileUpdateUseCase.update(testTeacher.id, any()) }
+        }
+
+        @Test
+        fun `should successfully update profile with subjects`() {
+            val testTeacher = testTeacher()
+            val updatedTeacher = mockk<TeacherProfile>(relaxed = true) {
+                every { id } returns testTeacher.id
+                every { subjects } returns listOf(Subject.MATHEMATICS, Subject.COMPUTER_SCIENCE)
+            }
+            val requestBody = """
+                {
+                    "subjects": ["MATHEMATICS", "COMPUTER_SCIENCE"]
+                }
+            """.trimIndent()
+
+            every {
+                teacherProfileUpdateUseCase.update(testTeacher.id, any())
+            } returns updatedTeacher.right()
+
+            mvc.perform(
+                MockMvcRequestBuilders.patch("/api/teacher/profile/me")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody)
+                    .asTeacher(testTeacher)
+            ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
+
+            verify { teacherProfileUpdateUseCase.update(testTeacher.id, any()) }
+        }
+
+        @Test
+        fun `should successfully update marketing email subscription`() {
+            val testTeacher = testTeacher()
+            val updatedTeacher = mockk<TeacherProfile>(relaxed = true) {
+                every { id } returns testTeacher.id
+                every { marketingEmailSubscribed } returns true
+            }
+            val requestBody = """
+                {
+                    "marketingEmailSubscribed": true
+                }
+            """.trimIndent()
+
+            every {
+                teacherProfileUpdateUseCase.update(testTeacher.id, any())
+            } returns updatedTeacher.right()
+
+            mvc.perform(
+                MockMvcRequestBuilders.patch("/api/teacher/profile/me")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody)
+                    .asTeacher(testTeacher)
+            ).andExpect(MockMvcResultMatchers.status().is2xxSuccessful)
+
+            verify { teacherProfileUpdateUseCase.update(testTeacher.id, any()) }
         }
     }
 }
