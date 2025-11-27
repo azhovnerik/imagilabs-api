@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.classrooms.domain
 
 import com.anahoret.imagilabsapi.classrooms.storage.ClassroomEntity
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.*
 
 @Suppress("unused")
@@ -14,7 +15,8 @@ class Classroom(
     val teachersCount: Long,
     val blocked: Boolean,
     val permissions: ClassroomPermissions,
-    var teacherRole: TeacherRole = TeacherRole.OWNER
+    var teacherRole: TeacherRole = TeacherRole.OWNER,
+    @field:JsonIgnore val edLinkId: UUID? = null
 ) {
 
     companion object {
@@ -38,7 +40,8 @@ class Classroom(
                     teacherId,
                     coTeachersCount + 1,
                     blocked,
-                    permissions
+                    permissions,
+                    edLinkId = edLinkId
                 )
             }
         }

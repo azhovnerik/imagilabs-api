@@ -9,3 +9,9 @@ interface UserProfile {
     val userType: UserType
     val fullName: String
 }
+
+object SystemProfile : UserProfile {
+    override val id: UUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
+    override val userType: UserType = UserType.SYSTEM
+    override val fullName: String = "SYSTEM"
+}
