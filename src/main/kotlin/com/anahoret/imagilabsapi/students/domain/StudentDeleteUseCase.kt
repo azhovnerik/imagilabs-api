@@ -40,13 +40,11 @@ class StudentDeleteUseCaseImpl(
             .takeIf { it.isNotEmpty() }
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
-        when (deleteBy) {
+        return when (deleteBy) {
             is TeacherProfile -> deleteByTeacher(deleteBy, classrooms, studentProfile)
             is SystemProfile -> doDelete(studentProfile, classrooms)
             else -> return AccessDeniedError("ACCESS_DENIED").left()
         }
-
-        return Unit.right()
     }
 
     private fun deleteByTeacher(
@@ -64,12 +62,13 @@ class StudentDeleteUseCaseImpl(
         return Unit.right()
     }
 
-    private fun doDelete(studentProfile: StudentProfile, classrooms: List<Classroom>) {
+    private fun doDelete(studentProfile: StudentProfile, classrooms: List<Classroom>): Either<OperationError, Unit> {
         deleteStudentProjects(studentProfile.id)
         classrooms.forEach { classroom ->
             studentClassroomLinkService.removeStudentFromClassroom(studentProfile.id, classroom.id)
         }
         studentProfileService.delete(studentProfile.id)
+        return Unit.right()
     }
 
     private fun deleteStudentProjects(studentId: UUID) {
