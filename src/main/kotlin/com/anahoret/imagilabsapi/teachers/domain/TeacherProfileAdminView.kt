@@ -45,8 +45,8 @@ class TeacherProfileAdminView(
                     lastModifiedAt?: 0,
                     subscription,
                     state = state,
-                    schoolRoles = TeacherProfile.parseSchoolRoles(schoolRoles),
-                    grades = TeacherProfile.parseGrades(grades),
+                    schoolRoles = schoolRoles,
+                    grades = grades,
                     subjects = subjects,
                     schools = schools
                 )

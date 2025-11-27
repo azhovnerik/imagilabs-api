@@ -2,6 +2,8 @@ package com.anahoret.imagilabsapi.teachers.storage
 
 import com.anahoret.imagilabsapi.common.storage.BaseEntity
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionData
+import com.anahoret.imagilabsapi.teachers.domain.GradeLevel
+import com.anahoret.imagilabsapi.teachers.domain.SchoolRole
 import jakarta.persistence.*
 import java.util.*
 
@@ -75,10 +77,12 @@ class TeacherProfileEntity(
     var state: String? = null,
 
     @Column(name = "school_roles")
-    var schoolRoles: String? = null,
+    @Convert(converter = SchoolRoleListConverter::class)
+    var schoolRoles: List<SchoolRole> = emptyList(),
 
     @Column(name = "grades")
-    var grades: String? = null,
+    @Convert(converter = GradeLevelListConverter::class)
+    var grades: List<GradeLevel> = emptyList(),
 
     @Column(name = "subjects")
     var subjects: String? = null,

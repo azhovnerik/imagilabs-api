@@ -48,44 +48,14 @@ class TeacherProfile(
                     marketingEmailSubscribed,
                     subscription,
                     state = state,
-                    schoolRoles = parseSchoolRoles(schoolRoles),
-                    grades = parseGrades(grades),
+                    schoolRoles = schoolRoles,
+                    grades = grades,
                     subjects = subjects,
                     schools = schools,
                     edLinkIntegrationId = edLinkIntegrationId,
                     edLinkPersonId = edLinkPersonId
                 )
             }
-        }
-
-        fun parseSchoolRoles(rolesString: String?): List<SchoolRole> {
-            return rolesString?.split(",")
-                ?.mapNotNull {
-                    try {
-                        SchoolRole.valueOf(it.trim())
-                    } catch (e: IllegalArgumentException) {
-                        null
-                    }
-                } ?: emptyList()
-        }
-
-        fun parseGrades(gradesString: String?): List<GradeLevel> {
-            return gradesString?.split(",")
-                ?.mapNotNull {
-                    try {
-                        GradeLevel.valueOf(it.trim())
-                    } catch (e: IllegalArgumentException) {
-                        null
-                    }
-                } ?: emptyList()
-        }
-
-        fun schoolRolesToString(roles: List<SchoolRole>?): String? {
-            return roles?.takeIf { it.isNotEmpty() }?.joinToString(",") { it.name }
-        }
-
-        fun gradesToString(grades: List<GradeLevel>?): String? {
-            return grades?.takeIf { it.isNotEmpty() }?.joinToString(",") { it.name }
         }
     }
 }

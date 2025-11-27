@@ -123,7 +123,6 @@ class GoogleSheetsTeachersExportUseCaseImpl(
                     email,
                     "$firstName $lastName",
                     country,
-                    state ?: "",
                     organization,
                     howDidYouHearAboutUs,
                     howDidYouHearAboutUsOther ?: "",
@@ -131,11 +130,6 @@ class GoogleSheetsTeachersExportUseCaseImpl(
                     registrationDateTime,
                     subscription.status(),
                     subscription.start.toUTC(),
-                    subscription.end.toUTC(),
-                    schoolRoles.joinToString(", ") { it.name },
-                    grades.joinToString(", ") { it.name },
-                    subjects ?: "",
-                    schools ?: ""
                 )
             }
         }

@@ -8,7 +8,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.time.Clock
 import java.util.*
 
@@ -36,10 +35,10 @@ interface TeacherProfileService {
     fun listTeachersByStudent(studentId: UUID): List<TeacherProfile>
     fun getByEdLink(edLinkIntegrationId: UUID, edLinkPersonId: UUID): TeacherProfile?
     fun listAllByEdLink(): List<TeacherProfile>
+    fun updateProfile(teacherId: UUID, request: TeacherProfileUpdateRequest): TeacherProfile?
 }
 
 @Service
-@Transactional(readOnly = true)
 class TeacherProfileServiceImpl(
     private val teacherProfileEntityRepository: TeacherProfileEntityRepository,
     private val passwordEncoder: PasswordEncoder,
@@ -47,8 +46,6 @@ class TeacherProfileServiceImpl(
     private val clock: Clock,
     @param:Value($$"${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : TeacherProfileService {
-
-    @Transactional
     override fun createTeacher(request: TeacherSignupRequest): TeacherProfile {
         return with(request) {
             teacherProfileEntityRepository.save(
@@ -80,7 +77,6 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findByEmail(email)?.id
     }
 
-    @Transactional(readOnly = true)
     override fun getTeacherByIdForAdmin(id: UUID): TeacherProfileAdminView? {
         return teacherProfileEntityRepository.findByIdOrNull(id)
             ?.let {
@@ -90,7 +86,6 @@ class TeacherProfileServiceImpl(
             }
     }
 
-    @Transactional(readOnly = true)
     override fun getTeachersByIdsForAdmin(ids: List<UUID>): List<TeacherProfileAdminView> {
         return teacherProfileEntityRepository.findAllById(ids)
             .map {
@@ -147,7 +142,6 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.existsById(teacherId)
     }
 
-    @Transactional
     override fun setPassword(email: String, newPassword: String) {
         teacherProfileEntityRepository.findByEmail(email)
             ?.let {
@@ -162,12 +156,10 @@ class TeacherProfileServiceImpl(
             .map(::toTeacherProfile)
     }
 
-    @Transactional
     override fun delete(teacherId: UUID) {
         teacherProfileEntityRepository.deleteById(teacherId)
     }
 
-    @Transactional
     override fun completeChatOnboarding(teacherId: UUID): TeacherProfile? {
         return teacherProfileEntityRepository.findByIdOrNull(teacherId)?.let {
             it.aiChatOnboardingCompleted = true
@@ -175,7 +167,6 @@ class TeacherProfileServiceImpl(
         }?.let(::toTeacherProfile)
     }
 
-    @Transactional
     override fun setIntroSeen(teacherId: UUID): TeacherProfile? {
         return teacherProfileEntityRepository.findByIdOrNull(teacherId)?.let {
             it.aiChatIntroSeen = true
@@ -205,6 +196,27 @@ class TeacherProfileServiceImpl(
     override fun listAllByEdLink(): List<TeacherProfile> {
         return teacherProfileEntityRepository.findAllByEdLink()
             .map(::toTeacherProfile)
+    }
+
+    override fun updateProfile(teacherId: UUID, request: TeacherProfileUpdateRequest): TeacherProfile? {
+        val teacherEntity = teacherProfileEntityRepository.findByIdOrNull(teacherId)
+            ?: return null
+
+        request.firstName?.let { teacherEntity.firstName = it }
+        request.lastName?.let { teacherEntity.lastName = it }
+        request.country?.let { teacherEntity.country = it }
+        request.state?.let { teacherEntity.state = it }
+        request.organization?.let { teacherEntity.organization = it }
+        request.marketingEmailSubscribed?.let { teacherEntity.marketingEmailSubscribed = it }
+
+        request.schoolRoles?.let { teacherEntity.schoolRoles = it }
+        request.grades?.let { teacherEntity.grades = it }
+
+        request.subjects?.let { teacherEntity.subjects = it }
+        request.schools?.let { teacherEntity.schools = it }
+
+        return teacherProfileEntityRepository.save(teacherEntity)
+            .let(::toTeacherProfile)
     }
 
     private fun toTeacherProfile(entity: TeacherProfileEntity): TeacherProfile {
