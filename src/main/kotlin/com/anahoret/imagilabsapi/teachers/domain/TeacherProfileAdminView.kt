@@ -18,7 +18,12 @@ class TeacherProfileAdminView(
     val marketingEmailSubscribed: Boolean,
     val createdAt: Long,
     val lastModifiedAt: Long,
-    val subscription: TeacherSubscription
+    val subscription: TeacherSubscription,
+    val state: String? = null,
+    val schoolRoles: List<SchoolRole> = emptyList(),
+    val grades: List<GradeLevel> = emptyList(),
+    val subjects: String? = null,
+    val schools: String? = null
 ) {
 
     companion object {
@@ -38,7 +43,12 @@ class TeacherProfileAdminView(
                     marketingEmailSubscribed,
                     createdAt ?: 0,
                     lastModifiedAt?: 0,
-                    subscription
+                    subscription,
+                    state = state,
+                    schoolRoles = schoolRoles,
+                    grades = grades,
+                    subjects = subjects,
+                    schools = schools
                 )
             }
         }
