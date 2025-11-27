@@ -20,6 +20,11 @@ class TeacherProfile(
     val emailVerified: Boolean,
     val marketingEmailSubscribed: Boolean,
     val subscription: TeacherSubscription,
+    val state: String? = null,
+    val schoolRoles: List<SchoolRole> = emptyList(),
+    val grades: List<GradeLevel> = emptyList(),
+    val subjects: String? = null,
+    val schools: String? = null,
     @field:JsonIgnore val edLinkIntegrationId: UUID? = null,
     @field:JsonIgnore val edLinkPersonId: UUID? = null
 ) : UserProfile, TeacherSubscriptionData by subscription {
@@ -42,6 +47,11 @@ class TeacherProfile(
                     emailVerified,
                     marketingEmailSubscribed,
                     subscription,
+                    state = state,
+                    schoolRoles = schoolRoles,
+                    grades = grades,
+                    subjects = subjects,
+                    schools = schools,
                     edLinkIntegrationId = edLinkIntegrationId,
                     edLinkPersonId = edLinkPersonId
                 )

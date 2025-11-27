@@ -35,6 +35,7 @@ interface TeacherProfileService {
     fun listTeachersByStudent(studentId: UUID): List<TeacherProfile>
     fun getByEdLink(edLinkIntegrationId: UUID, edLinkPersonId: UUID): TeacherProfile?
     fun listAllByEdLink(): List<TeacherProfile>
+    fun updateProfile(teacherId: UUID, request: TeacherProfileUpdateRequest): TeacherProfile?
 }
 
 @Service
@@ -45,7 +46,6 @@ class TeacherProfileServiceImpl(
     private val clock: Clock,
     @param:Value($$"${spring.ai.openai.tip-tokens-per-hour}") private val tipTokens: Int
 ) : TeacherProfileService {
-
     override fun createTeacher(request: TeacherSignupRequest): TeacherProfile {
         return with(request) {
             teacherProfileEntityRepository.save(
@@ -164,14 +164,14 @@ class TeacherProfileServiceImpl(
         return teacherProfileEntityRepository.findByIdOrNull(teacherId)?.let {
             it.aiChatOnboardingCompleted = true
             teacherProfileEntityRepository.save(it)
-        }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)) }
+        }?.let(::toTeacherProfile)
     }
 
     override fun setIntroSeen(teacherId: UUID): TeacherProfile? {
         return teacherProfileEntityRepository.findByIdOrNull(teacherId)?.let {
             it.aiChatIntroSeen = true
             teacherProfileEntityRepository.save(it)
-        }?.let { TeacherProfile.fromEntity(it, teacherSubscriptionService.buildSubscriptionDto(it.id!!, it)) }
+        }?.let(::toTeacherProfile)
     }
 
     override fun isAiChatOnboardingCompleted(teacherId: UUID): Boolean {
@@ -196,6 +196,27 @@ class TeacherProfileServiceImpl(
     override fun listAllByEdLink(): List<TeacherProfile> {
         return teacherProfileEntityRepository.findAllByEdLink()
             .map(::toTeacherProfile)
+    }
+
+    override fun updateProfile(teacherId: UUID, request: TeacherProfileUpdateRequest): TeacherProfile? {
+        val teacherEntity = teacherProfileEntityRepository.findByIdOrNull(teacherId)
+            ?: return null
+
+        request.firstName?.let { teacherEntity.firstName = it }
+        request.lastName?.let { teacherEntity.lastName = it }
+        request.country?.let { teacherEntity.country = it }
+        request.state?.let { teacherEntity.state = it }
+        request.organization?.let { teacherEntity.organization = it }
+        request.marketingEmailSubscribed?.let { teacherEntity.marketingEmailSubscribed = it }
+
+        request.schoolRoles?.let { teacherEntity.schoolRoles = it }
+        request.grades?.let { teacherEntity.grades = it }
+
+        request.subjects?.let { teacherEntity.subjects = it }
+        request.schools?.let { teacherEntity.schools = it }
+
+        return teacherProfileEntityRepository.save(teacherEntity)
+            .let(::toTeacherProfile)
     }
 
     private fun toTeacherProfile(entity: TeacherProfileEntity): TeacherProfile {
