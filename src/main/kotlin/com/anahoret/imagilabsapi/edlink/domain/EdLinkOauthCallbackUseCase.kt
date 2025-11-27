@@ -71,6 +71,8 @@ class EdLinkOauthCallbackUseCaseImpl(
         token: String
     ): Either<OperationError, TeacherProfile> {
         val existingTeacher = teacherProfileService.getByEdLink(integrationId, person.id)
+            ?: teacherProfileService.getTeacherByEmail(person.email)
+                ?.also { teacherProfileService.setEdLinkId(it.id, integrationId, person.id) }
         if (existingTeacher != null) return existingTeacher.right()
         return either {
             val district = edLinkDistrictApi.myDistrict(token, person.districtId).bind()
