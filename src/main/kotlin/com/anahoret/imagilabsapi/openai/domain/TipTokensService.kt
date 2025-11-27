@@ -37,6 +37,7 @@ class TipTokensServiceImpl(
             UserType.TEACHER -> teacherProfileEntityRepository.findByIdOrNull(userProfile.id)?.tipTokens
             UserType.STUDENT -> studentProfileEntityRepository.findByIdOrNull(userProfile.id)?.tipTokens
             UserType.ADMIN -> 0
+            else -> null
         }
     }
 
@@ -99,7 +100,7 @@ class TipTokensServiceImpl(
                 studentProfileEntityRepository.save(it)
             }
 
-            UserType.ADMIN -> {}
+            else -> {}
         }
 
     }
@@ -108,7 +109,7 @@ class TipTokensServiceImpl(
         return when (userProfile.userType) {
             UserType.TEACHER -> teacherProfileEntityRepository.findByIdOrNull(userProfile.id)?.tipTokens?.let { it > 0 }
             UserType.STUDENT -> studentProfileEntityRepository.findByIdOrNull(userProfile.id)?.tipTokens?.let { it > 0 }
-            UserType.ADMIN -> false
+            else -> false
         }
     }
 }

@@ -16,7 +16,7 @@ class PythonCompilerAccessServiceImpl : PythonCompilerAccessService {
         return when (userProfile.userType) {
             UserType.TEACHER -> true
             UserType.STUDENT -> true
-            UserType.ADMIN -> false
+            else -> false
         }
     }
 }

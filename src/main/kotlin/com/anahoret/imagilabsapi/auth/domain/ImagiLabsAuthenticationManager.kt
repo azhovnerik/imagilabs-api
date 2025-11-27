@@ -46,6 +46,7 @@ class ImagiLabsAuthenticationManager(
                     ?: throw BadCredentialsException("Admin password should be String")
                 authenticateAdmin(principal, password)
             }
+            else -> throw BadCredentialsException("Unsupported user type")
         }
     }
 

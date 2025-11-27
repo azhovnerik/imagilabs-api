@@ -39,7 +39,7 @@ class StudentAccessServiceImpl(
                     || isLikedAsCoTeacher(studentDetails.id, userProfile.id)
 
             UserType.STUDENT -> userProfile.id == studentDetails.id
-            UserType.ADMIN -> false
+            else -> false
         }
     }
 
