@@ -14,7 +14,7 @@ import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachingmaterials.domain.BundleLesson
 import com.anahoret.imagilabsapi.teachingmaterials.domain.LessonBundle
 import com.anahoret.imagilabsapi.tweets.domain.Tweet
-import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
+import org.apache.commons.lang3.RandomStringUtils.secure
 import java.util.*
 
 fun testAdmin(): AdminProfile {
@@ -90,9 +90,9 @@ fun testBundleLesson(bundleId: UUID = UUID.randomUUID(), proLesson: Boolean = fa
         id = UUID.randomUUID(),
         bundleId = bundleId,
         index = -1,
-        name = randomAlphabetic(6),
-        worksheetUri = "http://${randomAlphabetic(4)}.com",
-        slidesUri = "http://${randomAlphabetic(4)}.com",
+        name = secure().nextAlphabetic(6),
+        worksheetUri = "http://${secure().nextAlphabetic(4)}.com",
+        slidesUri = "http://${secure().nextAlphabetic(4)}.com",
         proLesson = proLesson
     )
 }
@@ -102,7 +102,7 @@ fun testLessonBundle(default: Boolean = false, lessons: List<BundleLesson>? = nu
     val bundleLessons = lessons ?: listOf(testBundleLesson(bundleId))
     return LessonBundle(
         id = bundleId,
-        name = randomAlphabetic(6),
+        name = secure().nextAlphabetic(6),
         defaultBundle = default,
         lessons = bundleLessons
     )
