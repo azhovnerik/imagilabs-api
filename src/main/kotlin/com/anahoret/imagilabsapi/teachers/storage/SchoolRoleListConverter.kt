@@ -1,7 +1,7 @@
 package com.anahoret.imagilabsapi.teachers.storage
 
+import com.anahoret.imagilabsapi.common.storage.EnumListConverter
 import com.anahoret.imagilabsapi.teachers.domain.SchoolRole
-import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
 
 /**
@@ -10,20 +10,4 @@ import jakarta.persistence.Converter
  * from the database.
  */
 @Converter
-class SchoolRoleListConverter : AttributeConverter<List<SchoolRole>, String?> {
-
-    override fun convertToDatabaseColumn(attribute: List<SchoolRole>?): String? {
-        return attribute?.takeIf { it.isNotEmpty() }?.joinToString(",") { it.name }
-    }
-
-    override fun convertToEntityAttribute(dbData: String?): List<SchoolRole> {
-        return dbData?.split(",")
-            ?.mapNotNull {
-                try {
-                    SchoolRole.valueOf(it.trim())
-                } catch (e: IllegalArgumentException) {
-                    null
-                }
-            } ?: emptyList()
-    }
-}
+class SchoolRoleListConverter : EnumListConverter<SchoolRole>(SchoolRole::class.java)

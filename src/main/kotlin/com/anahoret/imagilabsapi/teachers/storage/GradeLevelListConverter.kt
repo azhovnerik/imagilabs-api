@@ -1,7 +1,7 @@
 package com.anahoret.imagilabsapi.teachers.storage
 
+import com.anahoret.imagilabsapi.common.storage.EnumListConverter
 import com.anahoret.imagilabsapi.teachers.domain.GradeLevel
-import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
 
 /**
@@ -10,20 +10,4 @@ import jakarta.persistence.Converter
  * from the database.
  */
 @Converter
-class GradeLevelListConverter : AttributeConverter<List<GradeLevel>, String?> {
-
-    override fun convertToDatabaseColumn(attribute: List<GradeLevel>?): String? {
-        return attribute?.takeIf { it.isNotEmpty() }?.joinToString(",") { it.name }
-    }
-
-    override fun convertToEntityAttribute(dbData: String?): List<GradeLevel> {
-        return dbData?.split(",")
-            ?.mapNotNull {
-                try {
-                    GradeLevel.valueOf(it.trim())
-                } catch (e: IllegalArgumentException) {
-                    null
-                }
-            } ?: emptyList()
-    }
-}
+class GradeLevelListConverter : EnumListConverter<GradeLevel>(GradeLevel::class.java)
