@@ -1,6 +1,8 @@
 package com.anahoret.imagilabsapi.teachers.domain
 
+import com.anahoret.imagilabsapi.teacherchecklist.domain.CompleteAccountInformationCheckListStepUseCase
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -13,9 +15,11 @@ import java.util.*
 class TeacherProfileUpdateUseCaseTest {
 
     private val teacherProfileService = mockk<TeacherProfileService>()
+    private val completeAccountInformationCheckListStepUseCase = mockk<CompleteAccountInformationCheckListStepUseCase>()
 
     private val useCase = TeacherProfileUpdateUseCaseImpl(
-        teacherProfileService
+        teacherProfileService,
+        completeAccountInformationCheckListStepUseCase
     )
 
     @Test
@@ -41,6 +45,7 @@ class TeacherProfileUpdateUseCaseTest {
         val updatedProfile = mockk<TeacherProfile>()
 
         every { teacherProfileService.updateProfile(teacherId, request) } returns updatedProfile
+        justRun { completeAccountInformationCheckListStepUseCase.checkAndComplete(updatedProfile) }
 
         val result = useCase.update(teacherId, request)
 
@@ -62,10 +67,43 @@ class TeacherProfileUpdateUseCaseTest {
         val updatedProfile = mockk<TeacherProfile>()
 
         every { teacherProfileService.updateProfile(teacherId, request) } returns updatedProfile
+        justRun { completeAccountInformationCheckListStepUseCase.checkAndComplete(updatedProfile) }
 
         val result = useCase.update(teacherId, request)
 
         assertTrue(result.isRight())
         verify(exactly = 1) { teacherProfileService.updateProfile(teacherId, request) }
+    }
+
+    @Test
+    fun `should check and complete account information step after successful update`() {
+        val teacherId = UUID.randomUUID()
+        val request = TeacherProfileUpdateRequest(
+            firstName = "Jane",
+            lastName = "Doe",
+            subjects = "Math"
+        )
+        val updatedProfile = mockk<TeacherProfile>()
+
+        every { teacherProfileService.updateProfile(teacherId, request) } returns updatedProfile
+        justRun { completeAccountInformationCheckListStepUseCase.checkAndComplete(updatedProfile) }
+
+        val result = useCase.update(teacherId, request)
+
+        assertTrue(result.isRight())
+        verify(exactly = 1) { completeAccountInformationCheckListStepUseCase.checkAndComplete(updatedProfile) }
+    }
+
+    @Test
+    fun `should NOT check account information step when teacher not found`() {
+        val teacherId = UUID.randomUUID()
+        val request = TeacherProfileUpdateRequest(firstName = "John")
+
+        every { teacherProfileService.updateProfile(teacherId, request) } returns null
+
+        val result = useCase.update(teacherId, request)
+
+        assertTrue(result.isLeft())
+        verify(exactly = 0) { completeAccountInformationCheckListStepUseCase.checkAndComplete(any()) }
     }
 }
