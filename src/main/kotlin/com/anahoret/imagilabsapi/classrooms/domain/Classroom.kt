@@ -16,8 +16,11 @@ class Classroom(
     val blocked: Boolean,
     val permissions: ClassroomPermissions,
     var teacherRole: TeacherRole = TeacherRole.OWNER,
-    @field:JsonIgnore val edLinkId: UUID? = null
+    @field:JsonIgnore val edLinkIntegrationId: UUID? = null,
+    @field:JsonIgnore val edLinkClassId: UUID? = null
 ) {
+
+    val isEdLinkConnected = edLinkIntegrationId != null && edLinkClassId != null
 
     companion object {
 
@@ -41,7 +44,8 @@ class Classroom(
                     coTeachersCount + 1,
                     blocked,
                     permissions,
-                    edLinkId = edLinkId
+                    edLinkIntegrationId = edLinkIntegrationId,
+                    edLinkClassId = edLinkClassId
                 )
             }
         }

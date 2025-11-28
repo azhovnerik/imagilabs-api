@@ -10,5 +10,8 @@ interface ClassroomEntityRepository : CrudRepository<ClassroomEntity, UUID> {
     fun findAllByTeacherId(teacherId: UUID): Iterable<ClassroomEntity>
     fun findAllByTeacherIdIn(teacherIds: Collection<UUID>): List<ClassroomEntity>
     fun existsByIdAndTeacherId(classroomId: UUID, teacherId: UUID): Boolean
-    fun findByEdLinkId(id: UUID): ClassroomEntity?
+    fun findByEdLinkIntegrationIdAndEdLinkClassId(
+        edLinkIntegrationId: UUID,
+        edLinkClassId: UUID
+    ): ClassroomEntity?
 }

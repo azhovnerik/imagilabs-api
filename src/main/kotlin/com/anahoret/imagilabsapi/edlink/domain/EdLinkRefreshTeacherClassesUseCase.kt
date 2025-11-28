@@ -46,14 +46,13 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             return TeacherNotLinkedToEdLinkError().left()
 
         val integration = edLinkIntegrationApi.getIntegration(teacherProfile.edLinkIntegrationId).bind()
-
         val edLinkClasses = edLinkClassApi.listClasses(integration.accessToken).bind()
             .filter {
                 isEdLinkTeacherInEdLinkClass(integration.accessToken, teacherProfile.edLinkPersonId, it.id).bind()
             }
 
         edLinkClasses.forEach { edLinkClass ->
-            val classroom = classroomService.getByEdLinkId(edLinkClass.id)
+            val classroom = classroomService.getByEdLinkId(integration.id, edLinkClass.id)
             if (classroom == null) {
                 importClassroom(integration, edLinkClass, teacherProfile)
             } else {
@@ -79,7 +78,7 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
         classroom: Classroom,
         integration: Integration
     ): Either<OperationError, Unit> {
-        val edLinkClassId = classroom.edLinkId ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
+        val edLinkClassId = classroom.edLinkClassId ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
         return either {
             val edLinkStudents = edLinkClassApi.listStudents(integration.accessToken, edLinkClassId).bind()
             val existingImagiStudents =
@@ -112,7 +111,12 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             val newEdLinkStudents = edLinkStudents.filterNot { it.id in existingImagiStudentIds }
             val studentCreateRequests = newEdLinkStudents
                 .map { person -> StudentCreateRequest(person.displayName, integration.id, person.id) }
-            val classroomCreateRequest = ClassroomCreateRequest(edLinkClass.name, "", edLinkClass.id)
+            val classroomCreateRequest = ClassroomCreateRequest(
+                name = edLinkClass.name,
+                studentNames = "",
+                edLinkIntegrationId = integration.id,
+                edLinkClassId = edLinkClass.id
+            )
             val newClassroom = classroomService.create(teacherProfile.id, classroomCreateRequest)
             val newStudents = studentProfileService.createStudents(newClassroom.id, studentCreateRequests)
             (existingImagiStudents + newStudents)

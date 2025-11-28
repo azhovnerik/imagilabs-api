@@ -25,7 +25,7 @@ interface ClassroomService {
     fun update(classroomId: UUID, classroomUpdateRequest: ClassroomUpdateRequest): Classroom?
     fun listIdsByTeacher(teacherId: UUID): Set<UUID>
     fun getAllClassroomAsCoTeacher(classroomIds: List<UUID>): List<Classroom>
-    fun getByEdLinkId(id: UUID): Classroom?
+    fun getByEdLinkId(edLinkIntegrationId: UUID, edLinkClassId: UUID): Classroom?
 }
 
 @Service
@@ -45,7 +45,8 @@ class ClassroomServiceImpl(
                 classroomCreateRequest.name,
                 accessCode,
                 teacherId,
-                edLinkId = classroomCreateRequest.edLinkId
+                edLinkIntegrationId = classroomCreateRequest.edLinkIntegrationId,
+                edLinkClassId = classroomCreateRequest.edLinkClassId
             )
         ).let {
             val blocked = calculateBlockedForSingleClassroom(it)
@@ -83,8 +84,9 @@ class ClassroomServiceImpl(
         return doGetClassroomById(classroomId)
     }
 
-    override fun getByEdLinkId(id: UUID): Classroom? {
-        return classroomEntityRepository.findByEdLinkId(id)?.let(::toClassroom)
+    override fun getByEdLinkId(edLinkIntegrationId: UUID, edLinkClassId: UUID): Classroom? {
+        return classroomEntityRepository.findByEdLinkIntegrationIdAndEdLinkClassId(edLinkIntegrationId, edLinkClassId)
+            ?.let(::toClassroom)
     }
 
     override fun getByAccessCode(accessCode: String): Classroom? {
