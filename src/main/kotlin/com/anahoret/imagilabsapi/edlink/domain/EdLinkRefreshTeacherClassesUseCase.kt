@@ -85,7 +85,7 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             val studentCreateRequests = newEdLinkStudents
                 .map { person -> StudentCreateRequest(person.displayName, integration.id, person.id) }
             val newImagiStudents = studentProfileService.createStudents(classroom.id, studentCreateRequests)
-            newImagiStudents.map(StudentProfile::id)
+            (newImagiStudents + existingImagiStudents).map(StudentProfile::id)
                 .let { studentIds ->
                     studentClassroomLinkService.addStudentsToClassroom(studentIds, classroom.id)
                 }
