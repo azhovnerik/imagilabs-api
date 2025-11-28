@@ -1,6 +1,7 @@
--- Add COMPLETE_YOUR_ACCOUNT_INFORMATION step to all existing teachers
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 INSERT INTO teacher_checklist_steps (id, created_at, last_modified_at, teacher_id, step, completed)
-SELECT md5(random()::text || clock_timestamp()::text)::uuid,
+SELECT gen_random_uuid(),
        CAST(EXTRACT(EPOCH FROM now()) * 1000 AS BIGINT),
        CAST(EXTRACT(EPOCH FROM now()) * 1000 AS BIGINT),
        tp.id,
