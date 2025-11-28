@@ -19,13 +19,26 @@ class TeacherProfileController(
     private val teacherProfileService: TeacherProfileService,
     private val teacherGetUseCase: TeacherGetUseCase,
     private val teacherDeleteUseCase: TeacherDeleteUseCase,
-    private val teacherGetStatisticUseCase: TeacherGetStatisticUseCase
+    private val teacherGetStatisticUseCase: TeacherGetStatisticUseCase,
+    private val teacherProfileUpdateUseCase: TeacherProfileUpdateUseCase
 ) {
 
     @Secured(UserRole.TEACHER, UserRole.TEACHER_EMAIL_NOT_VERIFIED)
     @GetMapping("/api/teacher/profile/me")
     fun getProfile(@AuthenticationPrincipal teacherProfile: TeacherProfile): SuccessResponseDto<TeacherProfile> {
         return SuccessResponseDto(teacherProfile)
+    }
+
+    @Secured(UserRole.TEACHER, UserRole.TEACHER_EMAIL_NOT_VERIFIED)
+    @PatchMapping("/api/teacher/profile/me")
+    fun updateProfile(
+        @AuthenticationPrincipal teacherProfile: TeacherProfile,
+        @RequestBody teacherProfileUpdateRequest: TeacherProfileUpdateRequest
+    ): ResponseEntity<ResponseDto<TeacherProfile>> {
+        return when (val result = teacherProfileUpdateUseCase.update(teacherProfile.id, teacherProfileUpdateRequest)) {
+            is Either.Left -> mapErrors(result.value)
+            is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
+        }
     }
 
     @Secured(UserRole.TEACHER)

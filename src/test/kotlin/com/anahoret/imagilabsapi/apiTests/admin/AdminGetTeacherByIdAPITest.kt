@@ -6,10 +6,7 @@ import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenUtil
 import com.anahoret.imagilabsapi.common.ControllerTest
 import com.anahoret.imagilabsapi.security.UserRole
 import com.anahoret.imagilabsapi.spring.ImagiLabsTestPropertySource
-import com.anahoret.imagilabsapi.teachers.domain.TeacherDeleteUseCase
-import com.anahoret.imagilabsapi.teachers.domain.TeacherGetStatisticUseCase
-import com.anahoret.imagilabsapi.teachers.domain.TeacherGetUseCase
-import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileAdminView
+import com.anahoret.imagilabsapi.teachers.domain.*
 import com.anahoret.imagilabsapi.teachers.web.TeacherProfileController
 import com.anahoret.imagilabsapi.users.UserType
 import com.ninjasquad.springmockk.MockkBean
@@ -46,6 +43,9 @@ class AdminGetTeacherByIdAPITest : ControllerTest() {
 
     @MockkBean
     lateinit var teacherGetStatisticUseCase: TeacherGetStatisticUseCase
+
+    @MockkBean
+    lateinit var teacherProfileUpdateUseCase: TeacherProfileUpdateUseCase
 
     @Test
     fun `should return success`() {

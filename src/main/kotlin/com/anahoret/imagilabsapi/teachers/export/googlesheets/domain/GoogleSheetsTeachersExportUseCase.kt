@@ -130,7 +130,6 @@ class GoogleSheetsTeachersExportUseCaseImpl(
                     registrationDateTime,
                     subscription.status(),
                     subscription.start.toUTC(),
-                    subscription.end.toUTC()
                 )
             }
         }
