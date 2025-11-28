@@ -31,7 +31,8 @@ class ClassroomGetListUseCaseTest {
             teacherId,
             2L,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
 
         val emptyListCoClassroomIds = emptyList<UUID>()
@@ -62,7 +63,8 @@ class ClassroomGetListUseCaseTest {
             teacherId,
             2L,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
 
         val coTeacherClassroom = Classroom(
@@ -75,7 +77,8 @@ class ClassroomGetListUseCaseTest {
             2L,
             blocked = false,
             ClassroomPermissions(true),
-            teacherRole = TeacherRole.CO_TEACHER
+            teacherRole = TeacherRole.CO_TEACHER,
+            deleted = false
         )
 
         val emptyListCoClassroomIds = listOf(UUID.randomUUID())

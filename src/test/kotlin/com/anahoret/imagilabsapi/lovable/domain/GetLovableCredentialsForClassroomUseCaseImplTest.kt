@@ -56,7 +56,8 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
             teacher.id,
             1,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns false
@@ -80,7 +81,8 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
             teacher.id,
             1,
             blocked = true,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
 
@@ -102,7 +104,8 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
             teacher.id,
             1,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L)
         val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L)

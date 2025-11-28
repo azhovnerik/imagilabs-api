@@ -22,10 +22,12 @@ interface ClassroomService {
     fun isClassroomOwnedByTeacher(classroomId: UUID, teacherId: UUID): Boolean
     fun getByAccessCode(accessCode: String): Classroom?
     fun delete(classroomId: UUID)
+    fun softDelete(classroomId: UUID)
     fun update(classroomId: UUID, classroomUpdateRequest: ClassroomUpdateRequest): Classroom?
     fun listIdsByTeacher(teacherId: UUID): Set<UUID>
     fun getAllClassroomAsCoTeacher(classroomIds: List<UUID>): List<Classroom>
     fun getByEdLinkId(edLinkIntegrationId: UUID, edLinkClassId: UUID): Classroom?
+    fun listByEdLinkIntegration(edLinkIntegrationId: UUID): List<Classroom>
 }
 
 @Service
@@ -89,6 +91,11 @@ class ClassroomServiceImpl(
             ?.let(::toClassroom)
     }
 
+    override fun listByEdLinkIntegration(edLinkIntegrationId: UUID): List<Classroom> {
+        return classroomEntityRepository.findAllByEdLinkIntegrationId(edLinkIntegrationId)
+            .map(::toClassroom)
+    }
+
     override fun getByAccessCode(accessCode: String): Classroom? {
         return classroomEntityRepository.findByAccessCode(accessCode)
             ?.let(::toClassroom)
@@ -100,6 +107,13 @@ class ClassroomServiceImpl(
 
     override fun delete(classroomId: UUID) {
         classroomEntityRepository.deleteById(classroomId)
+    }
+
+    override fun softDelete(classroomId: UUID) {
+        classroomEntityRepository.findByIdOrNull(classroomId)?.let {
+            it.deleted = true
+            classroomEntityRepository.save(it)
+        }
     }
 
     override fun listIdsByTeacher(teacherId: UUID): Set<UUID> {
@@ -158,7 +172,7 @@ class ClassroomServiceImpl(
     }
 
     private fun generateUniqueAccessCode(): String {
-        for (i in 1..100) {
+        (1..100).forEach { i ->
             val accessCode = RandomStringUtils.secure().nextAlphanumeric(6).uppercase()
             if (classroomEntityRepository.findByAccessCode(accessCode) == null) {
                 return accessCode

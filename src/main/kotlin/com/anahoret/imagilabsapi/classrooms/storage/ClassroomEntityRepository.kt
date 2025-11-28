@@ -14,4 +14,5 @@ interface ClassroomEntityRepository : CrudRepository<ClassroomEntity, UUID> {
         edLinkIntegrationId: UUID,
         edLinkClassId: UUID
     ): ClassroomEntity?
+    fun findAllByEdLinkIntegrationId(edLinkIntegrationId: UUID): List<ClassroomEntity>
 }

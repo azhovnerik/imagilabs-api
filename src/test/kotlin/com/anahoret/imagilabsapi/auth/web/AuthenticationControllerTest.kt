@@ -47,7 +47,8 @@ class AuthenticationControllerTest {
             teacherId = UUID.randomUUID(),
             teachersCount = 1,
             blocked = false,
-            ClassroomPermissions(true)
+            permissions = ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getByAccessCode(accessCode) } returns classroom
 

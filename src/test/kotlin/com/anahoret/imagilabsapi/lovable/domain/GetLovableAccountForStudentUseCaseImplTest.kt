@@ -87,7 +87,8 @@ class GetLovableAccountForStudentUseCaseImplTest {
             UUID.randomUUID(),
             1,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
 
         every { studentProfileService.getStudentById(studentId) } returns student
@@ -117,7 +118,8 @@ class GetLovableAccountForStudentUseCaseImplTest {
             teacher.id,
             1,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         val lovableAccount = LovableAccount(studentId, "s1", "student1", "student1@example.com", "password123")
 
@@ -149,7 +151,8 @@ class GetLovableAccountForStudentUseCaseImplTest {
             teacher.id,
             1,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
 
         every { studentProfileService.getStudentById(studentId) } returns student

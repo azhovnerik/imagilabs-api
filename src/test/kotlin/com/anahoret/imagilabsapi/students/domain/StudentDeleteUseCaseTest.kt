@@ -49,7 +49,8 @@ class StudentDeleteUseCaseTest {
             teacherId = teacher.id,
             teachersCount = 1,
             blocked = true,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(
             mockk {

@@ -15,6 +15,7 @@ class Classroom(
     val teachersCount: Long,
     val blocked: Boolean,
     val permissions: ClassroomPermissions,
+    val deleted: Boolean,
     var teacherRole: TeacherRole = TeacherRole.OWNER,
     @field:JsonIgnore val edLinkIntegrationId: UUID? = null,
     @field:JsonIgnore val edLinkClassId: UUID? = null
@@ -44,6 +45,7 @@ class Classroom(
                     coTeachersCount + 1,
                     blocked,
                     permissions,
+                    deleted,
                     edLinkIntegrationId = edLinkIntegrationId,
                     edLinkClassId = edLinkClassId
                 )

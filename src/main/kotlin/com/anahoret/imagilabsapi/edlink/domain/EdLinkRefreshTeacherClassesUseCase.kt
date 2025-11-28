@@ -51,15 +51,34 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
                 isEdLinkTeacherInEdLinkClass(integration.accessToken, teacherProfile.edLinkPersonId, it.id).bind()
             }
 
+        updateClasses(edLinkClasses, integration, teacherProfile)
+        softDeleteDeletedEdLinkClasses(edLinkClasses, integration)
+    }
+
+    private fun updateClasses(
+        edLinkClasses: List<EdLinkClass>,
+        integration: Integration,
+        teacherProfile: TeacherProfile
+    ) {
         edLinkClasses.forEach { edLinkClass ->
             val classroom = classroomService.getByEdLinkId(integration.id, edLinkClass.id)
             if (classroom == null) {
                 importClassroom(integration, edLinkClass, teacherProfile)
-            } else {
+            } else if (!classroom.deleted) {
                 makeCoTeacherIfNeeded(classroom, teacherProfile)
                 refreshStudents(classroom, integration)
             }
         }
+    }
+
+    private fun softDeleteDeletedEdLinkClasses(
+        edLinkClasses: List<EdLinkClass>,
+        integration: Integration
+    ) {
+        val edLinkClassesIds = edLinkClasses.map(EdLinkClass::id).toSet()
+        classroomService.listByEdLinkIntegration(integration.id)
+            .filter { it.edLinkClassId !in edLinkClassesIds }
+            .forEach { classroomService.softDelete(it.id) }
     }
 
     private fun makeCoTeacherIfNeeded(

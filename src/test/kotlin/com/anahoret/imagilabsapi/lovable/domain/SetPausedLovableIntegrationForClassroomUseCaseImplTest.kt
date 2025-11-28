@@ -62,7 +62,8 @@ class SetPausedLovableIntegrationForClassroomUseCaseImplTest {
             teacher.id,
             1,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns false
@@ -87,7 +88,8 @@ class SetPausedLovableIntegrationForClassroomUseCaseImplTest {
             teacher.id,
             1,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns true
@@ -111,7 +113,8 @@ class SetPausedLovableIntegrationForClassroomUseCaseImplTest {
             teacher.id,
             1,
             blocked = true,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
 

@@ -18,6 +18,9 @@ class ClassroomEntity(
     @Column(name = "teacher_id", nullable = false)
     var teacherId: UUID,
 
+    @Column(name = "deleted", nullable = false)
+    var deleted: Boolean = false,
+
     @Column(name = "ed_link_integration_id")
     var edLinkIntegrationId: UUID? = null,
 

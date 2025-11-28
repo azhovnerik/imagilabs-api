@@ -95,15 +95,16 @@ fun testStudent(): StudentProfile {
 
 fun testClassroom(teacherId: UUID = UUID.randomUUID()): Classroom {
     return Classroom(
-        UUID.randomUUID(),
-        "Test classroom",
-        "1111",
-        5L,
-        5L,
-        teacherId,
-        2,
+        id = UUID.randomUUID(),
+        name = "Test classroom",
+        accessCode = "1111",
+        studentsCount = 5L,
+        projectsCount = 5L,
+        teacherId = teacherId,
+        teachersCount = 2,
         blocked = false,
-        ClassroomPermissions(true)
+        permissions = ClassroomPermissions(true),
+        deleted = false
     )
 }
 

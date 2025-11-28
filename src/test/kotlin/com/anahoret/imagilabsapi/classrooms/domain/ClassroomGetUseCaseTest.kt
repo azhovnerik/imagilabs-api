@@ -36,7 +36,8 @@ class ClassroomGetUseCaseTest {
             teacher.id,
             1,
             blocked = true,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
 
@@ -57,7 +58,8 @@ class ClassroomGetUseCaseTest {
             UUID.randomUUID(),
             1,
             blocked = true,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
 
