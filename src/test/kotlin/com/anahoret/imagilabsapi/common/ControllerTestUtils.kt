@@ -10,6 +10,8 @@ import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan.STA
 import com.anahoret.imagilabsapi.teacherchecklist.domain.CheckListStep
 import com.anahoret.imagilabsapi.teacherchecklist.domain.TeacherCheckList
 import com.anahoret.imagilabsapi.teacherchecklist.storage.TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM
+import com.anahoret.imagilabsapi.teachers.domain.GradeLevel
+import com.anahoret.imagilabsapi.teachers.domain.SchoolRole
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachingmaterials.domain.BundleLesson
 import com.anahoret.imagilabsapi.teachingmaterials.domain.LessonBundle
@@ -36,6 +38,39 @@ fun testTeacher(
         emailVerified = true,
         marketingEmailSubscribed = false,
         subscription = subscription
+    )
+}
+
+fun testCompleteTeacherProfile(
+    teacherId: UUID = UUID.randomUUID(),
+    firstName: String = "John",
+    lastName: String = "Doe",
+    email: String = "john.doe@example.com",
+    country: String = "USA",
+    organization: String = "Test School",
+    state: String? = "California",
+    schoolRoles: List<SchoolRole> = listOf(SchoolRole.TEACHER),
+    grades: List<GradeLevel> = listOf(GradeLevel.NINTH_GRADE),
+    subjects: String? = "Math, Science",
+    schools: String? = "Test High School",
+    subscription: TeacherSubscription = TeacherSubscription(null, null, STANDARD, false, teacherId)
+): TeacherProfile {
+    return TeacherProfile(
+        id = teacherId,
+        firstName = firstName,
+        lastName = lastName,
+        email = email,
+        country = country,
+        organization = organization,
+        createdAt = 0L,
+        emailVerified = true,
+        marketingEmailSubscribed = false,
+        subscription = subscription,
+        state = state,
+        schoolRoles = schoolRoles,
+        grades = grades,
+        subjects = subjects,
+        schools = schools
     )
 }
 

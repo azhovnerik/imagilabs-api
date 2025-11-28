@@ -30,7 +30,8 @@ class TeacherCheckListServiceImpl(
                 TeacherCheckListStepEntity(teacherId, SHARE_STUDENT_ACCESS_CODE),
                 TeacherCheckListStepEntity(teacherId, EXPLORE_YOUR_FIRST_LESSON),
                 TeacherCheckListStepEntity(teacherId, CREATE_YOUR_FIRST_PROJECT),
-                TeacherCheckListStepEntity(teacherId, CHECK_OUT_OUR_EDUCATOR_FACEBOOK_GROUP)
+                TeacherCheckListStepEntity(teacherId, CHECK_OUT_OUR_EDUCATOR_FACEBOOK_GROUP),
+                TeacherCheckListStepEntity(teacherId, COMPLETE_YOUR_ACCOUNT_INFORMATION)
             )
         )
             .map(CheckListStep::mapFromEntity)
