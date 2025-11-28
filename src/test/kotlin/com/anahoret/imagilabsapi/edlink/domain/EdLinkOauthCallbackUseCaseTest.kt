@@ -20,6 +20,7 @@ import com.anahoret.imagilabsapi.students.domain.StudentProfileService
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -157,7 +158,7 @@ class EdLinkOauthCallbackUseCaseTest {
     }
 
     @Test
-    fun `should return existing teacher profile when teacher already exists`() {
+    fun `should return existing teacher profile when teacher already exists with EdLink ID`() {
         val state = UUID.randomUUID()
         val request = EdLinkOAuthCallbackRequest(state, "test-code", false)
         val token = "access-token"
@@ -181,6 +182,66 @@ class EdLinkOauthCallbackUseCaseTest {
         assertTrue(result.isRight())
         assertEquals(existingTeacher, result.getOrNull())
         verify(exactly = 0) { teacherSignUpUseCase.signUp(any()) }
+    }
+
+    @Test
+    fun `should return existing teacher profile when teacher already exists with email`() {
+        val state = UUID.randomUUID()
+        val request = EdLinkOAuthCallbackRequest(state, "test-code", false)
+        val token = "access-token"
+        val integrationId = UUID.randomUUID()
+        val personId = UUID.randomUUID()
+        val person = createPerson(id = personId, roles = listOf("teacher"), email = "teacher@mail.com")
+        val integration = MyIntegration(integrationId)
+        val teacherId = UUID.randomUUID()
+        val existingTeacher = mockk<TeacherProfile> {
+            every { id } returns teacherId
+        }
+
+        every { edLinkOAuthStateService.exists(state) } returns true
+        every { edLinkOAuthStateService.delete(state) } returns Unit
+        every { edLinkTokenApi.exchange("test-code") } returns token.right()
+        every { edLinkProfileApi.myProfile(token) } returns person.right()
+        every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
+        every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
+        justRun { teacherProfileService.setEdLinkId(teacherId, integrationId, personId) }
+        every { teacherProfileService.getTeacherByEmail("teacher@mail.com") } returns existingTeacher
+
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
+
+        assertTrue(result.isRight())
+        assertEquals(existingTeacher, result.getOrNull())
+        verify(exactly = 0) { teacherSignUpUseCase.signUp(any()) }
+    }
+
+    @Test
+    fun `should connect existing teacher profile to EdLink when teacher already exists with email`() {
+        val state = UUID.randomUUID()
+        val request = EdLinkOAuthCallbackRequest(state, "test-code", false)
+        val token = "access-token"
+        val integrationId = UUID.randomUUID()
+        val personId = UUID.randomUUID()
+        val person = createPerson(id = personId, roles = listOf("teacher"), email = "teacher@mail.com")
+        val integration = MyIntegration(integrationId)
+        val teacherId = UUID.randomUUID()
+        val existingTeacher = mockk<TeacherProfile> {
+            every { id } returns teacherId
+        }
+
+        every { edLinkOAuthStateService.exists(state) } returns true
+        every { edLinkOAuthStateService.delete(state) } returns Unit
+        every { edLinkTokenApi.exchange("test-code") } returns token.right()
+        every { edLinkProfileApi.myProfile(token) } returns person.right()
+        every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
+        every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
+        every { teacherProfileService.getTeacherByEmail("teacher@mail.com") } returns existingTeacher
+        justRun { teacherProfileService.setEdLinkId(teacherId, integrationId, personId) }
+
+        val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)
+
+        assertTrue(result.isRight())
+        assertEquals(existingTeacher, result.getOrNull())
+        verify { teacherProfileService.setEdLinkId(teacherId, integrationId, personId) }
     }
 
     @Test
@@ -238,6 +299,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
         every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
+        every { teacherProfileService.getTeacherByEmail(any()) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
         every { edLinkRefreshTeacherClassesUseCase.refresh(newTeacher) } returns Unit.right()
 
@@ -283,6 +345,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
         every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
+        every { teacherProfileService.getTeacherByEmail(any()) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
         every { edLinkRefreshTeacherClassesUseCase.refresh(newTeacher) } returns Unit.right()
 
@@ -318,6 +381,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
         every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
+        every { teacherProfileService.getTeacherByEmail(any()) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
         every { edLinkRefreshTeacherClassesUseCase.refresh(newTeacher) } returns Unit.right()
 
@@ -351,6 +415,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
         every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
+        every { teacherProfileService.getTeacherByEmail(any()) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns validationErrors.left()
 
         val result = useCase.tryAuthenticate(request, isLocalhostRedirect = false)

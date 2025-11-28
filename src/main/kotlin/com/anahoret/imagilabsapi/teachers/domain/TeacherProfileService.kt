@@ -15,6 +15,7 @@ interface TeacherProfileService {
 
     fun createTeacher(request: TeacherSignupRequest): TeacherProfile
     fun getTeacherById(id: UUID): TeacherProfile?
+    fun getTeacherByEmail(email: String): TeacherProfile?
     fun getTeacherIdByEmail(email: String): UUID?
     fun getTeacherByIdForAdmin(id: UUID): TeacherProfileAdminView?
     fun getTeachersByIdsForAdmin(ids: List<UUID>): List<TeacherProfileAdminView?>
@@ -36,6 +37,7 @@ interface TeacherProfileService {
     fun getByEdLink(edLinkIntegrationId: UUID, edLinkPersonId: UUID): TeacherProfile?
     fun listAllByEdLink(): List<TeacherProfile>
     fun updateProfile(teacherId: UUID, request: TeacherProfileUpdateRequest): TeacherProfile?
+    fun setEdLinkId(teacherId: UUID, integrationId: UUID, personId: UUID)
 }
 
 @Service
@@ -70,6 +72,11 @@ class TeacherProfileServiceImpl(
 
     override fun getTeacherById(id: UUID): TeacherProfile? {
         return teacherProfileEntityRepository.findByIdOrNull(id)
+            ?.let(::toTeacherProfile)
+    }
+
+    override fun getTeacherByEmail(email: String): TeacherProfile? {
+        return teacherProfileEntityRepository.findByEmail(email)
             ?.let(::toTeacherProfile)
     }
 
@@ -217,6 +224,13 @@ class TeacherProfileServiceImpl(
 
         return teacherProfileEntityRepository.save(teacherEntity)
             .let(::toTeacherProfile)
+    override fun setEdLinkId(teacherId: UUID, integrationId: UUID, personId: UUID) {
+        teacherProfileEntityRepository.findByIdOrNull(teacherId)
+            ?.let {
+                it.edLinkIntegrationId = integrationId
+                it.edLinkPersonId = personId
+                teacherProfileEntityRepository.save(it)
+            }
     }
 
     private fun toTeacherProfile(entity: TeacherProfileEntity): TeacherProfile {
