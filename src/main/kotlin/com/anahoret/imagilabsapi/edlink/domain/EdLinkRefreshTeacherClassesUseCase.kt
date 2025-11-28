@@ -57,14 +57,21 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             if (classroom == null) {
                 importClassroom(integration, edLinkClass, teacherProfile)
             } else {
-                if (
-                    classroom.teacherId != teacherProfile.id &&
-                    !coTeacherService.isLinkedToClassroom(classroom.id, teacherProfile.id)
-                ) {
-                    coTeacherService.addCoTeacherToClassroom(classroom.id, teacherProfile)
-                }
+                makeCoTeacherIfNeeded(classroom, teacherProfile)
                 refreshStudents(classroom, integration)
             }
+        }
+    }
+
+    private fun makeCoTeacherIfNeeded(
+        classroom: Classroom,
+        teacherProfile: TeacherProfile
+    ) {
+        if (
+            classroom.teacherId != teacherProfile.id &&
+            !coTeacherService.isLinkedToClassroom(classroom.id, teacherProfile.id)
+        ) {
+            coTeacherService.addCoTeacherToClassroom(classroom.id, teacherProfile)
         }
     }
 
