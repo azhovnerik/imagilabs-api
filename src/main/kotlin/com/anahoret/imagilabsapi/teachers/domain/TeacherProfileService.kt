@@ -224,6 +224,8 @@ class TeacherProfileServiceImpl(
 
         return teacherProfileEntityRepository.save(teacherEntity)
             .let(::toTeacherProfile)
+    }
+
     override fun setEdLinkId(teacherId: UUID, integrationId: UUID, personId: UUID) {
         teacherProfileEntityRepository.findByIdOrNull(teacherId)
             ?.let {
