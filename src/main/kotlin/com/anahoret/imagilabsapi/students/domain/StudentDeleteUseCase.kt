@@ -6,6 +6,8 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
+import com.anahoret.imagilabsapi.common.domain.profiles.SystemProfile
+import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
@@ -17,7 +19,7 @@ import java.util.*
 
 interface StudentDeleteUseCase {
 
-    fun delete(deleteBy: TeacherProfile, studentId: UUID): Either<OperationError, Unit>
+    fun delete(deleteBy: UserProfile, studentId: UUID): Either<OperationError, Unit>
 }
 
 @Service
@@ -30,7 +32,7 @@ class StudentDeleteUseCaseImpl(
 ) : StudentDeleteUseCase {
 
     @Transactional(rollbackOn = [Throwable::class])
-    override fun delete(deleteBy: TeacherProfile, studentId: UUID): Either<OperationError, Unit> {
+    override fun delete(deleteBy: UserProfile, studentId: UUID): Either<OperationError, Unit> {
         val studentProfile = studentProfileService.getStudentById(studentId)
             ?: return NotFoundError("STUDENT_NOT_FOUND").left()
 
@@ -38,12 +40,29 @@ class StudentDeleteUseCaseImpl(
             .takeIf { it.isNotEmpty() }
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
+        return when (deleteBy) {
+            is TeacherProfile -> deleteByTeacher(deleteBy, classrooms, studentProfile)
+            is SystemProfile -> doDelete(studentProfile, classrooms)
+            else -> return AccessDeniedError("ACCESS_DENIED").left()
+        }
+    }
+
+    private fun deleteByTeacher(
+        deleteBy: TeacherProfile,
+        classrooms: List<Classroom>,
+        studentProfile: StudentProfile
+    ): Either<OperationError, Unit> {
         if (classrooms.all(Classroom::blocked))
             return AccessDeniedError("SUBSCRIPTION_REQUIRED").left()
 
         if (!studentAccessService.canDelete(deleteBy, studentProfile))
             return AccessDeniedError("ACCESS_TO_STUDENT_DENIED").left()
 
+        doDelete(studentProfile, classrooms)
+        return Unit.right()
+    }
+
+    private fun doDelete(studentProfile: StudentProfile, classrooms: List<Classroom>): Either<OperationError, Unit> {
         deleteStudentProjects(studentProfile.id)
         classrooms.forEach { classroom ->
             studentClassroomLinkService.removeStudentFromClassroom(studentProfile.id, classroom.id)

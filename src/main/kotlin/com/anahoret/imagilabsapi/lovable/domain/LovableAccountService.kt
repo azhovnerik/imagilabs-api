@@ -30,6 +30,7 @@ class LovableAccountServiceImpl(
         return when (user.userType) {
             UserType.TEACHER, UserType.STUDENT -> doConnect(user)
             UserType.ADMIN -> throw IllegalArgumentException("Cannot connect admin")
+            else -> null
         }
     }
 

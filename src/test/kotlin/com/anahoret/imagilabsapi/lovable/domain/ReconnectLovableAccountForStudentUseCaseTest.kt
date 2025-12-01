@@ -48,7 +48,8 @@ class ReconnectLovableAccountForStudentUseCaseTest {
             teacherId = teacher.id,
             teachersCount = 1L,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         val expectedAccount = LovableAccount(student.id, "s1", "student1", "student1@example.com", "password123")
 
@@ -112,7 +113,8 @@ class ReconnectLovableAccountForStudentUseCaseTest {
             teacherId = UUID.randomUUID(),
             teachersCount = 1L,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
 
         every { studentProfileService.getStudentById(student.id) } returns student
@@ -142,7 +144,8 @@ class ReconnectLovableAccountForStudentUseCaseTest {
             teacherId = teacher.id,
             teachersCount = 1L,
             blocked = true,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
 
         every { studentProfileService.getStudentById(student.id) } returns student
@@ -166,7 +169,8 @@ class ReconnectLovableAccountForStudentUseCaseTest {
             teacherId = teacher.id,
             teachersCount = 1L,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         val expectedError = OutOfLovableAccountsError()
 
@@ -198,7 +202,8 @@ class ReconnectLovableAccountForStudentUseCaseTest {
             teacherId = teacher.id,
             teachersCount = 1L,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         val expectedError = MaxNumberOfConnectedAccountsExceededError()
 

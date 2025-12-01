@@ -86,6 +86,7 @@ class JwtAuthorizationTokenFilter(
             UserType.TEACHER -> teacherProfileService.getTeacherById(userId)
             UserType.STUDENT -> studentProfileService.getStudentById(userId)
             UserType.ADMIN -> adminProfileService.getAdminById(userId)
+            else -> null
         }
 
         val authorities = when (userProfile) {

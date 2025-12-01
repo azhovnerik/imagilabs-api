@@ -6,7 +6,8 @@ import java.util.*
 class ClassroomCreateRequest(
     val name: String,
     studentNames: String,
-    val edLinkId: UUID?
+    val edLinkIntegrationId: UUID?,
+    val edLinkClassId: UUID?
 ) {
 
     @JsonIgnore

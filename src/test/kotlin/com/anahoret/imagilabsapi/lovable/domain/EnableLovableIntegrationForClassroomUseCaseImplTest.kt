@@ -7,6 +7,7 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.common.testClassroom
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
@@ -69,6 +70,7 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns AccessDenied when teacher cannot update classroom`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
+        testClassroom()
         val classroom = Classroom(
             classroomId,
             "c",
@@ -78,7 +80,8 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
             teacher.id,
             1,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns false
@@ -105,7 +108,8 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
             teacher.id,
             1,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L)
         val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L)
@@ -149,7 +153,8 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
             teacher.id,
             1,
             blocked = true,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
 

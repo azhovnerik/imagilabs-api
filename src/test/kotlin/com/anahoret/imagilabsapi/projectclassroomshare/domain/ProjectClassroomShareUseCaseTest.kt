@@ -61,7 +61,8 @@ class ProjectClassroomShareUseCaseTest {
             teacher.id,
             1,
             blocked = true,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.listByIds(listOf(classroomId)) } returns listOf(blockedClassroom)
 

@@ -31,6 +31,7 @@ class TeacherProfile(
 
     override val userType = UserType.TEACHER
     override val fullName = "$firstName $lastName"
+    val isEdLinkConnected = edLinkIntegrationId != null && edLinkPersonId != null
 
     companion object {
 

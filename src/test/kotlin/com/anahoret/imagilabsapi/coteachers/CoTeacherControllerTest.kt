@@ -351,7 +351,8 @@ class CoTeacherControllerTest {
                 1,
                 blocked = false,
                 ClassroomPermissions(true),
-                teacherRole = TeacherRole.OWNER
+                teacherRole = TeacherRole.OWNER,
+                deleted = false
             )
 
             every { invitationCoTeacherAcceptUseCase.accept(invitationId, teacherProfile) } returns classroom.right()

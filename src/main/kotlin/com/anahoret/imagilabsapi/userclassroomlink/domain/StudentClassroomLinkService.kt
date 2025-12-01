@@ -57,10 +57,11 @@ class StudentClassroomLinkServiceImpl(
 
     @Transactional
     override fun addStudentsToClassroom(studentIds: List<UUID>, classroomId: UUID) {
-        val studentsAlreadyInClassroom = studentClassroomEntityRepository.findAllByClassroomId(classroomId)
-        val studentIdsToAdd = studentIds.filterNot { studentId ->
-            studentsAlreadyInClassroom.any { it.studentId == studentId }
-        }
+        val studentsAlreadyInClassroom = studentClassroomEntityRepository
+            .findAllByClassroomId(classroomId)
+            .map(StudentClassroomEntity::studentId)
+            .toSet()
+        val studentIdsToAdd = studentIds.filter { it !in studentsAlreadyInClassroom }
         studentIdsToAdd.map { StudentClassroomEntity(it, classroomId) }
             .let { studentClassroomEntityRepository.saveAll(it) }
     }

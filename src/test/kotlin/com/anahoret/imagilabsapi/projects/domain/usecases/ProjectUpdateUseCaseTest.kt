@@ -51,7 +51,8 @@ class ProjectUpdateUseCaseTest {
             teacherId = teacher.id,
             teachersCount = 1,
             blocked = true,
-            permissions = ClassroomPermissions(true)
+            permissions = ClassroomPermissions(true),
+            deleted = false
         )
 
         val result = useCase.update(classroomId, teacher, projectId, mockk())

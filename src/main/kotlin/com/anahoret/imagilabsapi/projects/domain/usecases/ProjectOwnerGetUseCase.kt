@@ -22,7 +22,7 @@ class ProjectOwnerGetUseCaseImpl(
         return when (project.ownerUserType) {
             UserType.TEACHER -> teacherProfileService.getTeacherById(project.ownerId)
             UserType.STUDENT -> studentProfileService.getStudentById(project.ownerId)
-            UserType.ADMIN -> null // Admin cannot have projects at the moment
+            else -> null // Other user types cannot have projects at the moment
         }
     }
 }

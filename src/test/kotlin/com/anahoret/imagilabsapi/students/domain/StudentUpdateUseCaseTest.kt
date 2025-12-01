@@ -47,7 +47,8 @@ class StudentUpdateUseCaseTest {
             teacherId = teacher.id,
             teachersCount = 1,
             blocked = true,
-            permissions = ClassroomPermissions(true)
+            permissions = ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(classroom)

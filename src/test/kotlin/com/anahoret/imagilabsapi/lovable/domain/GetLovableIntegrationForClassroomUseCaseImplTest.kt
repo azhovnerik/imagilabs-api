@@ -56,7 +56,8 @@ class GetLovableIntegrationForClassroomUseCaseImplTest {
             student.id,
             1,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canGetClassroom(student, classroom) } returns false
@@ -83,7 +84,8 @@ class GetLovableIntegrationForClassroomUseCaseImplTest {
             teacher.id,
             1,
             blocked = true,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
 
@@ -105,7 +107,8 @@ class GetLovableIntegrationForClassroomUseCaseImplTest {
             teacher.id,
             1,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         val integration = LovableClassroom(classroomId, true, false)
         every { classroomService.getById(classroomId) } returns classroom
@@ -134,7 +137,8 @@ class GetLovableIntegrationForClassroomUseCaseImplTest {
             teacher.id,
             1,
             blocked = false,
-            ClassroomPermissions(true)
+            ClassroomPermissions(true),
+            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canGetClassroom(teacher, classroom) } returns true
