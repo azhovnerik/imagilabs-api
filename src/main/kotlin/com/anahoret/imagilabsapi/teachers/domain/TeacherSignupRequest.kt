@@ -35,7 +35,12 @@ class TeacherSignupRequest(
             marketingEmailSubscribed,
             mobileAppClient,
             edLinkIntegrationId,
-            edLinkPersonId
+            edLinkPersonId,
+            state?.trim(),
+            schoolRoles,
+            grades,
+            subjects?.trim(),
+            schools?.trim()
         )
     }
 
