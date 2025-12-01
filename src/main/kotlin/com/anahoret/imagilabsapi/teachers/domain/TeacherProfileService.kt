@@ -64,7 +64,12 @@ class TeacherProfileServiceImpl(
                     tipTokens,
                     tipTokensReplenishedAt = clock.millis(),
                     edLinkIntegrationId = edLinkIntegrationId,
-                    edLinkPersonId = edLinkPersonId
+                    edLinkPersonId = edLinkPersonId,
+                    state = state,
+                    schoolRoles = schoolRoles,
+                    schools = schools,
+                    grades = grades,
+                    subjects = subjects,
                 )
             ).let(::toTeacherProfile)
         }

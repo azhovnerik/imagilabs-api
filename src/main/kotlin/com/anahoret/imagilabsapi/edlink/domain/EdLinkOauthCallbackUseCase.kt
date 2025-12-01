@@ -89,7 +89,12 @@ class EdLinkOauthCallbackUseCaseImpl(
                     marketingEmailSubscribed = false,
                     mobileAppClient = mobileAppClient,
                     edLinkIntegrationId = integrationId,
-                    edLinkPersonId = person.id
+                    edLinkPersonId = person.id,
+                    state = person.state,
+                    schoolRoles = person.schoolRoles,
+                    grades = person.grades,
+                    subjects = person.subjects,
+                    schools = person.schools,
                 )
             ).bind()
             edLinkRefreshTeacherClassesUseCase.refresh(newTeacher).bind()
