@@ -25,5 +25,8 @@ class ClassroomEntity(
     var edLinkIntegrationId: UUID? = null,
 
     @Column(name = "ed_link_class_id")
-    var edLinkClassId: UUID? = null
+    var edLinkClassId: UUID? = null,
+
+    @Column(name = "school_name")
+    var schoolName: String? = null
 ) : BaseEntity()

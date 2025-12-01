@@ -3,6 +3,7 @@ package com.anahoret.imagilabsapi.common
 import com.anahoret.imagilabsapi.admins.domain.AdminProfile
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
+import com.anahoret.imagilabsapi.classrooms.domain.TeacherRole
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscription
 import com.anahoret.imagilabsapi.subscription.domain.TeacherSubscriptionPlan
@@ -93,18 +94,32 @@ fun testStudent(): StudentProfile {
     )
 }
 
-fun testClassroom(teacherId: UUID = UUID.randomUUID()): Classroom {
+fun testClassroom(
+    id: UUID = UUID.randomUUID(),
+    name: String = "Test classroom",
+    accessCode: String = "1111",
+    studentsCount: Long = 5,
+    projectsCount: Long = 5,
+    teacherId: UUID = UUID.randomUUID(),
+    teachersCount: Long = 2,
+    blocked: Boolean = false,
+    permissions: ClassroomPermissions = ClassroomPermissions(canManageCoTeachers = true),
+    teacherRole: TeacherRole = TeacherRole.OWNER,
+    deleted: Boolean = false
+): Classroom {
     return Classroom(
-        id = UUID.randomUUID(),
-        name = "Test classroom",
-        accessCode = "1111",
-        studentsCount = 5L,
-        projectsCount = 5L,
+        id = id,
+        name = name,
+        accessCode = accessCode,
+        studentsCount = studentsCount,
+        projectsCount = projectsCount,
         teacherId = teacherId,
-        teachersCount = 2,
-        blocked = false,
-        permissions = ClassroomPermissions(true),
-        deleted = false
+        teachersCount = teachersCount,
+        blocked = blocked,
+        permissions = permissions,
+        schoolName = null,
+        teacherRole = teacherRole,
+        deleted = deleted
     )
 }
 

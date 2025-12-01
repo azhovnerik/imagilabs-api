@@ -2,9 +2,7 @@ package com.anahoret.imagilabsapi.lovable.domain
 
 import arrow.core.Either
 import arrow.core.left
-import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.testClassroom
@@ -71,17 +69,9 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
         testClassroom()
-        val classroom = Classroom(
-            classroomId,
-            "c",
-            "ac",
-            0,
-            0,
-            teacher.id,
-            1,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacher.id,
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns false
@@ -99,17 +89,9 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
     fun `enables integration and connects students without active accounts`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "c",
-            "ac",
-            0,
-            0,
-            teacher.id,
-            1,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacher.id,
         )
         val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L)
         val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L)
@@ -144,17 +126,10 @@ class EnableLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns access denied error when classroom is blocked`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "c",
-            "ac",
-            0,
-            0,
-            teacher.id,
-            1,
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacher.id,
             blocked = true,
-            ClassroomPermissions(true),
-            deleted = false
         )
         every { classroomService.getById(classroomId) } returns classroom
 

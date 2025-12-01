@@ -7,7 +7,8 @@ class ClassroomCreateRequest(
     val name: String,
     studentNames: String,
     val edLinkIntegrationId: UUID?,
-    val edLinkClassId: UUID?
+    val edLinkClassId: UUID?,
+    val schoolName: String?
 ) {
 
     @JsonIgnore

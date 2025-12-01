@@ -1,10 +1,9 @@
 package com.anahoret.imagilabsapi.students.domain
 
 import arrow.core.left
-import com.anahoret.imagilabsapi.classrooms.domain.Classroom
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.common.testClassroom
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.projectclassroomshare.domain.ProjectClassroomShareService
 import com.anahoret.imagilabsapi.projects.domain.ProjectService
@@ -40,17 +39,10 @@ class StudentDeleteUseCaseTest {
         val student = StudentProfile(studentId, "n", "u", 0)
 
         every { studentProfileService.getStudentById(studentId) } returns student
-        every { classroomService.getById(classroomId) } returns Classroom(
-            classroomId,
-            name = "c",
-            accessCode = "ac",
-            studentsCount = 0,
-            projectsCount = 0,
+        every { classroomService.getById(classroomId) } returns testClassroom(
+            id = classroomId,
             teacherId = teacher.id,
-            teachersCount = 1,
-            blocked = true,
-            ClassroomPermissions(true),
-            deleted = false
+            blocked = true
         )
         every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(
             mockk {

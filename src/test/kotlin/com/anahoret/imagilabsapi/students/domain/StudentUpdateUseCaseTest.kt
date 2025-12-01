@@ -1,10 +1,9 @@
 package com.anahoret.imagilabsapi.students.domain
 
 import arrow.core.left
-import com.anahoret.imagilabsapi.classrooms.domain.Classroom
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.common.testClassroom
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import io.mockk.every
@@ -38,17 +37,10 @@ class StudentUpdateUseCaseTest {
 
         every { studentProfileService.getStudentById(studentId) } returns student
         every { studentProfileService.getStudentCredentials(studentId) } returns credentials
-        val classroom = Classroom(
-            classroomId,
-            name = "c",
-            accessCode = "ac",
-            studentsCount = 0,
-            projectsCount = 0,
+        val classroom = testClassroom(
+            id = classroomId,
             teacherId = teacher.id,
-            teachersCount = 1,
-            blocked = true,
-            permissions = ClassroomPermissions(true),
-            deleted = false
+            blocked = true
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { studentClassroomLinkService.listClassroomsByStudent(studentId) } returns listOf(classroom)
