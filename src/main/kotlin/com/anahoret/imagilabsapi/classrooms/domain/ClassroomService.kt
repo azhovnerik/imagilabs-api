@@ -61,6 +61,7 @@ class ClassroomServiceImpl(
     override fun update(classroomId: UUID, classroomUpdateRequest: ClassroomUpdateRequest): Classroom? {
         return classroomEntityRepository.findByIdOrNull(classroomId)?.let {
             it.name = classroomUpdateRequest.name
+            it.schoolName = classroomUpdateRequest.schoolName
             classroomEntityRepository.save(it)
             classroomId
         }?.let(::doGetClassroomById)

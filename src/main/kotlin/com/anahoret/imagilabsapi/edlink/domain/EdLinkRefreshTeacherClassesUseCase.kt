@@ -6,6 +6,7 @@ import arrow.core.raise.either
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomCreateRequest
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomUpdateRequest
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.SystemProfile
@@ -67,11 +68,29 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             if (classroom == null) {
                 importClassroom(integration, edLinkClass, teacherProfile)
             } else if (!classroom.deleted) {
+                refreshClassInfo(edLinkClass, classroom, integration)
                 makeCoTeacherIfNeeded(classroom, teacherProfile)
                 refreshStudents(classroom, integration)
             }
         }
     }
+
+    private fun refreshClassInfo(
+        edLinkClass: EdLinkClass,
+        classroom: Classroom,
+        integration: Integration
+    ): Either<OperationError, Classroom> = either {
+        val school = edLinkSchoolApi.getSchool(integration.accessToken, edLinkClass.schoolId).bind()
+        classroomService.update(
+            classroom.id,
+            ClassroomUpdateRequest(
+                name = edLinkClass.name,
+                schoolName = school.name,
+                studentNames = ""
+            )
+        ) ?: NotFoundError("CLASSROOM_NOT_FOUND").left().bind()
+    }
+
 
     private fun softDeleteDeletedEdLinkClasses(
         edLinkClasses: List<EdLinkClass>,
