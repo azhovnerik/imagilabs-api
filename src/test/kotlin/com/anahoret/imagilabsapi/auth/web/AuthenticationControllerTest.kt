@@ -2,9 +2,8 @@ package com.anahoret.imagilabsapi.auth.web
 
 import com.anahoret.imagilabsapi.auth.domain.ImagiLabsAuthenticationToken
 import com.anahoret.imagilabsapi.auth.web.jwt.JwtTokenData
-import com.anahoret.imagilabsapi.classrooms.domain.Classroom
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.common.testClassroom
 import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.web.SuccessResponseDto
 import com.anahoret.imagilabsapi.students.domain.StudentLoginRequest
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.InternalAuthenticationServiceException
-import java.util.*
 
 class AuthenticationControllerTest {
 
@@ -38,17 +36,12 @@ class AuthenticationControllerTest {
     fun `studentLogin authenticates and returns 200 when classroom not blocked`() {
         val httpResponse = mockk<HttpServletResponse>(relaxed = true)
         val accessCode = "GHIJKL"
-        val classroom = Classroom(
-            id = UUID.randomUUID(),
+        val classroom = testClassroom(
             name = "Open class",
             accessCode = accessCode,
             studentsCount = 0,
             projectsCount = 0,
-            teacherId = UUID.randomUUID(),
             teachersCount = 1,
-            blocked = false,
-            permissions = ClassroomPermissions(true),
-            deleted = false
         )
         every { classroomService.getByAccessCode(accessCode) } returns classroom
 

@@ -47,6 +47,7 @@ class ClassroomServiceImpl(
                 classroomCreateRequest.name,
                 accessCode,
                 teacherId,
+                schoolName = classroomCreateRequest.schoolName,
                 edLinkIntegrationId = classroomCreateRequest.edLinkIntegrationId,
                 edLinkClassId = classroomCreateRequest.edLinkClassId
             )
@@ -60,6 +61,7 @@ class ClassroomServiceImpl(
     override fun update(classroomId: UUID, classroomUpdateRequest: ClassroomUpdateRequest): Classroom? {
         return classroomEntityRepository.findByIdOrNull(classroomId)?.let {
             it.name = classroomUpdateRequest.name
+            it.schoolName = classroomUpdateRequest.schoolName
             classroomEntityRepository.save(it)
             classroomId
         }?.let(::doGetClassroomById)
@@ -172,7 +174,7 @@ class ClassroomServiceImpl(
     }
 
     private fun generateUniqueAccessCode(): String {
-        (1..100).forEach { i ->
+        (1..100).forEach { _ ->
             val accessCode = RandomStringUtils.secure().nextAlphanumeric(6).uppercase()
             if (classroomEntityRepository.findByAccessCode(accessCode) == null) {
                 return accessCode

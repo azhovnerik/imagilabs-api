@@ -6,12 +6,14 @@ import arrow.core.raise.either
 import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomCreateRequest
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
+import com.anahoret.imagilabsapi.classrooms.domain.ClassroomUpdateRequest
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.SystemProfile
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.edlink.api.EdLinkClassApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkIntegrationApi
+import com.anahoret.imagilabsapi.edlink.api.EdLinkSchoolApi
 import com.anahoret.imagilabsapi.edlink.api.model.EdLinkClass
 import com.anahoret.imagilabsapi.edlink.api.model.Integration
 import com.anahoret.imagilabsapi.edlink.api.model.Person
@@ -38,6 +40,7 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
     private val studentProfileService: StudentProfileService,
     private val studentClassroomLinkService: StudentClassroomLinkService,
     private val studentDeleteUseCase: StudentDeleteUseCase,
+    private val edLinkSchoolApi: EdLinkSchoolApi,
     private val logger: Logger
 ) : EdLinkRefreshTeacherClassesUseCase {
 
@@ -65,11 +68,29 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             if (classroom == null) {
                 importClassroom(integration, edLinkClass, teacherProfile)
             } else if (!classroom.deleted) {
+                refreshClassInfo(edLinkClass, classroom, integration)
                 makeCoTeacherIfNeeded(classroom, teacherProfile)
                 refreshStudents(classroom, integration)
             }
         }
     }
+
+    private fun refreshClassInfo(
+        edLinkClass: EdLinkClass,
+        classroom: Classroom,
+        integration: Integration
+    ): Either<OperationError, Classroom> = either {
+        val school = edLinkSchoolApi.getSchool(integration.accessToken, edLinkClass.schoolId).bind()
+        classroomService.update(
+            classroom.id,
+            ClassroomUpdateRequest(
+                name = edLinkClass.name,
+                schoolName = school.name,
+                studentNames = ""
+            )
+        ) ?: NotFoundError("CLASSROOM_NOT_FOUND").left().bind()
+    }
+
 
     private fun softDeleteDeletedEdLinkClasses(
         edLinkClasses: List<EdLinkClass>,
@@ -130,11 +151,13 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             val newEdLinkStudents = edLinkStudents.filterNot { it.id in existingImagiStudentIds }
             val studentCreateRequests = newEdLinkStudents
                 .map { person -> StudentCreateRequest(person.displayName, integration.id, person.id) }
+            val school = edLinkSchoolApi.getSchool(integration.accessToken, edLinkClass.schoolId).bind()
             val classroomCreateRequest = ClassroomCreateRequest(
                 name = edLinkClass.name,
                 studentNames = "",
                 edLinkIntegrationId = integration.id,
-                edLinkClassId = edLinkClass.id
+                edLinkClassId = edLinkClass.id,
+                schoolName = school.name
             )
             val newClassroom = classroomService.create(teacherProfile.id, classroomCreateRequest)
             val newStudents = studentProfileService.createStudents(newClassroom.id, studentCreateRequests)

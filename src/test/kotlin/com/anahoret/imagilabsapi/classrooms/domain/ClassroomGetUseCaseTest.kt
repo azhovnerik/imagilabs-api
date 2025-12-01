@@ -2,6 +2,7 @@ package com.anahoret.imagilabsapi.classrooms.domain
 
 import arrow.core.left
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.common.testClassroom
 import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
@@ -27,17 +28,9 @@ class ClassroomGetUseCaseTest {
     fun `get returns forbidden when classroom is blocked for teacher`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "c",
-            "ac",
-            0,
-            0,
-            teacher.id,
-            1,
-            blocked = true,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            blocked = true
         )
         every { classroomService.getById(classroomId) } returns classroom
 
@@ -49,17 +42,9 @@ class ClassroomGetUseCaseTest {
     fun `get returns forbidden when classroom is blocked for student`() {
         val classroomId = UUID.randomUUID()
         val student = testStudent()
-        val classroom = Classroom(
-            classroomId,
-            "c",
-            "ac",
-            0,
-            0,
-            UUID.randomUUID(),
-            1,
-            blocked = true,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            blocked = true
         )
         every { classroomService.getById(classroomId) } returns classroom
 

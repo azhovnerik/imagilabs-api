@@ -2,11 +2,10 @@ package com.anahoret.imagilabsapi.lovable.domain
 
 import arrow.core.Either
 import arrow.core.left
-import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.common.testClassroom
 import com.anahoret.imagilabsapi.common.testTeacher
 import io.mockk.every
 import io.mockk.mockk
@@ -53,17 +52,9 @@ class SetPausedLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns AccessDenied when teacher cannot update classroom`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "c",
-            "ac",
-            0,
-            0,
-            teacher.id,
-            1,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacher.id
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns false
@@ -79,17 +70,9 @@ class SetPausedLovableIntegrationForClassroomUseCaseImplTest {
     fun `sets paused when allowed`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "c",
-            "ac",
-            0,
-            0,
-            teacher.id,
-            1,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacher.id
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canUpdateClassroom(teacher, classroom) } returns true
@@ -104,17 +87,10 @@ class SetPausedLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns AccessDenied when classroom is blocked`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "c",
-            "ac",
-            0,
-            0,
-            teacher.id,
-            1,
-            blocked = true,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacher.id,
+            blocked = true
         )
         every { classroomService.getById(classroomId) } returns classroom
 

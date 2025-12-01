@@ -1,5 +1,6 @@
 package com.anahoret.imagilabsapi.classrooms.domain
 
+import com.anahoret.imagilabsapi.common.testClassroom
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import io.mockk.every
 import io.mockk.mockk
@@ -20,19 +21,9 @@ class ClassroomGetListUseCaseTest {
     @Test
     fun `should return list with classrooms where teacher is owner`() {
         val teacherId = UUID.randomUUID()
-        val classroomId = UUID.randomUUID()
 
-        val classroom = Classroom(
-            classroomId,
-            "New classroom",
-            "1111",
-            5L,
-            2L,
-            teacherId,
-            2L,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            teacherId = teacherId,
         )
 
         val emptyListCoClassroomIds = emptyList<UUID>()
@@ -54,31 +45,16 @@ class ClassroomGetListUseCaseTest {
         val teacherId = UUID.randomUUID()
         val classroomId = UUID.randomUUID()
 
-        val classroom = Classroom(
-            classroomId,
-            "New classroom",
-            "1111",
-            5L,
-            2L,
-            teacherId,
-            2L,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacherId,
+            teacherRole = TeacherRole.OWNER
         )
 
-        val coTeacherClassroom = Classroom(
-            classroomId,
-            "Co teacher classroom",
-            "4133",
-            8L,
-            1L,
-            teacherId,
-            2L,
-            blocked = false,
-            ClassroomPermissions(true),
-            teacherRole = TeacherRole.CO_TEACHER,
-            deleted = false
+        val coTeacherClassroom = testClassroom(
+            id = classroomId,
+            teacherId = teacherId,
+            teacherRole = TeacherRole.CO_TEACHER
         )
 
         val emptyListCoClassroomIds = listOf(UUID.randomUUID())
