@@ -2,11 +2,10 @@ package com.anahoret.imagilabsapi.lovable.domain
 
 import arrow.core.Either
 import arrow.core.left
-import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.common.testClassroom
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
@@ -47,17 +46,9 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
     fun `returns AccessDenied when teacher cannot list credentials`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "c",
-            "ac",
-            0,
-            0,
-            teacher.id,
-            1,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacher.id
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canListStudentCredentials(teacher, classroom) } returns false
@@ -72,17 +63,10 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
     fun `returns AccessDenied when classroom is blocked`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "c",
-            "ac",
-            0,
-            0,
-            teacher.id,
-            1,
-            blocked = true,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacher.id,
+            blocked = true
         )
         every { classroomService.getById(classroomId) } returns classroom
 
@@ -95,17 +79,9 @@ class GetLovableCredentialsForClassroomUseCaseImplTest {
     fun `returns credentials for all students in classroom`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "c",
-            "ac",
-            0,
-            0,
-            teacher.id,
-            1,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacher.id
         )
         val s1 = StudentProfile(UUID.randomUUID(), "s1", "u1", 1L)
         val s2 = StudentProfile(UUID.randomUUID(), "s2", "u2", 1L)

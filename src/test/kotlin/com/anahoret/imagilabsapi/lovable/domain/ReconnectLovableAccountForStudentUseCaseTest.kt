@@ -2,12 +2,11 @@ package com.anahoret.imagilabsapi.lovable.domain
 
 import arrow.core.Either
 import arrow.core.left
-import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.common.testClassroom
 import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.testTeacher
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
@@ -39,17 +38,9 @@ class ReconnectLovableAccountForStudentUseCaseTest {
     fun `reconnect returns new LovableAccount when successful`() {
         val teacher = testTeacher()
         val student = testStudent()
-        val classroom = Classroom(
+        val classroom = testClassroom(
             id = classroomId,
-            name = "Test Classroom",
-            accessCode = "ABC123",
-            studentsCount = 1L,
-            projectsCount = 0L,
-            teacherId = teacher.id,
-            teachersCount = 1L,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+            teacherId = teacher.id
         )
         val expectedAccount = LovableAccount(student.id, "s1", "student1", "student1@example.com", "password123")
 
@@ -104,17 +95,8 @@ class ReconnectLovableAccountForStudentUseCaseTest {
     fun `reconnect returns AccessDeniedError when teacher cannot update classroom`() {
         val teacher = testTeacher()
         val student = testStudent()
-        val classroom = Classroom(
-            id = classroomId,
-            name = "Test Classroom",
-            accessCode = "ABC123",
-            studentsCount = 1L,
-            projectsCount = 0L,
-            teacherId = UUID.randomUUID(),
-            teachersCount = 1L,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId
         )
 
         every { studentProfileService.getStudentById(student.id) } returns student
@@ -135,17 +117,10 @@ class ReconnectLovableAccountForStudentUseCaseTest {
     fun `reconnect returns AccessDenied when classroom is blocked`() {
         val teacher = testTeacher()
         val student = testStudent()
-        val classroom = Classroom(
+        val classroom = testClassroom(
             id = classroomId,
-            name = "Test Classroom",
-            accessCode = "ABC123",
-            studentsCount = 1L,
-            projectsCount = 0L,
             teacherId = teacher.id,
-            teachersCount = 1L,
-            blocked = true,
-            ClassroomPermissions(true),
-            deleted = false
+            blocked = true
         )
 
         every { studentProfileService.getStudentById(student.id) } returns student
@@ -160,17 +135,9 @@ class ReconnectLovableAccountForStudentUseCaseTest {
     fun `reconnect propagates connection errors from ConnectLovableAccountToUserUseCase`() {
         val teacher = testTeacher()
         val student = testStudent()
-        val classroom = Classroom(
+        val classroom = testClassroom(
             id = classroomId,
-            name = "Test Classroom",
-            accessCode = "ABC123",
-            studentsCount = 1L,
-            projectsCount = 0L,
-            teacherId = teacher.id,
-            teachersCount = 1L,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+            teacherId = teacher.id
         )
         val expectedError = OutOfLovableAccountsError()
 
@@ -193,17 +160,9 @@ class ReconnectLovableAccountForStudentUseCaseTest {
     fun `reconnect propagates MaxNumberOfConnectedAccountsExceededError from ConnectLovableAccountToUserUseCase`() {
         val teacher = testTeacher()
         val student = testStudent()
-        val classroom = Classroom(
+        val classroom = testClassroom(
             id = classroomId,
-            name = "Test Classroom",
-            accessCode = "ABC123",
-            studentsCount = 1L,
-            projectsCount = 0L,
-            teacherId = teacher.id,
-            teachersCount = 1L,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+            teacherId = teacher.id
         )
         val expectedError = MaxNumberOfConnectedAccountsExceededError()
 

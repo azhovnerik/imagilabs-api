@@ -16,6 +16,7 @@ class Classroom(
     val blocked: Boolean,
     val permissions: ClassroomPermissions,
     val deleted: Boolean,
+    val schoolName: String?,
     var teacherRole: TeacherRole = TeacherRole.OWNER,
     @field:JsonIgnore val edLinkIntegrationId: UUID? = null,
     @field:JsonIgnore val edLinkClassId: UUID? = null
@@ -46,6 +47,7 @@ class Classroom(
                     blocked,
                     permissions,
                     deleted,
+                    schoolName,
                     edLinkIntegrationId = edLinkIntegrationId,
                     edLinkClassId = edLinkClassId
                 )

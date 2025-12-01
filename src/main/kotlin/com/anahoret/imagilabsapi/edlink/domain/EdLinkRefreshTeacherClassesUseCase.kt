@@ -12,6 +12,7 @@ import com.anahoret.imagilabsapi.common.domain.profiles.SystemProfile
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.edlink.api.EdLinkClassApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkIntegrationApi
+import com.anahoret.imagilabsapi.edlink.api.EdLinkSchoolApi
 import com.anahoret.imagilabsapi.edlink.api.model.EdLinkClass
 import com.anahoret.imagilabsapi.edlink.api.model.Integration
 import com.anahoret.imagilabsapi.edlink.api.model.Person
@@ -38,6 +39,7 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
     private val studentProfileService: StudentProfileService,
     private val studentClassroomLinkService: StudentClassroomLinkService,
     private val studentDeleteUseCase: StudentDeleteUseCase,
+    private val edLinkSchoolApi: EdLinkSchoolApi,
     private val logger: Logger
 ) : EdLinkRefreshTeacherClassesUseCase {
 
@@ -130,11 +132,13 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             val newEdLinkStudents = edLinkStudents.filterNot { it.id in existingImagiStudentIds }
             val studentCreateRequests = newEdLinkStudents
                 .map { person -> StudentCreateRequest(person.displayName, integration.id, person.id) }
+            val school = edLinkSchoolApi.getSchool(integration.accessToken, edLinkClass.schoolId).bind()
             val classroomCreateRequest = ClassroomCreateRequest(
                 name = edLinkClass.name,
                 studentNames = "",
                 edLinkIntegrationId = integration.id,
-                edLinkClassId = edLinkClass.id
+                edLinkClassId = edLinkClass.id,
+                schoolName = school.name
             )
             val newClassroom = classroomService.create(teacherProfile.id, classroomCreateRequest)
             val newStudents = studentProfileService.createStudents(newClassroom.id, studentCreateRequests)

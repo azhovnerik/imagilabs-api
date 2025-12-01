@@ -2,12 +2,11 @@ package com.anahoret.imagilabsapi.lovable.domain
 
 import arrow.core.Either
 import arrow.core.left
-import com.anahoret.imagilabsapi.classrooms.domain.Classroom
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomAccessService
-import com.anahoret.imagilabsapi.classrooms.domain.ClassroomPermissions
 import com.anahoret.imagilabsapi.classrooms.domain.ClassroomService
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
+import com.anahoret.imagilabsapi.common.testClassroom
 import com.anahoret.imagilabsapi.common.testStudent
 import com.anahoret.imagilabsapi.common.testTeacher
 import io.mockk.every
@@ -47,17 +46,8 @@ class GetLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns AccessDenied when user cannot access classroom`() {
         val student = testStudent()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "A",
-            "X",
-            0,
-            0,
-            student.id,
-            1,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canGetClassroom(student, classroom) } returns false
@@ -75,17 +65,10 @@ class GetLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns AccessDenied when classroom is blocked`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "A",
-            "X",
-            0,
-            0,
-            teacher.id,
-            1,
-            blocked = true,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacher.id,
+            blocked = true
         )
         every { classroomService.getById(classroomId) } returns classroom
 
@@ -98,17 +81,9 @@ class GetLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns Right when integration exists and access granted`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "B",
-            "Y",
-            0,
-            0,
-            teacher.id,
-            1,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacher.id,
         )
         val integration = LovableClassroom(classroomId, true, false)
         every { classroomService.getById(classroomId) } returns classroom
@@ -128,17 +103,9 @@ class GetLovableIntegrationForClassroomUseCaseImplTest {
     fun `returns NotFound when integration missing`() {
         val teacher = testTeacher()
         val classroomId = UUID.randomUUID()
-        val classroom = Classroom(
-            classroomId,
-            "C",
-            "Z",
-            0,
-            0,
-            teacher.id,
-            1,
-            blocked = false,
-            ClassroomPermissions(true),
-            deleted = false
+        val classroom = testClassroom(
+            id = classroomId,
+            teacherId = teacher.id
         )
         every { classroomService.getById(classroomId) } returns classroom
         every { classroomAccessService.canGetClassroom(teacher, classroom) } returns true
