@@ -123,10 +123,10 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             val edLinkStudents = edLinkClassApi.listStudents(integration.accessToken, edLinkClassId).bind()
             val existingImagiStudents =
                 studentProfileService.listByEdLinkIds(integration.id, edLinkStudents.map(Person::id))
-            val existingImagiStudentIds = existingImagiStudents.map(StudentProfile::id).toSet()
-            val newEdLinkStudents = edLinkStudents.filterNot { it.id in existingImagiStudentIds }
+            val existingImagiStudentPersonIds = existingImagiStudents.map(StudentProfile::edLinkPersonId).toSet()
+            val newEdLinkStudents = edLinkStudents.filterNot { it.id in existingImagiStudentPersonIds }
             val edLinkStudentIds = edLinkStudents.map(Person::id)
-            val deletedStudents = existingImagiStudents.filterNot { it.id in edLinkStudentIds }
+            val deletedStudents = existingImagiStudents.filterNot { it.edLinkPersonId in edLinkStudentIds }
             deletedStudents.forEach { studentDeleteUseCase.delete(SystemProfile, it.id).bind() }
             val studentCreateRequests = newEdLinkStudents
                 .map { person -> StudentCreateRequest(person.displayName, integration.id, person.id) }
@@ -147,8 +147,8 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             val edLinkStudents = edLinkClassApi.listStudents(integration.accessToken, edLinkClass.id).bind()
             val existingImagiStudents =
                 studentProfileService.listByEdLinkIds(integration.id, edLinkStudents.map(Person::id))
-            val existingImagiStudentIds = existingImagiStudents.map(StudentProfile::id).toSet()
-            val newEdLinkStudents = edLinkStudents.filterNot { it.id in existingImagiStudentIds }
+            val existingImagiStudentPersonIds = existingImagiStudents.map(StudentProfile::edLinkPersonId).toSet()
+            val newEdLinkStudents = edLinkStudents.filterNot { it.id in existingImagiStudentPersonIds }
             val studentCreateRequests = newEdLinkStudents
                 .map { person -> StudentCreateRequest(person.displayName, integration.id, person.id) }
             val school = edLinkSchoolApi.getSchool(integration.accessToken, edLinkClass.schoolId).bind()
