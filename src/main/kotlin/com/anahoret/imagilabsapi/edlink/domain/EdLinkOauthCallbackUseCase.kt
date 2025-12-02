@@ -100,11 +100,7 @@ class EdLinkOauthCallbackUseCaseImpl(
             val schoolRoles = edLinkEnumMapper.mapSchoolRoles(person.roles)
 
             // Fetch teacher's subjects from enrollments -> classes -> subjects
-            val subjects = edLinkSubjectsService.getTeacherSubjects(token, person.id)
-                .fold(
-                    { it },
-                    { it }
-                )
+            val subjects = edLinkSubjectsService.getTeacherSubjects(token, person.id).bind()
 
             val newTeacher = teacherSignUpUseCase.signUp(
                 TeacherSignupRequest(
