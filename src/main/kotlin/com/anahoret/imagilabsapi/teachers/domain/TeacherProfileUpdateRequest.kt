@@ -6,6 +6,8 @@ data class TeacherProfileUpdateRequest(
     val country: String? = null,
     val state: String? = null,
     val organization: String? = null,
+    val howDidYouHearAboutUs: String? = null,
+    val howDidYouHearAboutUsOther: String? = null,
     val schools: String? = null,
     val grades: List<GradeLevel>? = null,
     val schoolRoles: List<SchoolRole>? = null,
