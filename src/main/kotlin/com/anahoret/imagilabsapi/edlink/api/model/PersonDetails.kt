@@ -11,5 +11,4 @@ class PersonDetails(
     @field:JsonProperty("id") val id: UUID,
     @field:JsonProperty("state") val state: String?,
     @field:JsonProperty("district_id") val districtId: UUID?
-    // TODO: Add subjects field when we find where it comes from in EdLink API
 )
