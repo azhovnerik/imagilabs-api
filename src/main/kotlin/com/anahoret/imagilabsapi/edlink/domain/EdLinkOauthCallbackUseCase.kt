@@ -41,6 +41,7 @@ class EdLinkOauthCallbackUseCaseImpl(
     private val edLinkPersonApi: EdLinkPersonApi,
     private val edLinkSchoolApi: EdLinkSchoolApi,
     private val edLinkEnumMapper: EdLinkEnumMapper,
+    private val edLinkSubjectsService: EdLinkSubjectsService,
     private val studentProfileService: StudentProfileService,
     private val teacherProfileService: TeacherProfileService,
     private val teacherSignUpUseCase: TeacherSignUpUseCase,
@@ -82,7 +83,10 @@ class EdLinkOauthCallbackUseCaseImpl(
         return either {
             val district = edLinkDistrictApi.myDistrict(token, person.districtId).bind()
 
+            // Get additional person details from graph API (state)
             val personDetails = edLinkPersonApi.getPerson(token, person.id).bind()
+
+            // Fetch school names for each school ID
             val schoolNames = person.schools.mapNotNull { schoolId ->
                 edLinkSchoolApi.getSchool(token, schoolId)
                     .fold(
@@ -91,8 +95,16 @@ class EdLinkOauthCallbackUseCaseImpl(
                     )
             }.joinToString(", ")
 
+            // Map EdLink API strings to domain enums
             val gradeLevels = edLinkEnumMapper.mapGradeLevels(person.gradeLevels)
             val schoolRoles = edLinkEnumMapper.mapSchoolRoles(person.roles)
+
+            // Fetch teacher's subjects from enrollments -> classes -> subjects
+            val subjects = edLinkSubjectsService.getTeacherSubjects(token, person.id)
+                .fold(
+                    { it },
+                    { it }
+                )
 
             val newTeacher = teacherSignUpUseCase.signUp(
                 TeacherSignupRequest(
@@ -111,7 +123,7 @@ class EdLinkOauthCallbackUseCaseImpl(
                     state = personDetails.state,
                     schoolRoles = schoolRoles,
                     grades = gradeLevels,
-                    subjects = null, // TODO: Determine where subjects come from in EdLink API
+                    subjects = subjects,
                     schools = schoolNames.ifEmpty { null }
                 )
             ).bind()

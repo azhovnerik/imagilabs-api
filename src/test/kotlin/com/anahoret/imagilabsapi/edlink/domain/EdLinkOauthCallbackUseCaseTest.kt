@@ -46,6 +46,7 @@ class EdLinkOauthCallbackUseCaseTest {
     private val edLinkPersonApi = mockk<EdLinkPersonApi>()
     private val edLinkSchoolApi = mockk<EdLinkSchoolApi>()
     private val edLinkEnumMapper = mockk<EdLinkEnumMapper>()
+    private val edLinkSubjectsService = mockk<EdLinkSubjectsService>()
     private val edLinkRefreshTeacherClassesUseCase = mockk<EdLinkRefreshTeacherClassesUseCase>()
 
     private val useCase = EdLinkOauthCallbackUseCaseImpl(
@@ -57,6 +58,7 @@ class EdLinkOauthCallbackUseCaseTest {
         edLinkPersonApi,
         edLinkSchoolApi,
         edLinkEnumMapper,
+        edLinkSubjectsService,
         studentProfileService,
         teacherProfileService,
         teacherSignUpUseCase,
@@ -311,6 +313,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkPersonApi.getPerson(token, personId) } returns personDetails.right()
         every { edLinkEnumMapper.mapGradeLevels(any()) } returns emptyList()
         every { edLinkEnumMapper.mapSchoolRoles(any()) } returns emptyList()
+        every { edLinkSubjectsService.getTeacherSubjects(token, personId) } returns null.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherProfileService.getTeacherByEmail(any()) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
@@ -361,6 +364,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkPersonApi.getPerson(token, personId) } returns personDetails.right()
         every { edLinkEnumMapper.mapGradeLevels(any()) } returns emptyList()
         every { edLinkEnumMapper.mapSchoolRoles(any()) } returns emptyList()
+        every { edLinkSubjectsService.getTeacherSubjects(token, personId) } returns null.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherProfileService.getTeacherByEmail(any()) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
@@ -401,6 +405,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkPersonApi.getPerson(token, personId) } returns personDetails.right()
         every { edLinkEnumMapper.mapGradeLevels(any()) } returns emptyList()
         every { edLinkEnumMapper.mapSchoolRoles(any()) } returns emptyList()
+        every { edLinkSubjectsService.getTeacherSubjects(token, personId) } returns null.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherProfileService.getTeacherByEmail(any()) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
@@ -439,6 +444,7 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkPersonApi.getPerson(token, personId) } returns personDetails.right()
         every { edLinkEnumMapper.mapGradeLevels(any()) } returns emptyList()
         every { edLinkEnumMapper.mapSchoolRoles(any()) } returns emptyList()
+        every { edLinkSubjectsService.getTeacherSubjects(token, personId) } returns null.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherProfileService.getTeacherByEmail(any()) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns validationErrors.left()
