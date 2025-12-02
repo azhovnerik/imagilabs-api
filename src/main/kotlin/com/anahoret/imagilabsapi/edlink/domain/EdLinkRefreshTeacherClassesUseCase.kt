@@ -49,13 +49,14 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             return TeacherNotLinkedToEdLinkError().left()
 
         val integration = edLinkIntegrationApi.getIntegration(teacherProfile.edLinkIntegrationId).bind()
-        val edLinkClasses = edLinkClassApi.listClasses(integration.accessToken).bind()
+        val integrationEdLinkClasses = edLinkClassApi.listClasses(integration.accessToken).bind()
+        val teacherEdLinkClasses = integrationEdLinkClasses
             .filter {
                 isEdLinkTeacherInEdLinkClass(integration.accessToken, teacherProfile.edLinkPersonId, it.id).bind()
             }
 
-        updateClasses(edLinkClasses, integration, teacherProfile)
-        softDeleteDeletedEdLinkClasses(edLinkClasses, integration)
+        updateClasses(teacherEdLinkClasses, integration, teacherProfile)
+        softDeleteDeletedEdLinkClasses(integrationEdLinkClasses, integration)
     }
 
     private fun updateClasses(
