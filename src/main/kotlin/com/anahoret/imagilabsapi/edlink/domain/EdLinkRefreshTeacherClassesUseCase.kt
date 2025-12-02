@@ -10,6 +10,7 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomUpdateRequest
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.SystemProfile
+import com.anahoret.imagilabsapi.coteachers.domain.CoTeacher
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.edlink.api.EdLinkClassApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkIntegrationApi
@@ -64,16 +65,67 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
         integration: Integration,
         teacherProfile: TeacherProfile
     ) {
+        removeFromOwnedClassrooms(edLinkClasses, integration, teacherProfile)
+        removeFromCoTeacherClasses(edLinkClasses, integration, teacherProfile)
+        addToClasses(edLinkClasses, integration, teacherProfile)
+    }
+
+    private fun addToClasses(
+        edLinkClasses: List<EdLinkClass>,
+        integration: Integration,
+        teacherProfile: TeacherProfile
+    ) {
         edLinkClasses.forEach { edLinkClass ->
             val classroom = classroomService.getByEdLinkId(integration.id, edLinkClass.id)
             if (classroom == null) {
                 importClassroom(integration, edLinkClass, teacherProfile)
             } else if (!classroom.deleted) {
                 refreshClassInfo(edLinkClass, classroom, integration)
-                makeCoTeacherIfNeeded(classroom, teacherProfile)
+                makeTeacherIfNeeded(classroom, teacherProfile)
                 refreshStudents(classroom, integration)
             }
         }
+    }
+
+    private fun removeFromCoTeacherClasses(
+        edLinkClasses: List<EdLinkClass>,
+        integration: Integration,
+        teacherProfile: TeacherProfile
+    ) {
+        val edLinkClassIds = edLinkClasses.map(EdLinkClass::id)
+        coTeacherService.getClassroomIdListByTeacherId(teacherProfile.id)
+            .let(classroomService::listByIds)
+            .filter {
+                it.isEdLinkConnected &&
+                        it.edLinkIntegrationId == integration.id &&
+                        it.edLinkClassId !in edLinkClassIds
+            }.forEach { removedClassroom ->
+                coTeacherService.deleteCoTeacher(removedClassroom.id, teacherProfile.id)
+            }
+    }
+
+    private fun removeFromOwnedClassrooms(
+        edLinkClasses: List<EdLinkClass>,
+        integration: Integration,
+        teacherProfile: TeacherProfile
+    ) {
+        val edLinkClassIds = edLinkClasses.map(EdLinkClass::id)
+        classroomService.listByTeacher(teacherProfile.id)
+            .filter {
+                it.isEdLinkConnected &&
+                        it.edLinkIntegrationId == integration.id &&
+                        it.edLinkClassId !in edLinkClassIds
+            }
+            .forEach { removedClassroom ->
+                val coTeachers = coTeacherService.getAllCoTeachersByClassroomId(removedClassroom.id)
+                if (coTeachers.isEmpty()) {
+                    classroomService.setTeacher(removedClassroom.id, null)
+                } else {
+                    val firstCoTeacher = coTeachers.minBy(CoTeacher::createdAt)
+                    classroomService.setTeacher(removedClassroom.id, firstCoTeacher.id)
+                    coTeacherService.deleteCoTeacher(removedClassroom.id, firstCoTeacher.id)
+                }
+            }
     }
 
     private fun refreshClassInfo(
@@ -103,11 +155,13 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             .forEach { classroomService.softDelete(it.id) }
     }
 
-    private fun makeCoTeacherIfNeeded(
+    private fun makeTeacherIfNeeded(
         classroom: Classroom,
         teacherProfile: TeacherProfile
     ) {
-        if (
+        if (classroom.teacherId == null) {
+            classroomService.setTeacher(classroom.id, teacherProfile.id)
+        } else if (
             classroom.teacherId != teacherProfile.id &&
             !coTeacherService.isLinkedToClassroom(classroom.id, teacherProfile.id)
         ) {

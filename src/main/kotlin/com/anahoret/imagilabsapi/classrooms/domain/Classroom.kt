@@ -11,7 +11,7 @@ class Classroom(
     val accessCode: String,
     val studentsCount: Long,
     val projectsCount: Long,
-    val teacherId: UUID,
+    val teacherId: UUID?,
     val teachersCount: Long,
     val blocked: Boolean,
     val permissions: ClassroomPermissions,

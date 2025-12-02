@@ -10,7 +10,8 @@ class CoTeacher(
     val teacherEmail: String,
     val teacherId: UUID?,
     val coTeacherStatus: TeacherRole,
-    val name: String?
+    val name: String?,
+    val createdAt: Long
 ) {
 
     companion object {
@@ -22,7 +23,8 @@ class CoTeacher(
                 data.teacherEmail,
                 data.teacherId,
                 data.coTeacherStatus,
-                "${data.firstName?:""} ${data.lastName?:""}".trim()
+                "${data.firstName ?: ""} ${data.lastName ?: ""}".trim(),
+                data.createdAt
             )
         }
     }

@@ -30,7 +30,7 @@ class ClassroomController(
     private val classroomDeleteUseCase: ClassroomDeleteUseCase,
     private val classroomUpdateUseCase: ClassroomUpdateUseCase,
     private val classroomGetListUseCase: ClassroomGetListUseCase,
-    private val classroomGetTeachersUseCase: ClassroomGetTeachersUseCase
+    private val getClassroomTeachersUseCase: GetClassroomTeachersUseCase
 ) {
 
     @Secured(UserRole.TEACHER)
@@ -69,7 +69,7 @@ class ClassroomController(
         @PathVariable classroomId: UUID,
         @AuthenticationPrincipal teacherProfile: TeacherProfile
     ): ResponseEntity<ResponseDto<List<ClassroomTeacher>>> {
-        return when (val result = classroomGetTeachersUseCase.get(classroomId, teacherProfile.id)) {
+        return when (val result = getClassroomTeachersUseCase.get(classroomId, teacherProfile.id)) {
             is Either.Left -> mapErrors(result.value)
             is Either.Right -> ResponseEntity.ok(SuccessResponseDto(result.value))
         }

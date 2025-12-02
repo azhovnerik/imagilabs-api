@@ -23,7 +23,8 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
                ct.teacherEmail AS teacherEmail, 
                ct.coTeacherStatus AS coTeacherStatus,
                tp.firstName AS firstName, 
-               tp.lastName AS lastName
+               tp.lastName AS lastName,
+               ct.createdAt AS createdAt
         FROM CoTeacherEntity ct
         LEFT JOIN TeacherProfileEntity tp ON ct.teacherId = tp.id
         WHERE ct.classroomId = :classroomId
@@ -51,7 +52,8 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
                ct.teacherEmail AS teacherEmail, 
                ct.coTeacherStatus AS coTeacherStatus,
                tp.firstName AS firstName, 
-               tp.lastName AS lastName
+               tp.lastName AS lastName,
+               ct.createdAt AS createdAt
         FROM CoTeacherEntity ct
         LEFT JOIN TeacherProfileEntity tp ON ct.teacherId = tp.id
         WHERE ct.id = :coTeacherId
@@ -67,7 +69,8 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
                ct.teacherEmail AS teacherEmail, 
                ct.coTeacherStatus AS coTeacherStatus,
                tp.firstName AS firstName, 
-               tp.lastName AS lastName
+               tp.lastName AS lastName,
+               ct.createdAt AS createdAt
         FROM CoTeacherEntity ct
         LEFT JOIN TeacherProfileEntity tp ON ct.teacherId = tp.id
         WHERE ct.classroomId = :classroomId AND ct.teacherId = :teacherId
@@ -90,6 +93,7 @@ interface CoTeacherRepository : JpaRepository<CoTeacherEntity, UUID> {
     fun getCoTeacherCountsByClassrooms(classroomIds: Iterable<UUID>): Iterable<ClassroomCoTeacherCount>
 
     fun existsByTeacherId(teacherId: UUID): Boolean
+    fun deleteByTeacherIdAndClassroomId(teacherId: UUID, classroomId: UUID)
 }
 
 interface ClassroomCoTeacherCount {
@@ -105,4 +109,5 @@ interface CoTeacherData {
     val coTeacherStatus: TeacherRole
     val firstName: String?
     val lastName: String?
+    val createdAt: Long
 }

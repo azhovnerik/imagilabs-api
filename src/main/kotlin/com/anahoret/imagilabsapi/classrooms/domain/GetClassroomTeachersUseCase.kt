@@ -10,31 +10,32 @@ import com.anahoret.imagilabsapi.teachers.domain.TeacherProfileService
 import org.springframework.stereotype.Service
 import java.util.*
 
-interface ClassroomGetTeachersUseCase {
+interface GetClassroomTeachersUseCase {
 
     fun get(classroomId: UUID, teacherId: UUID): Either<OperationError, List<ClassroomTeacher>>
 }
 
 @Service
-class ClassroomGetTeachersUseCaseImpl(
+class GetClassroomTeachersUseCaseImpl(
     private val classroomService: ClassroomService,
     private val teacherProfileService: TeacherProfileService,
     private val coTeacherService: CoTeacherService
-): ClassroomGetTeachersUseCase {
+) : GetClassroomTeachersUseCase {
 
     override fun get(classroomId: UUID, teacherId: UUID): Either<OperationError, List<ClassroomTeacher>> {
 
         val classroom = classroomService.getById(classroomId)
             ?: return NotFoundError("CLASSROOM_NOT_FOUND").left()
 
-        val classroomOwner = teacherProfileService.getTeacherById(classroom.teacherId)
+        val classroomOwner = classroom.teacherId
+            ?.let(teacherProfileService::getTeacherById)
             ?.let { ClassroomTeacher.mapFromProfile(it, TeacherRole.OWNER, teacherId == it.id) }
             ?: return NotFoundError("OWNER_NOT_FOUND").left()
 
-        val classroomTeachers = coTeacherService.getAllCoTeachersByClassroomId(classroomId)
+        val classroomCoTeachers = coTeacherService.getAllCoTeachersByClassroomId(classroomId)
             .map { ClassroomTeacher.mapFromCoTeacher(it, teacherId == it.teacherId) }
             .toMutableList()
 
-        return (classroomTeachers + classroomOwner).right()
+        return (classroomCoTeachers + classroomOwner).right()
     }
 }
