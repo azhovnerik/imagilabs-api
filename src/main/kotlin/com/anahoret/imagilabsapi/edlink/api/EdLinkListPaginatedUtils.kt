@@ -25,7 +25,6 @@ object EdLinkListPaginatedUtils {
         val result = mutableListOf<T>()
         var cursor: String? = null
 
-        // Process pages explicitly with proper error handling
         do {
             val uri = buildUri(urlPattern, filter, cursor)
             val request = RequestEntity<Void>
