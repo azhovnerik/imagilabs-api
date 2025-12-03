@@ -9,7 +9,9 @@ import com.anahoret.imagilabsapi.common.domain.profiles.UserProfile
 import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.edlink.api.EdLinkDistrictApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkIntegrationApi
+import com.anahoret.imagilabsapi.edlink.api.EdLinkPersonApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkProfileApi
+import com.anahoret.imagilabsapi.edlink.api.EdLinkSchoolApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkTokenApi
 import com.anahoret.imagilabsapi.edlink.api.model.Person
 import com.anahoret.imagilabsapi.signup.domain.TeacherSignUpUseCase
@@ -36,6 +38,10 @@ class EdLinkOauthCallbackUseCaseImpl(
     private val edLinkTokenApi: EdLinkTokenApi,
     private val edLinkIntegrationApi: EdLinkIntegrationApi,
     private val edLinkDistrictApi: EdLinkDistrictApi,
+    private val edLinkPersonApi: EdLinkPersonApi,
+    private val edLinkSchoolApi: EdLinkSchoolApi,
+    private val edLinkEnumMapper: EdLinkEnumMapper,
+    private val edLinkSubjectsService: EdLinkSubjectsService,
     private val studentProfileService: StudentProfileService,
     private val teacherProfileService: TeacherProfileService,
     private val teacherSignUpUseCase: TeacherSignUpUseCase,
@@ -76,6 +82,24 @@ class EdLinkOauthCallbackUseCaseImpl(
         if (existingTeacher != null) return existingTeacher.right()
         return either {
             val district = edLinkDistrictApi.myDistrict(token, person.districtId).bind()
+
+            // Get additional person details from graph API (state)
+            val personDetails = edLinkPersonApi.getPerson(token, person.id).bind()
+
+            // Fetch school names for each school ID
+            val schoolNames = person.schools.mapNotNull { schoolId ->
+                edLinkSchoolApi.getSchool(token, schoolId)
+                    .getOrNull()  // Ignore errors for individual schools (graceful degradation)
+                    ?.name
+            }.joinToString(", ")
+
+            // Map EdLink API strings to domain enums
+            val gradeLevels = edLinkEnumMapper.mapGradeLevels(person.gradeLevels)
+            val schoolRoles = edLinkEnumMapper.mapSchoolRoles(person.roles)
+
+            // Fetch teacher's subjects from enrollments -> classes -> subjects
+            val subjects = edLinkSubjectsService.listTeacherSubjects(token, person.id).bind()
+
             val newTeacher = teacherSignUpUseCase.signUp(
                 TeacherSignupRequest(
                     person.email,
@@ -89,7 +113,12 @@ class EdLinkOauthCallbackUseCaseImpl(
                     marketingEmailSubscribed = false,
                     mobileAppClient = mobileAppClient,
                     edLinkIntegrationId = integrationId,
-                    edLinkPersonId = person.id
+                    edLinkPersonId = person.id,
+                    state = personDetails.state,
+                    schoolRoles = schoolRoles,
+                    grades = gradeLevels,
+                    subjects = subjects,
+                    schools = schoolNames.ifEmpty { null }
                 )
             ).bind()
             edLinkRefreshTeacherClassesUseCase.refresh(newTeacher).bind()

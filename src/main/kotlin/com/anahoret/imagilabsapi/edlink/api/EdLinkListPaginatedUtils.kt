@@ -10,6 +10,8 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.RequestEntity
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
+import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 
 object EdLinkListPaginatedUtils {
 
@@ -17,23 +19,38 @@ object EdLinkListPaginatedUtils {
         edLinkRestTemplate: RestTemplate,
         urlPattern: String,
         token: String,
-        dataFetchErrorMessage: String
+        dataFetchErrorMessage: String,
+        filter: String? = null
     ): Either<OperationError, List<T>> {
         val result = mutableListOf<T>()
-        PageableIterator { cursor ->
-            val uriTemplate = if (cursor == null) urlPattern
-            else $$"$$urlPattern?$cursor=$$cursor"
+        var cursor: String? = null
+
+        do {
+            val uri = buildUri(urlPattern, filter, cursor)
             val request = RequestEntity<Void>
-                .get(uriTemplate)
+                .get(uri)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
                 .build()
-            edLinkRestTemplate
+
+            val response = edLinkRestTemplate
                 .exchange<EdLinkResponseList<T>>(request)
                 .takeIf { it.statusCode.is2xxSuccessful }
                 ?.body
-                ?.right()
-                ?: AccessDeniedError(dataFetchErrorMessage).left()
-        }.forEach(result::addAll)
+                ?: return AccessDeniedError(dataFetchErrorMessage).left()
+
+            result.addAll(response.data)
+            cursor = response.cursor
+        } while (cursor != null && result.isNotEmpty())
+
         return result.right()
+    }
+
+    fun buildUri(urlPattern: String, filter: String?, cursor: String?): URI {
+        val builder = UriComponentsBuilder.fromUriString(urlPattern)
+
+        filter?.let { builder.queryParam($$"$filter", it) }
+        cursor?.let { builder.queryParam($$"$cursor", it) }
+
+        return builder.build().toUri()
     }
 }

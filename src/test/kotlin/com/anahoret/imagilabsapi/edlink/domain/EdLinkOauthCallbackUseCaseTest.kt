@@ -8,12 +8,15 @@ import com.anahoret.imagilabsapi.common.domain.security.AccessDeniedError
 import com.anahoret.imagilabsapi.common.domain.validation.ValidationError
 import com.anahoret.imagilabsapi.edlink.api.EdLinkDistrictApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkIntegrationApi
+import com.anahoret.imagilabsapi.edlink.api.EdLinkPersonApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkProfileApi
+import com.anahoret.imagilabsapi.edlink.api.EdLinkSchoolApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkTokenApi
 import com.anahoret.imagilabsapi.edlink.api.model.Address
 import com.anahoret.imagilabsapi.edlink.api.model.District
 import com.anahoret.imagilabsapi.edlink.api.model.MyIntegration
 import com.anahoret.imagilabsapi.edlink.api.model.Person
+import com.anahoret.imagilabsapi.edlink.api.model.PersonDetails
 import com.anahoret.imagilabsapi.signup.domain.TeacherSignUpUseCase
 import com.anahoret.imagilabsapi.students.domain.StudentProfile
 import com.anahoret.imagilabsapi.students.domain.StudentProfileService
@@ -40,6 +43,10 @@ class EdLinkOauthCallbackUseCaseTest {
     private val teacherProfileService = mockk<TeacherProfileService>()
     private val teacherSignUpUseCase = mockk<TeacherSignUpUseCase>()
     private val edLinkDistrictApi = mockk<EdLinkDistrictApi>()
+    private val edLinkPersonApi = mockk<EdLinkPersonApi>()
+    private val edLinkSchoolApi = mockk<EdLinkSchoolApi>()
+    private val edLinkEnumMapper = mockk<EdLinkEnumMapper>()
+    private val edLinkSubjectsService = mockk<EdLinkSubjectsService>()
     private val edLinkRefreshTeacherClassesUseCase = mockk<EdLinkRefreshTeacherClassesUseCase>()
 
     private val useCase = EdLinkOauthCallbackUseCaseImpl(
@@ -48,6 +55,10 @@ class EdLinkOauthCallbackUseCaseTest {
         edLinkTokenApi,
         edLinkIntegrationApi,
         edLinkDistrictApi,
+        edLinkPersonApi,
+        edLinkSchoolApi,
+        edLinkEnumMapper,
+        edLinkSubjectsService,
         studentProfileService,
         teacherProfileService,
         teacherSignUpUseCase,
@@ -288,6 +299,7 @@ class EdLinkOauthCallbackUseCaseTest {
         )
         val integration = MyIntegration(integrationId)
         val district = District(districtId, "District name")
+        val personDetails = PersonDetails(personId, "CA", districtId)
         val newTeacher = mockk<TeacherProfile> {
             every { id } returns UUID.randomUUID()
         }
@@ -298,6 +310,10 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkProfileApi.myProfile(token) } returns person.right()
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
         every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
+        every { edLinkPersonApi.getPerson(token, personId) } returns personDetails.right()
+        every { edLinkEnumMapper.mapGradeLevels(any()) } returns emptyList()
+        every { edLinkEnumMapper.mapSchoolRoles(any()) } returns emptyList()
+        every { edLinkSubjectsService.listTeacherSubjects(token, personId) } returns null.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherProfileService.getTeacherByEmail(any()) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
@@ -334,6 +350,7 @@ class EdLinkOauthCallbackUseCaseTest {
         val person = createPerson(id = personId, roles = listOf("teacher"), districtId = districtId)
         val integration = MyIntegration(integrationId)
         val district = District(districtId, "District name")
+        val personDetails = PersonDetails(personId, null, districtId)
         val newTeacher = mockk<TeacherProfile> {
             every { id } returns UUID.randomUUID()
         }
@@ -344,6 +361,10 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkProfileApi.myProfile(token) } returns person.right()
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
         every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
+        every { edLinkPersonApi.getPerson(token, personId) } returns personDetails.right()
+        every { edLinkEnumMapper.mapGradeLevels(any()) } returns emptyList()
+        every { edLinkEnumMapper.mapSchoolRoles(any()) } returns emptyList()
+        every { edLinkSubjectsService.listTeacherSubjects(token, personId) } returns null.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherProfileService.getTeacherByEmail(any()) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
@@ -370,6 +391,7 @@ class EdLinkOauthCallbackUseCaseTest {
         val person = createPerson(id = personId, roles = listOf("teacher"), country = null, districtId = districtId)
         val integration = MyIntegration(integrationId)
         val district = District(districtId, "District name")
+        val personDetails = PersonDetails(personId, null, districtId)
         val newTeacher = mockk<TeacherProfile> {
             every { id } returns UUID.randomUUID()
         }
@@ -380,6 +402,10 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkProfileApi.myProfile(token) } returns person.right()
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
         every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
+        every { edLinkPersonApi.getPerson(token, personId) } returns personDetails.right()
+        every { edLinkEnumMapper.mapGradeLevels(any()) } returns emptyList()
+        every { edLinkEnumMapper.mapSchoolRoles(any()) } returns emptyList()
+        every { edLinkSubjectsService.listTeacherSubjects(token, personId) } returns null.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherProfileService.getTeacherByEmail(any()) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns newTeacher.right()
@@ -407,6 +433,7 @@ class EdLinkOauthCallbackUseCaseTest {
         val integration = MyIntegration(integrationId)
         val validationErrors = listOf(mockk<ValidationError>())
         val district = District(districtId, "District name")
+        val personDetails = PersonDetails(personId, null, districtId)
 
         every { edLinkOAuthStateService.exists(state) } returns true
         every { edLinkOAuthStateService.delete(state) } returns Unit
@@ -414,6 +441,10 @@ class EdLinkOauthCallbackUseCaseTest {
         every { edLinkProfileApi.myProfile(token) } returns person.right()
         every { edLinkIntegrationApi.myIntegration(token) } returns integration.right()
         every { edLinkDistrictApi.myDistrict(token, districtId) } returns district.right()
+        every { edLinkPersonApi.getPerson(token, personId) } returns personDetails.right()
+        every { edLinkEnumMapper.mapGradeLevels(any()) } returns emptyList()
+        every { edLinkEnumMapper.mapSchoolRoles(any()) } returns emptyList()
+        every { edLinkSubjectsService.listTeacherSubjects(token, personId) } returns null.right()
         every { teacherProfileService.getByEdLink(integrationId, personId) } returns null
         every { teacherProfileService.getTeacherByEmail(any()) } returns null
         every { teacherSignUpUseCase.signUp(any()) } returns validationErrors.left()
@@ -483,16 +514,20 @@ class EdLinkOauthCallbackUseCaseTest {
         roles: List<String> = emptyList(),
         country: String? = "US",
         districtId: UUID = UUID.randomUUID(),
+        gradeLevels: List<String> = emptyList(),
+        schools: List<UUID> = emptyList()
     ): Person {
         return Person(
             id = id,
             email = email,
             firstName = firstName,
             lastName = lastName,
+            displayName = "Test User",
             roles = roles,
             address = Address(country),
             districtId = districtId,
-            displayName = "Test User"
+            gradeLevels = gradeLevels,
+            schools = schools
         )
     }
 }

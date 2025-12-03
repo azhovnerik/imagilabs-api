@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.edlink.api
 
 import arrow.core.Either
+import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.edlink.api.model.EdLinkClass
 import com.anahoret.imagilabsapi.edlink.api.model.Person
@@ -10,6 +11,7 @@ import java.util.*
 
 interface EdLinkClassApi {
     fun listClasses(token: String): Either<OperationError, List<EdLinkClass>>
+    fun listClasses(token: String, classIds: List<UUID>): Either<OperationError, List<EdLinkClass>>
     fun listTeachers(token: String, classId: UUID): Either<OperationError, List<Person>>
     fun listStudents(token: String, classId: UUID): Either<OperationError, List<Person>>
 }
@@ -25,6 +27,26 @@ class EdLinkClassApiImpl(
             "/v2/graph/classes",
             token,
             "ED_LINK_API_FAILED_TO_LIST_CLASSES"
+        )
+    }
+
+    override fun listClasses(token: String, classIds: List<UUID>): Either<OperationError, List<EdLinkClass>> {
+        if (classIds.isEmpty()) {
+            return emptyList<EdLinkClass>().right()
+        }
+
+        val filter = edLinkFilter {
+            field("id") {
+                inOperator(classIds)
+            }
+        }
+
+        return EdLinkListPaginatedUtils.list(
+            edLinkRestTemplate,
+            "/v2/graph/classes",
+            filter,
+            token,
+            "ED_LINK_API_FAILED_TO_GET_CLASSES"
         )
     }
 

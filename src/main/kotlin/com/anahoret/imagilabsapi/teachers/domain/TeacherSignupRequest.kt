@@ -14,7 +14,12 @@ class TeacherSignupRequest(
     val marketingEmailSubscribed: Boolean,
     val mobileAppClient: Boolean,
     val edLinkIntegrationId: UUID? = null,
-    val edLinkPersonId: UUID? = null
+    val edLinkPersonId: UUID? = null,
+    val state: String? = null,
+    val schoolRoles: List<SchoolRole> = emptyList(),
+    val grades: List<GradeLevel> = emptyList(),
+    val subjects: String? = null,
+    val schools: String? = null,
 ) {
 
     fun normalize(): TeacherSignupRequest {
@@ -30,7 +35,12 @@ class TeacherSignupRequest(
             marketingEmailSubscribed,
             mobileAppClient,
             edLinkIntegrationId,
-            edLinkPersonId
+            edLinkPersonId,
+            state?.trim(),
+            schoolRoles,
+            grades,
+            subjects?.trim(),
+            schools?.trim()
         )
     }
 
