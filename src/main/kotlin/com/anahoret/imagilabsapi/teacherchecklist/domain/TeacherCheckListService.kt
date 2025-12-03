@@ -102,8 +102,6 @@ class TeacherCheckListServiceImpl(
 
         if (existing == null) {
             addTeacherCheckListStep(teacherId, CONGRATULATION_DIALOG_SHOWN, completed = false)
-        } else if (!existing.completed) {
-            teacherCheckListRepository.save(existing)
         }
     }
 }
