@@ -21,6 +21,7 @@ interface CoTeacherService {
     fun isExistsPendingInvite(classroomId: UUID, teacherEmail: String): Boolean
     fun getAllCoTeachersByClassroomId(classroomId: UUID): List<CoTeacher>
     fun deleteCoTeacher(coTeacherId: UUID)
+    fun deleteCoTeacher(teacherId: UUID, classroomId: UUID)
     fun getByClassroomIdAndTeacherId(classroomId: UUID, teacherId: UUID): CoTeacher?
     fun getCoTeacherCountByClassroomId(classroomId: UUID): Long
     fun getCoTeacherCountsByClassroomIds(classroomIds: Iterable<UUID>): Map<UUID, Long>
@@ -104,6 +105,10 @@ class CoTeacherServiceImpl(
 
     override fun deleteCoTeacher(coTeacherId: UUID) {
         coTeacherRepository.deleteById(coTeacherId)
+    }
+
+    override fun deleteCoTeacher(teacherId: UUID, classroomId: UUID) {
+        coTeacherRepository.deleteByTeacherIdAndClassroomId(teacherId, classroomId)
     }
 
     override fun isCoTeacher(teacherId: UUID): Boolean {

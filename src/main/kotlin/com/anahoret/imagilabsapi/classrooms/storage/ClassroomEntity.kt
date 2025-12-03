@@ -16,7 +16,7 @@ class ClassroomEntity(
     var accessCode: String,
 
     @Column(name = "teacher_id", nullable = false)
-    var teacherId: UUID,
+    var teacherId: UUID?,
 
     @Column(name = "deleted", nullable = false)
     var deleted: Boolean = false,

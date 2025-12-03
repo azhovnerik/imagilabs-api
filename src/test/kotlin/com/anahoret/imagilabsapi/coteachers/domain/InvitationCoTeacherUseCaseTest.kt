@@ -141,7 +141,8 @@ class InvitationCoTeacherUseCaseTest {
             invitationEmailTo,
             teacherIdInviteTo,
             TeacherRole.CO_TEACHER_PENDING,
-            "Test teacher"
+            "Test teacher",
+            createdAt = 0
         )
 
         val preferences = InvitationEmailPreferences(

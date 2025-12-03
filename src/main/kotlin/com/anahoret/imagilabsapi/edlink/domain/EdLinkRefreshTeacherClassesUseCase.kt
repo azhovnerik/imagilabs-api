@@ -10,6 +10,7 @@ import com.anahoret.imagilabsapi.classrooms.domain.ClassroomUpdateRequest
 import com.anahoret.imagilabsapi.common.domain.error.NotFoundError
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.common.domain.profiles.SystemProfile
+import com.anahoret.imagilabsapi.coteachers.domain.CoTeacher
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.edlink.api.EdLinkClassApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkIntegrationApi
@@ -49,16 +50,27 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             return TeacherNotLinkedToEdLinkError().left()
 
         val integration = edLinkIntegrationApi.getIntegration(teacherProfile.edLinkIntegrationId).bind()
-        val edLinkClasses = edLinkClassApi.listClasses(integration.accessToken).bind()
+        val integrationEdLinkClasses = edLinkClassApi.listClasses(integration.accessToken).bind()
+        val teacherEdLinkClasses = integrationEdLinkClasses
             .filter {
                 isEdLinkTeacherInEdLinkClass(integration.accessToken, teacherProfile.edLinkPersonId, it.id).bind()
             }
 
-        updateClasses(edLinkClasses, integration, teacherProfile)
-        softDeleteDeletedEdLinkClasses(edLinkClasses, integration)
+        updateClasses(teacherEdLinkClasses, integration, teacherProfile)
+        softDeleteDeletedEdLinkClasses(integrationEdLinkClasses, integration)
     }
 
     private fun updateClasses(
+        edLinkClasses: List<EdLinkClass>,
+        integration: Integration,
+        teacherProfile: TeacherProfile
+    ) {
+        removeFromOwnedClassrooms(edLinkClasses, integration, teacherProfile)
+        removeFromCoTeacherClasses(edLinkClasses, integration, teacherProfile)
+        addToClasses(edLinkClasses, integration, teacherProfile)
+    }
+
+    private fun addToClasses(
         edLinkClasses: List<EdLinkClass>,
         integration: Integration,
         teacherProfile: TeacherProfile
@@ -69,10 +81,51 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
                 importClassroom(integration, edLinkClass, teacherProfile)
             } else if (!classroom.deleted) {
                 refreshClassInfo(edLinkClass, classroom, integration)
-                makeCoTeacherIfNeeded(classroom, teacherProfile)
+                makeTeacherIfNeeded(classroom, teacherProfile)
                 refreshStudents(classroom, integration)
             }
         }
+    }
+
+    private fun removeFromCoTeacherClasses(
+        edLinkClasses: List<EdLinkClass>,
+        integration: Integration,
+        teacherProfile: TeacherProfile
+    ) {
+        val edLinkClassIds = edLinkClasses.map(EdLinkClass::id)
+        coTeacherService.getClassroomIdListByTeacherId(teacherProfile.id)
+            .let(classroomService::listByIds)
+            .filter {
+                it.isEdLinkConnected &&
+                        it.edLinkIntegrationId == integration.id &&
+                        it.edLinkClassId !in edLinkClassIds
+            }.forEach { removedClassroom ->
+                coTeacherService.deleteCoTeacher(removedClassroom.id, teacherProfile.id)
+            }
+    }
+
+    private fun removeFromOwnedClassrooms(
+        edLinkClasses: List<EdLinkClass>,
+        integration: Integration,
+        teacherProfile: TeacherProfile
+    ) {
+        val edLinkClassIds = edLinkClasses.map(EdLinkClass::id)
+        classroomService.listByTeacher(teacherProfile.id)
+            .filter {
+                it.isEdLinkConnected &&
+                        it.edLinkIntegrationId == integration.id &&
+                        it.edLinkClassId !in edLinkClassIds
+            }
+            .forEach { removedClassroom ->
+                val coTeachers = coTeacherService.getAllCoTeachersByClassroomId(removedClassroom.id)
+                if (coTeachers.isEmpty()) {
+                    classroomService.setTeacher(removedClassroom.id, null)
+                } else {
+                    val firstCoTeacher = coTeachers.minBy(CoTeacher::createdAt)
+                    classroomService.setTeacher(removedClassroom.id, firstCoTeacher.id)
+                    coTeacherService.deleteCoTeacher(removedClassroom.id, firstCoTeacher.id)
+                }
+            }
     }
 
     private fun refreshClassInfo(
@@ -102,11 +155,13 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             .forEach { classroomService.softDelete(it.id) }
     }
 
-    private fun makeCoTeacherIfNeeded(
+    private fun makeTeacherIfNeeded(
         classroom: Classroom,
         teacherProfile: TeacherProfile
     ) {
-        if (
+        if (classroom.teacherId == null) {
+            classroomService.setTeacher(classroom.id, teacherProfile.id)
+        } else if (
             classroom.teacherId != teacherProfile.id &&
             !coTeacherService.isLinkedToClassroom(classroom.id, teacherProfile.id)
         ) {
@@ -123,10 +178,10 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             val edLinkStudents = edLinkClassApi.listStudents(integration.accessToken, edLinkClassId).bind()
             val existingImagiStudents =
                 studentProfileService.listByEdLinkIds(integration.id, edLinkStudents.map(Person::id))
-            val existingImagiStudentIds = existingImagiStudents.map(StudentProfile::id).toSet()
-            val newEdLinkStudents = edLinkStudents.filterNot { it.id in existingImagiStudentIds }
+            val existingImagiStudentPersonIds = existingImagiStudents.map(StudentProfile::edLinkPersonId).toSet()
+            val newEdLinkStudents = edLinkStudents.filterNot { it.id in existingImagiStudentPersonIds }
             val edLinkStudentIds = edLinkStudents.map(Person::id)
-            val deletedStudents = existingImagiStudents.filterNot { it.id in edLinkStudentIds }
+            val deletedStudents = existingImagiStudents.filterNot { it.edLinkPersonId in edLinkStudentIds }
             deletedStudents.forEach { studentDeleteUseCase.delete(SystemProfile, it.id).bind() }
             val studentCreateRequests = newEdLinkStudents
                 .map { person -> StudentCreateRequest(person.displayName, integration.id, person.id) }
@@ -147,8 +202,8 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
             val edLinkStudents = edLinkClassApi.listStudents(integration.accessToken, edLinkClass.id).bind()
             val existingImagiStudents =
                 studentProfileService.listByEdLinkIds(integration.id, edLinkStudents.map(Person::id))
-            val existingImagiStudentIds = existingImagiStudents.map(StudentProfile::id).toSet()
-            val newEdLinkStudents = edLinkStudents.filterNot { it.id in existingImagiStudentIds }
+            val existingImagiStudentPersonIds = existingImagiStudents.map(StudentProfile::edLinkPersonId).toSet()
+            val newEdLinkStudents = edLinkStudents.filterNot { it.id in existingImagiStudentPersonIds }
             val studentCreateRequests = newEdLinkStudents
                 .map { person -> StudentCreateRequest(person.displayName, integration.id, person.id) }
             val school = edLinkSchoolApi.getSchool(integration.accessToken, edLinkClass.schoolId).bind()
