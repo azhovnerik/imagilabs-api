@@ -28,6 +28,7 @@ class CompleteTeacherCheckListStepUseCaseImplTest {
         }
         every { teacherCheckListService.completeCheckListStep(teacherId, step) } returns Unit
         every { clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(teacherId, step) } returns Unit
+        every { teacherCheckListService.hasCompletedAllRequiredSteps(teacherId) } returns false
         every { teacherCheckListService.getCheckList(teacherId) } returns mockk()
         completeTeacherCheckListStepUseCase.complete(teacherId, step)
         verify(exactly = 1) { teacherCheckListService.completeCheckListStep(teacherId, step) }
@@ -40,6 +41,7 @@ class CompleteTeacherCheckListStepUseCaseImplTest {
         }
         every { teacherCheckListService.completeCheckListStep(teacherId, step) } returns Unit
         every { clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(teacherId, step) } returns Unit
+        every { teacherCheckListService.hasCompletedAllRequiredSteps(teacherId) } returns false
         every { teacherCheckListService.getCheckList(teacherId) } returns mockk()
         completeTeacherCheckListStepUseCase.complete(teacherId, step)
         verify(exactly = 1) { clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(teacherId, step) }
@@ -82,5 +84,49 @@ class CompleteTeacherCheckListStepUseCaseImplTest {
             { assertEquals(TeacherCheckListStep.CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM, result.checkListSteps[0].step) },
             { assertTrue(result.checkListSteps[0].completed) }
         )
+    }
+
+    @Test
+    fun `should reset congratulation dialog when completing the last required step`() {
+        every { teacherCheckListService.getCheckListStepByTeacherIdAndStep(teacherId, step) } returns mockk {
+            every { completed } returns false
+        }
+        every { teacherCheckListService.completeCheckListStep(teacherId, step) } returns Unit
+        every { clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(teacherId, step) } returns Unit
+        every { teacherCheckListService.hasCompletedAllRequiredSteps(teacherId) } returns true
+        every { teacherCheckListService.resetCongratulationDialog(teacherId) } returns Unit
+        every { teacherCheckListService.getCheckList(teacherId) } returns mockk()
+
+        completeTeacherCheckListStepUseCase.complete(teacherId, step)
+
+        verify(exactly = 1) { teacherCheckListService.resetCongratulationDialog(teacherId) }
+    }
+
+    @Test
+    fun `should NOT reset congratulation dialog when not all required steps are completed`() {
+        every { teacherCheckListService.getCheckListStepByTeacherIdAndStep(teacherId, step) } returns mockk {
+            every { completed } returns false
+        }
+        every { teacherCheckListService.completeCheckListStep(teacherId, step) } returns Unit
+        every { clevertapSendAnalyticsUseCase.sendCompleteOnboardingStepEvent(teacherId, step) } returns Unit
+        every { teacherCheckListService.hasCompletedAllRequiredSteps(teacherId) } returns false
+        every { teacherCheckListService.getCheckList(teacherId) } returns mockk()
+
+        completeTeacherCheckListStepUseCase.complete(teacherId, step)
+
+        verify(exactly = 0) { teacherCheckListService.resetCongratulationDialog(any()) }
+    }
+
+    @Test
+    fun `should NOT reset congratulation dialog when step is already completed`() {
+        every { teacherCheckListService.getCheckListStepByTeacherIdAndStep(teacherId, step) } returns mockk {
+            every { completed } returns true
+        }
+        every { teacherCheckListService.getCheckList(teacherId) } returns mockk()
+
+        completeTeacherCheckListStepUseCase.complete(teacherId, step)
+
+        verify(exactly = 0) { teacherCheckListService.resetCongratulationDialog(any()) }
+        verify(exactly = 0) { teacherCheckListService.hasCompletedAllRequiredSteps(any()) }
     }
 }

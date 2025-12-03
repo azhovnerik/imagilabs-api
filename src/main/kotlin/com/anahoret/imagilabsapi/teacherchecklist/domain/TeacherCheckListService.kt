@@ -15,7 +15,9 @@ interface TeacherCheckListService {
     fun completeCheckListStep(teacherId: UUID, step: TeacherCheckListStep)
     fun addTeacherCheckListStep(teacherId: UUID, step: TeacherCheckListStep, completed: Boolean)
     fun hasCompletedAllSteps(teacherId: UUID): Boolean
+    fun hasCompletedAllRequiredSteps(teacherId: UUID): Boolean
     fun getCheckListStepByTeacherIdAndStep(teacherId: UUID, step: TeacherCheckListStep): CheckListStep
+    fun resetCongratulationDialog(teacherId: UUID)
 }
 
 @Service
@@ -72,8 +74,37 @@ class TeacherCheckListServiceImpl(
         return !teacherCheckListRepository.existsByTeacherIdAndCompletedFalse(teacherId)
     }
 
+    override fun hasCompletedAllRequiredSteps(teacherId: UUID): Boolean {
+        val allSteps = teacherCheckListRepository.findAllByTeacherId(teacherId)
+
+        val requiredSteps = listOf(
+            CREATE_OR_JOIN_YOUR_FIRST_CLASSROOM,
+            SHARE_STUDENT_ACCESS_CODE,
+            EXPLORE_YOUR_FIRST_LESSON,
+            CREATE_YOUR_FIRST_PROJECT,
+            CHECK_OUT_OUR_EDUCATOR_FACEBOOK_GROUP,
+            COMPLETE_YOUR_ACCOUNT_INFORMATION
+        )
+
+        return requiredSteps.all { requiredStep ->
+            allSteps.any { it.step == requiredStep && it.completed }
+        }
+    }
+
     override fun getCheckListStepByTeacherIdAndStep(teacherId: UUID, step: TeacherCheckListStep): CheckListStep {
         return teacherCheckListRepository.findByTeacherIdAndStep(teacherId, step)
             .let(CheckListStep.Companion::mapFromEntity)
+    }
+
+    override fun resetCongratulationDialog(teacherId: UUID) {
+        val existing = teacherCheckListRepository.findAllByTeacherId(teacherId)
+            .find { it.step == CONGRATULATION_DIALOG_SHOWN }
+
+        if (existing != null) {
+            existing.completed = false
+            teacherCheckListRepository.save(existing)
+        } else {
+            addTeacherCheckListStep(teacherId, CONGRATULATION_DIALOG_SHOWN, completed = false)
+        }
     }
 }
