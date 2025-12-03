@@ -1,5 +1,7 @@
 package com.anahoret.imagilabsapi.edlink.api
 
+import org.json.JSONObject
+
 class EdLinkFilterBuilder {
     private val filters = mutableMapOf<String, List<FilterCondition>>()
 
@@ -10,26 +12,8 @@ class EdLinkFilterBuilder {
     }
 
     fun build(): String {
-        return filters.entries.joinToString(
-            prefix = "{",
-            postfix = "}"
-        ) { (field, conditions) ->
-            val conditionsJson = conditions.joinToString(
-                prefix = "[",
-                postfix = "]"
-            ) { condition ->
-                """{"operator":"${escapeJson(condition.operator)}","value":"${escapeJson(condition.value)}"}"""
-            }
-
-            """"${escapeJson(field)}":$conditionsJson"""
-        }
+        return JSONObject(filters).toString()
     }
-
-    private fun escapeJson(str: String): String =
-        str
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"")
-
 
     class FieldFilterBuilder {
         private val conditions = mutableListOf<FilterCondition>()
