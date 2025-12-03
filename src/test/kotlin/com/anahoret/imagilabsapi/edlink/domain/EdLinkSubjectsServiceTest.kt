@@ -54,16 +54,16 @@ class EdLinkSubjectsServiceTest {
             createSubject(id = subjectId2, name = "Science")
         )
 
-        every { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) } returns enrollments.right()
-        every { edLinkClassApi.getClasses(token, listOf(classId1, classId2)) } returns classes.right()
-        every { edLinkSubjectApi.getSubjects(token, listOf(subjectId1, subjectId2)) } returns subjects.right()
+        every { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) } returns enrollments.right()
+        every { edLinkClassApi.listClasses(token, listOf(classId1, classId2)) } returns classes.right()
+        every { edLinkSubjectApi.listSubjects(token, listOf(subjectId1, subjectId2)) } returns subjects.right()
 
-        val result = service.getTeacherSubjects(token, personId)
+        val result = service.listTeacherSubjects(token, personId)
 
         assertEquals("Mathematics, Science", result.getOrNull())
-        verify(exactly = 1) { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) }
-        verify(exactly = 1) { edLinkClassApi.getClasses(token, listOf(classId1, classId2)) }
-        verify(exactly = 1) { edLinkSubjectApi.getSubjects(token, listOf(subjectId1, subjectId2)) }
+        verify(exactly = 1) { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) }
+        verify(exactly = 1) { edLinkClassApi.listClasses(token, listOf(classId1, classId2)) }
+        verify(exactly = 1) { edLinkSubjectApi.listSubjects(token, listOf(subjectId1, subjectId2)) }
     }
 
     @Test
@@ -84,11 +84,11 @@ class EdLinkSubjectsServiceTest {
             createSubject(id = subjectId, name = "Mathematics")
         )
 
-        every { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) } returns enrollments.right()
-        every { edLinkClassApi.getClasses(token, listOf(classId1, classId2)) } returns classes.right()
-        every { edLinkSubjectApi.getSubjects(token, listOf(subjectId)) } returns subjects.right()
+        every { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) } returns enrollments.right()
+        every { edLinkClassApi.listClasses(token, listOf(classId1, classId2)) } returns classes.right()
+        every { edLinkSubjectApi.listSubjects(token, listOf(subjectId)) } returns subjects.right()
 
-        val result = service.getTeacherSubjects(token, personId)
+        val result = service.listTeacherSubjects(token, personId)
 
         assertEquals("Mathematics", result.getOrNull())
     }
@@ -118,25 +118,25 @@ class EdLinkSubjectsServiceTest {
             createSubject(id = subjectId3, name = "Music")
         )
 
-        every { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) } returns enrollments.right()
-        every { edLinkClassApi.getClasses(token, any()) } returns classes.right()
-        every { edLinkSubjectApi.getSubjects(token, any()) } returns subjects.right()
+        every { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) } returns enrollments.right()
+        every { edLinkClassApi.listClasses(token, any()) } returns classes.right()
+        every { edLinkSubjectApi.listSubjects(token, any()) } returns subjects.right()
 
-        val result = service.getTeacherSubjects(token, personId)
+        val result = service.listTeacherSubjects(token, personId)
 
         assertEquals("Art, Music, Zebra Science", result.getOrNull())
     }
 
     @Test
     fun `should return null when no enrollments found`() {
-        every { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) } returns emptyList<Enrollment>().right()
+        every { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) } returns emptyList<Enrollment>().right()
 
-        val result = service.getTeacherSubjects(token, personId)
+        val result = service.listTeacherSubjects(token, personId)
 
         assertNull(result.getOrNull())
-        verify(exactly = 1) { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) }
-        verify(exactly = 0) { edLinkClassApi.getClasses(any(), any()) }
-        verify(exactly = 0) { edLinkSubjectApi.getSubjects(any(), any()) }
+        verify(exactly = 1) { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) }
+        verify(exactly = 0) { edLinkClassApi.listClasses(any(), any()) }
+        verify(exactly = 0) { edLinkSubjectApi.listSubjects(any(), any()) }
     }
 
     @Test
@@ -153,27 +153,27 @@ class EdLinkSubjectsServiceTest {
             createClass(id = classId2, subjectId = null)
         )
 
-        every { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) } returns enrollments.right()
-        every { edLinkClassApi.getClasses(token, listOf(classId1, classId2)) } returns classes.right()
+        every { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) } returns enrollments.right()
+        every { edLinkClassApi.listClasses(token, listOf(classId1, classId2)) } returns classes.right()
 
-        val result = service.getTeacherSubjects(token, personId)
+        val result = service.listTeacherSubjects(token, personId)
 
         assertNull(result.getOrNull())
-        verify(exactly = 1) { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) }
-        verify(exactly = 1) { edLinkClassApi.getClasses(token, listOf(classId1, classId2)) }
-        verify(exactly = 0) { edLinkSubjectApi.getSubjects(any(), any()) }
+        verify(exactly = 1) { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) }
+        verify(exactly = 1) { edLinkClassApi.listClasses(token, listOf(classId1, classId2)) }
+        verify(exactly = 0) { edLinkSubjectApi.listSubjects(any(), any()) }
     }
 
     @Test
     fun `should return null when enrollment API fails`() {
-        every { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) } returns AccessDeniedError("API_ERROR").left()
+        every { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) } returns AccessDeniedError("API_ERROR").left()
 
-        val result = service.getTeacherSubjects(token, personId)
+        val result = service.listTeacherSubjects(token, personId)
 
         assertNull(result.getOrNull())
-        verify(exactly = 1) { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) }
-        verify(exactly = 0) { edLinkClassApi.getClasses(any(), any()) }
-        verify(exactly = 0) { edLinkSubjectApi.getSubjects(any(), any()) }
+        verify(exactly = 1) { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) }
+        verify(exactly = 0) { edLinkClassApi.listClasses(any(), any()) }
+        verify(exactly = 0) { edLinkSubjectApi.listSubjects(any(), any()) }
     }
 
     @Test
@@ -181,15 +181,15 @@ class EdLinkSubjectsServiceTest {
         val classId = UUID.randomUUID()
         val enrollments = listOf(createEnrollment(classId = classId))
 
-        every { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) } returns enrollments.right()
-        every { edLinkClassApi.getClasses(token, listOf(classId)) } returns AccessDeniedError("API_ERROR").left()
+        every { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) } returns enrollments.right()
+        every { edLinkClassApi.listClasses(token, listOf(classId)) } returns AccessDeniedError("API_ERROR").left()
 
-        val result = service.getTeacherSubjects(token, personId)
+        val result = service.listTeacherSubjects(token, personId)
 
         assertNull(result.getOrNull())
-        verify(exactly = 1) { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) }
-        verify(exactly = 1) { edLinkClassApi.getClasses(token, listOf(classId)) }
-        verify(exactly = 0) { edLinkSubjectApi.getSubjects(any(), any()) }
+        verify(exactly = 1) { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) }
+        verify(exactly = 1) { edLinkClassApi.listClasses(token, listOf(classId)) }
+        verify(exactly = 0) { edLinkSubjectApi.listSubjects(any(), any()) }
     }
 
     @Test
@@ -200,16 +200,16 @@ class EdLinkSubjectsServiceTest {
         val enrollments = listOf(createEnrollment(classId = classId))
         val classes = listOf(createClass(id = classId, subjectId = subjectId))
 
-        every { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) } returns enrollments.right()
-        every { edLinkClassApi.getClasses(token, listOf(classId)) } returns classes.right()
-        every { edLinkSubjectApi.getSubjects(token, listOf(subjectId)) } returns AccessDeniedError("API_ERROR").left()
+        every { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) } returns enrollments.right()
+        every { edLinkClassApi.listClasses(token, listOf(classId)) } returns classes.right()
+        every { edLinkSubjectApi.listSubjects(token, listOf(subjectId)) } returns AccessDeniedError("API_ERROR").left()
 
-        val result = service.getTeacherSubjects(token, personId)
+        val result = service.listTeacherSubjects(token, personId)
 
         assertNull(result.getOrNull())
-        verify(exactly = 1) { edLinkEnrollmentApi.getTeacherEnrollments(token, personId) }
-        verify(exactly = 1) { edLinkClassApi.getClasses(token, listOf(classId)) }
-        verify(exactly = 1) { edLinkSubjectApi.getSubjects(token, listOf(subjectId)) }
+        verify(exactly = 1) { edLinkEnrollmentApi.listTeacherEnrollments(token, personId) }
+        verify(exactly = 1) { edLinkClassApi.listClasses(token, listOf(classId)) }
+        verify(exactly = 1) { edLinkSubjectApi.listSubjects(token, listOf(subjectId)) }
     }
 
     private fun createEnrollment(

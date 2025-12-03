@@ -89,10 +89,8 @@ class EdLinkOauthCallbackUseCaseImpl(
             // Fetch school names for each school ID
             val schoolNames = person.schools.mapNotNull { schoolId ->
                 edLinkSchoolApi.getSchool(token, schoolId)
-                    .fold(
-                        { null }, // Ignore errors for individual schools
-                        { school -> school.name }
-                    )
+                    .getOrNull()  // Ignore errors for individual schools (graceful degradation)
+                    ?.name
             }.joinToString(", ")
 
             // Map EdLink API strings to domain enums
@@ -100,11 +98,7 @@ class EdLinkOauthCallbackUseCaseImpl(
             val schoolRoles = edLinkEnumMapper.mapSchoolRoles(person.roles)
 
             // Fetch teacher's subjects from enrollments -> classes -> subjects
-            val subjects = edLinkSubjectsService.getTeacherSubjects(token, person.id)
-                .fold(
-                    { it },
-                    { it }
-                )
+            val subjects = edLinkSubjectsService.listTeacherSubjects(token, person.id).bind()
 
             val newTeacher = teacherSignUpUseCase.signUp(
                 TeacherSignupRequest(

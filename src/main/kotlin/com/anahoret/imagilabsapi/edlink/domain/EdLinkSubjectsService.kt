@@ -1,6 +1,7 @@
 package com.anahoret.imagilabsapi.edlink.domain
 
 import arrow.core.Either
+import arrow.core.getOrElse
 import arrow.core.right
 import com.anahoret.imagilabsapi.edlink.api.EdLinkClassApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkEnrollmentApi
@@ -33,18 +34,15 @@ class EdLinkSubjectsService(
      * @param personId Person UUID to get subjects for
      * @return Either<Nothing, String?> where null means no subjects or error occurred
      */
-    fun getTeacherSubjects(token: String, personId: UUID): Either<Nothing, String?> {
+    fun listTeacherSubjects(token: String, personId: UUID): Either<Nothing, String?> {
         logger.debug("Fetching subjects for teacher personId: $personId")
 
         // Step 1: Get active teacher enrollments
-        val enrollments = edLinkEnrollmentApi.getTeacherEnrollments(token, personId)
-            .fold(
-                { error ->
-                    logger.warn("Failed to fetch enrollments for person $personId: $error")
-                    return null.right()
-                },
-                { it }
-            )
+        val enrollments = edLinkEnrollmentApi.listTeacherEnrollments(token, personId)
+            .getOrElse { error ->
+                logger.warn("Failed to fetch enrollments for person $personId: $error")
+                return null.right()
+            }
 
         if (enrollments.isEmpty()) {
             logger.debug("No active teacher enrollments found for person $personId")
@@ -62,14 +60,11 @@ class EdLinkSubjectsService(
         }
 
         // Step 3: Get classes by IDs
-        val classes = edLinkClassApi.getClasses(token, classIds)
-            .fold(
-                { error ->
-                    logger.warn("Failed to fetch classes for person $personId: $error")
-                    return null.right()
-                },
-                { it }
-            )
+        val classes = edLinkClassApi.listClasses(token, classIds)
+            .getOrElse { error ->
+                logger.warn("Failed to fetch classes for person $personId: $error")
+                return null.right()
+            }
 
         if (classes.isEmpty()) {
             logger.debug("No classes found for person $personId")
@@ -89,14 +84,11 @@ class EdLinkSubjectsService(
         logger.debug("Found ${subjectIds.size} unique subject IDs for person $personId")
 
         // Step 5: Get subjects by IDs
-        val subjects = edLinkSubjectApi.getSubjects(token, subjectIds)
-            .fold(
-                { error ->
-                    logger.warn("Failed to fetch subjects for person $personId: $error")
-                    return null.right()
-                },
-                { it }
-            )
+        val subjects = edLinkSubjectApi.listSubjects(token, subjectIds)
+            .getOrElse { error ->
+                logger.warn("Failed to fetch subjects for person $personId: $error")
+                return null.right()
+            }
 
         if (subjects.isEmpty()) {
             logger.debug("No subjects found for person $personId")
