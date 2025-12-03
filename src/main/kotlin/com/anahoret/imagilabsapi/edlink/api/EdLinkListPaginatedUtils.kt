@@ -19,24 +19,15 @@ object EdLinkListPaginatedUtils {
         edLinkRestTemplate: RestTemplate,
         urlPattern: String,
         token: String,
-        dataFetchErrorMessage: String
-    ): Either<OperationError, List<T>> {
-        return list(edLinkRestTemplate, urlPattern, emptyMap(), token, dataFetchErrorMessage)
-    }
-
-    inline fun <reified T> list(
-        edLinkRestTemplate: RestTemplate,
-        urlPattern: String,
-        queryParams: Map<String, String>,
-        token: String,
-        dataFetchErrorMessage: String
+        dataFetchErrorMessage: String,
+        filter: String? = null
     ): Either<OperationError, List<T>> {
         val result = mutableListOf<T>()
         var cursor: String? = null
 
         // Process pages explicitly with proper error handling
         do {
-            val uri = buildUri(urlPattern, queryParams, cursor)
+            val uri = buildUri(urlPattern, filter, cursor)
             val request = RequestEntity<Void>
                 .get(uri)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
@@ -55,16 +46,11 @@ object EdLinkListPaginatedUtils {
         return result.right()
     }
 
-    fun buildUri(urlPattern: String, queryParams: Map<String, String>, cursor: String?): URI {
+    fun buildUri(urlPattern: String, filter: String?, cursor: String?): URI {
         val builder = UriComponentsBuilder.fromUriString(urlPattern)
 
-        queryParams.forEach { (key, value) ->
-            builder.queryParam(key, value)
-        }
-
-        if (cursor != null) {
-            builder.queryParam("\$cursor", cursor)
-        }
+        filter?.let { builder.queryParam($$"$filter", it) }
+        cursor?.let { builder.queryParam($$"$cursor", it) }
 
         return builder.build().toUri()
     }

@@ -1,6 +1,6 @@
 package com.anahoret.imagilabsapi.edlink.api
 
-import org.json.JSONObject
+import groovy.json.JsonBuilder
 
 class EdLinkFilterBuilder {
     private val filters = mutableMapOf<String, List<FilterCondition>>()
@@ -12,7 +12,7 @@ class EdLinkFilterBuilder {
     }
 
     fun build(): String {
-        return JSONObject(filters).toString()
+        return JsonBuilder(filters).toString()
     }
 
     class FieldFilterBuilder {

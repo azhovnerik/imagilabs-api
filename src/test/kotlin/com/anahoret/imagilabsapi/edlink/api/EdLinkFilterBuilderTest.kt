@@ -50,6 +50,8 @@ class EdLinkFilterBuilderTest {
             }
         }
 
+        println(filter)
+
         // Parse as JSON to verify it's valid
         val parsed = objectMapper.readValue(filter, Map::class.java)
 

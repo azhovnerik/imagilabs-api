@@ -5,7 +5,6 @@ import arrow.core.right
 import com.anahoret.imagilabsapi.common.domain.error.OperationError
 import com.anahoret.imagilabsapi.edlink.api.model.EdLinkClass
 import com.anahoret.imagilabsapi.edlink.api.model.Person
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.util.*
@@ -36,19 +35,16 @@ class EdLinkClassApiImpl(
             return emptyList<EdLinkClass>().right()
         }
 
-        // Build $filter parameter for class IDs
         val filter = edLinkFilter {
             field("id") {
                 inOperator(classIds)
             }
         }
 
-        val queryParams = mapOf("\$filter" to filter)
-
         return EdLinkListPaginatedUtils.list(
             edLinkRestTemplate,
             "/v2/graph/classes",
-            queryParams,
+            filter,
             token,
             "ED_LINK_API_FAILED_TO_GET_CLASSES"
         )
