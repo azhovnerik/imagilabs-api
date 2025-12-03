@@ -14,8 +14,7 @@ interface EdLinkEnrollmentApi {
 
 @Service
 class EdLinkEnrollmentApiImpl(
-    private val edLinkRestTemplate: RestTemplate,
-    private val objectMapper: ObjectMapper
+    private val edLinkRestTemplate: RestTemplate
 ) : EdLinkEnrollmentApi {
 
     override fun listTeacherEnrollments(token: String, personId: UUID): Either<OperationError, List<Enrollment>> {
@@ -32,8 +31,7 @@ class EdLinkEnrollmentApiImpl(
             }
         }
 
-        val filterJson = objectMapper.writeValueAsString(filter)
-        val queryParams = mapOf("\$filter" to filterJson)
+        val queryParams = mapOf("\$filter" to filter)
 
         return EdLinkListPaginatedUtils.list(
             edLinkRestTemplate,

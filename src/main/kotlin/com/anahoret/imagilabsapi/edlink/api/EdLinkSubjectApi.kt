@@ -15,8 +15,7 @@ interface EdLinkSubjectApi {
 
 @Service
 class EdLinkSubjectApiImpl(
-    private val edLinkRestTemplate: RestTemplate,
-    private val objectMapper: ObjectMapper
+    private val edLinkRestTemplate: RestTemplate
 ) : EdLinkSubjectApi {
 
     override fun listSubjects(token: String, subjectIds: List<UUID>): Either<OperationError, List<Subject>> {
@@ -31,8 +30,7 @@ class EdLinkSubjectApiImpl(
             }
         }
 
-        val filterJson = objectMapper.writeValueAsString(filter)
-        val queryParams = mapOf("\$filter" to filterJson)
+        val queryParams = mapOf("\$filter" to filter)
 
         return EdLinkListPaginatedUtils.list(
             edLinkRestTemplate,

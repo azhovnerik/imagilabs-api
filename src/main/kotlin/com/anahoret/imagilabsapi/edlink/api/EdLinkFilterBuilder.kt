@@ -9,16 +9,27 @@ class EdLinkFilterBuilder {
         filters[fieldName] = builder.build()
     }
 
-    fun build(): Map<String, List<Map<String, String>>> {
-        return filters.mapValues { (_, conditions) ->
-            conditions.map { condition ->
-                mapOf(
-                    "operator" to condition.operator,
-                    "value" to condition.value
-                )
+    fun build(): String {
+        return filters.entries.joinToString(
+            prefix = "{",
+            postfix = "}"
+        ) { (field, conditions) ->
+            val conditionsJson = conditions.joinToString(
+                prefix = "[",
+                postfix = "]"
+            ) { condition ->
+                """{"operator":"${escapeJson(condition.operator)}","value":"${escapeJson(condition.value)}"}"""
             }
+
+            """"${escapeJson(field)}":$conditionsJson"""
         }
     }
+
+    private fun escapeJson(str: String): String =
+        str
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+
 
     class FieldFilterBuilder {
         private val conditions = mutableListOf<FilterCondition>()
@@ -48,7 +59,7 @@ class EdLinkFilterBuilder {
     )
 }
 
-fun edLinkFilter(block: EdLinkFilterBuilder.() -> Unit): Map<String, List<Map<String, String>>> {
+fun edLinkFilter(block: EdLinkFilterBuilder.() -> Unit): String {
     val builder = EdLinkFilterBuilder()
     builder.block()
     return builder.build()

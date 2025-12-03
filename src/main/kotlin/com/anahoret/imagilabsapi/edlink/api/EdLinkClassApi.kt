@@ -19,8 +19,7 @@ interface EdLinkClassApi {
 
 @Service
 class EdLinkClassApiImpl(
-    private val edLinkRestTemplate: RestTemplate,
-    private val objectMapper: ObjectMapper
+    private val edLinkRestTemplate: RestTemplate
 ) : EdLinkClassApi {
 
     override fun listClasses(token: String): Either<OperationError, List<EdLinkClass>> {
@@ -44,8 +43,7 @@ class EdLinkClassApiImpl(
             }
         }
 
-        val filterJson = objectMapper.writeValueAsString(filter)
-        val queryParams = mapOf("\$filter" to filterJson)
+        val queryParams = mapOf("\$filter" to filter)
 
         return EdLinkListPaginatedUtils.list(
             edLinkRestTemplate,
