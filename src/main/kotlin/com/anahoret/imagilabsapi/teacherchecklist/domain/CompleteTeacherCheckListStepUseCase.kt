@@ -21,7 +21,8 @@ class CompleteTeacherCheckListStepUseCaseImpl(
             teacherCheckListService.completeCheckListStep(teacherId, step)
             clevertapSendAnalyticsUseCase?.sendCompleteOnboardingStepEvent(teacherId, step)
 
-            if (teacherCheckListService.hasCompletedAllRequiredSteps(teacherId)) {
+            if (step != TeacherCheckListStep.CONGRATULATION_DIALOG_SHOWN &&
+                teacherCheckListService.hasCompletedAllRequiredSteps(teacherId)) {
                 teacherCheckListService.resetCongratulationDialog(teacherId)
             }
         }
