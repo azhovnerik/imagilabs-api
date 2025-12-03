@@ -13,9 +13,11 @@ import com.anahoret.imagilabsapi.common.domain.profiles.SystemProfile
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacher
 import com.anahoret.imagilabsapi.coteachers.domain.CoTeacherService
 import com.anahoret.imagilabsapi.edlink.api.EdLinkClassApi
+import com.anahoret.imagilabsapi.edlink.api.EdLinkEnrollmentApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkIntegrationApi
 import com.anahoret.imagilabsapi.edlink.api.EdLinkSchoolApi
 import com.anahoret.imagilabsapi.edlink.api.model.EdLinkClass
+import com.anahoret.imagilabsapi.edlink.api.model.Enrollment
 import com.anahoret.imagilabsapi.edlink.api.model.Integration
 import com.anahoret.imagilabsapi.edlink.api.model.Person
 import com.anahoret.imagilabsapi.students.domain.StudentCreateRequest
@@ -26,7 +28,6 @@ import com.anahoret.imagilabsapi.teachers.domain.TeacherProfile
 import com.anahoret.imagilabsapi.userclassroomlink.domain.StudentClassroomLinkService
 import org.slf4j.Logger
 import org.springframework.stereotype.Service
-import java.util.*
 
 interface EdLinkRefreshTeacherClassesUseCase {
     fun refresh(teacherProfile: TeacherProfile): Either<OperationError, Unit>
@@ -42,6 +43,7 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
     private val studentClassroomLinkService: StudentClassroomLinkService,
     private val studentDeleteUseCase: StudentDeleteUseCase,
     private val edLinkSchoolApi: EdLinkSchoolApi,
+    private val edLinkEnrollmentApi: EdLinkEnrollmentApi,
     private val logger: Logger
 ) : EdLinkRefreshTeacherClassesUseCase {
 
@@ -51,10 +53,12 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
 
         val integration = edLinkIntegrationApi.getIntegration(teacherProfile.edLinkIntegrationId).bind()
         val integrationEdLinkClasses = edLinkClassApi.listClasses(integration.accessToken).bind()
+        val enrollmentClassIds =
+            edLinkEnrollmentApi.listTeacherEnrollments(integration.accessToken, teacherProfile.edLinkPersonId).bind()
+                .map(Enrollment::classId)
+                .toSet()
         val teacherEdLinkClasses = integrationEdLinkClasses
-            .filter {
-                isEdLinkTeacherInEdLinkClass(integration.accessToken, teacherProfile.edLinkPersonId, it.id).bind()
-            }
+            .filter { it.id in enrollmentClassIds }
 
         updateClasses(teacherEdLinkClasses, integration, teacherProfile)
         softDeleteDeletedEdLinkClasses(integrationEdLinkClasses, integration)
@@ -222,15 +226,6 @@ class EdLinkRefreshTeacherClassesUseCaseImpl(
                     studentClassroomLinkService.addStudentsToClassroom(studentIds, newClassroom.id)
                 }
         }.onLeft { logger.error("Failed to import classroom ${edLinkClass.id}, $it") }
-    }
-
-    private fun isEdLinkTeacherInEdLinkClass(
-        accessToken: String,
-        teacherId: UUID,
-        classId: UUID
-    ): Either<OperationError, Boolean> = either {
-        edLinkClassApi.listTeachers(accessToken, classId).bind()
-            .any { teacher -> teacher.id == teacherId }
     }
 }
 
