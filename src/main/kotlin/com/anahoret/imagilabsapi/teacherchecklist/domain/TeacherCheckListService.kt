@@ -100,11 +100,10 @@ class TeacherCheckListServiceImpl(
         val existing = teacherCheckListRepository.findAllByTeacherId(teacherId)
             .find { it.step == CONGRATULATION_DIALOG_SHOWN }
 
-        if (existing != null) {
-            existing.completed = false
-            teacherCheckListRepository.save(existing)
-        } else {
+        if (existing == null) {
             addTeacherCheckListStep(teacherId, CONGRATULATION_DIALOG_SHOWN, completed = false)
+        } else if (!existing.completed) {
+            teacherCheckListRepository.save(existing)
         }
     }
 }

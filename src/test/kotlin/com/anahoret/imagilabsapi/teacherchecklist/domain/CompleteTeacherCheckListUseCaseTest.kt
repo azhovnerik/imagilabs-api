@@ -19,11 +19,11 @@ class CompleteTeacherCheckListUseCaseTest {
     fun `should return validation error when teacher has not all completed steps`() {
         val testTeacher = testTeacher()
 
-        every { teacherCheckListService.hasCompletedAllSteps(testTeacher.id) } returns false
+        every { teacherCheckListService.hasCompletedAllRequiredSteps(testTeacher.id) } returns false
 
         val result = completeTeacherCheckListUseCase.completeTeacherCheckList(testTeacher)
 
-        verify { teacherCheckListService.hasCompletedAllSteps(testTeacher.id) }
+        verify { teacherCheckListService.hasCompletedAllRequiredSteps(testTeacher.id) }
 
         assertTrue(result.isLeft())
     }
@@ -32,7 +32,7 @@ class CompleteTeacherCheckListUseCaseTest {
     fun `should return success`() {
         val testTeacher = testTeacher()
 
-        every { teacherCheckListService.hasCompletedAllSteps(testTeacher.id) } returns true
+        every { teacherCheckListService.hasCompletedAllRequiredSteps(testTeacher.id) } returns true
         every {
             teacherCheckListService.addTeacherCheckListStep(
                 testTeacher.id,
@@ -43,7 +43,7 @@ class CompleteTeacherCheckListUseCaseTest {
 
         val result = completeTeacherCheckListUseCase.completeTeacherCheckList(testTeacher)
 
-        verify { teacherCheckListService.hasCompletedAllSteps(testTeacher.id) }
+        verify { teacherCheckListService.hasCompletedAllRequiredSteps(testTeacher.id) }
 
         assertTrue(result.isRight())
     }
